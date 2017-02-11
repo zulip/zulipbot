@@ -1,0 +1,40 @@
+{
+  "name": "zulipbot",
+  "version": "1.0.0",
+  "description": "GitHub workflow bot for @zulip",
+  "main": "index.js",
+  "engines": {
+    "node": "*",
+    "npm": "*"
+  },
+  "dependencies": {
+    "github": "^8.2.1",
+    "express": "^4.14.0",
+    "ejs": "^2.5.5",
+    "body-parser": "^1.16.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/synicalsyntax/zulipbot.git"
+  },
+  "keywords": [
+    "zulip",
+    "bot",
+    "bots",
+    "github",
+    "workflow",
+    "zulip/zulip",
+    "synicalsyntax"
+  ],
+  "author": "Cynthia Lin <cynthialin1004@gmail.com> (http://clin-dump.co.nf)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/synicalsyntax/zulipbot/issues"
+  },
+  "homepage": "https://github.com/synicalsyntax/zulipbot#readme"
+}
