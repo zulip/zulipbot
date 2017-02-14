@@ -77,14 +77,6 @@ app.post('/', function(req, res) {
             number: issue_number,
             labels: issue_labels
           }))
-        .catch(console.error)
-        .then(
-          github.issues.createComment({ // create issue comment
-            owner: repo_owner,
-            repo: repo_name,
-            number: issue_number,
-            body: 'Hello, @' + commenter + '! You\'ve successfully claimed this task! Good luck!'
-          }))
         .catch(console.error))
   }
 });
