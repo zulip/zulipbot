@@ -1,6 +1,6 @@
 {
   "name": "zulipbot",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "GitHub workflow bot for @zulip",
   "main": "index.js",
   "engines": {
@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/synicalsyntax/zulipbot.git"
+    "url": "git://github.com/zulip/zulipbot.git"
   },
   "keywords": [
     "zulip",
@@ -28,13 +28,13 @@
     "bots",
     "github",
     "workflow",
-    "zulip/zulip",
+    "zulipbot",
     "synicalsyntax"
   ],
   "author": "Cynthia Lin <cynthialin1004@gmail.com> (http://clin-dump.co.nf)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/synicalsyntax/zulipbot/issues"
+    "url": "https://github.com/zulip/zulipbot/issues"
   },
-  "homepage": "https://github.com/synicalsyntax/zulipbot#readme"
+  "homepage": "https://github.com/zulip/zulipbot#readme"
 }
