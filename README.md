@@ -1,25 +1,21 @@
-# zulipbot (work-in-progress)
+# zulipbot
 
 [@zulipbot](https://github.com/zulipbot) is a GitHub workflow bot for the
-[Zulip organization](https://zulip.org) and the
-[zulip/zulip](https://github.com/zulip/zulip) repository. Written in Node.js
-and deployed on Heroku, the bot handles issues in the repository in order to
-create a better workflow for contributors.
+[Zulip organization](https://zulip.org) and its repositories. Written in
+Node.js, the bot handles issues in the repository in order to create a
+better workflow for Zulip contributors.
 
-The necessary functions for this bot, requested by
-[@timabbott](https://github.com/timabbott), are:
-* When someone wants to
-claim an issue, they **@-mention** the bot in a comment on the issue, and the
-bot then either assigns the issue to that person in the GitHub UI (if
-possible) and adds a in-progress label to the issue.
-* If the issue remains
-open for a week without activity or a PR being opened, it posts a comment on
-the issue and marks it as no-longer-in-progress (maybe after a day for the
-person to say they're still working on it). *(unimplemented as of 02/11/17)*
-* When someone claims an issue, it'd be really cool if we could add them as a
-read-only collaborator on the repository before trying to assign the issue
-to them, so that there isn't much setup work required
-* We should have a configuration file that it reads the username/password from
+**@zulipbot** is currently deployed on the [zulip-android](https://github.com/zulip/zulip-android) and [zulip-mobile](https://github.com/zulip/zulip-mobile) repositories.
+
+## Usage
+
+* **Claim an issue** — Comment "**@zulipbot** claim" on the issue you want
+to claim; **@zulipbot** will assign you to the issue, label the issue as
+**in progress**, and give you read-only collaborator access to the
+repository, if necessary.
+
+    You can also claim an issue that you've created by
+including "**@zulipbot** claim" in the body of your issue.
 
 ## Installation
 
@@ -27,7 +23,7 @@ to them, so that there isn't much setup work required
 2. Clone this repository to your local machine.
 
     ```sh
-    $ git clone https://github.com/synicalsyntax/zulipbot.git
+    $ git clone https://github.com/zulip/zulipbot.git
     ```
 
 3. Switch to the local copy of this repository.
@@ -61,9 +57,3 @@ to them, so that there isn't much setup work required
 7. Change **@zulipbot**'s permission level in the repository to **Admin**.
 8. Finally, add the [**zulipbot** integration](https://github.com/integration/zulipbot)
 to your repository.
-
-## Usage
-
-To claim an issue on the repository, comment "**@zulipbot** claim-issue" on
-the issue you want to claim, and **@zulipbot** will add the **in progress**
-label and assign you as an assignee to the issue!
