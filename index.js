@@ -1,21 +1,21 @@
 // Requirements
 const GitHubApi = require("github");
-const http = require('http')
-const express = require('express');
-const bodyParser = require('body-parser');
-const cfg = require('./config.js'); // hidden config file
+const http = require("http")
+const express = require("express");
+const bodyParser = require("body-parser");
+const cfg = require("./config.js"); // hidden config file
 
 // Server
 const app = express();
 const port = process.env.PORT || 8080;
 
 app.listen(port, function() {
-  console.log('Website is running on http://localhost:' + port);
+  console.log("Website is running on http://localhost:" + port);
 });
 
-app.set('view engine', 'ejs');
+app.set("view engine", "ejs");
 
-app.get('/', function(req, res) {
+app.get("/", function(req, res) {
   res.redirect("https://github.com/zulip/zulipbot");
 });
 
@@ -23,8 +23,8 @@ app.get('/', function(req, res) {
 app.use(bodyParser.json());
 
 // Handle POST requests
-app.post('/', function(req, res) {
-  res.render('index'); // Send contents of index.ejs
+app.post("/", function(req, res) {
+  res.render("index"); // Send contents of index.ejs
   const github = new GitHubApi(); // API client
   github.authenticate({ // Authentication
     type: "basic",
