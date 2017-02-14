@@ -16,7 +16,7 @@ app.listen(port, function() {
 app.set('view engine', 'ejs');
 
 app.get('/', function(req, res) {
-  res.redirect('https://github.com/synicalsyntax/zulipbot');
+  res.redirect("https://github.com/zulip/zulipbot");
 });
 
 // Parse JSON
