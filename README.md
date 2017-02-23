@@ -5,17 +5,29 @@
 Node.js, the bot handles issues in the repository in order to create a
 better workflow for Zulip contributors.
 
-**@zulipbot** is currently deployed on the [zulip-android](https://github.com/zulip/zulip-android) and [zulip-mobile](https://github.com/zulip/zulip-mobile) repositories.
+**@zulipbot** is currently deployed on the
+[zulip-android](https://github.com/zulip/zulip-android),
+[zulip-mobile](https://github.com/zulip/zulip-mobile),
+[zulip-desktop](https://github.com/zulip/zulip-desktop), and
+[zulip](https://github.com/zulip/zulip) repositories.
 
 ## Usage
 
-* **Claim an issue** — Comment "**@zulipbot** claim" on the issue you want
+* **Claim an issue** — Comment `@zulipbot claim` on the issue you want
 to claim; **@zulipbot** will assign you to the issue, label the issue as
 **in progress**, and give you read-only collaborator access to the
 repository, if necessary.
 
-    You can also claim an issue that you've created by
-including "**@zulipbot** claim" in the body of your issue.
+    You can also claim an issue that you've opened by including
+    "**@zulipbot** claim" in the body of your issue.
+
+* **Label your issues** — Add appropriate labels to issues that you opened by including
+`@zulipbot label` in an issue comment or the body of your issue followed
+by the desired labels enclosed within double quotes ("").
+
+    For example, to add the **bug** and **help wanted** labels to your
+    issue, comment or include `@zulipbot label "bug" "help wanted"` in the
+    issue body.
 
 ## Installation
 
