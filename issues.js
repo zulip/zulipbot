@@ -25,7 +25,7 @@ module.exports = exports = function(payload) {
   if (body.includes("@zulipbot claim")) { // check body content for "@zulipbot claim"
     claimIssue(commenter, body, issueNumber, repoName, repoOwner);
   }
-  if (body.includes("@zulipbot label") && commenter === issueCreator) { // check bodycontent for "@zulipbot label and ensure commenter opened the issue
+  if (body.includes("@zulipbot label") && commenter === issueCreator) { // check bodycontent for "@zulipbot label" and ensure commenter opened the issue
     addLabels(body, issueNumber, repoName, repoOwner);
   }
 }
