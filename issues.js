@@ -22,31 +22,61 @@ module.exports = exports = function(payload) {
   const issueCreator = payload.issue.user.login;
   const repoName = payload.repository.name; // issue repository
   const repoOwner = payload.repository.owner.login; // repository owner
-  if (body.includes("@zulipbot claim")) { // check body content for "@zulipbot claim"
+  if (body && body.includes("@zulipbot claim")) { // check body content for "@zulipbot claim"
     claimIssue(commenter, body, issueNumber, repoName, repoOwner);
   }
-  if (body.includes("@zulipbot label") && commenter === issueCreator) { // check bodycontent for "@zulipbot label" and ensure commenter opened the issue
+  if (body && body.includes("@zulipbot label") && commenter === issueCreator) { // check bodycontent for "@zulipbot label" and ensure commenter opened the issue
     addLabels(body, issueNumber, repoName, repoOwner);
   }
 }
 
 function addLabels(body, issueNumber, repoName, repoOwner) {
-  let labels = []; // initialize array for labels to be added to issue
-  body.match(/"(.*?)"/g).forEach((label) => { // global regex search for content between double quotes ("")
-    labels.push(label.replace(/"/g, "")); // push each element to labels array
-  });
-  github.issues.addLabels({ // add labels
-      owner: repoOwner,
-      repo: repoName,
-      number: issueNumber,
-      labels: labels
+  let addedLabels = []; // initialize array for labels to be added to issue
+  let rejectedLabels = [];
+  let repoLabels = [];
+  github.issues.getLabels({
+    owner: repoOwner,
+    repo: repoName
+  }).then((repoLabelArray) => {
+    repoLabelArray.forEach((repoLabel) => {
+      repoLabels.push(repoLabel.name);
     })
-    .catch(console.error)
+    body.match(/"(.*?)"/g).forEach((label) => { // global regex search for content between double quotes ("")
+      if (repoLabels.includes(label.replace(/"/g, ""))) {
+        addedLabels.push(label.replace(/"/g, "")); // push each element to labels array
+      } else {
+        rejectedLabels.push(label);
+      }
+    });
+    github.issues.addLabels({ // add labels
+        owner: repoOwner,
+        repo: repoName,
+        number: issueNumber,
+        labels: addedLabels
+      })
+      .catch(console.error)
+      .then((response) => {
+        const rejectedLabelsString = rejectedLabels.join(', ');
+        let rejectedLabelError;
+        if (rejectedLabels.length > 1) {
+          rejectedLabelError = `**Error:** Labels ${rejectedLabelsString} do not exist and were thus not added to this issue.`
+        } else if (rejectedLabels.length = 1) {
+          rejectedLabelError = `**Error:** Label ${rejectedLabelsString} does not exist and was thus not added to this issue.`
+        }
+        github.issues.createComment({
+            owner: repoOwner,
+            repo: repoName,
+            number: issueNumber,
+            body: rejectedLabelError
+          })
+          .catch(console.error)
+      });
+  })
 }
 
 function claimIssue(commenter, body, issueNumber, repoName, repoOwner) {
-  const issue_labels = ["in progress"]; // create array for new issue labels
-  const issue_assignees = [commenter]; // create array for new assignees
+  const issueLabels = ["in progress"]; // create array for new issue labels
+  const issueAssignees = [commenter]; // create array for new assignees
   github.repos.checkCollaborator({ // check if commenter is a collaborator
       owner: repoOwner,
       repo: repoName,
@@ -65,7 +95,7 @@ function claimIssue(commenter, body, issueNumber, repoName, repoOwner) {
           owner: repoOwner,
           repo: repoName,
           number: issueNumber,
-          assignees: issue_assignees
+          assignees: issueAssignees
         })
         .catch(console.error)
       )
@@ -75,7 +105,7 @@ function claimIssue(commenter, body, issueNumber, repoName, repoOwner) {
         owner: repoOwner,
         repo: repoName,
         number: issueNumber,
-        assignees: issue_assignees
+        assignees: issueAssignees
       })
       .catch(console.error)
       .then(
@@ -83,7 +113,7 @@ function claimIssue(commenter, body, issueNumber, repoName, repoOwner) {
           owner: repoOwner,
           repo: repoName,
           number: issueNumber,
-          labels: issue_labels
+          labels: issueLabels
         })
         .catch(console.error)
       )
