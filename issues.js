@@ -28,6 +28,9 @@ module.exports = exports = function(payload) {
   if (body && body.includes("@zulipbot label") && commenter === issueCreator) { // check bodycontent for "@zulipbot label" and ensure commenter opened the issue
     addLabels(body, issueNumber, repoName, repoOwner);
   }
+  if (body.includes("@zulipbot remove") && commenter === issueCreator) { // check bodycontent for "@zulipbot remove" and ensure commenter opened the issue
+    removeLabels(body, issueNumber, repoName, repoOwner);
+  }
 }
 
 function addLabels(body, issueNumber, repoName, repoOwner) {
@@ -72,6 +75,22 @@ function addLabels(body, issueNumber, repoName, repoOwner) {
           .catch(console.error)
       });
   })
+}
+
+function removeLabels(body, issueNumber, repoName, repoOwner) {
+  let labels = []; // initialize array for labels to be removed from issue
+  body.match(/"(.*?)"/g).forEach((label) => { // global regex search for content between double quotes ("")
+    labels.push(label.replace(/"/g, "")); // push each element to labels array
+  });
+  labels.forEach((label) => { // remove labels
+    github.issues.removeLabel({
+      owner: repoOwner,
+      repo: repoName,
+      number: issueNumber,
+      name: label
+    })
+    .catch(console.error)
+  });
 }
 
 function claimIssue(commenter, body, issueNumber, repoName, repoOwner) {
