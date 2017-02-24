@@ -98,6 +98,25 @@ function claimIssue(commenter, body, issueNumber, repoName, repoOwner) {
           assignees: issueAssignees
         })
         .catch(console.error)
+        .then(
+          github.issues.createComment({
+            owner: repoOwner,
+            repo: repoName,
+            number: issueNumber,
+            body: `Congratulations @${commenter}, you\'ve successfully claimed your first issue! \
+Since you\'re a new contributor, you now have pull (read-only) access to this repository.\
+\n\nPlease review our [code contribution guidelines](http://zulip.readthedocs.io/en/latest/index.html#code-docs) \
+and sign the [Dropbox Contributor License Agreement](https://opensource.dropbox.com/cla/) \
+before opening any pull requests for any issues that you\'re working on.\
+\n\nAlso, if you haven\'t done so already, please join us on the Zulip development server at [chat.zulip.org](https://chat.zulip.org/)! \
+Our community of developers use **chat.zulip.org** as our primary communication forum for developing Zulip; \
+you can read more about the **chat.zulip.org** community in our [documentation](http://zulip.readthedocs.io/en/latest/chat-zulip-org.html).\
+\n\n**Note:** Depending on your [notification settings](https://github.com/settings/notifications), you might be \
+automatically watching this repository, which means that you\'ll get notifications for any new pull requests and \
+issues that are created. If you don\'t want to receive notifications for this repository, you should unwatch this repository.`
+          })
+          .catch(console.error)
+        )
       )
     )
     .then(
