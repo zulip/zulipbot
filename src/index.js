@@ -2,7 +2,7 @@
 const http = require("http")
 const express = require("express");
 const bodyParser = require("body-parser");
-const issues = require("./issues.js")
+const issues = require("./issues.js");
 
 // Server
 const app = express();
