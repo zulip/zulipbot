@@ -1,0 +1,7 @@
+you've successfully claimed your first issue! Since you're a new contributor, you now have pull (read-only) access to this repository.
+
+Please review our [code contribution guidelines](http://zulip.readthedocs.io/en/latest/index.html#code-docs) and sign the [Dropbox Contributor License Agreement](https://opensource.dropbox.com/cla/) before opening any pull requests for any issues that you're working on.
+
+Also, if you haven't done so already, please join us on the Zulip development server at [chat.zulip.org](https://chat.zulip.org/)! Our community of developers use **chat.zulip.org** as our primary communication forum for developing Zulip; you can read more about the **chat.zulip.org** community in our [documentation](http://zulip.readthedocs.io/en/latest/chat-zulip-org.html).
+
+**Note:** Depending on your [notification settings](https://github.com/settings/notifications), granting you the permission in GitHub's model that lets you be assigned issues by Zulipbot might have had the side effect of making you a "watcher" on this repository, which means that you'll get notifications for every issue and pull request in this repository; for a large repository like [zulip/zulip](https://github.com/zulip/zulip), that mean receiving more than 100 emails per day. If you don't want to receive notifications unless you're actually involved with the issue (which is usually the right choice for large projects), you should [unwatch this repository](https://help.github.com/articles/unwatching-repositories/).
