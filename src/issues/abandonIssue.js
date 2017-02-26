@@ -23,12 +23,21 @@ module.exports = exports = function(commenter, issueNumber, repoName, repoOwner)
       'username': cfg.username,
       'password': cfg.password
     }
-  }).on('response', (response) => {
-    github.issues.removeLabel({
+  }).on('response', () => {
+    github.issues.getIssueLabels({
       owner: repoOwner,
       repo: repoName,
-      number: issueNumber,
-      name: "in progress"
-    }).catch(console.error);
+      number: issueNumber
+    }).then((response) => {
+      if (response.find(label => label.name === "in progress")) {
+        github.issues.removeLabel({
+          owner: repoOwner,
+          repo: repoName,
+          number: issueNumber,
+          name: "in progress"
+        })
+        .catch(console.error)
+      }
+    })
   });
 }
