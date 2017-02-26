@@ -23,9 +23,11 @@ module.exports = exports = function(payload) {
   if (body && body.includes("@zulipbot label") && commenter === issueCreator) { // check body content for "@zulipbot label" and ensure commenter opened the issue
     addLabels(body, issueNumber, repoName, repoOwner);
   }
+  /*
   if (body && body.includes("@zulipbot join")) { // check body content for "@zulipbot join"
     joinLabelTeam(body, commenter, repoOwner, repoName, issueNumber);
   }
+  */
   if (body && body.includes("@zulipbot abandon")) { // check body content for "@zulipbot claim"
     abandonIssue(commenter, issueNumber, repoName, repoOwner);
   }

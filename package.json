@@ -1,6 +1,6 @@
 {
   "name": "zulipbot",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "description": "GitHub workflow bot for @zulip",
   "main": "index.js",
   "engines": {
