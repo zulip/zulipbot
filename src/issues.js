@@ -1,5 +1,6 @@
 const addLabels = require("./issues/addLabels.js");
 const claimIssue = require("./issues/claimIssue.js");
+const joinLabelTeam = require("./issues/joinLabelTeam.js");
 
 module.exports = exports = function(payload) {
   // get necessary information from request body
@@ -18,7 +19,10 @@ module.exports = exports = function(payload) {
   if (body && body.includes("@zulipbot claim")) { // check body content for "@zulipbot claim"
     claimIssue(commenter, issueNumber, repoName, repoOwner);
   }
-  if (body && body.includes("@zulipbot label") && commenter === issueCreator) { // check bodycontent for "@zulipbot label" and ensure commenter opened the issue
+  if (body && body.includes("@zulipbot label") && commenter === issueCreator) { // check body content for "@zulipbot label" and ensure commenter opened the issue
     addLabels(body, issueNumber, repoName, repoOwner);
+  }
+  if (body && body.includes("@zulipbot join")) { // check body content for "@zulipbot join"
+    joinLabelTeam(body, commenter, repoOwner, repoName, issueNumber);
   }
 }
