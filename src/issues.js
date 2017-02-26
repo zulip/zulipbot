@@ -28,7 +28,7 @@ module.exports = exports = function(payload) {
     joinLabelTeam(body, commenter, repoOwner, repoName, issueNumber);
   }
   */
-  if (body && body.includes("@zulipbot abandon")) { // check body content for "@zulipbot claim"
+  if (body && body.includes("@zulipbot abandon")) { // check body content for "@zulipbot abandon"
     abandonIssue(commenter, issueNumber, repoName, repoOwner);
   }
 }
