@@ -9,6 +9,7 @@ github.authenticate({ // Authentication
 });
 
 module.exports = exports = function(body, issueNumber, repoName, repoOwner) {
+  if (!body.match(/"(.*?)"/g)) return;
   let addedLabels = []; // initialize array for labels to be added to issue
   let rejectedLabels = [];
   let repoLabels = [];
