@@ -32,7 +32,7 @@ followed by the desired labels enclosed within double quotes ("").
     issue, comment or include `@zulipbot label "bug" "help wanted"` in the
     issue body.
 
-    You'll receive an error message if you try to add any labels to your issue that don't exist in your repository.
+    You'll receive an error message if you try to add any labels to your issue that don't exist in that specific repository.
 
 ## Installation
 
