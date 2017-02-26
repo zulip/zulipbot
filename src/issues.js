@@ -2,6 +2,7 @@ const addLabels = require("./issues/addLabels.js");
 const claimIssue = require("./issues/claimIssue.js");
 const joinLabelTeam = require("./issues/joinLabelTeam.js");
 const abandonIssue = require("./issues/abandonIssue.js");
+const removeLabels = require("./issues/removeLabels.js");
 
 module.exports = exports = function(payload) {
   // get necessary information from request body
@@ -30,5 +31,8 @@ module.exports = exports = function(payload) {
   */
   if (body && body.includes("@zulipbot abandon")) { // check body content for "@zulipbot abandon"
     abandonIssue(commenter, issueNumber, repoName, repoOwner);
+  }
+  if (body && body.includes("@zulipbot remove") && commenter === issueCreator) { // check body content for "@zulipbot remove" and ensure commenter opened the issue
+    removeLabels(body, issueNumber, repoName, repoOwner);
   }
 }
