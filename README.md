@@ -25,6 +25,9 @@ to claim; **@zulipbot** will assign you to the issue and label the issue as
     You can also claim an issue that you've opened by including
     "**@zulipbot** claim" in the body of your issue.
 
+    If you accidentally claim an issue you didn't want to claim, comment
+    `@zulipbot abandon` to abandon an issue.
+
 * **Label your issues** — Add appropriate labels to issues that you opened by
 including`@zulipbot label` in an issue comment or the body of your issue
 followed by the desired labels enclosed within double quotes (`""`).
@@ -35,6 +38,10 @@ followed by the desired labels enclosed within double quotes (`""`).
 
     You'll receive an error message if you try to add any labels to your issue
     that don't exist in your repository.
+
+    If you accidentally added the wrong labels, you can remove them by commenting
+    `@zulipbot remove` followed by the desired labels enclosed with double quotes
+    (`""`).
 
 ## Collaborate with zulipbot
 
