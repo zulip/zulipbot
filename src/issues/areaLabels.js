@@ -1,3 +1,5 @@
+"use strict";
+
 const areaLabels = new Map([
   ["area: analytics", "server-analytics"],
   ["area: api", "server-api"],
