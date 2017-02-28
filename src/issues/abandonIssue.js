@@ -16,16 +16,16 @@ module.exports = exports = function(commenter, issueNumber, repoName, repoOwner)
     uri: `https://api.github.com/repos/${repoOwner}/${repoName}/issues/${issueNumber}/assignees`,
     method: "DELETE",
     json: {
-      "assignees": [commenter]
+      assignees: [commenter]
     },
     headers: {
-      'User-Agent': 'zulipbot'
+      "User-Agent": "zulipbot"
     },
-    'auth': {
-      'username': cfg.username,
-      'password': cfg.password
+    auth: {
+      username: cfg.username,
+      password: cfg.password
     }
-  }).on('response', () => {
+  }).on("response", () => {
     github.issues.getIssueLabels({
       owner: repoOwner,
       repo: repoName,
@@ -38,8 +38,8 @@ module.exports = exports = function(commenter, issueNumber, repoName, repoOwner)
           number: issueNumber,
           name: "in progress"
         })
-        .catch(console.error)
+        .catch(console.error);
       }
-    })
+    });
   });
-}
+};

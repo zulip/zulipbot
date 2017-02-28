@@ -2,9 +2,9 @@
 
 const addLabels = require("./issues/addLabels.js");
 const claimIssue = require("./issues/claimIssue.js");
-const joinLabelTeam = require("./issues/joinLabelTeam.js");
 const abandonIssue = require("./issues/abandonIssue.js");
 const removeLabels = require("./issues/removeLabels.js");
+// const joinLabelTeam = require("./issues/joinLabelTeam.js");
 
 module.exports = exports = function(payload) {
   // get necessary information from request body
@@ -20,21 +20,21 @@ module.exports = exports = function(payload) {
   const issueCreator = payload.issue.user.login;
   const repoName = payload.repository.name; // issue repository
   const repoOwner = payload.repository.owner.login; // repository owner
-  if (body && body.includes("@zulipbot claim")) { // check body content for "@zulipbot claim"
-    claimIssue(commenter, issueNumber, repoName, repoOwner);
+  if (body && body.includes("@zulipbot claim")) {
+    claimIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot claim"
   }
-  if (body && body.includes("@zulipbot label") && commenter === issueCreator) { // check body content for "@zulipbot label" and ensure commenter opened the issue
-    addLabels(body, issueNumber, repoName, repoOwner);
+  if (body && body.includes("@zulipbot label") && commenter === issueCreator) {
+    addLabels(body, issueNumber, repoName, repoOwner); // check body content for "@zulipbot label" and ensure commenter opened the issue
+  }
+  if (body && body.includes("@zulipbot abandon")) {
+    abandonIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot abandon"
+  }
+  if (body && body.includes("@zulipbot remove") && commenter === issueCreator) {
+    removeLabels(body, issueNumber, repoName, repoOwner); // check body content for "@zulipbot remove" and ensure commenter opened the issue
   }
   /*
   if (body && body.includes("@zulipbot join")) { // check body content for "@zulipbot join"
     joinLabelTeam(body, commenter, repoOwner, repoName, issueNumber);
   }
   */
-  if (body && body.includes("@zulipbot abandon")) { // check body content for "@zulipbot abandon"
-    abandonIssue(commenter, issueNumber, repoName, repoOwner);
-  }
-  if (body && body.includes("@zulipbot remove") && commenter === issueCreator) { // check body content for "@zulipbot remove" and ensure commenter opened the issue
-    removeLabels(body, issueNumber, repoName, repoOwner);
-  }
-}
+};

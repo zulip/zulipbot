@@ -22,9 +22,9 @@ module.exports = exports = function(body, issueNumber, repoName, repoOwner) {
     issueLabelArray.forEach((issueLabel) => {
       issueLabels.push(issueLabel.name);
     });
-    body.match(/"(.*?)"/g).forEach((label) => { // global regex search for content between double quotes ("")
+    body.match(/"(.*?)"/g).forEach((label, index) => { // global regex search for content between double quotes ("")
       if (issueLabels.includes(label.replace(/"/g, ""))) {
-        issueLabels.splice(issueLabels.indexOf(label.replace(/"/g, "")), 1);
+        issueLabels.splice(index, 1);
       } else {
         rejectedLabels.push(label);
       }
@@ -36,17 +36,17 @@ module.exports = exports = function(body, issueNumber, repoName, repoOwner) {
       labels: issueLabels
     })
     .catch(console.error)
-    .then((response) => {
-      const rejectedLabelsString = rejectedLabels.join(', ');
+    .then(() => {
+      const rejectedLabelsString = rejectedLabels.join(", ");
       let labelGrammar, doGrammar, wasGrammar;
       if (rejectedLabels.length > 1) {
-        labelGrammar = 'Labels';
-        doGrammar = 'do'
-        wasGrammar = 'were';
+        labelGrammar = "Labels";
+        doGrammar = "do";
+        wasGrammar = "were";
       } else if (rejectedLabels.length === 1) {
-        labelGrammar = 'Label';
-        doGrammar = 'does'
-        wasGrammar = 'was';
+        labelGrammar = "Label";
+        doGrammar = "does";
+        wasGrammar = "was";
       } else {
         return;
       }
@@ -57,7 +57,7 @@ module.exports = exports = function(body, issueNumber, repoName, repoOwner) {
         number: issueNumber,
         body: rejectedLabelError
       })
-      .catch(console.error)
+      .catch(console.error);
     });
   });
-}
+};
