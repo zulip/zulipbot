@@ -1,7 +1,7 @@
 # zulipbot
 
 [![GitHub release](https://img.shields.io/github/release/zulip/zulipbot.svg)](https://github.com/zulip/zulipbot/releases/latest)
-[![David](https://img.shields.io/david/zulip/zulipbot.svg)](https://github.com/zulip/zulipbot)
+[![David](https://img.shields.io/david/zulip/zulipbot.svg)](https://david-dm.org/zulip/zulipbot)
 [![zulip chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://chat.zulip.org)
 
 [@zulipbot](https://github.com/zulipbot) is a GitHub workflow bot for the
@@ -18,28 +18,28 @@ organization](https://zulip.org).
 to claim; **@zulipbot** will assign you to the issue and label the issue as
 **in progress**.
 
-    If you're a new contributor, **@zulipbot** will give you read-only
+    * If you're a new contributor, **@zulipbot** will give you read-only
     collaborator access to the repository and leave a welcome message on the
     issue you claimed.
 
-    You can also claim an issue that you've opened by including
-    "**@zulipbot** claim" in the body of your issue.
+    * You can also claim an issue that you've opened by including
+    `@zulipbot claim` in the body of your issue.
 
-    If you accidentally claim an issue you didn't want to claim, comment
+    * If you accidentally claim an issue you didn't want to claim, comment
     `@zulipbot abandon` to abandon an issue.
 
 * **Label your issues** — Add appropriate labels to issues that you opened by
 including`@zulipbot label` in an issue comment or the body of your issue
 followed by the desired labels enclosed within double quotes (`""`).
 
-    For example, to add the **bug** and **help wanted** labels to your
+    * For example, to add the **bug** and **help wanted** labels to your
     issue, comment or include `@zulipbot label "bug" "help wanted"` in the
     issue body.
 
-    You'll receive an error message if you try to add any labels to your issue
+    * You'll receive an error message if you try to add any labels to your issue
     that don't exist in your repository.
 
-    If you accidentally added the wrong labels, you can remove them by commenting
+    * If you accidentally added the wrong labels, you can remove them by commenting
     `@zulipbot remove` followed by the desired labels enclosed with double quotes
     (`""`).
 
@@ -56,7 +56,7 @@ to your repository.
 
 If you wish to contribute to **@zulipbot**, please read our [contributing
 guidelines](CONTRIBUTING.md) for more information and join us on the [zulipbot
-topic](https://chat.zulip.org/#narrow/topic/zulipbot.20is.20alive!) on the Zulip
+stream](https://chat.zulip.org/#narrow/stream/zulipbot) on the Zulip
 development server.
 
 ## License

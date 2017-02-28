@@ -1,15 +1,17 @@
-## CONTRIBUTING (work-in-progress)
+# CONTRIBUTING
+
+Please read the [Zulip contributing guidelines](http://zulip.readthedocs.io/en/latest/readme-symlink.html).
 
 ## Development
 
-**@zulipbot** is currently tested on a separate
-[organization](https://github.com/zulipbot-testing) and its repositories using a
-[test account](https://github.com/zulipbot-testing), **@zulipbot-testing**.
-
-Unit tests using [Nock](https://github.com/node-nock/nock) are currently being
-written.
+**@zulipbot** is currently manually tested on a
+separate [organization](https://github.com/zulipbot-testing) and its
+repositories using a [test account](https://github.com/zulipbot-test),
+**@zulipbot-test**.
 
 ### Dependencies
+
+[![David](https://img.shields.io/david/zulip/zulipbot.svg)](https://david-dm.org/zulip/zulipbot)
 
 * node = v7.4.0
 * npm >= 4.0.5
@@ -40,17 +42,32 @@ written.
     $ npm install
     ```
 
-5. Create a file named `config.js` in the `src` folder with **@zulipbot**'s login credentials.
+5. Create a file named `config.js` in the `src` folder with
+**@zulipbot-test**'s login credentials.
 
     ```js
     module.exports = {
-      username: 'zulipbot',
-      password: // [REDACTED]
+      username: 'zulipbot-test',
+      password: // [REDACTED; please contact @synicalsyntax for password]
     }
     ```
 
-5. Run the bot.
+6. Run the bot.
 
     ```sh
     $ npm start
     ```
+
+### Testing
+
+[Gulp](http://gulpjs.com) (`gulpfile.js`) is used to run automated tests, such
+as reviewing code quality and consistency with [Eslint](http://eslint.org).
+Currently, a framework for unit and coverage tests using
+[Mocha](https://mochajs.org) and
+[Istanbul](https://github.com/gotwarlost/istanbul) is being established.
+
+To run all tests, use the following command:
+
+```sh
+$ npm test
+```
