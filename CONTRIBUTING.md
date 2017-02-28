@@ -60,10 +60,11 @@ repositories using a [test account](https://github.com/zulipbot-test),
 
 ### Testing
 
+[Travis](https://travis-ci.org/) is used for continuous integration and
 [Gulp](http://gulpjs.com) (`gulpfile.js`) is used to run automated tests, such
-as reviewing code quality and consistency with [Eslint](http://eslint.org).
-Currently, a framework for unit and coverage tests using
-[Mocha](https://mochajs.org) and
+as reviewing code quality and consistency with linters like
+[Eslint](http://eslint.org). Currently, a framework for unit and coverage tests
+using [Mocha](https://mochajs.org) and
 [Istanbul](https://github.com/gotwarlost/istanbul) is being established.
 
 To run all tests, use the following command:
@@ -71,3 +72,5 @@ To run all tests, use the following command:
 ```sh
 $ npm test
 ```
+
+Pull requests will only be merged after their Travis builds pass.
