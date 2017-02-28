@@ -2,11 +2,14 @@
   "name": "zulipbot",
   "version": "2.3.0",
   "description": "GitHub workflow bot for @zulip",
-  "main": "index.js",
+  "main": "src/index.js",
   "engines": {
     "node": "*",
     "npm": "*"
   },
+  "files": [
+    "src"
+  ],
   "dependencies": {
     "github": "^8.2.1",
     "express": "^4.14.0",
@@ -14,10 +17,41 @@
     "body-parser": "^1.16.0",
     "request": "^2.79.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^3.16.1",
+    "eslint-config-xo-space": "^0.15.0",
+    "gulp": "^3.9.1",
+    "gulp-eslint": "^3.0.1",
+    "gulp-exclude-gitignore": "^1.1.1",
+    "gulp-line-ending-corrector": "^1.0.1",
+    "gulp-istanbul": "^1.1.1",
+    "gulp-mocha": "^4.0.1",
+    "gulp-plumber": "^1.1.0",
+    "gulp-nsp": "^2.4.2",
+    "gulp-coveralls": "^0.1.4"
+  },
+  "eslintConfig": {
+    "extends": "xo-space",
+    "env": {
+      "node": true,
+      "es6": true,
+      "mocha": true
+    },
+    "rules": {
+      "quotes": ["error", "double"],
+      "indent": ["error", 2, { "ObjectExpression": 1 }],
+      "space-before-function-paren": ["error", "never"],
+      "curly": ["error", "multi-line"],
+      "one-var": ["error", { "initialized": "never" }],
+      "camelcase": "off",
+      "arrow-parens": [2, "as-needed", { "requireForBlockBody": true }],
+      "max-params": ["error", 5]
+    }
+  },
   "scripts": {
     "start": "node ./src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepublish": "gulp prepublish",
+    "test": "gulp"
   },
   "repository": {
     "type": "git",
@@ -33,7 +67,7 @@
     "synicalsyntax"
   ],
   "author": "Cynthia Lin <cynthialin1004@gmail.com> (http://clin-dump.co.nf)",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/zulip/zulipbot/issues"
   },

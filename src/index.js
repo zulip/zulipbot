@@ -1,7 +1,6 @@
 "use strict";
 
 // Requirements
-const http = require("http")
 const express = require("express");
 const bodyParser = require("body-parser");
 const issues = require("./issues.js");
@@ -27,7 +26,5 @@ app.use(bodyParser.json());
 app.post("/", function(req, res) {
   res.render("index"); // Send contents of index.ejs
   // check if event is for an issue opening or issue comment creation
-  if (req.get("X-GitHub-Event").includes("issue") && req.body.action && req.body.action === "opened" || "created") {
-    issues(req.body);
-  }
+  if (req.get("X-GitHub-Event").includes("issue") && req.body.action && (req.body.action === "opened" || "created")) issues(req.body);
 });

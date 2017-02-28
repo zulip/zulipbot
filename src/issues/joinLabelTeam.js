@@ -28,7 +28,7 @@ module.exports = exports = function(body, commenter, repoOwner, repoName, issueN
         joinedTeams.push(areaLabels.get(labelString));
         teamIDs.push(labelTeams.get(areaLabels.get(labelString)));
       }
-    })
+    });
     teamIDs.forEach((teamID) => {
       github.orgs.getTeamMembership({
         id: teamID,
@@ -41,44 +41,39 @@ module.exports = exports = function(body, commenter, repoOwner, repoName, issueN
           github.orgs.addTeamMembership({
             id: teamID,
             username: commenter
-          })
-        })
-    })
+          });
+        });
+    });
     const joinedTeamsString = joinedTeams.join(`**, **${repoOwner}/`);
     if (!joinedTeamsString) return;
-    let comment;
     github.orgs.checkMembership({
-        org: repoOwner,
-        username: commenter
-      })
-      .then((response) => {
-        if (response.meta.status === '204 No Content') {
-          let teamGrammar = 'team';
-          if (joinedTeams.length > 1) {
-            teamGrammar = 'teams';
-          }
-          github.issues.createComment({
-              owner: repoOwner,
-              repo: repoName,
-              number: issueNumber,
-              body: `Congratulations @${commenter}, you successfully joined ${teamGrammar} **${repoOwner}/${joinedTeamsString}**!`
-            })
-            .catch(console.error)
-        }
-      }, (response) => {
-        if (response.headers.status === '404 Not Found') {
-          let invitationGrammar = 'invitation';
-          if (joinedTeams.length > 1) {
-            invitationGrammar = 'invitations';
-          }
-          github.issues.createComment({
-              owner: repoOwner,
-              repo: repoName,
-              number: issueNumber,
-              body: `Hello @${commenter}, please check your email for an organization invitation or visit https://github.com/orgs/${repoOwner}/invitation in order to accept your team ${invitationGrammar}!`
-            })
-            .catch(console.error)
-        }
-      })
-  })
+      org: repoOwner,
+      username: commenter
+    })
+    .then((response) => {
+      if (response.meta.status === "204 No Content") {
+        let teamGrammar = "team";
+        if (joinedTeams.length > 1) teamGrammar = "teams";
+        github.issues.createComment({
+          owner: repoOwner,
+          repo: repoName,
+          number: issueNumber,
+          body: `Congratulations @${commenter}, you successfully joined ${teamGrammar} **${repoOwner}/${joinedTeamsString}**!`
+        })
+        .catch(console.error);
+      }
+    }, (response) => {
+      if (response.headers.status === "404 Not Found") {
+        let invitationGrammar = "invitation";
+        if (joinedTeams.length > 1) invitationGrammar = "invitations";
+        github.issues.createComment({
+          owner: repoOwner,
+          repo: repoName,
+          number: issueNumber,
+          body: `Hello @${commenter}, please check your email for an organization invitation or visit https://github.com/orgs/${repoOwner}/invitation in order to accept your team ${invitationGrammar}!`
+        })
+        .catch(console.error);
+      }
+    });
+  });
 };

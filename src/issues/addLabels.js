@@ -20,9 +20,7 @@ module.exports = exports = function(body, issueNumber, repoName, repoOwner) {
     repo: repoName,
     per_page: 100
   }).then((repoLabelArray) => {
-    repoLabelArray.forEach((repoLabel) => {
-      repoLabels.push(repoLabel.name);
-    })
+    repoLabelArray.forEach(repoLabel => repoLabels.push(repoLabel.name));
     body.match(/"(.*?)"/g).forEach((label) => { // global regex search for content between double quotes ("")
       if (repoLabels.includes(label.replace(/"/g, ""))) {
         addedLabels.push(label.replace(/"/g, "")); // push each element to labels array
@@ -31,34 +29,32 @@ module.exports = exports = function(body, issueNumber, repoName, repoOwner) {
       }
     });
     github.issues.addLabels({ // add labels
+      owner: repoOwner,
+      repo: repoName,
+      number: issueNumber,
+      labels: addedLabels
+    })
+    .catch(console.error)
+    .then(() => {
+      const rejectedLabelsString = rejectedLabels.join(", ");
+      let labelGrammar, doGrammar, wasGrammar;
+      if (rejectedLabels.length > 1) {
+        labelGrammar = "Labels";
+        doGrammar = "do";
+        wasGrammar = "were";
+      } else if (rejectedLabels.length === 1) {
+        labelGrammar = "Label";
+        doGrammar = "does";
+        wasGrammar = "was";
+      } else return;
+      const rejectedLabelError = `**Error:** ${labelGrammar} ${rejectedLabelsString} ${doGrammar} not exist and ${wasGrammar} thus not added to this issue.`;
+      github.issues.createComment({
         owner: repoOwner,
         repo: repoName,
         number: issueNumber,
-        labels: addedLabels
+        body: rejectedLabelError
       })
-      .catch(console.error)
-      .then((response) => {
-        const rejectedLabelsString = rejectedLabels.join(', ');
-        let labelGrammar, doGrammar, wasGrammar;
-        if (rejectedLabels.length > 1) {
-          labelGrammar = 'Labels';
-          doGrammar = 'do'
-          wasGrammar = 'were';
-        } else if (rejectedLabels.length === 1) {
-          labelGrammar = 'Label';
-          doGrammar = 'does'
-          wasGrammar = 'was';
-        } else {
-          return;
-        }
-        const rejectedLabelError = `**Error:** ${labelGrammar} ${rejectedLabelsString} ${doGrammar} not exist and ${wasGrammar} thus not added to this issue.`;
-        github.issues.createComment({
-            owner: repoOwner,
-            repo: repoName,
-            number: issueNumber,
-            body: rejectedLabelError
-          })
-          .catch(console.error)
-      });
-  })
-}
+      .catch(console.error);
+    });
+  });
+};
