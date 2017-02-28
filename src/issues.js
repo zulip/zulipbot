@@ -1,3 +1,5 @@
+"use strict";
+
 const addLabels = require("./issues/addLabels.js");
 const claimIssue = require("./issues/claimIssue.js");
 const joinLabelTeam = require("./issues/joinLabelTeam.js");
