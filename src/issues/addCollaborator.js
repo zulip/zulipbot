@@ -1,10 +1,10 @@
-"use strict";
+"use strict"; // catch errors easier
 
 const GitHubApi = require("github"); // NodeJS wrapper for GitHub API
 const github = new GitHubApi(); // API client
 const cfg = require("../config.js"); // hidden config file
-const fs = require("fs");
-const newContributor = fs.readFileSync("./src/issues/newContributor.md", "utf8");
+const fs = require("fs"); // for reading welcome message
+const newContributor = fs.readFileSync("./src/issues/newContributor.md", "utf8"); // get welcome message contents
 
 github.authenticate({ // Authentication
   type: "basic",
@@ -39,7 +39,7 @@ module.exports = exports = function(commenter, repoName, repoOwner, issueNumber)
       })
       .catch(console.error)
       .then(
-        github.issues.createComment({
+        github.issues.createComment({ // create new contributor welcome comment
           owner: repoOwner,
           repo: repoName,
           number: issueNumber,

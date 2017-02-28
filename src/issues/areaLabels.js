@@ -1,4 +1,4 @@
-"use strict";
+"use strict"; // catch errors easier
 
 const areaLabels = new Map([
   ["area: analytics", "server-analytics"],

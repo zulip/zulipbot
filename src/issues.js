@@ -1,14 +1,14 @@
-"use strict";
+"use strict"; // catch errors easier
 
-const addLabels = require("./issues/addLabels.js");
-const claimIssue = require("./issues/claimIssue.js");
-const abandonIssue = require("./issues/abandonIssue.js");
-const removeLabels = require("./issues/removeLabels.js");
-// const joinLabelTeam = require("./issues/joinLabelTeam.js");
+const addLabels = require("./issues/addLabels.js"); // add labels
+const claimIssue = require("./issues/claimIssue.js"); // claim issue
+const abandonIssue = require("./issues/abandonIssue.js"); // abandon issue
+const removeLabels = require("./issues/removeLabels.js"); // remove labels
+// const joinLabelTeam = require("./issues/joinLabelTeam.js"); // join label team (disabled)
 
 module.exports = exports = function(payload) {
   // get necessary information from request body
-  let commenter, body;
+  let commenter, body; // initialize variables for commenter and issue (comment) body
   if (payload.action === "opened") { // if issue was opened
     commenter = payload.issue.user.login; // issue creator's username
     body = payload.issue.body; // contents of issue body
@@ -33,7 +33,7 @@ module.exports = exports = function(payload) {
     removeLabels(body, issueNumber, repoName, repoOwner); // check body content for "@zulipbot remove" and ensure commenter opened the issue
   }
   /*
-  if (body && body.includes("@zulipbot join")) { // check body content for "@zulipbot join"
+  if (body && body.includes("@zulipbot join")) { // check body content for "@zulipbot join" (disabled)
     joinLabelTeam(body, commenter, repoOwner, repoName, issueNumber);
   }
   */
