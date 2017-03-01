@@ -3,3 +3,11 @@ node_js:
   - "7"
   - "6"
   - "5"
+notifications:
+  email: false
+  webhooks:
+    urls:
+      - https://chat.zulip.org/api/v1/external/travis?stream=zulipbot&topic=Travis.20CI&api_key=cBhEGhRQwG1OrdfrnTTjbupKAOfZ3iLJ
+    on_success: always
+    on_failure: never
+    on_start: never
