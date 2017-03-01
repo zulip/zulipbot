@@ -19,7 +19,7 @@ module.exports = exports = function(body, issueNumber, repoName, repoOwner) {
     repo: repoName,
     number: issueNumber
   }).then((issueLabelArray) => {
-    issueLabelArray.forEach(issueLabel => issueLabels.push(issueLabel.name)); // add all issue label names to issueLabels
+    issueLabelArray.data.forEach(issueLabel => issueLabels.push(issueLabel.name)); // add all issue label names to issueLabels
     body.match(/"(.*?)"/g).forEach((label) => { // global regex search for content between double quotes ("")
       if (issueLabels.includes(label.replace(/"/g, ""))) { // check if content between quotes is a label on issue
         issueLabels.splice(issueLabels.indexOf(label.replace(/"/g, "")), 1); // label was specified to be deleted, make sure it doesn't get added back
