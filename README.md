@@ -45,7 +45,7 @@ followed by the desired labels enclosed within double quotes (`""`).
     (`""`).
 
 * **Finding unclaimed issues** - Add one of the following filters to your search to
-find unclaimed issues in the repository: '-label: "in progress"` or `no:assignee`.
+find unclaimed issues in the repository: `'-label: "in progress"` or `no:assignee`.
 Issues labeled with **in progress** and assigned to other users are claimed.
 
 ## Collaborate with zulipbot
