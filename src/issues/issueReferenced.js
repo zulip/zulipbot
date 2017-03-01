@@ -4,6 +4,7 @@ const GitHubApi = require("github"); // NodeJS wrapper for GitHub API
 const github = new GitHubApi(); // API client
 const cfg = require("../config.js"); // hidden config file
 const areaLabels = require("./areaLabels.js"); // map of area labels
+const newComment = require("./newComment.js"); // create comment
 
 github.authenticate({ // Authentication
   type: "basic",
@@ -38,13 +39,7 @@ function getIssueLabels(referencedIssueNumber, issueNumber, repoName, repoOwner)
     issueLabels.forEach((areaLabel) => { // for each area label on issue (there are multiple on some)
       const areaLabelTeam = areaLabels.get(areaLabel); // find corresponding area label team
       const comment = `Hello @${repoOwner}/${areaLabelTeam} members, this pull request needs your attention!`; // comment template
-      github.issues.createComment({ // create comment
-        owner: repoOwner,
-        repo: repoName,
-        number: issueNumber,
-        body: comment
-      })
-      .catch(console.error);
+      newComment(repoOwner, repoName, issueNumber, comment); // create comment
     });
   });
 }

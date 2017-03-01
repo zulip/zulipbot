@@ -5,6 +5,7 @@ const github = new GitHubApi(); // API client
 const cfg = require("../config.js"); // hidden config file
 const fs = require("fs"); // for reading welcome message
 const newContributor = fs.readFileSync("./src/issues/newContributor.md", "utf8"); // get welcome message contents
+const newComment = require("./newComment.js"); // create comment
 
 github.authenticate({ // Authentication
   type: "basic",
@@ -39,13 +40,7 @@ module.exports = exports = function(commenter, repoName, repoOwner, issueNumber)
       })
       .catch(console.error)
       .then(
-        github.issues.createComment({ // create new contributor welcome comment
-          owner: repoOwner,
-          repo: repoName,
-          number: issueNumber,
-          body: "Congratulations, @" + commenter.concat(", ") + newContributor
-        })
-        .catch(console.error)
+        newComment(repoOwner, repoName, issueNumber, "Congratulations, @" + commenter.concat(", ") + newContributor) // create new contributor welcome comment
       )
     )
   );

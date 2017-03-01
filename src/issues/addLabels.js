@@ -3,6 +3,7 @@
 const GitHubApi = require("github"); // NodeJS wrapper for GitHub API
 const github = new GitHubApi(); // API client
 const cfg = require("../config.js"); // hidden config file
+const newComment = require("./newComment.js"); // create comment
 
 github.authenticate({ // Authentication
   type: "basic",
@@ -48,13 +49,7 @@ module.exports = exports = function(body, issueNumber, repoName, repoOwner) {
         wasGrammar = "was";
       } else return;
       const rejectedLabelError = `**Error:** ${labelGrammar} ${rejectedLabelsString} ${doGrammar} not exist and ${wasGrammar} thus not added to this issue.`; // template literal comment
-      github.issues.createComment({ // post error comment
-        owner: repoOwner,
-        repo: repoName,
-        number: issueNumber,
-        body: rejectedLabelError
-      })
-      .catch(console.error);
+      newComment(repoOwner, repoName, issueNumber, rejectedLabelError); // post error comment
     });
   });
 };
