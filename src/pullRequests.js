@@ -6,7 +6,9 @@ module.exports = exports = function(payload) {
   // get necessary information from request body
   const action = payload.action;
   let body; // initialize variables for pull request review (comment) body
-  if (action === "submitted") { // if pull request review was submitted
+  if (action === "opened") { // if pull request was opened
+    body = payload.pull_request.body; // contents of PR body
+  } else if (action === "submitted") { // if pull request review was submitted
     body = payload.review.body; // contents of PR review
   } else if (action === "created") { // if PR review comment was created
     body = payload.comment.body; // contents of PR review comment
