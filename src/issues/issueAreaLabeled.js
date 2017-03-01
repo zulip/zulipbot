@@ -15,6 +15,6 @@ github.authenticate({ // Authentication
 module.exports = exports = function(areaLabel, issueNumber, repoName, repoOwner) {
   if (!areaLabels.has(areaLabel)) return; // if added label isn't an area label, return;
   const areaLabelTeam = areaLabels.get(areaLabel); // find corresponding area label team
-  const comment = `Hello @${repoOwner}/${areaLabelTeam} members, this issue needs your attention!`; // comment template
+  const comment = `Hello @${repoOwner}/${areaLabelTeam} members, this issue was labeled with the **${areaLabel}** label, so you may want to check it out!`; // comment template
   newComment(repoOwner, repoName, issueNumber, comment); // create comment
 };

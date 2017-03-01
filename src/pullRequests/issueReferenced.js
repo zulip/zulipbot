@@ -26,7 +26,7 @@ module.exports = exports = function(body, pullRequestNumber, repoName, repoOwner
     }); // add all issue label names to issueLabels
     issueLabels.forEach((areaLabel) => { // for each area label on issue (there are multiple on some)
       const areaLabelTeam = areaLabels.get(areaLabel); // find corresponding area label team
-      const comment = `Hello @${repoOwner}/${areaLabelTeam} members, this pull request needs your attention!`; // comment template
+      const comment = `Hello @${repoOwner}/${areaLabelTeam} members, this pull request references an issue with the **${areaLabel}** label, so you may want to check it out!`; // comment template
       newComment(repoOwner, repoName, pullRequestNumber, comment); // create comment
     });
   });
