@@ -20,7 +20,7 @@ module.exports = exports = function(body, issueNumber, repoName, repoOwner) {
     repo: repoName,
     per_page: 100 // if not specified, it only retrieves the first 30, creating some errors
   }).then((repoLabelArray) => {
-    repoLabelArray.forEach(repoLabel => repoLabels.push(repoLabel.name));
+    repoLabelArray.data.forEach(repoLabel => repoLabels.push(repoLabel.name));
     body.match(/"(.*?)"/g).forEach((label) => { // global regex search for content between double quotes ("")
       if (repoLabels.includes(label.replace(/"/g, ""))) {
         addedLabels.push(label.replace(/"/g, "")); // push each label that exists in repo to array of labels that should be added
