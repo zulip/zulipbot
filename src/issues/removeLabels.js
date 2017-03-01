@@ -14,6 +14,7 @@ module.exports = exports = function(body, issueNumber, repoName, repoOwner) {
   if (!body.match(/"(.*?)"/g)) return; // return if no parameters were specified
   let rejectedLabels = []; // initialize array for rejected labels that don't exist
   let issueLabels = []; // initialize array for labels that won't be removed
+  let removedLabels = []; // initialize array for labels that are removed
   github.issues.getIssueLabels({ // get previous issue labels
     owner: repoOwner,
     repo: repoName,
@@ -23,8 +24,9 @@ module.exports = exports = function(body, issueNumber, repoName, repoOwner) {
     body.match(/"(.*?)"/g).forEach((label) => { // global regex search for content between double quotes ("")
       if (issueLabels.includes(label.replace(/"/g, ""))) { // check if content between quotes is a label on issue
         issueLabels.splice(issueLabels.indexOf(label.replace(/"/g, "")), 1); // label was specified to be deleted, make sure it doesn't get added back
-      } else {
-        rejectedLabels.push(label); // specified label doesn't exist, reject it
+        removedLabels.push(label);
+      } else if (!removedLabels.includes(label)) {
+        rejectedLabels.push(label); // specified label doesn't exist and wasn't removed, reject it
       }
     });
     github.issues.replaceAllLabels({ // replace labels without removed labels
