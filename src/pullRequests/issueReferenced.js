@@ -1,16 +1,8 @@
 "use strict"; // catch errors easier
 
-const GitHubApi = require("github"); // NodeJS wrapper for GitHub API
-const github = new GitHubApi(); // API client
-const cfg = require("../config.js"); // hidden config file
+const github = require("../github.js"); // GitHub wrapper initialization
 const areaLabels = require("../issues/areaLabels.js"); // map of area labels
 const newComment = require("../issues/newComment.js"); // create comment
-
-github.authenticate({ // Authentication
-  type: "basic",
-  username: cfg.username,
-  password: cfg.password
-});
 
 module.exports = exports = function(body, pullRequestNumber, repoName, repoOwner) {
   const referencedIssueNumber = body.match(/#([0-9]+)/)[1];

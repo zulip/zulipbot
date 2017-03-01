@@ -1,15 +1,7 @@
 "use strict"; // catch errors easier
 
-const GitHubApi = require("github"); // NodeJS wrapper for GitHub API
-const github = new GitHubApi(); // API client
-const cfg = require("../config.js"); // hidden config file
+const github = require("../github.js"); // GitHub wrapper initialization
 const request = require("request"); // for sending HTTP request to api.github.com
-
-github.authenticate({ // Authentication
-  type: "basic",
-  username: cfg.username,
-  password: cfg.password
-});
 
 module.exports = exports = function(commenter, issueNumber, repoName, repoOwner) {
   let assignees = []; // initialize array for current issue assignees
@@ -32,8 +24,8 @@ module.exports = exports = function(commenter, issueNumber, repoName, repoOwner)
         "User-Agent": "zulipbot" // User-Agent required to be sent in headers
       },
       auth: {
-        username: cfg.username,
-        password: cfg.password
+        username: github.cfg.username,
+        password: github.cfg.password
       }
     }).on("response", () => {
       github.issues.getIssueLabels({ // get issue labels after issue is abandoned
