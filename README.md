@@ -44,6 +44,17 @@ followed by the desired labels enclosed within double quotes (`""`).
     `@zulipbot remove` followed by the desired labels enclosed with double quotes
     (`""`).
 
+* **Finding unclaimed issues** - You can use the [GitHub search
+feature](https://help.github.com/articles/using-search-to-filter-issues-and-pull-requests/)
+to find unclaimed issues adding one of the following filters to your search:
+
+    * `-label: "in progress"` (excludes issues labeled with the **in progress** label)
+
+    * `no:assignee` (shows issues without assignees)
+
+    Issues labeled with the **in progress** label and assigned to other users have
+    already been claimed.
+
 ## Collaborate with zulipbot
 
 1. Invite **@zulipbot** to
