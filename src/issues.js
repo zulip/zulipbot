@@ -5,7 +5,7 @@ const claimIssue = require("./issues/claimIssue.js"); // claim issue
 const abandonIssue = require("./issues/abandonIssue.js"); // abandon issue
 const removeLabels = require("./issues/removeLabels.js"); // remove labels
 const issueAreaLabeled = require("./issues/issueAreaLabeled.js"); // issue labeled with area label
-const issueReferenced = require("./issues/issueReferenced.js"); // issue labeled was area label
+const checkPullRequestComment = require("./issues/checkPullRequestComment.js"); // check if comment belongs to PR
 // const joinLabelTeam = require("./issues/joinLabelTeam.js"); // join label team (disabled)
 
 module.exports = exports = function(payload) {
@@ -41,7 +41,7 @@ module.exports = exports = function(payload) {
     issueAreaLabeled(addedLabel, issueNumber, repoName, repoOwner);
   }
   if (body && body.match(/#([0-9]+)/)) {
-    issueReferenced(body, issueNumber, repoName, repoOwner);
+    checkPullRequestComment(body, issueNumber, repoName, repoOwner);
   }
   /*
   if (body && body.includes("@zulipbot join")) { // check body content for "@zulipbot join" (disabled)
