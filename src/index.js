@@ -4,6 +4,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const issues = require("./issues.js");
+const pullRequests = require("./pullRequests.js");
 
 // server
 const app = express(); // initialize express app
@@ -28,5 +29,8 @@ app.post("/", function(req, res) {
   // check if event is for an issue opening or issue comment creation
   if (req.get("X-GitHub-Event").includes("issue")) {
     issues(req.body); // send parsed payload to issues.js
+  }
+  if (req.get("X-GitHub-Event").includes("pull_request")) {
+    pullRequests(req.body); // send parsed payload to pullRequests.js
   }
 });
