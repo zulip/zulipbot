@@ -1,15 +1,7 @@
 "use strict"; // catch errors easier
 
-const GitHubApi = require("github"); // NodeJS wrapper for GitHub API
-const github = new GitHubApi(); // API client
-const cfg = require("../config.js"); // hidden config file
+const github = require("../github.js"); // GitHub wrapper initialization
 const newComment = require("./newComment.js"); // create comment
-
-github.authenticate({ // Authentication
-  type: "basic",
-  username: cfg.username,
-  password: cfg.password
-});
 
 module.exports = exports = function(body, issueNumber, repoName, repoOwner) {
   if (!body.match(/"(.*?)"/g)) return; // return if no parameters were specified
