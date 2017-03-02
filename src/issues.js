@@ -25,6 +25,7 @@ module.exports = exports = function(payload) {
   const issueCreator = payload.issue.user.login;
   const repoName = payload.repository.name; // issue repository
   const repoOwner = payload.repository.owner.login; // repository owner
+  if (commenter === "zulipbot") return;
   if (body && body.includes("@zulipbot claim")) {
     claimIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot claim"
   }
