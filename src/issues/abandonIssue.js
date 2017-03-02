@@ -2,6 +2,7 @@
 
 const github = require("../github.js"); // GitHub wrapper initialization
 const request = require("request"); // for sending HTTP request to api.github.com
+const cfg = require("../config.js"); // hidden config file
 
 module.exports = exports = function(commenter, issueNumber, repoName, repoOwner) {
   let assignees = []; // initialize array for current issue assignees
@@ -24,8 +25,8 @@ module.exports = exports = function(commenter, issueNumber, repoName, repoOwner)
         "User-Agent": "zulipbot" // User-Agent required to be sent in headers
       },
       auth: {
-        username: github.cfg.username,
-        password: github.cfg.password
+        username: cfg.username,
+        password: cfg.password
       }
     }).on("response", () => {
       github.issues.getIssueLabels({ // get issue labels after issue is abandoned
