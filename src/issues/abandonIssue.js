@@ -1,7 +1,7 @@
 "use strict"; // catch errors easier
 
 const github = require("../github.js"); // GitHub wrapper initialization
-const request = require("request"); // for sending HTTP request to api.github.com
+const request = require("request-promise"); // for sending HTTP request to api.github.com
 const cfg = require("../config.js"); // hidden config file
 
 module.exports = exports = function(commenter, issueNumber, repoName, repoOwner) {
@@ -28,22 +28,16 @@ module.exports = exports = function(commenter, issueNumber, repoName, repoOwner)
         username: cfg.username,
         password: cfg.password
       }
-    }).on("response", () => {
-      github.issues.getIssueLabels({ // get issue labels after issue is abandoned
-        owner: repoOwner,
-        repo: repoName,
-        number: issueNumber
-      }).then((response) => {
-        if (response.data.find(label => label.name === "in progress") && assignees.length === 1) { // if the "in progress" label exists and only one assignee
-          github.issues.removeLabel({ // remove "in progress" label
-            owner: repoOwner,
-            repo: repoName,
-            number: issueNumber,
-            name: "in progress"
-          })
-          .catch(console.error);
-        }
-      });
+    }).then((response) => {
+      if (response.labels.find(label => label.name === "in progress") && assignees.length === 1) { // if the "in progress" label exists and only one assignee
+        github.issues.removeLabel({ // remove "in progress" label
+          owner: repoOwner,
+          repo: repoName,
+          number: issueNumber,
+          name: "in progress"
+        })
+        .catch(console.error);
+      }
     });
   });
 };
