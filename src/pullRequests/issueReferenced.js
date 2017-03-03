@@ -7,6 +7,7 @@ const newComment = require("../issues/newComment.js"); // create comment
 module.exports = exports = function(body, pullRequestNumber, repoName, repoOwner) {
   const referencedIssueNumber = body.match(/#([0-9]+)/)[1];
   let issueLabels = []; // initialize array for area labels
+  let labelTeams = [];
   github.issues.getIssueLabels({ // get referenced issue labels
     owner: repoOwner,
     repo: repoName,
@@ -14,12 +15,20 @@ module.exports = exports = function(body, pullRequestNumber, repoName, repoOwner
   }).then((issueLabelArray) => {
     issueLabelArray.data.forEach((issueLabel) => {
       const labelName = issueLabel.name; // label name
-      if (areaLabels.has(labelName) && !issueLabels.includes(labelName)) issueLabels.push(labelName); // push all associated area labels to array
-    }); // add all issue label names to issueLabels
-    issueLabels.forEach((areaLabel) => { // for each area label on issue (there are multiple on some)
-      const areaLabelTeam = areaLabels.get(areaLabel); // find corresponding area label team
-      const comment = `Hello @${repoOwner}/${areaLabelTeam} members, this pull request references an issue with the **${areaLabel}** label, so you may want to check it out!`; // comment template
-      newComment(repoOwner, repoName, pullRequestNumber, comment); // create comment
-    });
+      if (areaLabels.has(labelName) && !issueLabels.includes(labelName)) {
+        issueLabels.push(labelName); // push all associated area labels to array
+        labelTeams.push(areaLabels.get(labelName)); // push all associated area labels to array
+      }
+    }); // add all issue label names and area label teams to issueLabels to labelTeams
+    const areaLabelTeams = labelTeams.join(`, @${repoOwner}/`);
+    const referencedAreaLabels = issueLabels.join("\", \""); // join corresponding area label teams into one string
+    let labelGrammar;
+    if (labelTeams.length > 1) {
+      labelGrammar = "labels";
+    } else if (labelTeams.length === 1) {
+      labelGrammar = "label";
+    } else return;
+    const comment = `Hello @${repoOwner}/${areaLabelTeams} members, this pull request references an issue with the "${referencedAreaLabels}" ${labelGrammar}, so you may want to check it out!`; // comment template
+    newComment(repoOwner, repoName, pullRequestNumber, comment); // create comment
   });
 };
