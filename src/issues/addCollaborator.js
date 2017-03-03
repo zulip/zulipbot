@@ -15,7 +15,7 @@ module.exports = exports = function(commenter, repoName, repoOwner, issueNumber)
     permission: "pull"
   })
   .catch(console.error)
-  .then(
+  .then(() => {
     github.issues.addAssigneesToIssue({ // add assignee
       owner: repoOwner,
       repo: repoName,
@@ -23,7 +23,7 @@ module.exports = exports = function(commenter, repoName, repoOwner, issueNumber)
       assignees: issueAssignees
     })
     .catch(console.error)
-    .then(
+    .then(() => {
       github.issues.addLabels({ // add labels
         owner: repoOwner,
         repo: repoName,
@@ -31,9 +31,9 @@ module.exports = exports = function(commenter, repoName, repoOwner, issueNumber)
         labels: issueLabels
       })
       .catch(console.error)
-      .then(
-        newComment(repoOwner, repoName, issueNumber, "Congratulations, @" + commenter.concat(", ") + newContributor) // create new contributor welcome comment
-      )
-    )
-  );
+      .then(() => {
+        newComment(repoOwner, repoName, issueNumber, "Congratulations, @" + commenter.concat(", ") + newContributor); // create new contributor welcome comment
+      });
+    });
+  });
 };

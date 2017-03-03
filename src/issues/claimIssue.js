@@ -20,15 +20,15 @@ module.exports = exports = function(commenter, issueNumber, repoName, repoOwner)
         assignees: issueAssignees
       })
       .catch(console.error)
-      .then(
+      .then(() => {
         github.issues.addLabels({ // add labels
           owner: repoOwner,
           repo: repoName,
           number: issueNumber,
           labels: issueLabels
         })
-        .catch(console.error)
-      );
+        .catch(console.error);
+      });
     }
   }, (response) => {
     if (response.headers.status === "404 Not Found") { // if user isn't a collaborator yet
