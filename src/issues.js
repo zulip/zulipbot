@@ -21,6 +21,7 @@ module.exports = exports = function(payload) {
   } else if (action === "labeled") {
     addedLabel = payload.label.name;
   } else return;
+  const issueLabelArray = payload.issue.labels;
   const issueNumber = payload.issue.number; // number of issue
   const issueCreator = payload.issue.user.login;
   const repoName = payload.repository.name; // issue repository
@@ -30,13 +31,13 @@ module.exports = exports = function(payload) {
     claimIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot claim"
   }
   if (body && body.includes("@zulipbot label") && commenter === issueCreator) {
-    addLabels(body, issueNumber, repoName, repoOwner); // check body content for "@zulipbot label" and ensure commenter opened the issue
+    addLabels(body, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot label" and ensure commenter opened the issue
   }
   if (body && body.includes("@zulipbot abandon")) {
     abandonIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot abandon"
   }
   if (body && body.includes("@zulipbot remove") && commenter === issueCreator) {
-    removeLabels(body, issueNumber, repoName, repoOwner); // check body content for "@zulipbot remove" and ensure commenter opened the issue
+    removeLabels(body, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot remove" and ensure commenter opened the issue
   }
   if (addedLabel) {
     issueAreaLabeled(addedLabel, issueNumber, repoName, repoOwner);
