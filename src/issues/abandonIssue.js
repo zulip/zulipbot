@@ -34,7 +34,7 @@ module.exports = exports = function(commenter, issueNumber, repoName, repoOwner)
         repo: repoName,
         number: issueNumber
       }).then((response) => {
-        if (response.data.find(label => label.name === "in progress")) { // if the "in progress" label exists
+        if (response.data.find(label => label.name === "in progress") && assignees.length === 1) { // if the "in progress" label exists and only one assignee
           github.issues.removeLabel({ // remove "in progress" label
             owner: repoOwner,
             repo: repoName,
