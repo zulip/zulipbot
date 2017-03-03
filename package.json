@@ -15,7 +15,7 @@
     "express": "^4.14.0",
     "ejs": "^2.5.5",
     "body-parser": "^1.16.0",
-    "request": "^2.79.0"
+    "request-promise": "^4.1.1"
   },
   "devDependencies": {
     "eslint": "^3.16.1",
