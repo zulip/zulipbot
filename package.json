@@ -28,7 +28,8 @@
     "gulp-mocha": "^4.0.1",
     "gulp-plumber": "^1.1.0",
     "gulp-nsp": "^2.4.2",
-    "gulp-coveralls": "^0.1.4"
+    "gulp-coveralls": "^0.1.4",
+    "inquirer": "^3.0.5"
   },
   "eslintConfig": {
     "extends": "xo-space",
