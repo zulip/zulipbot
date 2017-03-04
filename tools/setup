@@ -35,15 +35,23 @@ inquirer.prompt({
     cmd.run("echo $'module.exports = {\n  username: \"zulipbot-test\",\n  password: \"z#u%LIpB!OT11282016\"\n};' > src/config.js");
     console.log("Done!\n");
 
-    console.log("Installing node dependencies...");
-    console.log("> npm install");
-    cmd.get(
-      "npm install",
+    console.log("Setting up GitHub `upstream` remote...");
+    console.log("> git remote add upstream https://github.com/zulip/zulipbot.git");
+    cmd.get("git remote add upstream https://github.com/zulip/zulipbot.git",
       function(data) {
         console.log(data);
         console.log("Done!\n");
-        console.log("Environment setup complete.\n");
-        console.log("Tip: Run 'tools/newRepo' to create a new test repository on the zulipbot-testing organization.");
+        console.log("Fetching from `upstream`...");
+        console.log("> git fetch upstream");
+        cmd.get(
+          "git fetch upstream",
+          function(data) {
+            console.log(data);
+            console.log("Done!\n");
+            console.log("Environment setup complete.\n");
+            console.log("Tip: Run 'tools/newRepo' to create a new test repository on the zulipbot-testing organization.");
+          }
+        );
       }
     );
   }
