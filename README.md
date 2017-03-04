@@ -82,9 +82,7 @@ to your repository.
 ## Contributing
 
 If you wish to contribute to **@zulipbot**, please read our [contributing
-guidelines](CONTRIBUTING.md) for more information and join us on the [zulipbot
-stream](https://chat.zulip.org/#narrow/stream/zulipbot) on the Zulip
-development server.
+guidelines](CONTRIBUTING.md) for more information.
 
 ## License
 
