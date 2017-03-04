@@ -40,7 +40,7 @@ module.exports = exports = function(payload) {
     removeLabels(body, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot remove" and ensure commenter opened the issue
   }
   if (addedLabel) {
-    issueAreaLabeled(addedLabel, issueNumber, repoName, repoOwner);
+    issueAreaLabeled(addedLabel, issueNumber, repoName, repoOwner, issueLabelArray);
   }
   if (body && body.match(/#([0-9]+)/)) {
     checkPullRequestComment(body, issueNumber, repoName, repoOwner);
