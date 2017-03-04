@@ -1,0 +1,199 @@
+#!/usr/bin/env node
+ //
+//                          88  88               88                                                                      88
+//                          88  ""               88                         ,d           ,d                              88
+//                          88                   88                         88           88                              88
+//  888888888  88       88  88  88  8b,dPPYba,   88,dPPYba,    ,adPPYba,  MM88MMM      MM88MMM  ,adPPYba,    ,adPPYba,   88  ,adPPYba,
+//       a8P"  88       88  88  88  88P"    "8a  88P"    "8a  a8"     "8a   88           88    a8"     "8a  a8"     "8a  88  I8[    ""
+//    ,d8P"    88       88  88  88  88       d8  88       d8  8b       d8   88           88    8b       d8  8b       d8  88   `"Y8ba,
+//  ,d8"       "8a,   ,a88  88  88  88b,   ,a8"  88b,   ,a8"  "8a,   ,a8"   88,          88,   "8a,   ,a8"  "8a,   ,a8"  88  aa    ]8I
+//  888888888   `"YbbdP"Y8  88  88  88`YbbdP""   8Y"Ybbd8""    `"YbbdP""    "Y888        "Y888  `"YbbdP""    `"YbbdP""   88  `"YbbdP""
+//                                  88
+//                                  88
+//
+//  .88b  d88.  .d88b.   .o88b. db   dD d8888b.  .d8b.  db    db db       .d88b.   .d8b.  d8888b.
+//  88"YbdP`88 .8P  Y8. d8P  Y8 88 ,8P" 88  `8D d8" `8b `8b  d8" 88      .8P  Y8. d8" `8b 88  `8D
+//  88  88  88 88    88 8P      88,8P   88oodD" 88ooo88  `8bd8"  88      88    88 88ooo88 88   88
+//  88  88  88 88    88 8b      88`8b   88~~~   88~~~88    88    88      88    88 88~~~88 88   88
+//  88  88  88 `8b  d8" Y8b  d8 88 `88. 88      88   88    88    88booo. `8b  d8" 88   88 88  .8D
+//  YP  YP  YP  `Y88P"   `Y88P" YP   YD 88      YP   YP    YP    Y88888P  `Y88P"  YP   YP Y8888D"
+
+const inquirer = require("inquirer");
+const github = require("../src/github.js");
+const addLabels = require("../src/issues/addLabels.js");
+const claimIssue = require("../src/issues/claimIssue.js");
+const abandonIssue = require("../src/issues/abandonIssue.js");
+const removeLabels = require("../src/issues/removeLabels.js");
+const issueAreaLabeled = require("../src/issues/issueAreaLabeled.js");
+const issueReferenced = require("../src/pullRequests/issueReferenced.js");
+const checkPullRequestComment = require("../src/issues/checkPullRequestComment.js");
+
+console.log("                       _    ____             _                 _ \r\n  _ __ ___   ___   ___| | _|  _ \\ __ _ _   _| | ___   __ _  __| |\r\n | \"_ ` _ \\ \/ _ \\ \/ __| |\/ | |_) \/ _` | | | | |\/ _ \\ \/ _` |\/ _` |\r\n | | | | | | (_) | (__|   <|  __| (_| | |_| | | (_) | (_| | (_| |\r\n |_| |_| |_|\\___\/ \\___|_|\\_|_|   \\__,_|\\__, |_|\\___\/ \\__,_|\\__,_|\r\n                                       |___\/                     ");
+console.log("Hello, welcome to mockPayload!");
+console.log("~ Send test payloads to your repository in zulipbot-testing ~\n");
+inquirer.prompt({
+  type: "input",
+  name: "username",
+  message: "What's your GitHub username?"
+}).then((response) => {
+  const username = response.username;
+  github.repos.get({
+    owner: "zulipbot-testing",
+    repo: username
+  })
+  .then(() => {
+    inquirer.prompt([{
+      type: "list",
+      name: "payload",
+      message: "What's your payload type?",
+      choices: [
+        "Issue",
+        "Pull request"
+      ]
+    },
+    {
+      type: "input",
+      name: "number",
+      message: "What's the number of the issue/pull request that @zulipbot-test should respond to?",
+      validate: function(value) {
+        var valid = /^\d+$/.test(value);
+        return valid || "Please enter a valid number!";
+      }
+    }]).then((response) => {
+      const issueNumber = response.number;
+      const payloadType = response.payload;
+      github.issues.get({
+        owner: "zulipbot-testing",
+        repo: username,
+        number: issueNumber
+      }).then(() => {
+        github.pullRequests.get({
+          owner: "zulipbot-testing",
+          repo: username,
+          number: issueNumber
+        }).then(() => {
+          if (payloadType === "Pull request") {
+            inquirer.prompt([{
+              type: "list",
+              name: "payloadType",
+              message: "What type of payload do you want to mock?",
+              choices: [
+                "Pull request opened (pull_request)",
+                "Pull request comment created (issue_comment)",
+                "Pull request review submitted (pull_request_review)",
+                "Pull request review comment created (pull_request_review_comment)"
+              ]
+            },
+            {
+              type: "input",
+              name: "body",
+              message: "Enter the payload's body:"
+            }]).then((response) => {
+              const body = response.body;
+              if (body && body.match(/#([0-9]+)/)) {
+                issueReferenced(body, issueNumber, username, "zulipbot-testing");
+                console.log(`Payload sent! Check https://github.com/zulipbot-testing/${username}/pull/${issueNumber} for any responses.`);
+              } else {
+                console.log("The payload body that you entered did not trigger any functions; please try again!");
+                return;
+              }
+            });
+          } else {
+            console.log("That was an invalid issue number; it was an pull request number! Please select the 'Pull request' option next time.");
+            return;
+          }
+        }, () => {
+          if (payloadType === "Issue") {
+            inquirer.prompt([{
+              type: "list",
+              name: "payloadType",
+              message: "What type of payload do you want to mock?",
+              choices: [
+                "Issue opened (issues)",
+                "Issue comment created (issue_comment)",
+                "Issue labeled (issues)"
+              ]
+            },
+            {
+              type: "input",
+              name: "body",
+              message: "Enter the payload's body:",
+              when: function(answers) {
+                return answers.payloadType !== "Issue labeled (issues)";
+              }
+            },
+            {
+              type: "input",
+              name: "addedLabel",
+              message: "Enter the name of the added label:",
+              when: function(answers) {
+                return answers.payloadType === "Issue labeled (issues)";
+              }
+            },
+            {
+              type: "input",
+              name: "commenter",
+              message: "What's the username of the user that is triggering this issue payload?",
+              when: function(answers) {
+                return answers.payloadType !== "Issue labeled (issues)";
+              }
+            },
+            {
+              type: "input",
+              name: "issueCreator",
+              message: "Who opened or created the issue?",
+              when: function(answers) {
+                return answers.payloadType !== "Issue labeled (issues)";
+              }
+            },
+            {
+              type: "input",
+              name: "labels",
+              message: "Enter any labels the issue has within double quotes (\"\"):",
+              when: function(answers) {
+                return answers.payloadType !== "Issue labeled (issues)";
+              }
+            }]).then((response) => {
+              const body = response.body;
+              const commenter = response.commenter;
+              const issueCreator = response.issueCreator;
+              const addedLabel = response.addedLabel;
+              let issueLabelArray = [];
+              response.labels.match(/"(.*?)"/g).forEach((label) => {
+                issueLabelArray.push({name: label.replace(/"/g, "")});
+              });
+              if (body && body.includes("@zulipbot claim")) {
+                claimIssue(commenter, issueNumber, username, "zulipbot-testing"); // check body content for "@zulipbot claim"
+              }
+              if (body && body.includes("@zulipbot label") && commenter === issueCreator) {
+                addLabels(body, issueNumber, username, "zulipbot-testing", issueLabelArray); // check body content for "@zulipbot label" and ensure commenter opened the issue
+              }
+              if (body && body.includes("@zulipbot abandon")) {
+                abandonIssue(commenter, issueNumber, username, "zulipbot-testing"); // check body content for "@zulipbot abandon"
+              }
+              if (body && body.includes("@zulipbot remove") && commenter === issueCreator) {
+                removeLabels(body, issueNumber, username, "zulipbot-testing", issueLabelArray); // check body content for "@zulipbot remove" and ensure commenter opened the issue
+              }
+              if (addedLabel) {
+                issueAreaLabeled(addedLabel, issueNumber, username, "zulipbot-testing", issueLabelArray);
+              }
+              if (body && body.match(/#([0-9]+)/)) {
+                checkPullRequestComment(body, issueNumber, username, "zulipbot-testing");
+              }
+              console.log(`Payload sent! Check https://github.com/zulipbot-testing/${username}/issues/${issueNumber} for any responses.\nIf you received no notifications, then your payload body didn't trigger any functions.`);
+            });
+          } else {
+            console.log("That was an invalid pull request number; it was an issue number! Please select the 'Issue' option next time.");
+            return;
+          }
+        });
+      }, () => {
+        console.log("That was an invalid issue/pull request number! Please enter create an issue/pull request in your repository with the same number and try again.");
+        return;
+      });
+    });
+  }, () => {
+    console.log("You don't have a repository on zulipbot-testing yet! Please make one before running this tool again.");
+    return;
+  });
+});
