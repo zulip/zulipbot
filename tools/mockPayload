@@ -95,12 +95,10 @@ inquirer.prompt({
                 console.log(`Payload sent! Check https://github.com/zulipbot-testing/${username}/pull/${issueNumber} for any responses.`);
               } else {
                 console.log("The payload body that you entered did not trigger any functions; please try again!");
-                return;
               }
             });
           } else {
             console.log("That was an invalid issue number; it was an pull request number! Please select the 'Pull request' option next time.");
-            return;
           }
         }, () => {
           if (payloadType === "Issue") {
@@ -159,9 +157,11 @@ inquirer.prompt({
               const issueCreator = response.issueCreator;
               const addedLabel = response.addedLabel;
               let issueLabelArray = [];
-              response.labels.match(/"(.*?)"/g).forEach((label) => {
-                issueLabelArray.push({name: label.replace(/"/g, "")});
-              });
+              if (response.labels) {
+                response.labels.match(/"(.*?)"/g).forEach((label) => {
+                  issueLabelArray.push({name: label.replace(/"/g, "")});
+                });
+              }
               if (body && body.includes("@zulipbot claim")) {
                 claimIssue(commenter, issueNumber, username, "zulipbot-testing"); // check body content for "@zulipbot claim"
               }
@@ -184,16 +184,13 @@ inquirer.prompt({
             });
           } else {
             console.log("That was an invalid pull request number; it was an issue number! Please select the 'Issue' option next time.");
-            return;
           }
         });
       }, () => {
         console.log("That was an invalid issue/pull request number! Please enter create an issue/pull request in your repository with the same number and try again.");
-        return;
       });
     });
   }, () => {
     console.log("You don't have a repository on zulipbot-testing yet! Please make one before running this tool again.");
-    return;
   });
 });
