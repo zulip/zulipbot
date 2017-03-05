@@ -3,14 +3,7 @@
 const github = require("../github.js"); // GitHub wrapper initialization
 const newComment = require("../issues/newComment.js"); // create comment
 
-module.exports = exports = function(response) {
-  const payload = JSON.parse(response);
-  if (!payload.pull_request) return;
-  const state = payload.state;
-  const repoOwner = payload.repository.owner_name;
-  const repoName = payload.repository.name;
-  const pullRequestNumber = payload.pull_request_number.toString();
-  const buildURL = payload.build_url;
+module.exports = exports = function(state, repoOwner, repoName, pullRequestNumber, buildURL) {
   let comment = "(unknown state)";
   if (state === "passed") {
     comment = `Congratulations, the Travis [builds](${buildURL}) for this pull request **${state}**!`;

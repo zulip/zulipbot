@@ -5,7 +5,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const issues = require("./issues.js");
 const pullRequests = require("./pullRequests.js");
-const travisBuildStatus = require("./pullRequests/travisBuildStatus.js");
+const travis = require("./travis.js");
 
 // server
 const app = express(); // initialize express app
@@ -40,6 +40,6 @@ app.post("/", function(req, res) {
 app.post("/travis", function(req, res) {
   res.render("index"); // Send contents of index.ejs
   if (req.get("user-agent") === "Travis CI Notifications") {
-    travisBuildStatus(req.body.payload);
+    travis(JSON.parse(req.body.payload));
   }
 });
