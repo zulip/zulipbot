@@ -5,3 +5,8 @@ node_js:
   - "5"
 notifications:
   email: false
+  webhooks:
+    urls:
+      - https://zulip.org/zulipbot/travis
+    on_success: always
+    on_failure: always
