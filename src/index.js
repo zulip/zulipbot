@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const issues = require("./issues.js");
 const pullRequests = require("./pullRequests.js");
 const travis = require("./travis.js");
+const checkInactivity = require("./issues/checkInactivity.js");
 
 // server
 const app = express(); // initialize express app
@@ -43,3 +44,5 @@ app.post("/travis", function(req, res) {
     travis(JSON.parse(req.body.payload));
   }
 });
+
+setInterval(() => checkInactivity(), 3600000); // check every hour
