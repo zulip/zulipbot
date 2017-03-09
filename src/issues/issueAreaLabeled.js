@@ -42,18 +42,8 @@ module.exports = exports = function(areaLabel, issueNumber, repoName, repoOwner,
         body: comment
       }).catch(console.error);
     } else {
-      github.pullRequests.get({
-        owner: repoOwner,
-        repo: repoName,
-        number: issueNumber
-      }).then((response) => {
-        const comment = `Hello @${repoOwner}/${areaLabelTeam} members, this pull request was labeled with the **${areaLabel}** label, so you may want to check it out!`; // comment template
-        if (response.data.title.includes("WIP") && comment.includes("@") && !comment.includes("Error")) return;
-        newComment(repoOwner, repoName, issueNumber, comment); // create comment
-      }, () => {
-        const comment = `Hello @${repoOwner}/${areaLabelTeam} members, this issue was labeled with the **${areaLabel}** label, so you may want to check it out!`; // comment template
-        newComment(repoOwner, repoName, issueNumber, comment); // create comment
-      });
+      const comment = `Hello @${repoOwner}/${areaLabelTeam} members, this issue was labeled with the **${areaLabel}** label, so you may want to check it out!`; // comment template
+      newComment(repoOwner, repoName, issueNumber, comment); // create comment
     }
   });
 };
