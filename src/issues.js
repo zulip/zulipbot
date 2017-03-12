@@ -29,11 +29,13 @@ module.exports = exports = function(payload) {
   if (commenter === "zulipbot") return;
   if (addedLabel) {
     issueAreaLabeled(addedLabel, issueNumber, repoName, repoOwner, issueLabelArray); // check if issue labeled with area label
-  } else if (!body) return; // if body is empty
+  }
+  if (!body) return; // if body is empty
+  const command = body.match(/@zulipbot\s(\w*)/, "");
+  if (!command) return; // if there is no command
   if (body.match(/#([0-9]+)/)) {
     checkPullRequestComment(body, issueNumber, repoName, repoOwner); // check if comment is from PR
   }
-  const command = body.match(/@zulipbot\s(\w*)/, "");
   if (body.includes(`\`${command[0]}\``) || body.includes(`\`\`\`\r\n${command[0]}\r\n\`\`\``) || !body.match("@zulipbot " + command[1])) return;
   switch (command[1]) {
     case "claim":

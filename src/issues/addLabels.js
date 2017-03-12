@@ -17,7 +17,7 @@ module.exports = exports = function(body, issueNumber, repoName, repoOwner, issu
   }).then((repoLabelArray) => {
     repoLabelArray.data.forEach(repoLabel => repoLabels.push(repoLabel.name));
     issueLabelArray.forEach(issueLabel => issueLabels.push(issueLabel.name)); // add all issue label names to issueLabels
-    body.match(/"(.*?)"/g).forEach((label) => { // global regex search for content between double quotes ("")
+    body.split("@zulipbot label").pop().match(/"(.*?)"/g).forEach((label) => { // global regex search for content between double quotes ("")
       if (issueLabels.includes(label.replace(/"/g, ""))) {
         alreadyAdded.push(label); // push label to array of already added if label exists in issue already
       } else if (repoLabels.includes(label.replace(/"/g, ""))) {
