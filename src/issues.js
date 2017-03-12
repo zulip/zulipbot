@@ -27,23 +27,33 @@ module.exports = exports = function(payload) {
   const repoName = payload.repository.name; // issue repository
   const repoOwner = payload.repository.owner.login; // repository owner
   if (commenter === "zulipbot") return;
-  if (body && body.includes("@zulipbot claim")) {
-    claimIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot claim"
-  }
-  if (body && body.includes("@zulipbot label") && commenter === issueCreator) {
-    addLabels(body, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot label" and ensure commenter opened the issue
-  }
-  if (body && body.includes("@zulipbot abandon")) {
-    abandonIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot abandon"
-  }
-  if (body && body.includes("@zulipbot remove") && commenter === issueCreator) {
-    removeLabels(body, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot remove" and ensure commenter opened the issue
-  }
   if (addedLabel) {
     issueAreaLabeled(addedLabel, issueNumber, repoName, repoOwner, issueLabelArray);
-  }
-  if (body && body.match(/#([0-9]+)/)) {
+  } else if (!body) return;
+  if (body.match(/#([0-9]+)/)) {
     checkPullRequestComment(body, issueNumber, repoName, repoOwner);
+  }
+  const command = body.match(/@zulipbot\s(\w*)/, "")[1];
+  if (!body.match("@zulipbot " + command)) return;
+  switch (command) {
+    case "claim":
+      claimIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot claim"
+      break;
+    case "label":
+      if (commenter === issueCreator) {
+        addLabels(body, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot label" and ensure commenter opened the issue
+      }
+      break;
+    case "abandon":
+      abandonIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot abandon"
+      break;
+    case "remove":
+      if (commenter === issueCreator) {
+        removeLabels(body, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot remove" and ensure commenter opened the issue
+      }
+      break;
+    default:
+      break;
   }
   /*
   if (body && body.includes("@zulipbot join")) { // check body content for "@zulipbot join" (disabled)

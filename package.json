@@ -15,7 +15,7 @@
     "express": "^4.14.0",
     "ejs": "^2.5.5",
     "body-parser": "^1.16.0",
-    "request-promise": "^4.1.1"
+    "request-promise": "^3.0.0"
   },
   "devDependencies": {
     "eslint": "^3.16.1",
@@ -41,7 +41,7 @@
     },
     "rules": {
       "quotes": ["error", "double"],
-      "indent": ["error", 2, { "ObjectExpression": 1 }],
+      "indent": ["error", 2, { "ObjectExpression": 1, "SwitchCase": 1 }],
       "space-before-function-paren": ["error", "never"],
       "curly": ["error", "multi-line"],
       "one-var": ["error", { "initialized": "never" }],
