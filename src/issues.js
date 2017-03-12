@@ -28,14 +28,14 @@ module.exports = exports = function(payload) {
   const repoOwner = payload.repository.owner.login; // repository owner
   if (commenter === "zulipbot") return;
   if (addedLabel) {
-    issueAreaLabeled(addedLabel, issueNumber, repoName, repoOwner, issueLabelArray);
-  } else if (!body) return;
+    issueAreaLabeled(addedLabel, issueNumber, repoName, repoOwner, issueLabelArray); // check if issue labeled with area label
+  } else if (!body) return; // if body is empty
   if (body.match(/#([0-9]+)/)) {
-    checkPullRequestComment(body, issueNumber, repoName, repoOwner);
+    checkPullRequestComment(body, issueNumber, repoName, repoOwner); // check if comment is from PR
   }
-  const command = body.match(/@zulipbot\s(\w*)/, "")[1];
-  if (!body.match("@zulipbot " + command)) return;
-  switch (command) {
+  const command = body.match(/@zulipbot\s(\w*)/, "");
+  if (body.includes(`\`${command[0]}\``) || body.includes(`\`\`\`\r\n${command[0]}\r\n\`\`\``) || !body.match("@zulipbot " + command[1])) return;
+  switch (command[1]) {
     case "claim":
       claimIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot claim"
       break;
