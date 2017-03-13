@@ -197,23 +197,36 @@ inquirer.prompt({
                   issueLabelArray.push({name: label.replace(/"/g, "")});
                 });
               }
-              if (body && body.includes("@zulipbot claim")) {
-                claimIssue(commenter, issueNumber, username, "zulipbot-testing"); // check body content for "@zulipbot claim"
-              }
-              if (body && body.includes("@zulipbot label") && commenter === issueCreator) {
-                addLabels(body, issueNumber, username, "zulipbot-testing", issueLabelArray); // check body content for "@zulipbot label" and ensure commenter opened the issue
-              }
-              if (body && body.includes("@zulipbot abandon")) {
-                abandonIssue(commenter, issueNumber, username, "zulipbot-testing"); // check body content for "@zulipbot abandon"
-              }
-              if (body && body.includes("@zulipbot remove") && commenter === issueCreator) {
-                removeLabels(body, issueNumber, username, "zulipbot-testing", issueLabelArray); // check body content for "@zulipbot remove" and ensure commenter opened the issue
-              }
+              if (commenter === "zulipbot") return;
               if (addedLabel) {
-                issueAreaLabeled(addedLabel, issueNumber, username, "zulipbot-testing", issueLabelArray);
+                issueAreaLabeled(addedLabel, issueNumber, username, "zulipbot-testing", issueLabelArray); // check if issue labeled with area label
               }
-              if (body && body.match(/#([0-9]+)/)) {
-                checkPullRequestComment(body, issueNumber, username, "zulipbot-testing");
+              if (!body) return; // if body is empty
+              const command = body.match(/@zulipbot\s(\w*)/, "");
+              if (!command) return; // if there is no command
+              if (body.match(/#([0-9]+)/)) {
+                checkPullRequestComment(body, issueNumber, username, "zulipbot-testing"); // check if comment is from PR
+              }
+              if (body.includes(`\`${command[0]}\``) || body.includes(`\`\`\`\r\n${command[0]}\r\n\`\`\``) || !body.match("@zulipbot " + command[1])) return;
+              switch (command[1]) {
+                case "claim":
+                  claimIssue(commenter, issueNumber, username, "zulipbot-testing"); // check body content for "@zulipbot claim"
+                  break;
+                case "label":
+                  if (commenter === issueCreator) {
+                    addLabels(body, issueNumber, username, "zulipbot-testing", issueLabelArray); // check body content for "@zulipbot label" and ensure commenter opened the issue
+                  }
+                  break;
+                case "abandon":
+                  abandonIssue(commenter, issueNumber, username, "zulipbot-testing"); // check body content for "@zulipbot abandon"
+                  break;
+                case "remove":
+                  if (commenter === issueCreator) {
+                    removeLabels(body, issueNumber, username, "zulipbot-testing", issueLabelArray); // check body content for "@zulipbot remove" and ensure commenter opened the issue
+                  }
+                  break;
+                default:
+                  break;
               }
               console.log(`Payload sent! Check https://github.com/zulipbot-testing/${username}/issues/${issueNumber} for any responses.\nIf you received no notifications, then your payload body didn't trigger any functions.`);
             });
