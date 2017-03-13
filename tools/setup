@@ -32,7 +32,7 @@ inquirer.prompt({
 }).then((answer) => {
   if (answer.confirm === true) {
     console.log("Creating `src/config.js` file...");
-    cmd.run("echo $'module.exports = {\n  username: \"zulipbot-test\",\n  password: \"z#u%LIpB!OT11282016\"\n};' > src/config.js");
+    cmd.run("echo 'module.exports = {\n  username: \"zulipbot-test\",\n  password: \"z#u%LIpB!OT11282016\"\n};' > src/config.js");
     console.log("Done!\n");
 
     console.log("Setting up GitHub `upstream` remote...");
