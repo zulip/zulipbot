@@ -30,17 +30,11 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.post("/", function(req, res) {
   res.render("index"); // Send contents of index.ejs
   // check if event is for an issue opening or issue comment creation
-  if (req.get("X-GitHub-Event").includes("issue")) {
+  if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event").includes("issue")) {
     issues(req.body); // send parsed payload to issues.js
-  }
-  if (req.get("X-GitHub-Event").includes("pull_request")) {
+  } else if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event").includes("pull_request")) {
     pullRequests(req.body); // send parsed payload to pullRequests.js
-  }
-});
-
-app.post("/travis", function(req, res) {
-  res.render("index"); // Send contents of index.ejs
-  if (req.get("user-agent") === "Travis CI Notifications") {
+  } else if (req.get("user-agent") && req.get("user-agent") === "Travis CI Notifications") {
     travis(JSON.parse(req.body.payload));
   }
 });
