@@ -8,7 +8,7 @@ module.exports = exports = function(repoOwner, repoName, issueNumber, body) {
     repo: repoName,
     number: issueNumber
   }).then((response) => {
-    body = body.replace(/issue/, "pull request");
+    if (!body.includes("this pull request references an issue")) body = body.replace("issue", "pull request");
     if (response.data.title.includes("WIP") && body.includes("@") && !body.includes("Error")) return;
     github.issues.createComment({
       owner: repoOwner,
