@@ -34,5 +34,5 @@ module.exports = exports = function(payload) {
       return;
     });
   } else return;
-  if (body.match(/#([0-9]+)/) && action !== "opened") issueReferenced(body, pullRequestNumber, repoName, repoOwner);
+  if (body && body.match(/#([0-9]+)/) && action !== "opened") issueReferenced(body, pullRequestNumber, repoName, repoOwner);
 };
