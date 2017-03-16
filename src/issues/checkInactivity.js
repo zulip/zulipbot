@@ -2,7 +2,7 @@
 
 const github = require("../github.js"); // GitHub wrapper initialization
 const fs = require("fs"); // for reading welcome message
-const inactiveWarning = fs.readFileSync("./src/issues/inactiveWarning.md", "utf8"); // get warning message contents
+const inactiveWarning = fs.readFileSync("./src/templates/inactiveWarning.md", "utf8"); // get warning message contents
 const newComment = require("./newComment.js"); // create comment
 const abandonIssue = require("./abandonIssue.js"); // abandon issue
 
