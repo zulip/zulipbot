@@ -31,16 +31,38 @@ module.exports = exports = function(payload) {
       .catch(console.error);
     } else if (action === "submitted") { // if pull request review was submitted
       body = payload.review.body; // contents of PR review
-      if (labels.indexOf("needs review") !== -1) labels[labels.indexOf("needs review")] = "reviewed";
-      replaceLabels(repoOwner, repoName, pullRequestNumber, labels);
+      const reviewer = payload.review.user.login; // reviewer username
+      if (labels.indexOf("needs review") !== -1) {
+        labels[labels.indexOf("needs review")] = "reviewed";
+        replaceLabels(repoOwner, repoName, pullRequestNumber, labels);
+        github.issues.addAssigneesToIssue({ // add assignee
+          owner: repoOwner,
+          repo: repoName,
+          number: pullRequestNumber,
+          assignees: [reviewer]
+        })
+        .catch(console.error);
+      }
     } else if (action === "created") { // if PR review comment was created
       body = payload.comment.body; // contents of PR review comment
-      if (labels.indexOf("needs review") !== -1) labels[labels.indexOf("needs review")] = "reviewed";
-      replaceLabels(repoOwner, repoName, pullRequestNumber, labels);
+      const reviewer = payload.comment.user.login; // reviewer username
+      if (labels.indexOf("needs review") !== -1) {
+        labels[labels.indexOf("needs review")] = "reviewed";
+        replaceLabels(repoOwner, repoName, pullRequestNumber, labels);
+        github.issues.addAssigneesToIssue({ // add assignee
+          owner: repoOwner,
+          repo: repoName,
+          number: pullRequestNumber,
+          assignees: [reviewer]
+        })
+        .catch(console.error);
+      }
     } else if (action === "synchronize") { // when PR is synchronized (commits modified)
       commitReference(body, pullRequestNumber, repoName, repoOwner); // check if edited commits reference an issue
-      if (labels.indexOf("reviewed") !== -1) labels[labels.indexOf("reviewed")] = "needs review";
-      replaceLabels(repoOwner, repoName, pullRequestNumber, labels);
+      if (labels.indexOf("reviewed") !== -1) {
+        labels[labels.indexOf("reviewed")] = "needs review";
+        replaceLabels(repoOwner, repoName, pullRequestNumber, labels);
+      }
       return;
     } else if (action === "labeled") {
       addedLabel = payload.label.name;
