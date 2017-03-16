@@ -32,7 +32,8 @@ module.exports = exports = function(payload) {
     } else if (action === "submitted") { // if pull request review was submitted
       body = payload.review.body; // contents of PR review
       const reviewer = payload.review.user.login; // reviewer username
-      if (labels.indexOf("needs review") !== -1) {
+      const author = payload.pull_request.user.login; // PR opener
+      if (labels.indexOf("needs review") !== -1 && reviewer !== author) {
         labels[labels.indexOf("needs review")] = "reviewed";
         replaceLabels(repoOwner, repoName, pullRequestNumber, labels);
         github.issues.addAssigneesToIssue({ // add assignee
@@ -46,7 +47,8 @@ module.exports = exports = function(payload) {
     } else if (action === "created") { // if PR review comment was created
       body = payload.comment.body; // contents of PR review comment
       const reviewer = payload.comment.user.login; // reviewer username
-      if (labels.indexOf("needs review") !== -1) {
+      const author = payload.pull_request.user.login; // PR opener
+      if (labels.indexOf("needs review") !== -1 && reviewer !== author) {
         labels[labels.indexOf("needs review")] = "reviewed";
         replaceLabels(repoOwner, repoName, pullRequestNumber, labels);
         github.issues.addAssigneesToIssue({ // add assignee
