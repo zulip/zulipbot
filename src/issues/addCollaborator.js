@@ -2,7 +2,7 @@
 
 const github = require("../github.js"); // GitHub wrapper initialization
 const fs = require("fs"); // for reading welcome message
-const newContributor = fs.readFileSync("./src/issues/newContributor.md", "utf8"); // get welcome message contents
+const newContributor = fs.readFileSync("./src/templates/newContributor.md", "utf8"); // get welcome message contents
 const newComment = require("./newComment.js"); // create comment
 
 module.exports = exports = function(commenter, repoName, repoOwner, issueNumber) {
