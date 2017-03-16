@@ -73,8 +73,9 @@ function scrapeInactiveIssues(references, owner, name) {
     per_page: 100
   }).then((response) => {
     response.data.forEach((issue) => {
-      const time = Date.parse(issue.updated_at); // timestamp of issue last updated
+      let time = Date.parse(issue.updated_at); // timestamp of issue last updated
       const issueNumber = issue.number; // issue number
+      if (time < references.get(issueNumber)) time = references.get(issueNumber); // get the corresponding timestamp of the PR update
       const repoName = issue.repository.name; // repository name
       const repoOwner = issue.repository.owner.login; // respository owner
       if (repoOwner !== owner || repoName !== name) return;
@@ -91,8 +92,7 @@ function scrapeInactiveIssues(references, owner, name) {
         per_page: 100
       }).then((issueComments) => {
         const labelComment = issueComments.data.find((issueComment) => {
-          let commentTime = Date.parse(issueComment.created_at); // timestamp of the warning comment
-          if (commentTime < references.get(issueNumber)) commentTime = references.get(issueNumber); // get the corresponding timestamp of the PR update
+          const commentTime = Date.parse(issueComment.created_at); // timestamp of the warning comment
           const timeLimit = now - 864000000 < commentTime && commentTime - 259200000 < now; // check if comment was made between 10 days ago and 3 days ago
           return issueComment.body.includes(comment) && timeLimit && issueComment.user.login === "zulipbot"; // find warning comment made by zulipbot between 10 days ago and 3 days ago
         });
