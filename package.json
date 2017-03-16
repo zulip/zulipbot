@@ -48,6 +48,7 @@
       "one-var": ["error", { "initialized": "never" }],
       "camelcase": "off",
       "arrow-parens": [2, "as-needed", { "requireForBlockBody": true }],
+      "max-nested-callbacks": ["error", 7],
       "max-params": ["error", 5]
     }
   },

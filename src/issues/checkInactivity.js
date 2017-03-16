@@ -3,6 +3,8 @@
 const github = require("../github.js"); // GitHub wrapper initialization
 const fs = require("fs"); // for reading welcome message
 const inactiveWarning = fs.readFileSync("./src/templates/inactiveWarning.md", "utf8"); // get warning message contents
+const updateWarning = fs.readFileSync("./src/templates/updateWarning.md", "utf8"); // get update message contents
+const needsReviewWarning = fs.readFileSync("./src/templates/needsReviewWarning.md", "utf8"); // get update message contents
 const newComment = require("./newComment.js"); // create comment
 const abandonIssue = require("./abandonIssue.js"); // abandon issue
 
@@ -24,9 +26,36 @@ module.exports = exports = function() {
         response.data.forEach((pullRequest) => { // for each PR in repository
           const body = pullRequest.body; // pull request body
           const time = Date.parse(pullRequest.updated_at); // when pull request was last updated
-          if (!body.match(/#([0-9]+)/)) return; // return if it does not reference an issue
-          const issueNumber = body.match(/#([0-9]+)/)[1]; // find first issue reference
-          references.set(issueNumber, time); // push to map
+          const number = pullRequest.number;
+          const author = pullRequest.user.login;
+          let pullRequestAssignees = [];
+          pullRequestAssignees.forEach(assignee => pullRequestAssignees.push(assignee.login)); // pull request assignees
+          let labels = [];
+          github.issues.getIssueLabels({
+            owner: repoOwner,
+            repo: repoName,
+            number: number
+          }).then((response) => {
+            response.data.forEach(label => labels.push(label.name));
+            if (time + 604800000 >= Date.now()) return; // if pull request was not updated for 7 days
+            const reviewedLabel = labels.find((label) => {
+              return label.name === "reviewed";
+            });
+            const needsReviewLabel = labels.find((label) => {
+              return label.name === "needs review";
+            });
+            let comment;
+            if (reviewedLabel) {
+              comment = "Hello @" + author.concat(", ") + updateWarning; // body of comment
+              newComment(repoOwner, repoName, number, comment); // create comment
+            } else if (needsReviewLabel) {
+              comment = "Hello @" + pullRequestAssignees.join(", @").concat(`, ${author} `) + needsReviewWarning; // body of comment
+              newComment(repoOwner, repoName, number, comment); // create comment
+            }
+            if (!body.match(/#([0-9]+)/)) return; // return if it does not reference an issue
+            const issueNumber = body.match(/#([0-9]+)/)[1]; // find first issue reference
+            references.set(issueNumber, time); // push to map
+          });
         });
         scrapeInactiveIssues(references, repoOwner, repoName); // check inactive issues using references data
       });
