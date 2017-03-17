@@ -7,7 +7,7 @@ module.exports = exports = function(body, issueNumber, repoName, repoOwner, issu
   if (!body.match(/"(.*?)"/g)) return; // return if no parameters were specified
   let addedLabels = []; // initialize array for labels to be added to issue
   let rejectedLabels = []; // initialize array for rejected labels that don't exist
-  let repoLabels = ["travis updates"]; // initialize array for existing labels in repository
+  let repoLabels = []; // initialize array for existing labels in repository
   let issueLabels = []; // initialize array for existing labels in issue
   let alreadyAdded = []; // initialize array for labels that have already been added
   github.issues.getLabels({

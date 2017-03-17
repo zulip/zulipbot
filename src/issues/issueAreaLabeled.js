@@ -2,12 +2,11 @@
 
 const github = require("../github.js"); // GitHub wrapper initialization
 const cfg = require("./config.js"); // hidden config file
-const areaLabels = require("../issues/areaLabels.js"); // map of area labels
 const newComment = require("../issues/newComment.js"); // create comment
 
 module.exports = exports = function(areaLabel, issueNumber, repoName, repoOwner, issueLabelArray) {
-  if (!areaLabels.has(areaLabel)) return; // if added label isn't an area label, return;
-  const areaLabelTeam = areaLabels.get(areaLabel); // find corresponding area label team
+  if (!cfg.areaLabels.has(areaLabel)) return; // if added label isn't an area label, return;
+  const areaLabelTeam = cfg.areaLabels.get(areaLabel); // find corresponding area label team
   github.issues.getComments({
     owner: repoOwner,
     repo: repoName,
@@ -22,9 +21,9 @@ module.exports = exports = function(areaLabel, issueNumber, repoName, repoOwner,
       let labelTeams = [];
       issueLabelArray.forEach((issueLabel) => {
         const labelName = issueLabel.name; // label name
-        if (areaLabels.has(labelName) && !issueLabels.includes(labelName)) {
+        if (cfg.areaLabels.has(labelName) && !issueLabels.includes(labelName)) {
           issueLabels.push(labelName); // push all associated area labels to array
-          labelTeams.push(areaLabels.get(labelName)); // push all associated area labels to array
+          labelTeams.push(cfg.areaLabels.get(labelName)); // push all associated area labels to array
         }
       }); // add all issue label names and area label teams to issueLabels to labelTeams
       const areaLabelTeams = labelTeams.join(`, @${repoOwner}/`);

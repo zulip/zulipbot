@@ -1,7 +1,7 @@
 "use strict";
 
 const github = require("../github.js"); // GitHub wrapper initialization
-const areaLabels = require("./areaLabels.js");
+const cfg = require("./config.js"); // hidden config file
 const newComment = require("./newComment.js"); // create comment
 
 module.exports = exports = function(body, commenter, repoOwner, repoName, issueNumber) {
@@ -17,9 +17,9 @@ module.exports = exports = function(body, commenter, repoOwner, repoName, issueN
     });
     body.match(/"(.*?)"/g).forEach((label) => {
       let labelString = label.replace(/"/g, "");
-      if (areaLabels.has(labelString)) {
-        joinedTeams.push(areaLabels.get(labelString));
-        teamIDs.push(labelTeams.get(areaLabels.get(labelString)));
+      if (cfg.areaLabels.has(labelString)) {
+        joinedTeams.push(cfg.areaLabels.get(labelString));
+        teamIDs.push(labelTeams.get(cfg.areaLabels.get(labelString)));
       }
     });
     teamIDs.forEach((teamID) => {
