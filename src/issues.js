@@ -1,5 +1,6 @@
 "use strict"; // catch errors easier
 
+const cfg = require("./config.js"); // hidden config file
 const addLabels = require("./issues/addLabels.js"); // add labels
 const claimIssue = require("./issues/claimIssue.js"); // claim issue
 const abandonIssue = require("./issues/abandonIssue.js"); // abandon issue
@@ -26,12 +27,12 @@ module.exports = exports = function(payload) {
   const issueCreator = payload.issue.user.login;
   const repoName = payload.repository.name; // issue repository
   const repoOwner = payload.repository.owner.login; // repository owner
-  if (commenter === "zulipbot") return;
+  if (commenter === cfg.username) return;
   if (addedLabel) {
     issueAreaLabeled(addedLabel, issueNumber, repoName, repoOwner, issueLabelArray); // check if issue labeled with area label
   }
   if (!body) return; // if body is empty
-  const command = body.match(/@zulipbot\s(\w*)/, "");
+  const command = body.match(new RegExp("@" + cfg.username + "\\s(\\w*)"), "");
   if (!command) return; // if there is no command
   if (body.match(/#([0-9]+)/)) {
     checkPullRequestComment(body, issueNumber, repoName, repoOwner); // check if comment is from PR

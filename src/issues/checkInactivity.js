@@ -1,6 +1,7 @@
 "use strict"; // catch errors easier
 
 const github = require("../github.js"); // GitHub wrapper initialization
+const cfg = require("../config.js"); // hidden config file
 const fs = require("fs"); // for reading welcome message
 const inactiveWarning = fs.readFileSync("./src/templates/inactiveWarning.md", "utf8"); // get warning message contents
 const updateWarning = fs.readFileSync("./src/templates/updateWarning.md", "utf8"); // get update message contents
@@ -103,7 +104,7 @@ function scrapeInactiveIssues(references, owner, name) {
         const labelComment = issueComments.data.find((issueComment) => {
           const commentTime = Date.parse(issueComment.created_at); // timestamp of the warning comment
           const timeLimit = now - 864000000 < commentTime && commentTime - 259200000 < now; // check if comment was made between 10 days ago and 3 days ago
-          return issueComment.body.includes(comment) && timeLimit && issueComment.user.login === "zulipbot"; // find warning comment made by zulipbot between 10 days ago and 3 days ago
+          return issueComment.body.includes(comment) && timeLimit && issueComment.user.login === cfg.username; // find warning comment made by zulipbot between 10 days ago and 3 days ago
         });
         if (labelComment && time + 259200000 <= now) { // if 3 day warning time limit pased and not updated
           assignees.forEach((assignee) => {

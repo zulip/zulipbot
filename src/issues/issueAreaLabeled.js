@@ -1,6 +1,7 @@
 "use strict"; // catch errors easier
 
 const github = require("../github.js"); // GitHub wrapper initialization
+const cfg = require("./config.js"); // hidden config file
 const areaLabels = require("../issues/areaLabels.js"); // map of area labels
 const newComment = require("../issues/newComment.js"); // create comment
 
@@ -14,7 +15,7 @@ module.exports = exports = function(areaLabel, issueNumber, repoName, repoOwner,
     per_page: 100
   }).then((issueComments) => {
     const labelComment = issueComments.data.find((issueComment) => {
-      return issueComment.body.includes("this issue was labeled with the") && issueComment.user.login === "zulipbot";
+      return issueComment.body.includes("this issue was labeled with the") && issueComment.user.login === cfg.username;
     });
     if (labelComment) {
       let issueLabels = []; // initialize array for area labels
