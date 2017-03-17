@@ -1,7 +1,7 @@
 "use strict";
 
 const github = require("../github.js"); // GitHub wrapper initialization
-const cfg = require("./config.js"); // hidden config file
+const cfg = require("../config.js"); // hidden config file
 const newComment = require("./newComment.js"); // create comment
 
 module.exports = exports = function(body, commenter, repoOwner, repoName, issueNumber) {

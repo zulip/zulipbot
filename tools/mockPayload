@@ -20,7 +20,7 @@
 
 const inquirer = require("inquirer");
 const github = require("../src/github.js");
-const cfg = require("./config.js");
+const cfg = require("../src/config.js");
 const addLabels = require("../src/issues/addLabels.js");
 const claimIssue = require("../src/issues/claimIssue.js");
 const abandonIssue = require("../src/issues/abandonIssue.js");
