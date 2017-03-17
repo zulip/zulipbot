@@ -22,7 +22,7 @@ module.exports = exports = function(commenter, issueNumber, repoName, repoOwner)
         assignees: [commenter]
       },
       headers: {
-        "User-Agent": "zulipbot" // User-Agent required to be sent in headers
+        "User-Agent": cfg.username // User-Agent required to be sent in headers
       },
       auth: {
         username: cfg.username,

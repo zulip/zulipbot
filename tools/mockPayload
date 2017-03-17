@@ -20,6 +20,7 @@
 
 const inquirer = require("inquirer");
 const github = require("../src/github.js");
+const cfg = require("./config.js");
 const addLabels = require("../src/issues/addLabels.js");
 const claimIssue = require("../src/issues/claimIssue.js");
 const abandonIssue = require("../src/issues/abandonIssue.js");
@@ -197,7 +198,7 @@ inquirer.prompt({
                   issueLabelArray.push({name: label.replace(/"/g, "")});
                 });
               }
-              if (commenter === "zulipbot") return;
+              if (commenter === cfg.username) return;
               if (addedLabel) {
                 issueAreaLabeled(addedLabel, issueNumber, username, "zulipbot-testing", issueLabelArray); // check if issue labeled with area label
               }

@@ -1,6 +1,7 @@
 "use strict"; // catch errors easier
 
 const github = require("../github.js"); // GitHub wrapper initialization
+const cfg = require("./config.js"); // hidden config file
 const areaLabels = require("../issues/areaLabels.js"); // map of area labels
 const newComment = require("../issues/newComment.js"); // create comment
 
@@ -17,7 +18,7 @@ module.exports = exports = function(body, pullRequestNumber, repoName, repoOwner
   }).then((pullComments) => {
     if (pullComments.data.length) {
       pullComments.data.forEach((pullComment) => {
-        if (pullComment.body.includes("this pull request references") && pullComment.user.login === "zulipbot") {
+        if (pullComment.body.includes("this pull request references") && pullComment.user.login === cfg.username) {
           mentionedLabels = mentionedLabels.concat(pullComment.body.match(/"(.*?)"/g));
         }
       });
