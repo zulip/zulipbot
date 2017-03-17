@@ -74,6 +74,10 @@ function scrapeInactiveIssues(references, owner, name) {
     per_page: 100
   }).then((response) => {
     response.data.forEach((issue) => {
+      const inactiveLabel = issue.labels.find((label) => {
+        return label.name === "inactive";
+      });
+      if (inactiveLabel) return;
       let time = Date.parse(issue.updated_at); // timestamp of issue last updated
       const issueNumber = issue.number; // issue number
       if (time < references.get(issueNumber)) time = references.get(issueNumber); // get the corresponding timestamp of the PR update
