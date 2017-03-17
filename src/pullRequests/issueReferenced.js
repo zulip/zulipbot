@@ -2,7 +2,6 @@
 
 const github = require("../github.js"); // GitHub wrapper initialization
 const cfg = require("./config.js"); // hidden config file
-const areaLabels = require("../issues/areaLabels.js"); // map of area labels
 const newComment = require("../issues/newComment.js"); // create comment
 
 module.exports = exports = function(body, pullRequestNumber, repoName, repoOwner) {
@@ -30,9 +29,9 @@ module.exports = exports = function(body, pullRequestNumber, repoName, repoOwner
     }).then((issueLabelArray) => {
       issueLabelArray.data.forEach((issueLabel) => {
         const labelName = issueLabel.name; // label name
-        if (areaLabels.has(labelName) && !issueLabels.includes(labelName) && !mentionedLabels.includes("\"" + labelName + "\"")) { // make sure the label team hasn't been mentioned yet
+        if (cfg.areaLabels.has(labelName) && !issueLabels.includes(labelName) && !mentionedLabels.includes("\"" + labelName + "\"")) { // make sure the label team hasn't been mentioned yet
           issueLabels.push(labelName); // push all associated area labels to array
-          labelTeams.push(areaLabels.get(labelName)); // push all associated area labels to array
+          labelTeams.push(cfg.areaLabels.get(labelName)); // push all associated area labels to array
         }
       }); // add all issue label names and area label teams to issueLabels to labelTeams
       const areaLabelTeams = labelTeams.join(`, @${repoOwner}/`);
