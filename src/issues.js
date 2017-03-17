@@ -43,7 +43,7 @@ module.exports = exports = function(payload) {
       claimIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot claim"
       break;
     case "label":
-      if (commenter === issueCreator) {
+      if (cfg.selfLabelingOnly && commenter === issueCreator) {
         addLabels(body, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot label" and ensure commenter opened the issue
       }
       break;
@@ -51,7 +51,7 @@ module.exports = exports = function(payload) {
       abandonIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot abandon"
       break;
     case "remove":
-      if (commenter === issueCreator) {
+      if (cfg.selfLabelingOnly && commenter === issueCreator) {
         removeLabels(body, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot remove" and ensure commenter opened the issue
       }
       break;
