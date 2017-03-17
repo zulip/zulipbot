@@ -46,19 +46,6 @@ module.exports = exports = function(payload) {
       }
     } else if (action === "created") { // if PR review comment was created
       body = payload.comment.body; // contents of PR review comment
-      const reviewer = payload.comment.user.login; // reviewer username
-      const author = payload.pull_request.user.login; // PR opener
-      if (labels.indexOf("needs review") !== -1 && reviewer !== author) {
-        labels[labels.indexOf("needs review")] = "reviewed";
-        replaceLabels(repoOwner, repoName, pullRequestNumber, labels);
-        github.issues.addAssigneesToIssue({ // add assignee
-          owner: repoOwner,
-          repo: repoName,
-          number: pullRequestNumber,
-          assignees: [reviewer]
-        })
-        .catch(console.error);
-      }
     } else if (action === "synchronize") { // when PR is synchronized (commits modified)
       commitReference(body, pullRequestNumber, repoName, repoOwner); // check if edited commits reference an issue
       if (labels.indexOf("reviewed") !== -1) {
