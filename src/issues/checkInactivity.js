@@ -43,7 +43,7 @@ module.exports = exports = function() {
             number: number
           }).then((response) => {
             response.data.forEach(label => labels.push(label.name));
-            if (time + 604800000 >= Date.now()) return; // if pull request was not updated for 7 days
+            if (time + cfg.inactivityTimeLimit >= Date.now()) return; // if pull request was not updated for 7 days
             const reviewedLabel = labels.find((label) => {
               return label.name === "reviewed";
             });
@@ -94,7 +94,7 @@ function scrapeInactiveIssues(references, owner, name) {
       const assigneeString = assignees.join(", @"); // join array of assignees
       let comment = "Hello @" + assigneeString.concat(", ") + inactiveWarning; // body of comment
       const now = Date.now();
-      if (time + 259200000 >= now) return; // if issue was not updated for 3 days
+      if (time + cfg.autoAbandonTimeLimit >= now) return; // if issue was not updated for 3 days
       github.issues.getComments({ // get comments of issue
         owner: repoOwner,
         repo: repoName,
@@ -103,10 +103,10 @@ function scrapeInactiveIssues(references, owner, name) {
       }).then((issueComments) => {
         const labelComment = issueComments.data.find((issueComment) => {
           const commentTime = Date.parse(issueComment.created_at); // timestamp of the warning comment
-          const timeLimit = now - 864000000 < commentTime && commentTime - 259200000 < now; // check if comment was made between 10 days ago and 3 days ago
+          const timeLimit = now - (cfg.autoAbandonTimeLimit + cfg.inactivityTimeLimit) < commentTime && commentTime - cfg.autoAbandonTimeLimit < now; // check if comment was made between 10 days ago and 3 days ago
           return issueComment.body.includes(comment) && timeLimit && issueComment.user.login === cfg.username; // find warning comment made by zulipbot between 10 days ago and 3 days ago
         });
-        if (labelComment && time + 259200000 <= now) { // if 3 day warning time limit pased and not updated
+        if (labelComment && time + cfg.autoAbandonTimeLimit <= now) { // if 3 day warning time limit pased and not updated
           assignees.forEach((assignee) => {
             abandonIssue(assignee, issueNumber, repoName, repoOwner); // remove each assignee
           });
@@ -121,7 +121,7 @@ function scrapeInactiveIssues(references, owner, name) {
             comment = "Hello @" + assigneeString.concat(", ") + abandonWarning; // body of comment
             newComment(repoOwner, repoName, issueNumber, comment); // create comment
           });
-        } else if (!labelComment && time + 604800000 <= now) { // if there was no warning comment made within last 7 days
+        } else if (!labelComment && time + cfg.inactivityTimeLimit <= now) { // if there was no warning comment made within last 7 days
           newComment(repoOwner, repoName, issueNumber, comment); // create comment
         }
       });
