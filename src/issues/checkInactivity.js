@@ -5,6 +5,7 @@ const fs = require("fs"); // for reading welcome message
 const inactiveWarning = fs.readFileSync("./src/templates/inactiveWarning.md", "utf8"); // get warning message contents
 const updateWarning = fs.readFileSync("./src/templates/updateWarning.md", "utf8"); // get update message contents
 const needsReviewWarning = fs.readFileSync("./src/templates/needsReviewWarning.md", "utf8"); // get update message contents
+const abandonWarning = fs.readFileSync("./src/templates/abandonWarning.md", "utf8"); // get update message contents
 const newComment = require("./newComment.js"); // create comment
 const abandonIssue = require("./abandonIssue.js"); // abandon issue
 
@@ -82,7 +83,7 @@ function scrapeInactiveIssues(references, owner, name) {
       let assignees = [];
       issue.assignees.forEach(assignee => assignees.push(assignee.login)); // issue assignees
       const assigneeString = assignees.join(", @"); // join array of assignees
-      const comment = "Hello @" + assigneeString.concat(", ") + inactiveWarning; // body of comment
+      let comment = "Hello @" + assigneeString.concat(", ") + inactiveWarning; // body of comment
       const now = Date.now();
       if (time + 259200000 >= now) return; // if issue was not updated for 3 days
       github.issues.getComments({ // get comments of issue
@@ -106,7 +107,11 @@ function scrapeInactiveIssues(references, owner, name) {
             number: issueNumber,
             name: "in progress"
           })
-          .catch(console.error);
+          .catch(console.error)
+          .then(() => {
+            comment = "Hello @" + assigneeString.concat(", ") + abandonWarning; // body of comment
+            newComment(repoOwner, repoName, issueNumber, comment); // create comment
+          });
         } else if (!labelComment && time + 604800000 <= now) { // if there was no warning comment made within last 7 days
           newComment(repoOwner, repoName, issueNumber, comment); // create comment
         }
