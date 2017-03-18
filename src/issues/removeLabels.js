@@ -2,7 +2,7 @@
 
 const github = require("../github.js"); // GitHub wrapper initialization
 const newComment = require("./newComment.js"); // create comment
-const cfg = require("../config.js"); // hidden config file
+const cfg = require("../config.js"); // config file
 
 module.exports = exports = function(body, issueNumber, repoName, repoOwner, issueLabelArray) {
   if (!body.match(/"(.*?)"/g)) return; // return if no parameters were specified

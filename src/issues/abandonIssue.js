@@ -2,7 +2,7 @@
 
 const github = require("../github.js"); // GitHub wrapper initialization
 const request = require("request-promise"); // for sending HTTP request to api.github.com
-const cfg = require("../config.js"); // hidden config file
+const cfg = require("../config.js"); // config file
 
 module.exports = exports = function(commenter, issueNumber, repoName, repoOwner) {
   let assignees = []; // initialize array for current issue assignees

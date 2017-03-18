@@ -1,7 +1,7 @@
 "use strict"; // catch errors easier
 
 const github = require("../github.js"); // GitHub wrapper initialization
-const cfg = require("../config.js"); // hidden config file
+const cfg = require("../config.js"); // config file
 const fs = require("fs"); // for reading welcome message
 const newContributor = fs.readFileSync("./src/templates/newContributor.md", "utf8"); // get welcome message contents
 const newComment = require("./newComment.js"); // create comment

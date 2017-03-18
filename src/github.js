@@ -1,6 +1,6 @@
 const GitHubApi = require("github"); // NodeJS wrapper for GitHub API
 const github = new GitHubApi(); // API client
-const cfg = require("./config.js"); // hidden config file
+const cfg = require("./config.js"); // config file
 
 github.authenticate({ // Authentication
   type: "basic",

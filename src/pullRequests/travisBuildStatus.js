@@ -2,7 +2,7 @@
 
 const github = require("../github.js"); // GitHub wrapper initialization
 const newComment = require("../issues/newComment.js"); // create comment
-const cfg = require("../config.js"); // hidden config file
+const cfg = require("../config.js"); // config file
 
 module.exports = exports = function(state, repoOwner, repoName, pullRequestNumber, buildURL) {
   let comment = "(unknown state)";

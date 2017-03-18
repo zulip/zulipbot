@@ -1,6 +1,6 @@
 "use strict"; // catch errors easier
 
-const cfg = require("./config.js"); // hidden config file
+const cfg = require("./config.js"); // config file
 const travisBuildStatus = require("./pullRequests/travisBuildStatus.js"); // Travis build status for pull request updated
 
 module.exports = exports = function(payload) {

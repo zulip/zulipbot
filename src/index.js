@@ -3,7 +3,7 @@
 // requirements
 const express = require("express");
 const bodyParser = require("body-parser");
-const cfg = require("./config.js");
+const cfg = require("./config.js"); // config file
 const issues = require("./issues.js");
 const pullRequests = require("./pullRequests.js");
 const travis = require("./travis.js");
@@ -40,4 +40,4 @@ app.post("/", function(req, res) {
   }
 });
 
-if (cfg.checkInactivityTimeout) setInterval(() => checkInactivity(), cfg.checkInactivityTimeout); // check every hour
+if (cfg.checkInactivityTimeout) setInterval(() => checkInactivity(), cfg.checkInactivityTimeout * 1000); // check every hour
