@@ -25,6 +25,10 @@ module.exports = exports = function() {
         per_page: 100
       }).then((response) => {
         response.data.forEach((pullRequest) => { // for each PR in repository
+          const inactiveLabel = pullRequest.labels.find((label) => {
+            return label.name === "inactive";
+          });
+          if (inactiveLabel) return;
           const body = pullRequest.body; // pull request body
           const time = Date.parse(pullRequest.updated_at); // when pull request was last updated
           const number = pullRequest.number;
