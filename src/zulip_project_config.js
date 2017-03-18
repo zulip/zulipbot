@@ -1,1 +1,0 @@
-/Users/Cindy/Documents/zulipbot/src/config.js
