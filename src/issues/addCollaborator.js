@@ -26,7 +26,7 @@ module.exports = exports = function(commenter, repoName, repoOwner, issueNumber)
     .catch(console.error)
     .then(() => {
       if (cfg.addInProgressLabel) github.issues.addLabels({owner: repoOwner, repo: repoName, number: issueNumber, labels: issueLabels}).catch(console.error); // add labels
-      newComment(repoOwner, repoName, issueNumber, "Congratulations, @" + commenter.concat(", ") + newContributor); // create new contributor welcome comment
+      newComment(repoOwner, repoName, issueNumber, newContributor.replace("[commenter]", commenter)); // create new contributor welcome comment
     });
   });
 };
