@@ -10,6 +10,7 @@ module.exports = {
   removeEnabled: true,
   selfLabelingOnly: true,
   joinEnabled: false,
+  escapeWIPString: "WIP",
   areaLabels: new Map([
     ["area: analytics", "server-analytics"],
     ["area: api", "server-api"],
