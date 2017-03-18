@@ -1,6 +1,7 @@
 "use strict"; // catch errors easier
 
 const github = require("./github.js"); // GitHub wrapper initialization
+const cfg = require("./config.js"); // hidden config file
 const issueAreaLabeled = require("./issues/issueAreaLabeled.js"); // issue labeled with area label
 const issueReferenced = require("./pullRequests/issueReferenced.js"); // pull request references an issue
 const commitReference = require("./pullRequests/commitReference.js"); // create comment
@@ -22,19 +23,13 @@ module.exports = exports = function(payload) {
     if (action === "opened") { // if pull request was opened
       body = payload.pull_request.body; // contents of PR body
       commitReference(body, pullRequestNumber, repoName, repoOwner);
-      github.issues.addLabels({ // add labels
-        owner: repoOwner,
-        repo: repoName,
-        number: pullRequestNumber,
-        labels: ["needs review"]
-      })
-      .catch(console.error);
+      if (cfg.trackReviews) github.issues.addLabels({owner: repoOwner, repo: repoName, number: pullRequestNumber, labels: [cfg.needsReviewLabel]}).catch(console.error); // add labels
     } else if (action === "submitted") { // if pull request review was submitted
       body = payload.review.body; // contents of PR review
       const reviewer = payload.review.user.login; // reviewer username
       const author = payload.pull_request.user.login; // PR opener
-      if (labels.indexOf("needs review") !== -1 && reviewer !== author) {
-        labels[labels.indexOf("needs review")] = "reviewed";
+      if (cfg.trackReviews && labels.indexOf(cfg.needsReviewLabel) !== -1 && reviewer !== author) {
+        labels[labels.indexOf(cfg.needsReviewLabel)] = cfg.reviewedLabel;
         replaceLabels(repoOwner, repoName, pullRequestNumber, labels);
         github.issues.addAssigneesToIssue({ // add assignee
           owner: repoOwner,
@@ -48,8 +43,8 @@ module.exports = exports = function(payload) {
       body = payload.comment.body; // contents of PR review comment
     } else if (action === "synchronize") { // when PR is synchronized (commits modified)
       commitReference(body, pullRequestNumber, repoName, repoOwner); // check if edited commits reference an issue
-      if (labels.indexOf("reviewed") !== -1) {
-        labels[labels.indexOf("reviewed")] = "needs review";
+      if (cfg.trackReviews && labels.indexOf(cfg.reviewedLabel) !== -1) {
+        labels[labels.indexOf(cfg.reviewedLabel)] = cfg.needsReviewLabel;
         replaceLabels(repoOwner, repoName, pullRequestNumber, labels);
       }
       return;

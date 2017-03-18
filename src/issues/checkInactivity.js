@@ -45,10 +45,10 @@ module.exports = exports = function() {
             response.data.forEach(label => labels.push(label.name));
             if (time + cfg.inactivityTimeLimit >= Date.now()) return; // if pull request was not updated for 7 days
             const reviewedLabel = labels.find((label) => {
-              return label.name === "reviewed";
+              return label.name === cfg.reviewedLabel && cfg.trackReviews;
             });
             const needsReviewLabel = labels.find((label) => {
-              return label.name === "needs review";
+              return label.name === cfg.needsReviewLabel && cfg.trackReviews;
             });
             if (reviewedLabel) {
               newComment(repoOwner, repoName, number, updateWarning.replace("[author]", author)); // create comment
