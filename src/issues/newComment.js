@@ -9,7 +9,7 @@ module.exports = exports = function(repoOwner, repoName, issueNumber, body) {
     repo: repoName,
     number: issueNumber
   }).then((response) => {
-    if (!body.includes("this pull request references an issue")) body = body.replace("issue", "pull request");
+    if (!body.includes("this pull request references an issue") && !body.includes("you have referenced an issue")) body = body.replace("issue", "pull request");
     if (cfg.escapeWIPString && response.data.title.includes(cfg.escapeWIPString) && body.includes("@") && !body.includes("Error")) return;
     github.issues.createComment({
       owner: repoOwner,
