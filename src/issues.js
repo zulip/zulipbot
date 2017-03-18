@@ -36,7 +36,7 @@ module.exports = exports = function(payload) {
   if (body.includes(`\`${command[0]}\``) || body.includes(`\`\`\`\r\n${command[0]}\r\n\`\`\``) || !body.match(`@${cfg.username} ${command[1]}`)) return;
   if (command[1] === "claim" && cfg.claimEnabled) claimIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot claim"
   else if (command[1] === "label" && cfg.labelEnabled && cfg.selfLabelingOnly && commenter === issueCreator) addLabels(body, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot label" and ensure commenter opened the issue
-  else if (command[1] === "abandon" && cfg.abandonEnabled) abandonIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot abandon"
+  else if ((command[1] === "abandon" || command[1] === "unclaim") && cfg.abandonEnabled) abandonIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot abandon" or "@zulipbot claim"
   else if (command[1] === "remove" && cfg.removeEnabled && cfg.selfLabelingOnly && commenter === issueCreator) removeLabels(body, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot remove" and ensure commenter opened the issue
   else if (command[1] === "join" && cfg.joinEnabled && cfg.areaLabels) joinLabelTeam(body, commenter, repoOwner, repoName, issueNumber);
 };
