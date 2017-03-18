@@ -2,6 +2,7 @@
 
 const github = require("../github.js"); // GitHub wrapper initialization
 const newComment = require("./newComment.js"); // create comment
+const cfg = require("../config.js"); // hidden config file
 
 module.exports = exports = function(body, issueNumber, repoName, repoOwner, issueLabelArray) {
   if (!body.match(/"(.*?)"/g)) return; // return if no parameters were specified
@@ -17,7 +18,7 @@ module.exports = exports = function(body, issueNumber, repoName, repoOwner, issu
   }).then((repoLabelArray) => {
     repoLabelArray.data.forEach(repoLabel => repoLabels.push(repoLabel.name));
     issueLabelArray.forEach(issueLabel => issueLabels.push(issueLabel.name)); // add all issue label names to issueLabels
-    body.split("@zulipbot label").pop().match(/"(.*?)"/g).forEach((label) => { // global regex search for content between double quotes ("")
+    body.split(`@${cfg.username} label`).pop().match(/"(.*?)"/g).forEach((label) => { // global regex search for content between double quotes ("")
       if (issueLabels.includes(label.replace(/"/g, ""))) {
         alreadyAdded.push(label); // push label to array of already added if label exists in issue already
       } else if (repoLabels.includes(label.replace(/"/g, ""))) {

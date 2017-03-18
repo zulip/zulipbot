@@ -2,6 +2,7 @@
 
 const github = require("../github.js"); // GitHub wrapper initialization
 const newComment = require("./newComment.js"); // create comment
+const cfg = require("../config.js"); // hidden config file
 
 module.exports = exports = function(body, issueNumber, repoName, repoOwner, issueLabelArray) {
   if (!body.match(/"(.*?)"/g)) return; // return if no parameters were specified
@@ -9,7 +10,7 @@ module.exports = exports = function(body, issueNumber, repoName, repoOwner, issu
   let issueLabels = []; // initialize array for labels that won't be removed
   let removedLabels = []; // initialize array for labels that are removed
   issueLabelArray.forEach(issueLabel => issueLabels.push(issueLabel.name)); // add all issue label names to issueLabels
-  body.split("@zulipbot remove").pop().match(/"(.*?)"/g).forEach((label) => { // global regex search for content between double quotes ("")
+  body.split(`@${cfg.username} remove`).pop().match(/"(.*?)"/g).forEach((label) => { // global regex search for content between double quotes ("")
     if (issueLabels.includes(label.replace(/"/g, ""))) { // check if content between quotes is a label on issue
       issueLabels.splice(issueLabels.indexOf(label.replace(/"/g, "")), 1); // label was specified to be deleted, make sure it doesn't get added back
       removedLabels.push(label);

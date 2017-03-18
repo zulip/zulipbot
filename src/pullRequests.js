@@ -22,28 +22,22 @@ module.exports = exports = function(payload) {
     response.data.forEach(label => labels.push(label.name));
     if (action === "opened") { // if pull request was opened
       body = payload.pull_request.body; // contents of PR body
-      commitReference(body, pullRequestNumber, repoName, repoOwner);
-      if (cfg.trackReviews) github.issues.addLabels({owner: repoOwner, repo: repoName, number: pullRequestNumber, labels: [cfg.needsReviewLabel]}).catch(console.error); // add labels
+      if (cfg.commitReferenceEnabled) commitReference(body, pullRequestNumber, repoName, repoOwner);
+      if (cfg.reviewedLabel && cfg.needsReviewLabel) github.issues.addLabels({owner: repoOwner, repo: repoName, number: pullRequestNumber, labels: [cfg.needsReviewLabel]}).catch(console.error); // add labels
     } else if (action === "submitted") { // if pull request review was submitted
       body = payload.review.body; // contents of PR review
       const reviewer = payload.review.user.login; // reviewer username
       const author = payload.pull_request.user.login; // PR opener
-      if (cfg.trackReviews && labels.indexOf(cfg.needsReviewLabel) !== -1 && reviewer !== author) {
+      if (cfg.reviewedLabel && cfg.needsReviewLabel && labels.indexOf(cfg.needsReviewLabel) !== -1 && reviewer !== author) {
         labels[labels.indexOf(cfg.needsReviewLabel)] = cfg.reviewedLabel;
         replaceLabels(repoOwner, repoName, pullRequestNumber, labels);
-        github.issues.addAssigneesToIssue({ // add assignee
-          owner: repoOwner,
-          repo: repoName,
-          number: pullRequestNumber,
-          assignees: [reviewer]
-        })
-        .catch(console.error);
+        github.issues.addAssigneesToIssue({owner: repoOwner, repo: repoName, number: pullRequestNumber, assignees: [reviewer]}).catch(console.error);
       }
     } else if (action === "created") { // if PR review comment was created
       body = payload.comment.body; // contents of PR review comment
     } else if (action === "synchronize") { // when PR is synchronized (commits modified)
       commitReference(body, pullRequestNumber, repoName, repoOwner); // check if edited commits reference an issue
-      if (cfg.trackReviews && labels.indexOf(cfg.reviewedLabel) !== -1) {
+      if (cfg.reviewedLabel && cfg.needsReviewLabel && labels.indexOf(cfg.reviewedLabel) !== -1) {
         labels[labels.indexOf(cfg.reviewedLabel)] = cfg.needsReviewLabel;
         replaceLabels(repoOwner, repoName, pullRequestNumber, labels);
       }
@@ -56,11 +50,11 @@ module.exports = exports = function(payload) {
         number: pullRequestNumber
       }).then((response) => {
         const issueLabelArray = response.data;
-        issueAreaLabeled(addedLabel, pullRequestNumber, repoName, repoOwner, issueLabelArray);
+        if (cfg.areaLabels) issueAreaLabeled(addedLabel, pullRequestNumber, repoName, repoOwner, issueLabelArray);
         return;
       });
     } else return;
-    if (body && body.match(/#([0-9]+)/) && action !== "opened") issueReferenced(body, pullRequestNumber, repoName, repoOwner);
+    if (body && body.match(/#([0-9]+)/) && action !== "opened" && cfg.areaLabels) issueReferenced(body, pullRequestNumber, repoName, repoOwner);
   });
 };
 

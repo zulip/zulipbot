@@ -27,7 +27,7 @@ module.exports = exports = function() {
       }).then((response) => {
         response.data.forEach((pullRequest) => { // for each PR in repository
           const inactiveLabel = pullRequest.labels.find((label) => {
-            return label.name === cfg.inactiveLabel && cfg.inactiveState;
+            return label.name === cfg.inactiveLabel;
           });
           if (inactiveLabel) return;
           const body = pullRequest.body; // pull request body
@@ -45,10 +45,10 @@ module.exports = exports = function() {
             response.data.forEach(label => labels.push(label.name));
             if (time + cfg.inactivityTimeLimit >= Date.now()) return; // if pull request was not updated for 7 days
             const reviewedLabel = labels.find((label) => {
-              return label.name === cfg.reviewedLabel && cfg.trackReviews;
+              return label.name === cfg.reviewedLabel;
             });
             const needsReviewLabel = labels.find((label) => {
-              return label.name === cfg.needsReviewLabel && cfg.trackReviews;
+              return label.name === cfg.needsReviewLabel;
             });
             if (reviewedLabel) {
               newComment(repoOwner, repoName, number, updateWarning.replace("[author]", author)); // create comment
@@ -77,7 +77,7 @@ function scrapeInactiveIssues(references, owner, name) {
   }).then((response) => {
     response.data.forEach((issue) => {
       const inactiveLabel = issue.labels.find((label) => {
-        return label.name === cfg.inactiveLabel && cfg.inactiveState;
+        return label.name === cfg.inactiveLabel;
       });
       if (inactiveLabel) return;
       let time = Date.parse(issue.updated_at); // timestamp of issue last updated
@@ -107,7 +107,7 @@ function scrapeInactiveIssues(references, owner, name) {
           assignees.forEach((assignee) => {
             abandonIssue(assignee, issueNumber, repoName, repoOwner); // remove each assignee
           });
-          if (cfg.addInProgressLabel) github.issues.removeLabel({owner: repoOwner, repo: repoName, number: issueNumber, name: cfg.inProgressLabel}).catch(console.error); // remove "in progress" label
+          if (cfg.inProgressLabel) github.issues.removeLabel({owner: repoOwner, repo: repoName, number: issueNumber, name: cfg.inProgressLabel}).catch(console.error); // remove "in progress" label
           newComment(repoOwner, repoName, issueNumber, abandonWarning.replace("[assignee]", assigneeString)); // create comment
         } else if (!labelComment && time + cfg.inactivityTimeLimit <= now) { // if there was no warning comment made within last 7 days
           newComment(repoOwner, repoName, issueNumber, comment); // create comment
