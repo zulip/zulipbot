@@ -74,7 +74,7 @@ function scrapeInactiveIssues(references, owner, name) {
     filter: "all",
     state: "open",
     sort: "updated",
-    labels: "in progress",
+    labels: cfg.inProgressLabel,
     direction: "asc",
     per_page: 100
   }).then((response) => {
@@ -110,17 +110,9 @@ function scrapeInactiveIssues(references, owner, name) {
           assignees.forEach((assignee) => {
             abandonIssue(assignee, issueNumber, repoName, repoOwner); // remove each assignee
           });
-          github.issues.removeLabel({ // remove "in progress" label
-            owner: repoOwner,
-            repo: repoName,
-            number: issueNumber,
-            name: "in progress"
-          })
-          .catch(console.error)
-          .then(() => {
-            comment = "Hello @" + assigneeString.concat(", ") + abandonWarning; // body of comment
-            newComment(repoOwner, repoName, issueNumber, comment); // create comment
-          });
+          if (cfg.addInProgressLabel) github.issues.removeLabel({owner: repoOwner, repo: repoName, number: issueNumber, name: cfg.inProgressLabel}).catch(console.error); // remove "in progress" label
+          comment = "Hello @" + assigneeString.concat(", ") + abandonWarning; // body of comment
+          newComment(repoOwner, repoName, issueNumber, comment); // create comment
         } else if (!labelComment && time + cfg.inactivityTimeLimit <= now) { // if there was no warning comment made within last 7 days
           newComment(repoOwner, repoName, issueNumber, comment); // create comment
         }
