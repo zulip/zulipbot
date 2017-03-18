@@ -27,7 +27,7 @@ module.exports = exports = function() {
       }).then((response) => {
         response.data.forEach((pullRequest) => { // for each PR in repository
           const inactiveLabel = pullRequest.labels.find((label) => {
-            return label.name === "inactive";
+            return label.name === cfg.inactiveLabel && cfg.inactiveState;
           });
           if (inactiveLabel) return;
           const body = pullRequest.body; // pull request body
@@ -80,7 +80,7 @@ function scrapeInactiveIssues(references, owner, name) {
   }).then((response) => {
     response.data.forEach((issue) => {
       const inactiveLabel = issue.labels.find((label) => {
-        return label.name === "inactive";
+        return label.name === cfg.inactiveLabel && cfg.inactiveState;
       });
       if (inactiveLabel) return;
       let time = Date.parse(issue.updated_at); // timestamp of issue last updated
