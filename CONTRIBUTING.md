@@ -139,10 +139,15 @@ with making changes:
   * `tools/newRepo` — Run this tool to create a new repository on the
   **zulipbot-testing** organization for your personal testing.
 
-  * `tools/mockPayload` — Run this payload to send a mock payload to your
+  * `tools/mockPayload` — Run this tool to send a mock payload to your
   repository on the **zulipbot-testing** organization to see how **@zulipbot**
   would respond to a certain payload according to the changes in your code once
   deployed.
+
+  * `tools/checkInactivity` — Run this tool to see how **@zulipbot** would
+  respond to open issues and pull requests on your repository on the
+  **zulipbot-testing** organization when it checks for inactive issues and
+  pull requests.
 
 ## Additional resources
 
