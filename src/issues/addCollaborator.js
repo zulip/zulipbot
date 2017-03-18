@@ -13,7 +13,7 @@ module.exports = exports = function(commenter, repoName, repoOwner, issueNumber)
     owner: repoOwner,
     repo: repoName,
     username: commenter,
-    permission: "pull"
+    permission: cfg.addCollabPermission
   })
   .catch(console.error)
   .then(() => {
