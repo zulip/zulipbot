@@ -29,12 +29,12 @@ module.exports = exports = function(commenter, issueNumber, repoName, repoOwner)
         password: cfg.password
       }
     }).then((response) => {
-      if (response.labels.find(label => label.name === "in progress") && assignees.length === 1) { // if the "in progress" label exists and only one assignee
+      if (response.labels.find(label => label.name === cfg.inProgressLabel) && assignees.length === 1 && cfg.addInProgressLabel) { // if the "in progress" label exists and only one assignee
         github.issues.removeLabel({ // remove "in progress" label
           owner: repoOwner,
           repo: repoName,
           number: issueNumber,
-          name: "in progress"
+          name: cfg.inProgressLabel
         })
         .catch(console.error);
       }
