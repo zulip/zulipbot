@@ -1,18 +1,18 @@
 const secrets = require("./secrets.js");
 
 module.exports = {
-  username: secrets.username,
-  password: secrets.password,
-  claimEnabled: true,
-  addCollabPermission: "pull",
-  abandonEnabled: true,
-  labelEnabled: true,
-  removeEnabled: true,
-  selfLabelingOnly: true,
-  joinEnabled: false,
-  escapeWIPString: "WIP",
-  areaLabels: new Map([
-    ["area: analytics", "server-analytics"],
+  username: secrets.username, // hidden username in secrets.js
+  password: secrets.password, // hidden password in secrets.js
+  claimEnabled: true, // enable/disable claim command
+  addCollabPermission: "pull", // permission level of new collaborator; collaborator will not be added if null
+  abandonEnabled: true, // enable/disable abandon command
+  labelEnabled: true, // enable/disable label command
+  removeEnabled: true, // enable/disable remove command
+  selfLabelingOnly: true, // enable/disable only issue/PR author can label their issue/PR
+  joinEnabled: false, // enable/disable join command
+  escapeWIPString: "WIP", // disable mentioning of teams on PRs with WIP string in title; teams will always be notified if null
+  areaLabels: new Map([ // map of area labels and corresponding teams; area label team references will not be enabled if null
+    ["area: analytics", "server-analytics"], // format: ["label name", "team-slug"]
     ["area: api", "server-api"],
     ["area: authentication", "server-authentication"],
     ["area: bots", "server-bots"],
@@ -53,12 +53,12 @@ module.exports = {
     ["area: topics", "server-misc"],
     ["area: uploads", "server-misc"]
   ]),
-  checkInactivityTimeout: 3600,
-  inactivityTimeLimit: 3600 * 24 * 7,
-  autoAbandonTimeLimit: 3600 * 24 * 3,
-  travisLabel: "travis updates",
-  inProgressLabel: "in progress",
-  inactiveLabel: "inactive",
-  reviewedLabel: "reviewed",
-  needsReviewLabel: "needs review"
+  checkInactivityTimeout: 3600, // how often to check for inactivity (1 hour); will not check for inactivity if null
+  inactivityTimeLimit: 3600 * 24 * 7, // time limit of inactive issue/PR (7 days)
+  autoAbandonTimeLimit: 3600 * 24 * 3, // time limit of auto-unassigning of inactive issue (3 days)
+  travisLabel: "travis updates", // label for tracking Travis build updates of PRs (needs webhook configuration .travis.yml); will not track Travis builds if null
+  inProgressLabel: "in progress", // label for progress that were claimed; will not be added to claimed issues if null
+  inactiveLabel: "inactive", // label for inactive issues/PRs that zulipbot will not track for activity; will track all issues/PRs for activity if null
+  reviewedLabel: "reviewed", // label for reviewed PRs; review system disabled if null
+  needsReviewLabel: "needs review" // label for PRs needign review; review system disabled if null
 };
