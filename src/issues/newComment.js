@@ -1,7 +1,7 @@
 "use strict"; // catch errors easier
 
 const github = require("../github.js"); // GitHub wrapper initialization
-const cfg = require("./config.js"); // config file
+const cfg = require("../config.js"); // config file
 
 module.exports = exports = function(repoOwner, repoName, issueNumber, body) {
   github.pullRequests.get({
