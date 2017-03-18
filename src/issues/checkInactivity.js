@@ -1,7 +1,7 @@
 "use strict"; // catch errors easier
 
 const github = require("../github.js"); // GitHub wrapper initialization
-const cfg = require("../config.js"); // hidden config file
+const cfg = require("../config.js"); // config file
 const fs = require("fs"); // for reading welcome message
 const inactiveWarning = fs.readFileSync("./src/templates/inactiveWarning.md", "utf8"); // get warning message contents
 const updateWarning = fs.readFileSync("./src/templates/updateWarning.md", "utf8"); // get update message contents
@@ -43,7 +43,7 @@ module.exports = exports = function() {
             number: number
           }).then((response) => {
             response.data.forEach(label => labels.push(label.name));
-            if (time + cfg.inactivityTimeLimit >= Date.now()) return; // if pull request was not updated for 7 days
+            if (time + cfg.inactivityTimeLimit * 1000 >= Date.now()) return; // if pull request was not updated for 7 days
             const reviewedLabel = labels.find((label) => {
               return label.name === cfg.reviewedLabel;
             });
@@ -91,7 +91,7 @@ function scrapeInactiveIssues(references, owner, name) {
       const assigneeString = assignees.join(", @"); // join array of assignees
       const comment = inactiveWarning.replace("[assignee]", assigneeString); // body of comment
       const now = Date.now();
-      if (time + cfg.autoAbandonTimeLimit >= now) return; // if issue was not updated for 3 days
+      if (time + cfg.autoAbandonTimeLimit * 1000 >= now) return; // if issue was not updated for 3 days
       github.issues.getComments({ // get comments of issue
         owner: repoOwner,
         repo: repoName,
@@ -100,16 +100,16 @@ function scrapeInactiveIssues(references, owner, name) {
       }).then((issueComments) => {
         const labelComment = issueComments.data.find((issueComment) => {
           const commentTime = Date.parse(issueComment.created_at); // timestamp of the warning comment
-          const timeLimit = now - (cfg.autoAbandonTimeLimit + cfg.inactivityTimeLimit) < commentTime && commentTime - cfg.autoAbandonTimeLimit < now; // check if comment was made between 10 days ago and 3 days ago
+          const timeLimit = now - (cfg.autoAbandonTimeLimit * 1000 + cfg.inactivityTimeLimit * 1000) < commentTime && commentTime - cfg.autoAbandonTimeLimit * 1000 < now; // check if comment was made between 10 days ago and 3 days ago
           return issueComment.body.includes(comment) && timeLimit && issueComment.user.login === cfg.username; // find warning comment made by zulipbot between 10 days ago and 3 days ago
         });
-        if (labelComment && time + cfg.autoAbandonTimeLimit <= now) { // if 3 day warning time limit pased and not updated
+        if (labelComment && time + cfg.autoAbandonTimeLimit * 1000 <= now) { // if 3 day warning time limit pased and not updated
           assignees.forEach((assignee) => {
             abandonIssue(assignee, issueNumber, repoName, repoOwner); // remove each assignee
           });
           if (cfg.inProgressLabel) github.issues.removeLabel({owner: repoOwner, repo: repoName, number: issueNumber, name: cfg.inProgressLabel}).catch(console.error); // remove "in progress" label
           newComment(repoOwner, repoName, issueNumber, abandonWarning.replace("[assignee]", assigneeString)); // create comment
-        } else if (!labelComment && time + cfg.inactivityTimeLimit <= now) { // if there was no warning comment made within last 7 days
+        } else if (!labelComment && time + cfg.inactivityTimeLimit * 1000 <= now) { // if there was no warning comment made within last 7 days
           newComment(repoOwner, repoName, issueNumber, comment); // create comment
         }
       });

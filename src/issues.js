@@ -1,6 +1,6 @@
 "use strict"; // catch errors easier
 
-const cfg = require("./config.js"); // hidden config file
+const cfg = require("./config.js"); // config file
 const addLabels = require("./issues/addLabels.js"); // add labels
 const claimIssue = require("./issues/claimIssue.js"); // claim issue
 const abandonIssue = require("./issues/abandonIssue.js"); // abandon issue

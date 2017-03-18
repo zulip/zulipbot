@@ -1,7 +1,7 @@
 "use strict"; // catch errors easier
 
 const github = require("../github.js"); // GitHub wrapper initialization
-const cfg = require("../config.js"); // hidden config file
+const cfg = require("../config.js"); // config file
 const addCollaborator = require("./addCollaborator.js"); // add collaborator
 
 module.exports = exports = function(commenter, issueNumber, repoName, repoOwner) {
