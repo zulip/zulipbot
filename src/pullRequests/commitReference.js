@@ -10,7 +10,7 @@ module.exports = exports = function(body, pullRequestNumber, repoName, repoOwner
     number: pullRequestNumber
   }).then((response) => {
     response.data.forEach((pullRequest) => {
-      const message = pullRequest.commit.message.split("\n\n")[1];
+      const message = pullRequest.commit.message;
       if (!message) return;
       if (message.match(/#([0-9]+)/)) issueReferenced(message, pullRequestNumber, repoName, repoOwner);
     });
