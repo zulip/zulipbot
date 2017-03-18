@@ -74,48 +74,53 @@ function scrapeInactiveIssues(references, owner, name) {
     per_page: 100
   }).then((response) => {
     response.data.forEach((issue) => {
-      let time = Date.parse(issue.updated_at); // timestamp of issue last updated
-      const issueNumber = issue.number; // issue number
-      if (time < references.get(issueNumber)) time = references.get(issueNumber); // get the corresponding timestamp of the PR update
-      const repoName = issue.repository.name; // repository name
-      const repoOwner = issue.repository.owner.login; // respository owner
-      if (repoOwner !== owner || repoName !== name) return;
-      let assignees = [];
-      issue.assignees.forEach(assignee => assignees.push(assignee.login)); // issue assignees
-      const assigneeString = assignees.join(", @"); // join array of assignees
-      let comment = "Hello @" + assigneeString.concat(", ") + inactiveWarning; // body of comment
-      const now = Date.now();
-      if (time + 259200000 >= now) return; // if issue was not updated for 3 days
-      github.issues.getComments({ // get comments of issue
-        owner: repoOwner,
-        repo: repoName,
-        number: issueNumber,
-        per_page: 100
-      }).then((issueComments) => {
-        const labelComment = issueComments.data.find((issueComment) => {
-          const commentTime = Date.parse(issueComment.created_at); // timestamp of the warning comment
-          const timeLimit = now - 864000000 < commentTime && commentTime - 259200000 < now; // check if comment was made between 10 days ago and 3 days ago
-          return issueComment.body.includes(comment) && timeLimit && issueComment.user.login === "zulipbot"; // find warning comment made by zulipbot between 10 days ago and 3 days ago
-        });
-        if (labelComment && time + 259200000 <= now) { // if 3 day warning time limit pased and not updated
-          assignees.forEach((assignee) => {
-            abandonIssue(assignee, issueNumber, repoName, repoOwner); // remove each assignee
-          });
-          github.issues.removeLabel({ // remove "in progress" label
-            owner: repoOwner,
-            repo: repoName,
-            number: issueNumber,
-            name: "in progress"
-          })
-          .catch(console.error)
-          .then(() => {
-            comment = "Hello @" + assigneeString.concat(", ") + abandonWarning; // body of comment
-            newComment(repoOwner, repoName, issueNumber, comment); // create comment
-          });
-        } else if (!labelComment && time + 604800000 <= now) { // if there was no warning comment made within last 7 days
-          newComment(repoOwner, repoName, issueNumber, comment); // create comment
-        }
+      const inactiveLabel = issue.labels.find((label) => {
+        return label.name === "inactive";
       });
+      if (inactiveLabel === undefined) {
+        let time = Date.parse(issue.updated_at); // timestamp of issue last updated
+        const issueNumber = issue.number; // issue number
+        if (time < references.get(issueNumber)) time = references.get(issueNumber); // get the corresponding timestamp of the PR update
+        const repoName = issue.repository.name; // repository name
+        const repoOwner = issue.repository.owner.login; // respository owner
+        if (repoOwner !== owner || repoName !== name) return;
+        let assignees = [];
+        issue.assignees.forEach(assignee => assignees.push(assignee.login)); // issue assignees
+        const assigneeString = assignees.join(", @"); // join array of assignees
+        let comment = "Hello @" + assigneeString.concat(", ") + inactiveWarning; // body of comment
+        const now = Date.now();
+        if (time + 259200000 >= now) return; // if issue was not updated for 3 days
+        github.issues.getComments({ // get comments of issue
+          owner: repoOwner,
+          repo: repoName,
+          number: issueNumber,
+          per_page: 100
+        }).then((issueComments) => {
+          const labelComment = issueComments.data.find((issueComment) => {
+            const commentTime = Date.parse(issueComment.created_at); // timestamp of the warning comment
+            const timeLimit = now - 864000000 < commentTime && commentTime - 259200000 < now; // check if comment was made between 10 days ago and 3 days ago
+            return issueComment.body.includes(comment) && timeLimit && issueComment.user.login === "zulipbot"; // find warning comment made by zulipbot between 10 days ago and 3 days ago
+          });
+          if (labelComment && time + 259200000 <= now) { // if 3 day warning time limit pased and not updated
+            assignees.forEach((assignee) => {
+              abandonIssue(assignee, issueNumber, repoName, repoOwner); // remove each assignee
+            });
+            github.issues.removeLabel({ // remove "in progress" label
+              owner: repoOwner,
+              repo: repoName,
+              number: issueNumber,
+              name: "in progress"
+            })
+            .catch(console.error)
+            .then(() => {
+              comment = "Hello @" + assigneeString.concat(", ") + abandonWarning; // body of comment
+              newComment(repoOwner, repoName, issueNumber, comment); // create comment
+            });
+          } else if (!labelComment && time + 604800000 <= now) { // if there was no warning comment made within last 7 days
+            newComment(repoOwner, repoName, issueNumber, comment); // create comment
+          }
+        });
+      }
     });
   });
 }
