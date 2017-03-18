@@ -1,0 +1,49 @@
+#!/usr/bin/env node
+ //
+//                          88  88               88                                                                      88
+//                          88  ""               88                         ,d           ,d                              88
+//                          88                   88                         88           88                              88
+//  888888888  88       88  88  88  8b,dPPYba,   88,dPPYba,    ,adPPYba,  MM88MMM      MM88MMM  ,adPPYba,    ,adPPYba,   88  ,adPPYba,
+//       a8P"  88       88  88  88  88P"    "8a  88P"    "8a  a8"     "8a   88           88    a8"     "8a  a8"     "8a  88  I8[    ""
+//    ,d8P"    88       88  88  88  88       d8  88       d8  8b       d8   88           88    8b       d8  8b       d8  88   `"Y8ba,
+//  ,d8"       "8a,   ,a88  88  88  88b,   ,a8"  88b,   ,a8"  "8a,   ,a8"   88,          88,   "8a,   ,a8"  "8a,   ,a8"  88  aa    ]8I
+//  888888888   `"YbbdP"Y8  88  88  88`YbbdP""   8Y"Ybbd8""    `"YbbdP""    "Y888        "Y888  `"YbbdP""    `"YbbdP""   88  `"YbbdP""
+//                                  88
+//                                  88
+//
+//   .o88b. db   db d88888b  .o88b. db   dD d888888b d8b   db  .d8b.   .o88b. d888888b d888888b db    db d888888b d888888b db    db
+//  d8P  Y8 88   88 88'     d8P  Y8 88 ,8P'   `88'   888o  88 d8' `8b d8P  Y8 `~~88~~'   `88'   88    88   `88'   `~~88~~' `8b  d8'
+//  8P      88ooo88 88ooooo 8P      88,8P      88    88V8o 88 88ooo88 8P         88       88    Y8    8P    88       88     `8bd8'
+//  8b      88~~~88 88~~~~~ 8b      88`8b      88    88 V8o88 88~~~88 8b         88       88    `8b  d8'    88       88       88
+//  Y8b  d8 88   88 88.     Y8b  d8 88 `88.   .88.   88  V888 88   88 Y8b  d8    88      .88.    `8bd8'    .88.      88       88
+//   `Y88P' YP   YP Y88888P  `Y88P' YP   YD Y888888P VP   V8P YP   YP  `Y88P'    YP    Y888888P    YP    Y888888P    YP       YP                                                                                                                              
+
+const inquirer = require("inquirer");
+const github = require("../src/github.js");
+const checkInactivity = require("../src/issues/checkInactivity.js");
+
+console.log("       _               _    ___                  _   _       _ _         \r\n   ___| |__   ___  ___| | _|_ _|_ __   __ _  ___| |_(___   _(_| |_ _   _ \r\n  \/ __| \'_ \\ \/ _ \\\/ __| |\/ \/| || \'_ \\ \/ _` |\/ __| __| \\ \\ \/ | | __| | | |\r\n | (__| | | |  __| (__|   < | || | | | (_| | (__| |_| |\\ V \/| | |_| |_| |\r\n  \\___|_| |_|\\___|\\___|_|\\_|___|_| |_|\\__,_|\\___|\\__|_| \\_\/ |_|\\__|\\__, |\r\n                                                                   |___\/ ");
+console.log("Hello, welcome to checkInactivity!");
+console.log("~ Check your zulipbot-testing repository for inactive issues and pull requests ~\n");
+inquirer.prompt({
+  type: "input",
+  name: "username",
+  message: "What's your GitHub username?"
+}).then((response) => {
+  const username = response.username;
+  github.repos.get({
+    owner: "zulipbot-testing",
+    repo: username
+  })
+  .then(() => {
+    inquirer.prompt({
+      type: "confirm",
+      name: "confirm",
+      message: "Are you sure you want to check your repository for inactive issues and pull requests??"
+    }).then((answer) => {
+      if (answer.confirm) checkInactivity();
+    }, () => {
+      console.log("You don't have a repository on zulipbot-testing yet! Please make one before running this tool again.");
+    });
+  });
+});
