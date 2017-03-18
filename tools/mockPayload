@@ -123,7 +123,7 @@ inquirer.prompt({
               const body = response.body;
               const travis = response.travis;
               const buildURL = response.buildURL;
-              if (body && body.match(/#([0-9]+)/) && action !== "opened" && cfg.areaLabels) {
+              if (body && body.match(/#([0-9]+)/) && cfg.areaLabels) {
                 issueReferenced(body, pullRequestNumber, repoName, repoOwner);
                 console.log(`Payload sent! Check https://github.com/zulipbot-testing/${username}/pull/${issueNumber} for any responses.`);
               } else if (travis && buildURL && cfg.travisLabel) {
