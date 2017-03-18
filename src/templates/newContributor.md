@@ -1,4 +1,4 @@
-you've successfully claimed your first issue! Since you're a new contributor, you now have pull (read-only) access to this repository.
+Congratulations, @[commenter], you've successfully claimed your first issue! Since you're a new contributor, you now have pull (read-only) access to this repository.
 
 Please review our [code contribution guidelines](http://zulip.readthedocs.io/en/latest/index.html#code-docs) and sign the [Dropbox Contributor License Agreement](https://opensource.dropbox.com/cla/) before opening any pull requests for any issues that you're working on.
 

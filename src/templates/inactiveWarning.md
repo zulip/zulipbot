@@ -1,4 +1,4 @@
-you claimed this issue to work on it, but this issue and any referenced pull requests haven't been updated for a week. Are you still working on this issue?
+Hello @[assignee], you claimed this issue to work on it, but this issue and any referenced pull requests haven't been updated for a week. Are you still working on this issue?
 
 If so, please update this issue by leaving a comment on this issue to let me know that you're still working on this issue within 3 days, or else I'll automatically remove your assignment from this issue.
 

@@ -50,13 +50,10 @@ module.exports = exports = function() {
             const needsReviewLabel = labels.find((label) => {
               return label.name === "needs review";
             });
-            let comment;
             if (reviewedLabel) {
-              comment = "Hello @" + author.concat(", ") + updateWarning; // body of comment
-              newComment(repoOwner, repoName, number, comment); // create comment
+              newComment(repoOwner, repoName, number, updateWarning.replace("[author]", author)); // create comment
             } else if (needsReviewLabel) {
-              comment = "Hello @" + pullRequestAssignees.join(", @").concat(`, ${author} `) + needsReviewWarning; // body of comment
-              newComment(repoOwner, repoName, number, comment); // create comment
+              newComment(repoOwner, repoName, number, needsReviewWarning.replace("[assignees], @[author]", pullRequestAssignees.join(", @").concat(`, @${author}`))); // create comment
             }
             if (!body.match(/#([0-9]+)/)) return; // return if it does not reference an issue
             const issueNumber = body.match(/#([0-9]+)/)[1]; // find first issue reference
@@ -92,7 +89,7 @@ function scrapeInactiveIssues(references, owner, name) {
       let assignees = [];
       issue.assignees.forEach(assignee => assignees.push(assignee.login)); // issue assignees
       const assigneeString = assignees.join(", @"); // join array of assignees
-      let comment = "Hello @" + assigneeString.concat(", ") + inactiveWarning; // body of comment
+      const comment = inactiveWarning.replace("[assignee]", assigneeString); // body of comment
       const now = Date.now();
       if (time + cfg.autoAbandonTimeLimit >= now) return; // if issue was not updated for 3 days
       github.issues.getComments({ // get comments of issue
@@ -111,8 +108,7 @@ function scrapeInactiveIssues(references, owner, name) {
             abandonIssue(assignee, issueNumber, repoName, repoOwner); // remove each assignee
           });
           if (cfg.addInProgressLabel) github.issues.removeLabel({owner: repoOwner, repo: repoName, number: issueNumber, name: cfg.inProgressLabel}).catch(console.error); // remove "in progress" label
-          comment = "Hello @" + assigneeString.concat(", ") + abandonWarning; // body of comment
-          newComment(repoOwner, repoName, issueNumber, comment); // create comment
+          newComment(repoOwner, repoName, issueNumber, abandonWarning.replace("[assignee]", assigneeString)); // create comment
         } else if (!labelComment && time + cfg.inactivityTimeLimit <= now) { // if there was no warning comment made within last 7 days
           newComment(repoOwner, repoName, issueNumber, comment); // create comment
         }
