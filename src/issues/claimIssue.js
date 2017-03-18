@@ -22,7 +22,7 @@ module.exports = exports = function(commenter, issueNumber, repoName, repoOwner)
       })
       .catch(console.error)
       .then(() => {
-        if (cfg.addInProgressLabel) github.issues.addLabels({owner: repoOwner, repo: repoName, number: issueNumber, labels: issueLabels}).catch(console.error); // add labels
+        if (cfg.inProgressLabel) github.issues.addLabels({owner: repoOwner, repo: repoName, number: issueNumber, labels: issueLabels}).catch(console.error); // add labels
       });
     }
   }, (response) => {
