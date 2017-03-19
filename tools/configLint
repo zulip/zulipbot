@@ -1,0 +1,44 @@
+#!/usr/bin/env node
+ //
+//                          88  88               88                                                                      88
+//                          88  ""               88                         ,d           ,d                              88
+//                          88                   88                         88           88                              88
+//  888888888  88       88  88  88  8b,dPPYba,   88,dPPYba,    ,adPPYba,  MM88MMM      MM88MMM  ,adPPYba,    ,adPPYba,   88  ,adPPYba,
+//       a8P"  88       88  88  88  88P"    "8a  88P"    "8a  a8"     "8a   88           88    a8"     "8a  a8"     "8a  88  I8[    ""
+//    ,d8P"    88       88  88  88  88       d8  88       d8  8b       d8   88           88    8b       d8  8b       d8  88   `"Y8ba,
+//  ,d8"       "8a,   ,a88  88  88  88b,   ,a8"  88b,   ,a8"  "8a,   ,a8"   88,          88,   "8a,   ,a8"  "8a,   ,a8"  88  aa    ]8I
+//  888888888   `"YbbdP"Y8  88  88  88`YbbdP""   8Y"Ybbd8""    `"YbbdP""    "Y888        "Y888  `"YbbdP""    `"YbbdP""   88  `"YbbdP""
+//                                  88
+//                                  88
+//
+//   .o88b.  .d88b.  d8b   db d88888b d888888b  d888b  db      d888888b d8b   db d888888b
+//  d8P  Y8 .8P  Y8. 888o  88 88'       `88'   88' Y8b 88        `88'   888o  88 `~~88~~'
+//  8P      88    88 88V8o 88 88ooo      88    88      88         88    88V8o 88    88
+//  8b      88    88 88 V8o88 88~~~      88    88  ooo 88         88    88 V8o88    88
+//  Y8b  d8 `8b  d8' 88  V888 88        .88.   88. ~8~ 88booo.   .88.   88  V888    88
+//   `Y88P'  `Y88P'  VP   V8P YP      Y888888P  Y888P  Y88888P Y888888P VP   V8P    YP
+
+"use strict";
+
+const cmd = require("node-cmd");
+const inquirer = require("inquirer")
+
+console.log("                   __ _       _      _       _   \r\n                  \/ _(_)     | |    (_)     | |  \r\n   ___ ___  _ __ | |_ _  __ _| |     _ _ __ | |_ \r\n  \/ __\/ _ \\| \'_ \\|  _| |\/ _` | |    | | \'_ \\| __|\r\n | (_| (_) | | | | | | | (_| | |____| | | | | |_ \r\n  \\___\\___\/|_| |_|_| |_|\\__, |______|_|_| |_|\\__|\r\n                         __\/ |                   \r\n                        |___\/                    \n");
+console.log("Hello, welcome to configLint!");
+console.log("~ Check your configuration file (./src/config.js) for errors! ~\n");
+
+inquirer.prompt({
+  type: "confirm",
+  name: "confirm",
+  message: "Are you sure you want to test ./src/config.js?"
+}).then((answer) => {
+  if (answer.confirm === true) {
+    cmd.get(
+      "mocha ./test/configLint.js",
+      function(data) {
+        console.log(data);
+        console.log("Testing complete!\n");
+      }
+    );
+  }
+});
