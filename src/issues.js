@@ -30,13 +30,29 @@ module.exports = exports = function(payload) {
   if (commenter === cfg.username) return;
   if (addedLabel && cfg.areaLabels) issueAreaLabeled(addedLabel, issueNumber, repoName, repoOwner, issueLabelArray); // check if issue labeled with area label
   if (!body) return; // if body is empty
-  const command = body.match(new RegExp("@" + cfg.username + "\\s(\\w*)"), "");
-  if (!command) return; // if there is no command
+  const commands = body.match(new RegExp("@" + cfg.username + "\\s(\\w*)", "g"));
+  if (!commands) return; // if there is no command
   if (body.match(/#([0-9]+)/) && cfg.areaLabels) checkPullRequestComment(body, issueNumber, repoName, repoOwner); // check if comment is from PR
-  if (body.includes(`\`${command[0]}\``) || body.includes(`\`\`\`\r\n${command[0]}\r\n\`\`\``) || !body.match(`@${cfg.username} ${command[1]}`)) return;
-  if (command[1] === "claim" && cfg.claimEnabled) claimIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot claim"
-  else if (command[1] === "label" && cfg.labelEnabled && cfg.selfLabelingOnly && commenter === issueCreator) addLabels(body, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot label" and ensure commenter opened the issue
-  else if ((command[1] === "abandon" || command[1] === "unclaim") && cfg.abandonEnabled) abandonIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot abandon" or "@zulipbot claim"
-  else if (command[1] === "remove" && cfg.removeEnabled && cfg.selfLabelingOnly && commenter === issueCreator) removeLabels(body, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot remove" and ensure commenter opened the issue
-  else if (command[1] === "join" && cfg.joinEnabled && cfg.areaLabels) joinLabelTeam(body, commenter, repoOwner, repoName, issueNumber);
+  commands.forEach((command) => {
+    if (body.includes(`\`${command}\``) || body.includes(`\`\`\`\r\n${command}\r\n\`\`\``)) return;
+    const commandName = command.split(" ")[1];
+    if (commandName === "claim" && cfg.claimEnabled) claimIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot claim"
+    else if ((commandName === "abandon" || commandName === "unclaim") && cfg.abandonEnabled) abandonIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot abandon" or "@zulipbot claim"
+    else if (commandName === "label" && cfg.labelEnabled && cfg.selfLabelingOnly && commenter === issueCreator) {
+      const splitBody = body.split(`@${cfg.username}`).filter((splitString) => {
+        return splitString.includes(" label \"");
+      }).join(" ");
+      addLabels(splitBody, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot label" and ensure commenter opened the issue
+    } else if (commandName === "remove" && cfg.removeEnabled && cfg.selfLabelingOnly && commenter === issueCreator) {
+      const splitBody = body.split(`@${cfg.username}`).filter((splitString) => {
+        return splitString.includes(" remove \"");
+      }).join(" ");
+      removeLabels(splitBody, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot remove" and ensure commenter opened the issue
+    } else if (commandName === "join" && cfg.joinEnabled && cfg.areaLabels) {
+      const splitBody = body.split(`@${cfg.username}`).filter((splitString) => {
+        return splitString.includes(" join \"");
+      }).join(" ");
+      joinLabelTeam(splitBody, commenter, repoOwner, repoName, issueNumber); // check body content for "@zulipbot join"
+    }
+  });
 };
