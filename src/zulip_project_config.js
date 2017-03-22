@@ -10,6 +10,7 @@ module.exports = {
   removeEnabled: true, // enable/disable remove command
   selfLabelingOnly: true, // enable/disable only issue/PR author can label their issue/PR
   joinEnabled: false, // enable/disable join command
+  commitReferenceEnabled: true, // enable/disable commit reference notifications for label teams
   escapeWIPString: "WIP", // disable mentioning of teams on PRs with WIP string in title; teams will always be notified if null
   areaLabels: new Map([ // map of area labels and corresponding teams; area label team references will not be enabled if null
     ["area: analytics", "server-analytics"], // format: ["label name", "team-slug"]

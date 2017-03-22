@@ -9,10 +9,16 @@ module.exports = exports = function(body, pullRequestNumber, repoName, repoOwner
     repo: repoName,
     number: pullRequestNumber
   }).then((response) => {
+    let multipleReferences = [];
     response.data.forEach((pullRequest) => {
       const message = pullRequest.commit.message;
       if (!message) return;
-      if (message.match(/#([0-9]+)/)) issueReferenced(message, pullRequestNumber, repoName, repoOwner);
+      const reference = message.match(/#([0-9]+)/);
+      if (!reference) return;
+      if (!multipleReferences.includes(reference[1])) {
+        issueReferenced(message, pullRequestNumber, repoName, repoOwner);
+        multipleReferences.push(reference[1]);
+      }
     });
   });
 };

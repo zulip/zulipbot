@@ -22,7 +22,7 @@ module.exports = exports = function(payload) {
     response.data.forEach(label => labels.push(label.name));
     if (action === "opened") { // if pull request was opened
       body = payload.pull_request.body; // contents of PR body
-      if (cfg.commitReferenceEnabled) commitReference(body, pullRequestNumber, repoName, repoOwner);
+      if (cfg.areaLabels && cfg.commitReferenceEnabled) commitReference(body, pullRequestNumber, repoName, repoOwner);
       if (cfg.reviewedLabel && cfg.needsReviewLabel) github.issues.addLabels({owner: repoOwner, repo: repoName, number: pullRequestNumber, labels: [cfg.needsReviewLabel]}).catch(console.error); // add labels
     } else if (action === "submitted") { // if pull request review was submitted
       body = payload.review.body; // contents of PR review
@@ -36,7 +36,7 @@ module.exports = exports = function(payload) {
     } else if (action === "created") { // if PR review comment was created
       body = payload.comment.body; // contents of PR review comment
     } else if (action === "synchronize") { // when PR is synchronized (commits modified)
-      commitReference(body, pullRequestNumber, repoName, repoOwner); // check if edited commits reference an issue
+      if (cfg.areaLabels && cfg.commitReferenceEnabled) commitReference(body, pullRequestNumber, repoName, repoOwner); // check if edited commits reference an issue
       if (cfg.reviewedLabel && cfg.needsReviewLabel && labels.indexOf(cfg.reviewedLabel) !== -1) {
         labels[labels.indexOf(cfg.reviewedLabel)] = cfg.needsReviewLabel;
         replaceLabels(repoOwner, repoName, pullRequestNumber, labels);
