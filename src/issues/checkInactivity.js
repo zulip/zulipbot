@@ -26,10 +26,6 @@ module.exports = exports = function() {
         per_page: 100
       }).then((response) => {
         response.data.forEach((pullRequest) => { // for each PR in repository
-          const inactiveLabel = pullRequest.labels.find((label) => {
-            return label.name === cfg.inactiveLabel;
-          });
-          if (inactiveLabel) return;
           const body = pullRequest.body; // pull request body
           const time = Date.parse(pullRequest.updated_at); // when pull request was last updated
           const number = pullRequest.number;
@@ -43,6 +39,10 @@ module.exports = exports = function() {
             number: number
           }).then((response) => {
             response.data.forEach(label => labels.push(label.name));
+            const inactiveLabel = labels.find((label) => {
+              return label.name === cfg.inactiveLabel;
+            });
+            if (inactiveLabel) return;
             if (time + (cfg.inactivityTimeLimit * 1000) >= Date.now()) return; // if pull request was not updated for 7 days
             const reviewedLabel = labels.find((label) => {
               return label.name === cfg.reviewedLabel;
