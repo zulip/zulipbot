@@ -1,5 +1,6 @@
 "use strict"; // catch errors easier
 
+const github = require("./github.js"); // config file
 const cfg = require("./config.js"); // config file
 const addLabels = require("./issues/addLabels.js"); // add labels
 const claimIssue = require("./issues/claimIssue.js"); // claim issue
@@ -12,6 +13,11 @@ const joinLabelTeam = require("./issues/joinLabelTeam.js"); // join label team
 module.exports = exports = function(payload) {
   // get necessary information from request body
   const action = payload.action;
+  const issueLabelArray = payload.issue.labels;
+  const issueNumber = payload.issue.number; // number of issue
+  const issueCreator = payload.issue.user.login;
+  const repoName = payload.repository.name; // issue repository
+  const repoOwner = payload.repository.owner.login; // repository owner
   let commenter, body, addedLabel; // initialize variables for commenter, issue (comment) body, and added label
   if (action === "opened") { // if issue was opened
     commenter = payload.issue.user.login; // issue creator's username
@@ -19,16 +25,16 @@ module.exports = exports = function(payload) {
   } else if (action === "created") { // if issue comment was created
     commenter = payload.comment.user.login; // commenter's username
     body = payload.comment.body; // contents of issue comment
-  } else if (action === "labeled") {
+  } else if (action === "labeled" && cfg.areaLabels) {
     addedLabel = payload.label.name;
+    issueAreaLabeled(addedLabel, issueNumber, repoName, repoOwner, issueLabelArray); // check if issue labeled with area label
+    return;
+  } else if (action === "closed") {
+    const hasInProgressLabel = issueLabelArray.find(issueLabel => issueLabel.name === cfg.inProgressLabel);
+    if (hasInProgressLabel) github.issues.removeLabel({owner: repoOwner, repo: repoName, number: issueNumber, name: cfg.inProgressLabel});
+    return;
   } else return;
-  const issueLabelArray = payload.issue.labels;
-  const issueNumber = payload.issue.number; // number of issue
-  const issueCreator = payload.issue.user.login;
-  const repoName = payload.repository.name; // issue repository
-  const repoOwner = payload.repository.owner.login; // repository owner
   if (commenter === cfg.username) return;
-  if (addedLabel && cfg.areaLabels) issueAreaLabeled(addedLabel, issueNumber, repoName, repoOwner, issueLabelArray); // check if issue labeled with area label
   if (!body) return; // if body is empty
   const commands = body.match(new RegExp("@" + cfg.username + "\\s(\\w*)", "g"));
   if (!commands) return; // if there is no command
