@@ -4,29 +4,39 @@ const assert = require("chai").assert;
 const cfg = require("../src/config.js"); // config file
 
 describe("config.js lint", function() {
-  it("claimEnabled should be a boolean.", function() {
-    assert.isNotNull(cfg.claimEnabled);
-    assert.typeOf(cfg.claimEnabled, "boolean");
+  it("claimCommands should be an array that only contains strings.", function() {
+    assert.typeOf(cfg.claimCommands, "array");
+    cfg.claimCommands.forEach((command) => {
+      assert.typeOf(command, "string");
+    });
   });
-  it("abandonEnabled should be a boolean.", function() {
-    assert.isNotNull(cfg.abandonEnabled);
-    assert.typeOf(cfg.abandonEnabled, "boolean");
+  it("abandonCommands should be an array that only contains strings.", function() {
+    assert.typeOf(cfg.abandonCommands, "array");
+    cfg.abandonCommands.forEach((command) => {
+      assert.typeOf(command, "string");
+    });
   });
-  it("labelEnabled should be a boolean.", function() {
-    assert.isNotNull(cfg.labelEnabled);
-    assert.typeOf(cfg.labelEnabled, "boolean");
+  it("labelCommands should be an array that only contains strings.", function() {
+    assert.typeOf(cfg.labelCommands, "array");
+    cfg.labelCommands.forEach((command) => {
+      assert.typeOf(command, "string");
+    });
   });
-  it("removeEnabled should be a boolean.", function() {
-    assert.isNotNull(cfg.removeEnabled);
-    assert.typeOf(cfg.removeEnabled, "boolean");
+  it("removeCommands should be an array that only contains strings.", function() {
+    assert.typeOf(cfg.removeCommands, "array");
+    cfg.removeCommands.forEach((command) => {
+      assert.typeOf(command, "string");
+    });
   });
   it("selfLabelingOnly should be a boolean.", function() {
     assert.isNotNull(cfg.selfLabelingOnly);
     assert.typeOf(cfg.selfLabelingOnly, "boolean");
   });
-  it("joinEnabled should be a boolean.", function() {
-    assert.isNotNull(cfg.joinEnabled);
-    assert.typeOf(cfg.joinEnabled, "boolean");
+  it("joinCommands should be an array that only contains strings.", function() {
+    assert.typeOf(cfg.joinCommands, "array");
+    cfg.joinCommands.forEach((command) => {
+      assert.typeOf(command, "string");
+    });
   });
   it("areaLabels should be a map if it is defined.", function() {
     if (cfg.areaLabels) assert.typeOf(cfg.areaLabels, "map");

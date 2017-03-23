@@ -3,13 +3,13 @@ const secrets = require("./secrets.js");
 module.exports = {
   username: secrets.username, // hidden username in secrets.js
   password: secrets.password, // hidden password in secrets.js
-  claimEnabled: true, // enable/disable claim command
+  claimCommands: ["claim"], // configured aliases for "claim" command
   addCollabPermission: "pull", // permission level of new collaborator; collaborator will not be added if null
-  abandonEnabled: true, // enable/disable abandon command
-  labelEnabled: true, // enable/disable label command
-  removeEnabled: true, // enable/disable remove command
+  abandonCommands: ["abandon", "unclaim", "abort"], // configured aliases for "abandon" command
+  labelCommands: ["label", "add"], // configured aliases for "label" command
+  removeCommands: ["remove", "unlabel"], // configured aliases for "remove"" command
   selfLabelingOnly: true, // enable/disable only issue/PR author can label their issue/PR
-  joinEnabled: false, // enable/disable join command
+  joinCommands: [], // configured aliases for "join" command
   commitReferenceEnabled: true, // enable/disable commit reference notifications for label teams
   escapeWIPString: "WIP", // disable mentioning of teams on PRs with WIP string in title; teams will always be notified if null
   areaLabels: new Map([ // map of area labels and corresponding teams; area label team references will not be enabled if null

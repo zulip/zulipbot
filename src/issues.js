@@ -42,21 +42,23 @@ module.exports = exports = function(payload) {
   commands.forEach((command) => {
     if (body.includes(`\`${command}\``) || body.includes(`\`\`\`\r\n${command}\r\n\`\`\``)) return;
     const commandName = command.split(" ")[1];
-    if (commandName === "claim" && cfg.claimEnabled) claimIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot claim"
-    else if ((commandName === "abandon" || commandName === "unclaim") && cfg.abandonEnabled) abandonIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot abandon" or "@zulipbot claim"
-    else if (commandName === "label" && cfg.labelEnabled && cfg.selfLabelingOnly && commenter === issueCreator) {
+    if (cfg.claimCommands.includes(commandName)) claimIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot claim"
+    else if (cfg.abandonCommands.includes(commandName)) abandonIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot abandon" or "@zulipbot claim"
+    else if (cfg.labelCommands.includes(commandName)) {
+      if (cfg.selfLabelingOnly && commenter !== issueCreator) return;
       const splitBody = body.split(`@${cfg.username}`).filter((splitString) => {
-        return splitString.includes(" label \"");
+        return splitString.includes(` ${commandName} "`);
       }).join(" ");
       addLabels(splitBody, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot label" and ensure commenter opened the issue
-    } else if (commandName === "remove" && cfg.removeEnabled && cfg.selfLabelingOnly && commenter === issueCreator) {
+    } else if (cfg.removeCommands.includes(commandName)) {
+      if (cfg.selfLabelingOnly && commenter !== issueCreator) return;
       const splitBody = body.split(`@${cfg.username}`).filter((splitString) => {
-        return splitString.includes(" remove \"");
+        return splitString.includes(` ${commandName} "`);
       }).join(" ");
       removeLabels(splitBody, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot remove" and ensure commenter opened the issue
-    } else if (commandName === "join" && cfg.joinEnabled && cfg.areaLabels) {
+    } else if (cfg.joinCommands.includes(commandName) && cfg.areaLabels) {
       const splitBody = body.split(`@${cfg.username}`).filter((splitString) => {
-        return splitString.includes(" join \"");
+        return splitString.includes(` ${commandName} "`);
       }).join(" ");
       joinLabelTeam(splitBody, commenter, repoOwner, repoName, issueNumber); // check body content for "@zulipbot join"
     }
