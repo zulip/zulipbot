@@ -54,5 +54,6 @@ jspm_packages/
 
 config.js
 secrets.js
+secret.tar
 
 Procfile
