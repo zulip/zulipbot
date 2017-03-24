@@ -1,7 +1,11 @@
-Congratulations, @[commenter], you've successfully claimed your first issue! Since you're a new contributor, you now have pull (read-only) access to this repository.
+Congratulations, @[commenter], you've successfully claimed your first issue! Contributing to Zulip will (hopefully) be a fun and rewarding experience, and I'm here to help get you off to a good start.
 
-Please review our [code contribution guidelines](http://zulip.readthedocs.io/en/latest/index.html#code-docs) and sign the [Dropbox Contributor License Agreement](https://opensource.dropbox.com/cla/) before opening any pull requests for any issues that you're working on.
+First things first:
+* Join me on the [Zulip developers' server](https://chat.zulip.org), to get help, chat about this issue, and meet the other developers.
+* Sign the [Dropbox Contributor License Agreement](https://opensource.dropbox.com/cla/), so that Zulip can use your code.
+* [Unwatch this repository](https://help.github.com/articles/unwatching-repositories/), so that you don't get 100 emails a day.
 
-Also, if you haven't done so already, please join us on the Zulip development server at [chat.zulip.org](https://chat.zulip.org/)! Our community of developers use **chat.zulip.org** as our primary communication forum for developing Zulip; you can read more about the **chat.zulip.org** community in our [documentation](http://zulip.readthedocs.io/en/latest/chat-zulip-org.html).
+As you work on this issue, you'll also want to refer to the [Zulip code contribution guide](http://zulip.readthedocs.io/en/latest/index.html#code-docs), as well as the rest of the developer documentation on that site.
 
-**Note:** Depending on your [notification settings](https://github.com/settings/notifications), granting you the permission in GitHub's model that allows you to be assigned issues by **zulipbot** may result in making you a "watcher" on this repository, which means that you'll get notifications for every issue and pull request in this repository; for a large repository like [zulip/zulip](https://github.com/zulip/zulip), that means receiving over 100 emails per day. If you don't want to receive notifications unless you're actually involved with the issue (which is usually the right choice for large projects), you should [unwatch this repository](https://help.github.com/articles/unwatching-repositories/).
+
+See you on the other side (that is, the pull request side)!
