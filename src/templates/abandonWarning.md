@@ -1,5 +1,5 @@
 Hello @[assignee], you have been unassigned from this issue because you have not updated this issue or any referenced pull requests for over ten days.
 
-You can reclaim this issue or claim another issue by commenting `@zulipbot claim` on that issue. Zulipbot hopes that you soon find something great to work on!
+You can reclaim this issue or claim any other issue by commenting `@zulipbot claim` on that issue.
 
-Thank you for your valuable contributions to Zulip.
+Thanks for your contributions, and hope to see you again soon!
