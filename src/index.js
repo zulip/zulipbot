@@ -40,4 +40,4 @@ app.post("/", function(req, res) {
   }
 });
 
-if (cfg.checkInactivityTimeout) setInterval(() => checkInactivity(), cfg.checkInactivityTimeout * 1000); // check every hour
+// if (cfg.checkInactivityTimeout) setInterval(() => checkInactivity(), cfg.checkInactivityTimeout * 1000); // check every hour
