@@ -91,7 +91,7 @@ function scrapeInactiveIssues(references, owner, name) {
       const assigneeString = assignees.join(", @"); // join array of assignees
       const comment = inactiveWarning.replace("[assignee]", assigneeString); // body of comment
       const now = Date.now();
-      if (time + (cfg.autoAbandonTimeLimit * 1000) >= now) return; // if issue was not updated for 3 days
+      if (time + (cfg.inactivityTimeLimit * 1000) >= now) return; // if issue was not updated for 3 days
       github.issues.getComments({ // get comments of issue
         owner: repoOwner,
         repo: repoName,
@@ -108,8 +108,13 @@ function scrapeInactiveIssues(references, owner, name) {
             abandonIssue(assignee, issueNumber, repoName, repoOwner); // remove each assignee
           });
           if (cfg.inProgressLabel) github.issues.removeLabel({owner: repoOwner, repo: repoName, number: issueNumber, name: cfg.inProgressLabel}).catch(console.error); // remove "in progress" label
-          newComment(repoOwner, repoName, issueNumber, abandonWarning.replace("[assignee]", assigneeString)); // create comment
-        } else if (!labelComment && time + (cfg.inactivityTimeLimit * 1000) <= now) { // if there was no warning comment made within last 7 days
+          github.issues.editComment({
+            owner: repoOwner,
+            repo: repoName,
+            id: labelComment.id,
+            body: abandonWarning.replace("[assignee]", assigneeString)
+          }).catch(console.error);
+        } else if (!labelComment) { // if there was no warning comment made within last 7 days
           newComment(repoOwner, repoName, issueNumber, comment); // create comment
         }
       });
