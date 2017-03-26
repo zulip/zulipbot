@@ -53,6 +53,20 @@ module.exports = exports = function(payload) {
         if (cfg.areaLabels) issueAreaLabeled(addedLabel, pullRequestNumber, repoName, repoOwner, issueLabelArray);
         return;
       });
+    } else if (action === "closed") {
+      if (!cfg.reviewedLabel || !cfg.needsReviewLabel) return;
+      const reviewedLabel = labels.find((label) => {
+        return label === cfg.reviewedLabel;
+      });
+      const needsReviewLabel = labels.find((label) => {
+        return label === cfg.needsReviewLabel;
+      });
+      if (reviewedLabel) {
+        labels.splice(labels.indexOf(reviewedLabel), 1);
+      } else if (needsReviewLabel) {
+        labels.splice(labels.indexOf(needsReviewLabel), 1);
+      } else return;
+      replaceLabels(repoOwner, repoName, pullRequestNumber, labels);
     } else return;
     if (body && body.match(/#([0-9]+)/) && action !== "opened" && cfg.areaLabels) issueReferenced(body, pullRequestNumber, repoName, repoOwner);
   });
