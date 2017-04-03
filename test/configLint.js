@@ -83,4 +83,8 @@ describe("config.js lint", function() {
     if (cfg.needsReviewLabel) assert.typeOf(cfg.needsReviewLabel, "string");
     else assert.isUndefined(cfg.needsReviewLabel);
   });
+  it("pullRequestsAssignee should be a boolean.", function() {
+    assert.isNotNull(cfg.pullRequestsAssignee);
+    assert.typeOf(cfg.pullRequestsAssignee, "boolean");
+  });
 });

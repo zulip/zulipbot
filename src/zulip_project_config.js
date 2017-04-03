@@ -61,5 +61,6 @@ module.exports = {
   inProgressLabel: "in progress", // label for progress that were claimed; will not be added to claimed issues if null
   inactiveLabel: "inactive", // label for inactive issues/PRs that zulipbot will not track for activity; will track all issues/PRs for activity if null
   reviewedLabel: "reviewed", // label for reviewed PRs; review system disabled if null
-  needsReviewLabel: "needs review" // label for PRs needign review; review system disabled if null
+  needsReviewLabel: "needs review", // label for PRs needign review; review system disabled if null
+  pullRequestsAssignee: false // enable/disable assigning PR reviewers to PRs
 };

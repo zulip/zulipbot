@@ -31,7 +31,7 @@ module.exports = exports = function(payload) {
       if (cfg.reviewedLabel && cfg.needsReviewLabel && labels.indexOf(cfg.needsReviewLabel) !== -1 && reviewer !== author) {
         labels[labels.indexOf(cfg.needsReviewLabel)] = cfg.reviewedLabel;
         replaceLabels(repoOwner, repoName, pullRequestNumber, labels);
-        github.issues.addAssigneesToIssue({owner: repoOwner, repo: repoName, number: pullRequestNumber, assignees: [reviewer]}).catch(console.error);
+        if (cfg.pullRequestsAssignee) github.issues.addAssigneesToIssue({owner: repoOwner, repo: repoName, number: pullRequestNumber, assignees: [reviewer]}).catch(console.error);
       }
     } else if (action === "created") { // if PR review comment was created
       body = payload.comment.body; // contents of PR review comment
