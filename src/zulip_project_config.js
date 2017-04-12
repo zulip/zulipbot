@@ -27,7 +27,7 @@ module.exports = {
     ["area: documentation (user)", "server-user-docs"],
     ["area: emoji", "server-emoji"],
     ["area: export", "server-misc"],
-    ["area: hotkeys", "server-misc"],
+    ["area: hotkeys", "server-hotkeys"],
     ["area: in", "server-in"],
     ["area: integrations", "server-integrations"],
     ["area: left-sidebar", "server-sidebars"],
