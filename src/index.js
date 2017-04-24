@@ -41,7 +41,7 @@ app.post("/", function(req, res) {
 });
 
 process.on("unhandledRejection", (reason, promise) => {
-  console.log("An unhandled promise rejection was detectes!\nPromise ", promise, "\nReason: ", reason);
+  console.log("An unhandled promise rejection was detected!\nPromise ", promise, "\nReason: ", reason);
 });
 
 if (cfg.checkInactivityTimeout) setInterval(() => checkInactivity(), cfg.checkInactivityTimeout * 1000); // check every hour
