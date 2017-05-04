@@ -8,6 +8,7 @@ const issues = require("./issues.js");
 const pullRequests = require("./pullRequests.js");
 const travis = require("./travis.js");
 const checkInactivity = require("./issues/checkInactivity.js");
+const checkMergeConflicts = require("./pullRequests/checkMergeConflicts.js");
 
 // server
 const app = express(); // initialize express app
@@ -35,6 +36,8 @@ app.post("/", function(req, res) {
     issues(req.body); // send parsed payload to issues.js
   } else if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event").includes("pull_request")) {
     pullRequests(req.body); // send parsed payload to pullRequests.js
+  } else if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event") === "push" && cfg.checkMergeConflicts) {
+    checkMergeConflicts(req.body); // check pull requests for merge conflicts on repository push
   } else if (req.get("user-agent") && req.get("user-agent") === "Travis CI Notifications") {
     travis(JSON.parse(req.body.payload));
   }

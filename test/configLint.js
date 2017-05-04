@@ -38,6 +38,14 @@ describe("config.js lint", function() {
       assert.typeOf(command, "string");
     });
   });
+  it("commitReferenceEnabled should be a boolean.", function() {
+    assert.isNotNull(cfg.commitReferenceEnabled);
+    assert.typeOf(cfg.commitReferenceEnabled, "boolean");
+  });
+  it("checkMergeConflicts should be a boolean.", function() {
+    assert.isNotNull(cfg.checkMergeConflicts);
+    assert.typeOf(cfg.checkMergeConflicts, "boolean");
+  });
   it("areaLabels should be a map if it is defined.", function() {
     if (cfg.areaLabels) assert.typeOf(cfg.areaLabels, "map");
     else assert.isUndefined(cfg.areaLabels);
