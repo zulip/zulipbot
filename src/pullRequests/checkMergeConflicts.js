@@ -27,6 +27,7 @@ module.exports = exports = function(payload) {
         const mergeable = pull.data.mergeable;
         const author = pull.data.user.login;
         const comment = mergeConflictWarning.replace("[username]", author).replace("[commit]", commit).replace("[repoOwner]", repoOwner).replace("[repoName]", repoName);
+        const oldComment = `@${author}, your pull request has developed a merge conflict! Please review the most recent commit`;
         github.pullRequests.getCommits({ // get commits of issue
           owner: repoOwner,
           repo: repoName,
@@ -42,7 +43,7 @@ module.exports = exports = function(payload) {
           }).then((issueComments) => {
             const labelComment = issueComments.data.find((issueComment) => {
               const synchCheck = lastCommitTime < Date.parse(issueComment.updated_at); // check if warning comment was posted after most recent commit
-              return issueComment.body.includes(comment.substring(0, 25)) && synchCheck && issueComment.user.login === cfg.username; // find warning comment made after most recent commit by zulipbot
+              return (issueComment.body.includes(comment.substring(0, 25)) || issueComment.body.includes(oldComment)) && synchCheck && issueComment.user.login === cfg.username; // find warning comment made after most recent commit by zulipbot
             });
             if (!labelComment && mergeable === false) newComment(repoOwner, repoName, pullRequestNumber, comment); // post only if there's no comment after most recent commit, use === to avoid triggering alert for null values
           });
