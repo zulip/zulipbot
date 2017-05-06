@@ -1,0 +1,37 @@
+#!/usr/bin/env node
+//
+//                          88  88               88                                                                      88
+//                          88  ""               88                         ,d           ,d                              88
+//                          88                   88                         88           88                              88
+//  888888888  88       88  88  88  8b,dPPYba,   88,dPPYba,    ,adPPYba,  MM88MMM      MM88MMM  ,adPPYba,    ,adPPYba,   88  ,adPPYba,
+//       a8P"  88       88  88  88  88P"    "8a  88P"    "8a  a8"     "8a   88           88    a8"     "8a  a8"     "8a  88  I8[    ""
+//    ,d8P"    88       88  88  88  88       d8  88       d8  8b       d8   88           88    8b       d8  8b       d8  88   `"Y8ba,
+//  ,d8"       "8a,   ,a88  88  88  88b,   ,a8"  88b,   ,a8"  "8a,   ,a8"   88,          88,   "8a,   ,a8"  "8a,   ,a8"  88  aa    ]8I
+//  888888888   `"YbbdP"Y8  88  88  88`YbbdP""   8Y"Ybbd8""    `"YbbdP""    "Y888        "Y888  `"YbbdP""    `"YbbdP""   88  `"YbbdP""
+//                                  88
+//                                  88
+//
+//  d88888b d88888b d888888b  .o88b. db   db d8888b. d8888b. d888888b  .d88b.  d8888b. d888888b d888888b db    db
+//  88'     88'     `~~88~~' d8P  Y8 88   88 88  `8D 88  `8D   `88'   .8P  Y8. 88  `8D   `88'   `~~88~~' `8b  d8'
+//  88ooo   88ooooo    88    8P      88ooo88 88oodD' 88oobY'    88    88    88 88oobY'    88       88     `8bd8'
+//  88~~~   88~~~~~    88    8b      88~~~88 88~~~   88`8b      88    88    88 88`8b      88       88       88
+//  88      88.        88    Y8b  d8 88   88 88      88 `88.   .88.   `8b  d8' 88 `88.   .88.      88       88
+//  YP      Y88888P    YP     `Y88P' YP   YP 88      88   YD Y888888P  `Y88P'  88   YD Y888888P    YP       YP
+
+const github = require("../src/github.js");
+const cfg = require("../src/config.js");
+
+github.issues.getAll({
+  filter: "all",
+  state: "open",
+  sort: "created",
+  labels: cfg.priorityLabel,
+  direction: "asc",
+  per_page: 100
+}).then((response) => {
+  if (response.data.length === 0) return console.log(`No unclaimed issues with the "${cfg.priorityLabel}" label!`);
+  console.log(`Unclaimed issues labeled with the "${cfg.priorityLabel}" label:`);
+  response.data.forEach((issue) => {
+    if (issue.assignees.length === 0) console.log(`${issue.repository.full_name} #${issue.number} — ${issue.title} (${issue.html_url})`);
+  });
+});
