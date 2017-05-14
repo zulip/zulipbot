@@ -46,6 +46,10 @@ describe("config.js lint", function() {
     assert.isNotNull(cfg.checkMergeConflicts);
     assert.typeOf(cfg.checkMergeConflicts, "boolean");
   });
+  it("checkMergeConflictsDelay should be a postive integer if it is defined.", function() {
+    if (cfg.checkMergeConflictsDelay) assert(!isNaN(parseFloat(cfg.checkMergeConflictsDelay)) && isFinite(cfg.checkMergeConflictsDelay));
+    else assert.isUndefined(cfg.checkMergeConflictsDelay);
+  });
   it("areaLabels should be a map if it is defined.", function() {
     if (cfg.areaLabels) assert.typeOf(cfg.areaLabels, "map");
     else assert.isUndefined(cfg.areaLabels);
