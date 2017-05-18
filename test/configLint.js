@@ -63,6 +63,13 @@ describe("config.js lint", function() {
     if (cfg.escapeWIPString) assert.typeOf(cfg.escapeWIPString, "string");
     else assert.isUndefined(cfg.escapeWIPString);
   });
+  it("activeRepos should be an array of properly-formatted strings.", function() {
+    assert.typeOf(cfg.activeRepos, "array");
+    cfg.activeRepos.forEach((repo) => {
+      assert.typeOf(repo, "string");
+      assert.include(repo, "/", "Repositories are in format repoOwner/repoName");
+    });
+  });
   it("checkInactivityTimeout should be a postive integer if it is defined.", function() {
     if (cfg.checkInactivityTimeout) assert(!isNaN(parseFloat(cfg.checkInactivityTimeout)) && isFinite(cfg.checkInactivityTimeout));
     else assert.isUndefined(cfg.checkInactivityTimeout);
