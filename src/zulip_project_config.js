@@ -56,7 +56,8 @@ module.exports = {
     ["area: topics", "server-misc"],
     ["area: uploads", "server-misc"]
   ]),
-  // checkInactivityTimeout: 3600, // how often to check for inactivity (1 hour); will not check for inactivity if null
+  activeRepos: ["zulip/zulip", "zulip/zulip-mobile", "zulip/zulip-electron", "zulip/zulipbot"], // array of repositories to check inactivity for
+  checkInactivityTimeout: 3600, // how often to check for inactivity (1 hour); will not check for inactivity if null
   inactivityTimeLimit: 3600 * 24 * 7, // time limit of inactive issue/PR (7 days)
   autoAbandonTimeLimit: 3600 * 24 * 3, // time limit of auto-unassigning of inactive issue (3 days)
   travisLabel: "travis updates", // label for tracking Travis build updates of PRs (needs webhook configuration .travis.yml); will not track Travis builds if null

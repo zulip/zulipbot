@@ -1,0 +1,124 @@
+#!/usr/bin/env node
+ //
+//                          88  88               88                                                                      88
+//                          88  ""               88                         ,d           ,d                              88
+//                          88                   88                         88           88                              88
+//  888888888  88       88  88  88  8b,dPPYba,   88,dPPYba,    ,adPPYba,  MM88MMM      MM88MMM  ,adPPYba,    ,adPPYba,   88  ,adPPYba,
+//       a8P"  88       88  88  88  88P"    "8a  88P"    "8a  a8"     "8a   88           88    a8"     "8a  a8"     "8a  88  I8[    ""
+//    ,d8P"    88       88  88  88  88       d8  88       d8  8b       d8   88           88    8b       d8  8b       d8  88   `"Y8ba,
+//  ,d8"       "8a,   ,a88  88  88  88b,   ,a8"  88b,   ,a8"  "8a,   ,a8"   88,          88,   "8a,   ,a8"  "8a,   ,a8"  88  aa    ]8I
+//  888888888   `"YbbdP"Y8  88  88  88`YbbdP""   8Y"Ybbd8""    `"YbbdP""    "Y888        "Y888  `"YbbdP""    `"YbbdP""   88  `"YbbdP""
+//                                  88
+//                                  88
+//
+//  d88888b d88888b d888888b  .o88b. db   db d888888b d8b   db  .d8b.   .o88b. d888888b d888888b db    db d88888b
+//  88'     88'     `~~88~~' d8P  Y8 88   88   `88'   888o  88 d8' `8b d8P  Y8 `~~88~~'   `88'   88    88 88'
+//  88ooo   88ooooo    88    8P      88ooo88    88    88V8o 88 88ooo88 8P         88       88    Y8    8P 88ooooo
+//  88~~~   88~~~~~    88    8b      88~~~88    88    88 V8o88 88~~~88 8b         88       88    `8b  d8' 88~~~~~
+//  88      88.        88    Y8b  d8 88   88   .88.   88  V888 88   88 Y8b  d8    88      .88.    `8bd8'  88.
+//  YP      Y88888P    YP     `Y88P' YP   YP Y888888P VP   V8P YP   YP  `Y88P'    YP    Y888888P    YP    Y88888P
+
+const github = require("../src/github.js");
+const cfg = require("../src/config.js");
+const dateFormat = require('dateformat');
+let references = new Map();
+const repos = ["zulip", "zulip-mobile", "zulip-electron", "zulipbot"];
+
+repos.forEach((repo) => {
+  const repoName = repo;
+  const repoOwner = "zulip";
+  let pullRequests = [];
+  getPullRequests(pullRequests, repoName, repoOwner, 1);
+});
+
+function getPullRequests(pullRequests, repoName, repoOwner, pageCount) {
+  github.pullRequests.getAll({
+    owner: repoOwner,
+    repo: repoName,
+    sort: "updated",
+    direction: "asc",
+    page: pageCount,
+    per_page: 100
+  }).then((res) => {
+    pullRequests = pullRequests.concat(res.data);
+    if (github.hasNextPage(res)) {
+      getPullRequests(pullRequests, repoName, repoOwner, pageCount + 1);
+    } else {
+      scrapeInactivePullRequests(pullRequests, repoName, repoOwner);
+    }
+  });
+}
+
+function scrapeInactivePullRequests(pullRequests, repoName, repoOwner) {
+  pullRequests.map((pullRequest) => {
+    const body = pullRequest.body;
+    const time = Date.parse(pullRequest.updated_at);
+    const number = pullRequest.number;
+    const author = pullRequest.user.login;
+    github.issues.getIssueLabels({
+      owner: repoOwner,
+      repo: repoName,
+      number: number
+    }).then((response) => {
+      const inactiveLabel = response.data.find(label => {
+        return label.name === cfg.inactiveLabel
+      });
+      if (inactiveLabel) return;
+      const reviewedLabel = response.data.find((label) => {
+        return label.name === cfg.reviewedLabel;
+      });
+      const needsReviewLabel = response.data.find((label) => {
+        return label.name === cfg.needsReviewLabel;
+      });
+      if (reviewedLabel && time + (cfg.inactivityTimeLimit * 1000) <= Date.now()) {
+        console.log(`Inactive pull request #${number} in ${repoOwner}/${repoName} needs to be updated.\nPull request author: @${author}. Last updated: ${dateFormat(time, "UTC:dddd, mmmm dS, yyyy, h:MM TT")}.\n`);
+      } else if (needsReviewLabel && time + (cfg.inactivityTimeLimit * 1000) <= Date.now()) {
+        console.log(`Inactive pull request #${number} in ${repoOwner}/${repoName} needs a review.\nPull request author: @${author}. Last updated: ${dateFormat(time, "UTC:dddd, mmmm dS, yyyy, h:MM TT")}.\n`);
+      } else if (time + (cfg.inactivityTimeLimit * 1000) <= Date.now()) {
+        console.log(`Pull request #${number} in ${repoOwner}/${repoName} is inactive.\nPull request author: @${author}. Last updated: ${dateFormat(time, "UTC:dddd, mmmm dS, yyyy, h:MM TT")}.\n`);
+      }
+    });
+    if (!body.match(/#([0-9]+)/)) return;
+    const issueNumber = body.match(/#([0-9]+)/)[1];
+    references.set(`${repoName}/${issueNumber}`, time);
+  });
+  let issues = [];
+  getIssues(issues, references, repoOwner, repoName, 1);
+};
+
+function getIssues(issues, references, repoOwner, repoName, pageCount) {
+  github.issues.getAll({
+    page: pageCount,
+    filter: "all",
+    sort: "updated",
+    labels: cfg.inProgressLabel,
+    direction: "asc",
+    per_page: 100
+  }).then((res) => {
+    issues = issues.concat(res.data);
+    if (github.hasNextPage(res)) {
+      getIssues(issues, references, repoOwner, repoName, pageCount + 1);
+    } else {
+      scrapeInactiveIssues(references, issues, repoOwner, repoName);
+    }
+  });
+}
+
+function scrapeInactiveIssues(references, issues, owner, name) {
+  issues.map((issue) => {
+    const inactiveLabel = issue.labels.find(label => {
+      return label.name === cfg.inactiveLabel
+    });
+    if (inactiveLabel) return;
+    let time = Date.parse(issue.updated_at);
+    const issueNumber = issue.number;
+    const repoName = issue.repository.name;
+    const repoOwner = issue.repository.owner.login;
+    if (time < references.get(`${repoName}/${issueNumber}`)) time = references.get(`${repoName}/${issueNumber}`);
+    if (repoOwner !== owner || repoName !== name || time + (cfg.inactivityTimeLimit * 1000) >= Date.now()) return;
+    let assignees = [];
+    issue.assignees.forEach(assignee => assignees.push(assignee.login));
+    const assigneeString = assignees.join(", @");
+    console.log(`Claimed issue #${issueNumber} in ${repoOwner}/${repoName} is inactive.\nAssignee(s): @${assigneeString}. Last updated: ${dateFormat(time, "UTC:dddd, mmmm dS, yyyy, h:MM TT")}.\n`)
+  });
+};
