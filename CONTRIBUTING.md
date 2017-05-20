@@ -149,6 +149,19 @@ with making changes:
   **zulipbot-testing** organization when it checks for inactive issues and
   pull requests.
 
+  * `tools/configLint` — Run this tool to see if **zulipbot**'s configuration
+  file `js/config.js` has been configured correctly.
+
+  * `tools/fetchPriority` — Run this tool to generate a dry run report of all
+  the issues labeled with the "priority" label (configured in `src/config.js`)
+  in the repositories that **zulipbot** works in.
+
+  * `tools/fetchInactive` — Run this tool to fetch all the inactive issues and
+  pull requests in the `activeRepos` repositories configured in `src/config.js`.
+
+  **Warning:** This tool creates a large amount of API requests; please do
+  not run this tool more than once an hour to prevent **zulipbot** from being rate-limited.
+
 ## Additional resources
 
 * [Zulip contributing guidelines](http://zulip.readthedocs.io/en/latest/readme-symlink.html)
