@@ -18,9 +18,9 @@ module.exports = exports = function(body, pullRequestNumber, repoName, repoOwner
   }).then((response) => {
     let referencedIssue = false;
     let commitAuthor = "";
-    response.data.forEach((pullRequest) => {
-      const message = pullRequest.commit.message;
-      commitAuthor = pullRequest.author.login;
+    response.data.forEach((commit) => {
+      const message = commit.commit.message;
+      if (commit.author) commitAuthor = commit.author.login;
       if (!message) return;
       if (message.match(/#([0-9]+)/) && message.match(/#([0-9]+)/)[1] === referencedIssueNumber) {
         referencedIssue = true;
