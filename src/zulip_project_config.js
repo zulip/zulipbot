@@ -30,6 +30,7 @@ module.exports = {
     ["area: emoji", "server-emoji"],
     ["area: export", "server-misc"],
     ["area: hotkeys", "server-hotkeys"],
+    ["area: i18n", "server-i18n"],
     ["area: in", "server-in"],
     ["area: integrations", "server-integrations"],
     ["area: left-sidebar", "server-sidebars"],
