@@ -1,7 +1,6 @@
 "use strict"; // catch errors easier
 
 const github = require("../github.js"); // GitHub wrapper initialization
-const cfg = require("../config.js"); // config file
 const fs = require("fs"); // for reading welcome message
 const inactiveWarning = fs.readFileSync("./src/templates/inactiveWarning.md", "utf8"); // get warning message contents
 const updateWarning = fs.readFileSync("./src/templates/updateWarning.md", "utf8"); // get update message contents
@@ -40,15 +39,15 @@ module.exports = exports = function() {
           }).then((response) => {
             response.data.forEach(label => labels.push(label.name));
             const inactiveLabel = labels.find((label) => {
-              return label.name === cfg.inactiveLabel;
+              return label.name === github.cfg.inactiveLabel;
             });
             if (inactiveLabel) return;
-            if (time + (cfg.inactivityTimeLimit * 1000) >= Date.now()) return; // if pull request was not updated for 7 days
+            if (time + (github.cfg.inactivityTimeLimit * 1000) >= Date.now()) return; // if pull request was not updated for 7 days
             const reviewedLabel = labels.find((label) => {
-              return label.name === cfg.reviewedLabel;
+              return label.name === github.cfg.reviewedLabel;
             });
             const needsReviewLabel = labels.find((label) => {
-              return label.name === cfg.needsReviewLabel;
+              return label.name === github.cfg.needsReviewLabel;
             });
             if (reviewedLabel) {
               newComment(repoOwner, repoName, number, updateWarning.replace("[author]", author)); // create comment
@@ -71,13 +70,13 @@ function scrapeInactiveIssues(references, owner, name) {
     filter: "all",
     state: "open",
     sort: "updated",
-    labels: cfg.inProgressLabel,
+    labels: github.cfg.inProgressLabel,
     direction: "asc",
     per_page: 100
   }).then((response) => {
     response.data.forEach((issue) => {
       const inactiveLabel = issue.labels.find((label) => {
-        return label.name === cfg.inactiveLabel;
+        return label.name === github.cfg.inactiveLabel;
       });
       if (inactiveLabel) return;
       let time = Date.parse(issue.updated_at); // timestamp of issue last updated
@@ -91,7 +90,7 @@ function scrapeInactiveIssues(references, owner, name) {
       const assigneeString = assignees.join(", @"); // join array of assignees
       const comment = inactiveWarning.replace("[assignee]", assigneeString); // body of comment
       const now = Date.now();
-      if (time + (cfg.inactivityTimeLimit * 1000) >= now) return; // if issue was not updated for 3 days
+      if (time + (github.cfg.inactivityTimeLimit * 1000) >= now) return; // if issue was not updated for 3 days
       github.issues.getComments({ // get comments of issue
         owner: repoOwner,
         repo: repoName,
@@ -100,14 +99,14 @@ function scrapeInactiveIssues(references, owner, name) {
       }).then((issueComments) => {
         const labelComment = issueComments.data.find((issueComment) => {
           const commentTime = Date.parse(issueComment.created_at); // timestamp of the warning comment
-          const timeLimit = now - ((cfg.autoAbandonTimeLimit * 1000) + (cfg.inactivityTimeLimit * 1000)) < commentTime && commentTime - (cfg.autoAbandonTimeLimit * 1000) < now; // check if comment was made between 10 days ago and 3 days ago
-          return issueComment.body.includes(comment) && timeLimit && issueComment.user.login === cfg.username; // find warning comment made by zulipbot between 10 days ago and 3 days ago
+          const timeLimit = now - ((github.cfg.autoAbandonTimeLimit * 1000) + (github.cfg.inactivityTimeLimit * 1000)) < commentTime && commentTime - (github.cfg.autoAbandonTimeLimit * 1000) < now; // check if comment was made between 10 days ago and 3 days ago
+          return issueComment.body.includes(comment) && timeLimit && issueComment.user.login === github.cfg.username; // find warning comment made by zulipbot between 10 days ago and 3 days ago
         });
-        if (labelComment && time + (cfg.autoAbandonTimeLimit * 1000) <= now) { // if 3 day warning time limit pased and not updated
+        if (labelComment && time + (github.cfg.autoAbandonTimeLimit * 1000) <= now) { // if 3 day warning time limit pased and not updated
           assignees.forEach((assignee) => {
             abandonIssue(assignee, issueNumber, repoName, repoOwner); // remove each assignee
           });
-          if (cfg.inProgressLabel) github.issues.removeLabel({owner: repoOwner, repo: repoName, number: issueNumber, name: cfg.inProgressLabel}).catch(console.error); // remove "in progress" label
+          if (github.cfg.inProgressLabel) github.issues.removeLabel({owner: repoOwner, repo: repoName, number: issueNumber, name: github.cfg.inProgressLabel}).catch(console.error); // remove "in progress" label
           github.issues.editComment({
             owner: repoOwner,
             repo: repoName,

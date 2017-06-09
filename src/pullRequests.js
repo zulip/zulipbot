@@ -1,7 +1,6 @@
 "use strict"; // catch errors easier
 
 const github = require("./github.js"); // GitHub wrapper initialization
-const cfg = require("./config.js"); // config file
 const issueAreaLabeled = require("./issues/issueAreaLabeled.js"); // issue labeled with area label
 const issueReferenced = require("./pullRequests/issueReferenced.js"); // pull request references an issue
 const commitReference = require("./pullRequests/commitReference.js"); // create comment
@@ -22,23 +21,23 @@ module.exports = exports = function(payload) {
     response.data.forEach(label => labels.push(label.name));
     if (action === "opened") { // if pull request was opened
       body = payload.pull_request.body; // contents of PR body
-      if (cfg.areaLabels && cfg.commitReferenceEnabled) commitReference(body, pullRequestNumber, repoName, repoOwner);
-      if (cfg.reviewedLabel && cfg.needsReviewLabel) github.issues.addLabels({owner: repoOwner, repo: repoName, number: pullRequestNumber, labels: [cfg.needsReviewLabel]}).catch(console.error); // add labels
+      if (github.cfg.areaLabels && github.cfg.commitReferenceEnabled) commitReference(body, pullRequestNumber, repoName, repoOwner);
+      if (github.cfg.reviewedLabel && github.cfg.needsReviewLabel) github.issues.addLabels({owner: repoOwner, repo: repoName, number: pullRequestNumber, labels: [github.cfg.needsReviewLabel]}).catch(console.error); // add labels
     } else if (action === "submitted") { // if pull request review was submitted
       body = payload.review.body; // contents of PR review
       const reviewer = payload.review.user.login; // reviewer username
       const author = payload.pull_request.user.login; // PR opener
-      if (cfg.reviewedLabel && cfg.needsReviewLabel && labels.indexOf(cfg.needsReviewLabel) !== -1 && reviewer !== author) {
-        labels[labels.indexOf(cfg.needsReviewLabel)] = cfg.reviewedLabel;
+      if (github.cfg.reviewedLabel && github.cfg.needsReviewLabel && labels.indexOf(github.cfg.needsReviewLabel) !== -1 && reviewer !== author) {
+        labels[labels.indexOf(github.cfg.needsReviewLabel)] = github.cfg.reviewedLabel;
         replaceLabels(repoOwner, repoName, pullRequestNumber, labels);
-        if (cfg.pullRequestsAssignee) github.issues.addAssigneesToIssue({owner: repoOwner, repo: repoName, number: pullRequestNumber, assignees: [reviewer]}).catch(console.error);
+        if (github.cfg.pullRequestsAssignee) github.issues.addAssigneesToIssue({owner: repoOwner, repo: repoName, number: pullRequestNumber, assignees: [reviewer]}).catch(console.error);
       }
     } else if (action === "created") { // if PR review comment was created
       body = payload.comment.body; // contents of PR review comment
     } else if (action === "synchronize") { // when PR is synchronized (commits modified)
-      if (cfg.areaLabels && cfg.commitReferenceEnabled) commitReference(body, pullRequestNumber, repoName, repoOwner); // check if edited commits reference an issue
-      if (cfg.reviewedLabel && cfg.needsReviewLabel && labels.indexOf(cfg.reviewedLabel) !== -1) {
-        labels[labels.indexOf(cfg.reviewedLabel)] = cfg.needsReviewLabel;
+      if (github.cfg.areaLabels && github.cfg.commitReferenceEnabled) commitReference(body, pullRequestNumber, repoName, repoOwner); // check if edited commits reference an issue
+      if (github.cfg.reviewedLabel && github.cfg.needsReviewLabel && labels.indexOf(github.cfg.reviewedLabel) !== -1) {
+        labels[labels.indexOf(github.cfg.reviewedLabel)] = github.cfg.needsReviewLabel;
         replaceLabels(repoOwner, repoName, pullRequestNumber, labels);
       }
       return;
@@ -50,15 +49,15 @@ module.exports = exports = function(payload) {
         number: pullRequestNumber
       }).then((response) => {
         const issueLabelArray = response.data;
-        if (cfg.areaLabels) return issueAreaLabeled(addedLabel, pullRequestNumber, repoName, repoOwner, issueLabelArray);
+        if (github.cfg.areaLabels) return issueAreaLabeled(addedLabel, pullRequestNumber, repoName, repoOwner, issueLabelArray);
       });
     } else if (action === "closed") {
-      if (!cfg.reviewedLabel || !cfg.needsReviewLabel) return;
+      if (!github.cfg.reviewedLabel || !github.cfg.needsReviewLabel) return;
       const reviewedLabel = labels.find((label) => {
-        return label === cfg.reviewedLabel;
+        return label === github.cfg.reviewedLabel;
       });
       const needsReviewLabel = labels.find((label) => {
-        return label === cfg.needsReviewLabel;
+        return label === github.cfg.needsReviewLabel;
       });
       if (reviewedLabel) {
         labels.splice(labels.indexOf(reviewedLabel), 1);
@@ -67,7 +66,7 @@ module.exports = exports = function(payload) {
       } else return;
       replaceLabels(repoOwner, repoName, pullRequestNumber, labels);
     } else return;
-    if (body && body.match(/#([0-9]+)/) && action !== "opened" && cfg.areaLabels) issueReferenced(body, pullRequestNumber, repoName, repoOwner);
+    if (body && body.match(/#([0-9]+)/) && action !== "opened" && github.cfg.areaLabels) issueReferenced(body, pullRequestNumber, repoName, repoOwner);
   });
 };
 

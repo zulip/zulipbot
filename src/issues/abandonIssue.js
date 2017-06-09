@@ -2,7 +2,6 @@
 
 const github = require("../github.js"); // GitHub wrapper initialization
 const request = require("request-promise"); // for sending HTTP request to api.github.com
-const cfg = require("../config.js"); // config file
 
 module.exports = exports = function(commenter, issueNumber, repoName, repoOwner) {
   let assignees = []; // initialize array for current issue assignees
@@ -22,19 +21,19 @@ module.exports = exports = function(commenter, issueNumber, repoName, repoOwner)
         assignees: [commenter]
       },
       headers: {
-        "User-Agent": cfg.username // User-Agent required to be sent in headers
+        "User-Agent": github.cfg.username // User-Agent required to be sent in headers
       },
       auth: {
-        username: cfg.username,
-        password: cfg.password
+        username: github.cfg.username,
+        password: github.cfg.password
       }
     }).then((response) => {
-      if (response.labels.find(label => label.name === cfg.inProgressLabel) && assignees.length === 1) { // if the "in progress" label exists and only one assignee
+      if (response.labels.find(label => label.name === github.cfg.inProgressLabel) && assignees.length === 1) { // if the "in progress" label exists and only one assignee
         github.issues.removeLabel({ // remove "in progress" label
           owner: repoOwner,
           repo: repoName,
           number: issueNumber,
-          name: cfg.inProgressLabel
+          name: github.cfg.inProgressLabel
         })
         .catch(console.error);
       }

@@ -2,7 +2,6 @@
 
 const github = require("../github.js"); // GitHub wrapper initialization
 const newComment = require("../issues/newComment.js"); // create comment
-const cfg = require("../config.js"); // config file
 
 module.exports = exports = function(state, repoOwner, repoName, pullRequestNumber, buildURL) {
   let comment = "(unknown state)";
@@ -18,7 +17,7 @@ module.exports = exports = function(state, repoOwner, repoName, pullRequestNumbe
     number: pullRequestNumber
   }).then((labels) => {
     labelCheck = labels.data.find((label) => {
-      return label.name === cfg.travisLabel;
+      return label.name === github.cfg.travisLabel;
     });
     if (labelCheck) newComment(repoOwner, repoName, pullRequestNumber, comment);
   });

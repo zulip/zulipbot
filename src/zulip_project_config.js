@@ -1,4 +1,4 @@
-const secrets = require("./secrets.js");
+const secrets = require("./secrets.json");
 
 module.exports = {
   username: secrets.username, // hidden username in secrets.js

@@ -1,9 +1,9 @@
 "use strict"; // catch errors easier
 
 // requirements
+const github = require("./github.js");
 const express = require("express");
 const bodyParser = require("body-parser");
-const cfg = require("./config.js"); // config file
 const issues = require("./issues.js");
 const pullRequests = require("./pullRequests.js");
 const travis = require("./travis.js");
@@ -36,8 +36,8 @@ app.post("/", function(req, res) {
     issues(req.body); // send parsed payload to issues.js
   } else if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event").includes("pull_request")) {
     pullRequests(req.body); // send parsed payload to pullRequests.js
-  } else if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event") === "push" && cfg.checkMergeConflicts) {
-    setTimeout(checkMergeConflicts(req.body), cfg.checkMergeConflictsDelay); // check pull requests for merge conflicts on repository push
+  } else if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event") === "push" && github.cfg.checkMergeConflicts) {
+    setTimeout(checkMergeConflicts(req.body), github.cfg.checkMergeConflictsDelay); // check pull requests for merge conflicts on repository push
   } else if (req.get("user-agent") && req.get("user-agent") === "Travis CI Notifications") {
     travis(JSON.parse(req.body.payload));
   }
@@ -47,4 +47,4 @@ process.on("unhandledRejection", (reason, promise) => {
   console.log("An unhandled promise rejection was detected!\nPromise ", promise, "\nReason: ", reason);
 });
 
-if (cfg.checkInactivityTimeout) setInterval(() => checkInactivity(), cfg.checkInactivityTimeout * 1000); // check every hour
+if (github.cfg.checkInactivityTimeout) setInterval(() => checkInactivity(), github.cfg.checkInactivityTimeout * 1000); // check every hour

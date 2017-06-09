@@ -19,7 +19,6 @@
 //  YP      Y88888P    YP     `Y88P' YP   YP Y888888P VP   V8P YP   YP  `Y88P'    YP    Y888888P    YP    Y88888P
 
 const github = require("../src/github.js");
-const cfg = require("../src/config.js");
 const dateFormat = require('dateformat');
 let references = new Map();
 const repos = ["zulip", "zulip-mobile", "zulip-electron", "zulipbot"];
@@ -61,20 +60,20 @@ function scrapeInactivePullRequests(pullRequests, repoName, repoOwner) {
       number: number
     }).then((response) => {
       const inactiveLabel = response.data.find(label => {
-        return label.name === cfg.inactiveLabel
+        return label.name === github.cfg.inactiveLabel
       });
       if (inactiveLabel) return;
       const reviewedLabel = response.data.find((label) => {
-        return label.name === cfg.reviewedLabel;
+        return label.name === github.cfg.reviewedLabel;
       });
       const needsReviewLabel = response.data.find((label) => {
-        return label.name === cfg.needsReviewLabel;
+        return label.name === github.cfg.needsReviewLabel;
       });
-      if (reviewedLabel && time + (cfg.inactivityTimeLimit * 1000) <= Date.now()) {
+      if (reviewedLabel && time + (github.cfg.inactivityTimeLimit * 1000) <= Date.now()) {
         console.log(`Inactive pull request #${number} in ${repoOwner}/${repoName} needs to be updated.\nPull request author: @${author}. Last updated: ${dateFormat(time, "UTC:dddd, mmmm dS, yyyy, h:MM TT")}.\n`);
-      } else if (needsReviewLabel && time + (cfg.inactivityTimeLimit * 1000) <= Date.now()) {
+      } else if (needsReviewLabel && time + (github.cfg.inactivityTimeLimit * 1000) <= Date.now()) {
         console.log(`Inactive pull request #${number} in ${repoOwner}/${repoName} needs a review.\nPull request author: @${author}. Last updated: ${dateFormat(time, "UTC:dddd, mmmm dS, yyyy, h:MM TT")}.\n`);
-      } else if (time + (cfg.inactivityTimeLimit * 1000) <= Date.now()) {
+      } else if (time + (github.cfg.inactivityTimeLimit * 1000) <= Date.now()) {
         console.log(`Pull request #${number} in ${repoOwner}/${repoName} is inactive.\nPull request author: @${author}. Last updated: ${dateFormat(time, "UTC:dddd, mmmm dS, yyyy, h:MM TT")}.\n`);
       }
     });
@@ -91,7 +90,7 @@ function getIssues(issues, references, repoOwner, repoName, pageCount) {
     page: pageCount,
     filter: "all",
     sort: "updated",
-    labels: cfg.inProgressLabel,
+    labels: github.cfg.inProgressLabel,
     direction: "asc",
     per_page: 100
   }).then((res) => {
@@ -107,7 +106,7 @@ function getIssues(issues, references, repoOwner, repoName, pageCount) {
 function scrapeInactiveIssues(references, issues, owner, name) {
   issues.map((issue) => {
     const inactiveLabel = issue.labels.find(label => {
-      return label.name === cfg.inactiveLabel
+      return label.name === github.cfg.inactiveLabel
     });
     if (inactiveLabel) return;
     let time = Date.parse(issue.updated_at);
@@ -115,7 +114,7 @@ function scrapeInactiveIssues(references, issues, owner, name) {
     const repoName = issue.repository.name;
     const repoOwner = issue.repository.owner.login;
     if (time < references.get(`${repoName}/${issueNumber}`)) time = references.get(`${repoName}/${issueNumber}`);
-    if (repoOwner !== owner || repoName !== name || time + (cfg.inactivityTimeLimit * 1000) >= Date.now()) return;
+    if (repoOwner !== owner || repoName !== name || time + (github.cfg.inactivityTimeLimit * 1000) >= Date.now()) return;
     let assignees = [];
     issue.assignees.forEach(assignee => assignees.push(assignee.login));
     const assigneeString = assignees.join(", @");

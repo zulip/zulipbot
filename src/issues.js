@@ -1,7 +1,6 @@
 "use strict"; // catch errors easier
 
-const github = require("./github.js"); // config file
-const cfg = require("./config.js"); // config file
+const github = require("./github.js");
 const addLabels = require("./issues/addLabels.js"); // add labels
 const claimIssue = require("./issues/claimIssue.js"); // claim issue
 const abandonIssue = require("./issues/abandonIssue.js"); // abandon issue
@@ -25,39 +24,39 @@ module.exports = exports = function(payload) {
   } else if (action === "created") { // if issue comment was created
     commenter = payload.comment.user.login; // commenter's username
     body = payload.comment.body; // contents of issue comment
-  } else if (action === "labeled" && cfg.areaLabels) {
+  } else if (action === "labeled" && github.cfg.areaLabels) {
     addedLabel = payload.label.name;
     issueAreaLabeled(addedLabel, issueNumber, repoName, repoOwner, issueLabelArray); // check if issue labeled with area label
     return;
   } else if (action === "closed") {
-    const hasInProgressLabel = issueLabelArray.find(issueLabel => issueLabel.name === cfg.inProgressLabel);
-    if (hasInProgressLabel) github.issues.removeLabel({owner: repoOwner, repo: repoName, number: issueNumber, name: cfg.inProgressLabel});
+    const hasInProgressLabel = issueLabelArray.find(issueLabel => issueLabel.name === github.cfg.inProgressLabel);
+    if (hasInProgressLabel) github.issues.removeLabel({owner: repoOwner, repo: repoName, number: issueNumber, name: github.cfg.inProgressLabel});
     return;
   } else return;
-  if (commenter === cfg.username) return;
+  if (commenter === github.cfg.username) return;
   if (!body) return; // if body is empty
-  const commands = body.match(new RegExp("@" + cfg.username + "\\s(\\w*)", "g"));
+  const commands = body.match(new RegExp("@" + github.cfg.username + "\\s(\\w*)", "g"));
   if (!commands) return; // if there is no command
-  if (body.match(/#([0-9]+)/) && cfg.areaLabels) checkPullRequestComment(body, issueNumber, repoName, repoOwner); // check if comment is from PR
+  if (body.match(/#([0-9]+)/) && github.cfg.areaLabels) checkPullRequestComment(body, issueNumber, repoName, repoOwner); // check if comment is from PR
   commands.forEach((command) => {
     if (body.includes(`\`${command}\``) || body.includes(`\`\`\`\r\n${command}\r\n\`\`\``)) return;
     const commandName = command.split(" ")[1];
-    if (cfg.claimCommands.includes(commandName)) claimIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot claim"
-    else if (cfg.abandonCommands.includes(commandName)) abandonIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot abandon" or "@zulipbot claim"
-    else if (cfg.labelCommands.includes(commandName)) {
-      if (cfg.selfLabelingOnly && commenter !== issueCreator) return;
-      const splitBody = body.split(`@${cfg.username}`).filter((splitString) => {
+    if (github.cfg.claimCommands.includes(commandName)) claimIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot claim"
+    else if (github.cfg.abandonCommands.includes(commandName)) abandonIssue(commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot abandon" or "@zulipbot claim"
+    else if (github.cfg.labelCommands.includes(commandName)) {
+      if (github.cfg.selfLabelingOnly && commenter !== issueCreator) return;
+      const splitBody = body.split(`@${github.cfg.username}`).filter((splitString) => {
         return splitString.includes(` ${commandName} "`);
       }).join(" ");
       addLabels(splitBody, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot label" and ensure commenter opened the issue
-    } else if (cfg.removeCommands.includes(commandName)) {
-      if (cfg.selfLabelingOnly && commenter !== issueCreator) return;
-      const splitBody = body.split(`@${cfg.username}`).filter((splitString) => {
+    } else if (github.cfg.removeCommands.includes(commandName)) {
+      if (github.cfg.selfLabelingOnly && commenter !== issueCreator) return;
+      const splitBody = body.split(`@${github.cfg.username}`).filter((splitString) => {
         return splitString.includes(` ${commandName} "`);
       }).join(" ");
       removeLabels(splitBody, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot remove" and ensure commenter opened the issue
-    } else if (cfg.joinCommands.includes(commandName) && cfg.areaLabels) {
-      const splitBody = body.split(`@${cfg.username}`).filter((splitString) => {
+    } else if (github.cfg.joinCommands.includes(commandName) && github.cfg.areaLabels) {
+      const splitBody = body.split(`@${github.cfg.username}`).filter((splitString) => {
         return splitString.includes(` ${commandName} "`);
       }).join(" ");
       joinLabelTeam(splitBody, commenter, repoOwner, repoName, issueNumber); // check body content for "@zulipbot join"

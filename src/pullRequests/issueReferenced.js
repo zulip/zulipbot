@@ -1,7 +1,6 @@
 "use strict"; // catch errors easier
 
 const github = require("../github.js"); // GitHub wrapper initialization
-const cfg = require("../config.js"); // config file
 const newComment = require("../issues/newComment.js"); // create comment
 const fs = require("fs"); // for reading messages
 const fixCommitMessage = fs.readFileSync("./src/templates/fixCommitMessage.md", "utf8"); // get fix commit message contents
@@ -33,7 +32,7 @@ module.exports = exports = function(body, pullRequestNumber, repoName, repoOwner
     }).then((pullComments) => {
       if (pullComments.data.length) {
         pullComments.data.forEach((pullComment) => {
-          if (pullComment.body.includes("this pull request references") && pullComment.user.login === cfg.username) {
+          if (pullComment.body.includes("this pull request references") && pullComment.user.login === github.cfg.username) {
             mentionedLabels = mentionedLabels.concat(pullComment.body.match(/"(.*?)"/g));
           }
         });
@@ -45,9 +44,9 @@ module.exports = exports = function(body, pullRequestNumber, repoName, repoOwner
       }).then((issueLabelArray) => {
         issueLabelArray.data.forEach((issueLabel) => {
           const labelName = issueLabel.name; // label name
-          if (cfg.areaLabels.has(labelName) && !issueLabels.includes(labelName) && !mentionedLabels.includes("\"" + labelName + "\"")) { // make sure the label team hasn't been mentioned yet
+          if (github.cfg.areaLabels.has(labelName) && !issueLabels.includes(labelName) && !mentionedLabels.includes("\"" + labelName + "\"")) { // make sure the label team hasn't been mentioned yet
             issueLabels.push(labelName); // push all associated area labels to array
-            labelTeams.push(cfg.areaLabels.get(labelName)); // push all associated area labels to array
+            labelTeams.push(github.cfg.areaLabels.get(labelName)); // push all associated area labels to array
           }
         }); // add all issue label names and area label teams to issueLabels to labelTeams
         const areaLabelTeams = labelTeams.join(`, @${repoOwner}/`);

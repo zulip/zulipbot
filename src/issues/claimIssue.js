@@ -1,11 +1,10 @@
 "use strict"; // catch errors easier
 
 const github = require("../github.js"); // GitHub wrapper initialization
-const cfg = require("../config.js"); // config file
 const addCollaborator = require("./addCollaborator.js"); // add collaborator
 
 module.exports = exports = function(commenter, issueNumber, repoName, repoOwner) {
-  const issueLabels = [cfg.inProgressLabel]; // create array for new issue labels
+  const issueLabels = [github.cfg.inProgressLabel]; // create array for new issue labels
   const issueAssignees = [commenter]; // create array for new assignees
   github.repos.checkCollaborator({ // check if commenter is a collaborator
     owner: repoOwner,
@@ -22,7 +21,7 @@ module.exports = exports = function(commenter, issueNumber, repoName, repoOwner)
       })
       .catch(console.error)
       .then(() => {
-        if (cfg.inProgressLabel) github.issues.addLabels({owner: repoOwner, repo: repoName, number: issueNumber, labels: issueLabels}).catch(console.error); // add labels
+        if (github.cfg.inProgressLabel) github.issues.addLabels({owner: repoOwner, repo: repoName, number: issueNumber, labels: issueLabels}).catch(console.error); // add labels
       });
     }
   }, (response) => {

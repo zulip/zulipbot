@@ -52,8 +52,8 @@ jspm_packages/
 # dotenv environment variables file
 .env
 
-config.js
-secrets.js
+src/config.js
+src/secrets.json
 secret.tar
 package-lock.json
 

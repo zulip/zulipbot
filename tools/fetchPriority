@@ -19,18 +19,17 @@
 //  YP      Y88888P    YP     `Y88P' YP   YP 88      88   YD Y888888P  `Y88P'  88   YD Y888888P    YP       YP
 
 const github = require("../src/github.js");
-const cfg = require("../src/config.js");
 
 github.issues.getAll({
   filter: "all",
   state: "open",
   sort: "created",
-  labels: cfg.priorityLabel,
+  labels: github.cfg.priorityLabel,
   direction: "asc",
   per_page: 100
 }).then((response) => {
-  if (response.data.length === 0) return console.log(`No unclaimed issues with the "${cfg.priorityLabel}" label!`);
-  console.log(`Unclaimed issues labeled with the "${cfg.priorityLabel}" label:`);
+  if (response.data.length === 0) return console.log(`No unclaimed issues with the "${github.cfg.priorityLabel}" label!`);
+  console.log(`Unclaimed issues labeled with the "${github.cfg.priorityLabel}" label:`);
   response.data.forEach((issue) => {
     if (issue.assignees.length === 0) console.log(`${issue.repository.full_name} #${issue.number} — ${issue.title} (${issue.html_url})`);
   });

@@ -1,11 +1,11 @@
 const GitHubApi = require("github"); // NodeJS wrapper for GitHub API
 const github = new GitHubApi(); // API client
-const cfg = require("./config.js"); // config file
+github.cfg = require("./config.js"); // config file
 
 github.authenticate({ // Authentication
   type: "basic",
-  username: cfg.username,
-  password: cfg.password
+  username: github.cfg.username,
+  password: github.cfg.password
 });
 
 module.exports = github;
