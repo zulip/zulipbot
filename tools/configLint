@@ -32,13 +32,9 @@ inquirer.prompt({
   name: "confirm",
   message: "Are you sure you want to test ./src/config.js?"
 }).then((answer) => {
-  if (answer.confirm === true) {
-    cmd.get(
-      "mocha ./test/configLint.js",
-      function(data) {
-        console.log(data);
-        console.log("Testing complete!\n");
-      }
-    );
-  }
+  if (!answer.confirm) return;
+  cmd.get("mocha ./test/configLint.js", (err, data, stderr) => {
+    if (!err) return console.log('Testing complete!', data);
+    else return console.log('An error occured!\n\n', err);
+  });
 });

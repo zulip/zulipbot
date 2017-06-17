@@ -10,7 +10,5 @@ module.exports = exports = function(body, issueNumber, repoName, repoOwner) {
     number: issueNumber
   }).then(() => {
     issueReferenced(body, issueNumber, repoName, repoOwner); // pull-request-to-issue reference
-  }, () => {
-    return; // escape issue-to-issue references
   });
 };

@@ -50,8 +50,7 @@ module.exports = exports = function(payload) {
         number: pullRequestNumber
       }).then((response) => {
         const issueLabelArray = response.data;
-        if (cfg.areaLabels) issueAreaLabeled(addedLabel, pullRequestNumber, repoName, repoOwner, issueLabelArray);
-        return;
+        if (cfg.areaLabels) return issueAreaLabeled(addedLabel, pullRequestNumber, repoName, repoOwner, issueLabelArray);
       });
     } else if (action === "closed") {
       if (!cfg.reviewedLabel || !cfg.needsReviewLabel) return;

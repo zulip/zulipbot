@@ -22,10 +22,7 @@ module.exports = exports = function(body, pullRequestNumber, repoName, repoOwner
       const message = commit.commit.message;
       if (commit.author) commitAuthor = commit.author.login;
       if (!message) return;
-      if (message.match(/#([0-9]+)/) && message.match(/#([0-9]+)/)[1] === referencedIssueNumber) {
-        referencedIssue = true;
-        return;
-      }
+      if (message.match(/#([0-9]+)/) && message.match(/#([0-9]+)/)[1] === referencedIssueNumber) referencedIssue = true;
     });
     if (!referencedIssue) newComment(repoOwner, repoName, pullRequestNumber, fixCommitMessage.replace("[author]", commitAuthor));
     github.issues.getComments({ // get comments of issue

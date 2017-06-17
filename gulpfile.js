@@ -9,53 +9,51 @@ var nsp = require("gulp-nsp");
 var plumber = require("gulp-plumber");
 var coveralls = require("gulp-coveralls");
 
-gulp.task("static", function() {
+gulp.task("static", () => {
   return gulp.src("**/*.js")
-    .pipe(excludeGitignore())
-    .pipe(eslint())
-    .pipe(eslint.format())
-    .pipe(eslint.failAfterError());
+  .pipe(excludeGitignore())
+  .pipe(eslint())
+  .pipe(eslint.format())
+  .pipe(eslint.failAfterError());
 });
 
 gulp.task("nsp", function(cb) {
   nsp({package: path.resolve("package.json")}, cb);
 });
 
-gulp.task("pre-test", function() {
+gulp.task("pre-test", () => {
   return gulp.src("src/**/*.js")
-    .pipe(excludeGitignore())
-    .pipe(istanbul({
-      includeUntested: true
-    }))
-    .pipe(istanbul.hookRequire());
+  .pipe(excludeGitignore())
+  .pipe(istanbul({
+    includeUntested: true
+  }))
+  .pipe(istanbul.hookRequire());
 });
 
 gulp.task("test", ["pre-test"], function(cb) {
-  var mochaErr;
+  let mochaErr;
 
   gulp.src("test/**/*.js")
-    .pipe(plumber())
-    .pipe(mocha({reporter: "spec"}))
-    .on("error", function(err) {
-      mochaErr = err;
-    })
-    .pipe(istanbul.writeReports())
-    .on("end", function() {
-      cb(mochaErr);
-    });
+  .pipe(plumber())
+  .pipe(mocha({reporter: "spec"}))
+  .on("error", function(err) {
+    mochaErr = err;
+  })
+  .pipe(istanbul.writeReports())
+  .on("end", () => {
+    cb(mochaErr);
+  });
 });
 
-gulp.task("watch", function() {
+gulp.task("watch", () => {
   gulp.watch(["src/**/*.js", "test/**"], ["test"]);
 });
 
-gulp.task("coveralls", ["test"], function() {
-  if (!process.env.CI) {
-    return;
-  }
+gulp.task("coveralls", ["test"], () => {
+  if (!process.env.CI) return;
 
   return gulp.src(path.join(__dirname, "coverage/lcov.info"))
-    .pipe(coveralls());
+  .pipe(coveralls());
 });
 
 gulp.task("prepublish", ["nsp"]);
