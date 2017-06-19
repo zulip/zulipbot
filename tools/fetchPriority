@@ -20,17 +20,22 @@
 
 const github = require("../src/github.js");
 
-github.issues.getAll({
-  filter: "all",
-  state: "open",
-  sort: "created",
-  labels: github.cfg.priorityLabel,
-  direction: "asc",
-  per_page: 100
-}).then((response) => {
-  if (response.data.length === 0) return console.log(`No unclaimed issues with the "${github.cfg.priorityLabel}" label!`);
-  console.log(`Unclaimed issues labeled with the "${github.cfg.priorityLabel}" label:`);
-  response.data.forEach((issue) => {
-    if (issue.assignees.length === 0) console.log(`${issue.repository.full_name} #${issue.number} — ${issue.title} (${issue.html_url})`);
+if (!github.cfg.priorityLabels) return console.log("No priority labels were specified in config.js!");
+
+github.cfg.priorityLabels.forEach((label) => {
+  github.issues.getAll({
+    filter: "all",
+    state: "open",
+    sort: "created",
+    labels: label,
+    direction: "asc",
+    per_page: 100
+  }).then((response) => {
+    if (response.data.length === 0) return console.log(`There are no unclaimed issues with the "${label}" label!`);
+    let report = `Unclaimed issues labeled with the "${label}" label:`;
+    response.data.forEach((issue, index, array) => {
+      if (issue.assignees.length === 0) report += `\n* ${issue.repository.full_name} — [${issue.title} (#${issue.number})](${issue.html_url})`;
+      if (index === array.length - 1) console.log(report);
+    });
   });
 });

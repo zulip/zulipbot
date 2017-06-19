@@ -66,7 +66,7 @@ module.exports = {
   inactiveLabel: "inactive", // label for inactive issues/PRs that zulipbot will not track for activity; will track all issues/PRs for activity if null
   reviewedLabel: "reviewed", // label for reviewed PRs; review system disabled if null
   needsReviewLabel: "needs review", // label for PRs needign review; review system disabled if null
-  priorityLabel: "priority", // label for unclaimed "priority" issues daily digest
+  priorityLabels: ["priority: high", "priority: medium", "priority: low", "priority"], // array of labels for unclaimed "priority" issues daily digest
   pullRequestsAssignee: false, // enable/disable assigning PR reviewers to PRs
   defaultStream: "zulipbot" // default stream for zulipbot to send messages to in a Zulip organization
 };
