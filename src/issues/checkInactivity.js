@@ -1,6 +1,5 @@
 "use strict"; // catch errors easier
 
-const github = require("../github.js"); // GitHub wrapper initialization
 const fs = require("fs"); // for reading welcome message
 const inactiveWarning = fs.readFileSync("./src/templates/inactiveWarning.md", "utf8"); // get warning message contents
 const updateWarning = fs.readFileSync("./src/templates/updateWarning.md", "utf8"); // get update message contents
@@ -9,7 +8,7 @@ const abandonWarning = fs.readFileSync("./src/templates/abandonWarning.md", "utf
 const newComment = require("./newComment.js"); // create comment
 const abandonIssue = require("./abandonIssue.js"); // abandon issue
 
-module.exports = exports = function() {
+module.exports = exports = function(github) {
   github.repos.getAll({ // get all repositories zulipbot is in
     per_page: 100
   }).then((response) => {
@@ -50,22 +49,22 @@ module.exports = exports = function() {
               return label.name === github.cfg.needsReviewLabel;
             });
             if (reviewedLabel) {
-              newComment(repoOwner, repoName, number, updateWarning.replace("[author]", author)); // create comment
+              newComment(github, repoOwner, repoName, number, updateWarning.replace("[author]", author)); // create comment
             } else if (needsReviewLabel) {
-              newComment(repoOwner, repoName, number, needsReviewWarning.replace("[assignees], @[author]", pullRequestAssignees.join(", @").concat(`, @${author}`))); // create comment
+              newComment(github, repoOwner, repoName, number, needsReviewWarning.replace("[assignees], @[author]", pullRequestAssignees.join(", @").concat(`, @${author}`))); // create comment
             }
             if (!body.match(/#([0-9]+)/)) return; // return if it does not reference an issue
             const issueNumber = body.match(/#([0-9]+)/)[1]; // find first issue reference
             references.set(issueNumber, time); // push to map
           });
         });
-        scrapeInactiveIssues(references, repoOwner, repoName); // check inactive issues using references data
+        scrapeInactiveIssues(github, references, repoOwner, repoName); // check inactive issues using references data
       });
     });
   });
 };
 
-function scrapeInactiveIssues(references, owner, name) {
+function scrapeInactiveIssues(github, references, owner, name) {
   github.issues.getAll({ // get all issues that are opened and labeled with "in progress", sort by oldest updated to newest updated
     filter: "all",
     state: "open",
@@ -104,7 +103,7 @@ function scrapeInactiveIssues(references, owner, name) {
         });
         if (labelComment && time + (github.cfg.autoAbandonTimeLimit * 1000) <= now) { // if 3 day warning time limit pased and not updated
           assignees.forEach((assignee) => {
-            abandonIssue(assignee, issueNumber, repoName, repoOwner); // remove each assignee
+            abandonIssue(github, assignee, issueNumber, repoName, repoOwner); // remove each assignee
           });
           if (github.cfg.inProgressLabel) github.issues.removeLabel({owner: repoOwner, repo: repoName, number: issueNumber, name: github.cfg.inProgressLabel}).catch(console.error); // remove "in progress" label
           github.issues.editComment({
@@ -114,7 +113,7 @@ function scrapeInactiveIssues(references, owner, name) {
             body: abandonWarning.replace("[assignee]", assigneeString)
           }).catch(console.error);
         } else if (!labelComment) { // if there was no warning comment made within last 7 days
-          newComment(repoOwner, repoName, issueNumber, comment); // create comment
+          newComment(github, repoOwner, repoName, issueNumber, comment); // create comment
         }
       });
     });

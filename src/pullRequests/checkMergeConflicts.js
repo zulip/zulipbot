@@ -1,11 +1,10 @@
 "use strict"; // catch errors easier
 
-const github = require("../github.js"); // GitHub wrapper initialization
 const newComment = require("../issues/newComment.js"); // create comment
 const fs = require("fs"); // for reading messages
 const mergeConflictWarning = fs.readFileSync("./src/templates/mergeConflictWarning.md", "utf8"); // get merge conflict warning contents
 
-module.exports = exports = function(payload) {
+module.exports = exports = function(payload, github) {
   if (payload.ref !== "refs/heads/master") return; // break if push wasn't towards master branch
   const repoName = payload.repository.name; // PR repository
   const repoOwner = payload.repository.owner.login; // repository owner
@@ -44,7 +43,7 @@ module.exports = exports = function(payload) {
               const synchCheck = lastCommitTime < Date.parse(issueComment.updated_at); // check if warning comment was posted after most recent commit
               return (issueComment.body.includes(comment.substring(0, 25)) || issueComment.body.includes(oldComment)) && synchCheck && issueComment.user.login === github.cfg.username; // find warning comment made after most recent commit by zulipbot
             });
-            if (!labelComment && mergeable === false) newComment(repoOwner, repoName, pullRequestNumber, comment); // post only if there's no comment after most recent commit, use === to avoid triggering alert for null values
+            if (!labelComment && mergeable === false) newComment(github, repoOwner, repoName, pullRequestNumber, comment); // post only if there's no comment after most recent commit, use === to avoid triggering alert for null values
           });
         });
       });

@@ -123,7 +123,7 @@ inquirer.prompt({
               const travis = response.travis;
               const buildURL = response.buildURL;
               if (body && body.match(/#([0-9]+)/) && github.cfg.areaLabels) {
-                issueReferenced(body, pullRequestNumber, username, "zulipbot-testing");
+                issueReferenced(github, body, pullRequestNumber, username, "zulipbot-testing");
                 console.log(`Payload sent! Check https://github.com/zulipbot-testing/${username}/pull/${issueNumber} for any responses.`);
               } else if (travis && buildURL && github.cfg.travisLabel) {
                 travisBuildStatus(travis, "zulipbot-testing", username, issueNumber, buildURL);
@@ -206,23 +206,23 @@ inquirer.prompt({
               commands.forEach((command) => {
                 if (body.includes(`\`${command}\``) || body.includes(`\`\`\`\r\n${command}\r\n\`\`\``)) return;
                 const commandName = command.split(" ")[1];
-                if (commandName === "claim" && github.cfg.claimEnabled) claimIssue(commenter, issueNumber, username, "zulipbot-testing");
-                else if ((commandName === "abandon" || commandName === "unclaim") && github.cfg.abandonEnabled) abandonIssue(commenter, issueNumber, username, "zulipbot-testing");
+                if (commandName === "claim" && github.cfg.claimEnabled) claimIssue(github, commenter, issueNumber, username, "zulipbot-testing");
+                else if ((commandName === "abandon" || commandName === "unclaim") && github.cfg.abandonEnabled) abandonIssue(github, commenter, issueNumber, username, "zulipbot-testing");
                 else if (commandName === "label" && github.cfg.labelEnabled && github.cfg.selfLabelingOnly && commenter === issueCreator) {
                   const splitBody = body.split(`@${github.cfg.username}`).filter((splitString) => {
                     return splitString.includes(" label \"");
                   }).join(" ");
-                  addLabels(splitBody, issueNumber, username, "zulipbot-testing", issueLabelArray);
+                  addLabels(github, splitBody, issueNumber, username, "zulipbot-testing", issueLabelArray);
                 } else if (commandName === "remove" && github.cfg.removeEnabled && github.cfg.selfLabelingOnly && commenter === issueCreator) {
                   const splitBody = body.split(`@${github.cfg.username}`).filter((splitString) => {
                     return splitString.includes(" remove \"");
                   }).join(" ");
-                  removeLabels(splitBody, issueNumber, username, "zulipbot-testing", issueLabelArray);
+                  removeLabels(github, splitBody, issueNumber, username, "zulipbot-testing", issueLabelArray);
                 } else if (commandName === "join" && github.cfg.joinEnabled && github.cfg.areaLabels) {
                   const splitBody = body.split(`@${github.cfg.username}`).filter((splitString) => {
                     return splitString.includes(" join \"");
                   }).join(" ");
-                  joinLabelTeam(splitBody, commenter, "zulipbot-testing", username, issueNumber);
+                  joinLabelTeam(github, splitBody, commenter, "zulipbot-testing", username, issueNumber);
                 }
               });
               console.log(`Payload sent! Check https://github.com/zulipbot-testing/${username}/issues/${issueNumber} for any responses.\nIf you received no notifications, then your payload body didn't trigger any functions.`);

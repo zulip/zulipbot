@@ -1,8 +1,6 @@
 "use strict"; // catch errors easier
 
-const github = require("../github.js"); // GitHub wrapper initialization
-
-module.exports = exports = function(repoOwner, repoName, issueNumber, body) {
+module.exports = exports = function(github, repoOwner, repoName, issueNumber, body) {
   github.pullRequests.get({
     owner: repoOwner,
     repo: repoName,

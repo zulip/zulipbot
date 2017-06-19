@@ -1,9 +1,8 @@
 "use strict";
 
-const github = require("../github.js"); // GitHub wrapper initialization
 const newComment = require("./newComment.js"); // create comment
 
-module.exports = exports = function(body, commenter, repoOwner, repoName, issueNumber) {
+module.exports = exports = function(github, body, commenter, repoOwner, repoName, issueNumber) {
   if (!body.match(/"(.*?)"/g)) return;
   let labelTeams = new Map();
   let joinedTeams = [];
@@ -46,13 +45,13 @@ module.exports = exports = function(body, commenter, repoOwner, repoName, issueN
       if (response.meta.status === "204 No Content") {
         let teamGrammar = "team";
         if (joinedTeams.length > 1) teamGrammar = "teams";
-        newComment(repoOwner, repoName, issueNumber, `Congratulations @${commenter}, you successfully joined ${teamGrammar} **${repoOwner}/${joinedTeamsString}**!`);
+        newComment(github, repoOwner, repoName, issueNumber, `Congratulations @${commenter}, you successfully joined ${teamGrammar} **${repoOwner}/${joinedTeamsString}**!`);
       }
     }, (response) => {
       if (response.headers.status === "404 Not Found") {
         let invitationGrammar = "invitation";
         if (joinedTeams.length > 1) invitationGrammar = "invitations";
-        newComment(repoOwner, repoName, issueNumber, `Hello @${commenter}, please check your email for an organization invitation or visit https://github.com/orgs/${repoOwner}/invitation in order to accept your team ${invitationGrammar}!`);
+        newComment(github, repoOwner, repoName, issueNumber, `Hello @${commenter}, please check your email for an organization invitation or visit https://github.com/orgs/${repoOwner}/invitation in order to accept your team ${invitationGrammar}!`);
       }
     });
   });

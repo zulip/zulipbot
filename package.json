@@ -59,7 +59,7 @@
         "requireForBlockBody": true
       }],
       "max-nested-callbacks": ["error", 7],
-      "max-params": ["error", 5],
+      "max-params": ["error", 10],
       "capitalized-comments": ["off"],
       "no-multi-assign": ["off"]
     }

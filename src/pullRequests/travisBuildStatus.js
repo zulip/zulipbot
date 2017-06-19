@@ -1,9 +1,8 @@
 "use strict"; // catch errors easier
 
-const github = require("../github.js"); // GitHub wrapper initialization
 const newComment = require("../issues/newComment.js"); // create comment
 
-module.exports = exports = function(state, repoOwner, repoName, pullRequestNumber, buildURL) {
+module.exports = exports = function(github, state, repoOwner, repoName, pullRequestNumber, buildURL) {
   let comment = "(unknown state)";
   if (state === "passed") {
     comment = `Congratulations, the Travis [builds](${buildURL}) for this pull request **${state}**!`;
@@ -19,6 +18,6 @@ module.exports = exports = function(state, repoOwner, repoName, pullRequestNumbe
     labelCheck = labels.data.find((label) => {
       return label.name === github.cfg.travisLabel;
     });
-    if (labelCheck) newComment(repoOwner, repoName, pullRequestNumber, comment);
+    if (labelCheck) newComment(github, repoOwner, repoName, pullRequestNumber, comment);
   });
 };

@@ -1,9 +1,8 @@
 "use strict"; // catch errors easier
 
-const github = require("../github.js"); // GitHub wrapper initialization
 const request = require("request-promise"); // for sending HTTP request to api.github.com
 
-module.exports = exports = function(commenter, issueNumber, repoName, repoOwner) {
+module.exports = exports = function(github, commenter, issueNumber, repoName, repoOwner) {
   let assignees = []; // initialize array for current issue assignees
   github.issues.get({ // get issue information
     owner: repoOwner,

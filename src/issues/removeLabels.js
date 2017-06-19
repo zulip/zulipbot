@@ -1,9 +1,8 @@
 "use strict"; // catch errors easier
 
-const github = require("../github.js"); // GitHub wrapper initialization
 const newComment = require("./newComment.js"); // create comment
 
-module.exports = exports = function(body, issueNumber, repoName, repoOwner, issueLabelArray) {
+module.exports = exports = function(github, body, issueNumber, repoName, repoOwner, issueLabelArray) {
   if (!body.match(/"(.*?)"/g)) return; // return if no parameters were specified
   let rejectedLabels = []; // initialize array for rejected labels that don't exist
   let issueLabels = []; // initialize array for labels that won't be removed
@@ -37,6 +36,6 @@ module.exports = exports = function(body, issueNumber, repoName, repoOwner, issu
       wasGrammar = "was";
     } else return; // no rejected labels
     const rejectedLabelError = `**Error:** ${labelGrammar} ${rejectedLabelsString} ${doGrammar} not exist and ${wasGrammar} thus not removed from this issue.`; // template literal comment
-    newComment(repoOwner, repoName, issueNumber, rejectedLabelError); // post error comment
+    newComment(github, repoOwner, repoName, issueNumber, rejectedLabelError); // post error comment
   });
 };

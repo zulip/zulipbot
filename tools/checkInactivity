@@ -16,7 +16,7 @@
 //  8P      88ooo88 88ooooo 8P      88,8P      88    88V8o 88 88ooo88 8P         88       88    Y8    8P    88       88     `8bd8'
 //  8b      88~~~88 88~~~~~ 8b      88`8b      88    88 V8o88 88~~~88 8b         88       88    `8b  d8'    88       88       88
 //  Y8b  d8 88   88 88.     Y8b  d8 88 `88.   .88.   88  V888 88   88 Y8b  d8    88      .88.    `8bd8'    .88.      88       88
-//   `Y88P' YP   YP Y88888P  `Y88P' YP   YD Y888888P VP   V8P YP   YP  `Y88P'    YP    Y888888P    YP    Y888888P    YP       YP                                                                                                                              
+//   `Y88P' YP   YP Y88888P  `Y88P' YP   YD Y888888P VP   V8P YP   YP  `Y88P'    YP    Y888888P    YP    Y888888P    YP       YP
 
 const inquirer = require("inquirer");
 const github = require("../src/github.js");
@@ -41,7 +41,7 @@ inquirer.prompt({
       name: "confirm",
       message: "Are you sure you want to check your repository for inactive issues and pull requests??"
     }).then((answer) => {
-      if (answer.confirm) checkInactivity();
+      if (answer.confirm) checkInactivity(github);
     }, () => {
       console.log("You don't have a repository on zulipbot-testing yet! Please make one before running this tool again.");
     });

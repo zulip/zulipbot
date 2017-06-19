@@ -1,10 +1,9 @@
 "use strict"; // catch errors easier
 
-const github = require("../github.js"); // GitHub wrapper initialization
 const newComment = require("../issues/newComment.js"); // create comment
 let referencedIssues = [];
 
-module.exports = exports = function(areaLabel, issueNumber, repoName, repoOwner, issueLabelArray) {
+module.exports = exports = function(github, areaLabel, issueNumber, repoName, repoOwner, issueLabelArray) {
   if (!github.cfg.areaLabels.has(areaLabel)) return; // if added label isn't an area label, return;
   github.issues.getComments({
     owner: repoOwner,
@@ -42,7 +41,7 @@ module.exports = exports = function(areaLabel, issueNumber, repoName, repoOwner,
       }).catch(console.error);
     } else {
       if (referencedIssues.includes(issueNumber)) return;
-      newComment(repoOwner, repoName, issueNumber, comment); // create comment
+      newComment(github, repoOwner, repoName, issueNumber, comment); // create comment
       referencedIssues.push(issueNumber);
       setTimeout(() => {
         referencedIssues.splice(referencedIssues.indexOf(issueNumber), 1);

@@ -1,9 +1,8 @@
 "use strict"; // catch errors easier
 
-const github = require("../github.js"); // GitHub wrapper initialization
 const newComment = require("./newComment.js"); // create comment
 
-module.exports = exports = function(body, issueNumber, repoName, repoOwner, issueLabelArray) {
+module.exports = exports = function(github, body, issueNumber, repoName, repoOwner, issueLabelArray) {
   if (!body.match(/"(.*?)"/g)) return; // return if no parameters were specified
   let addedLabels = []; // initialize array for labels to be added to issue
   let rejectedLabels = []; // initialize array for rejected labels that don't exist
@@ -47,7 +46,7 @@ module.exports = exports = function(body, issueNumber, repoName, repoOwner, issu
         wasGrammar = "was";
       } else printRejected = false; // when there are no rejected labels
       const rejectedLabelError = `**Error:** ${labelGrammar} ${rejectedLabelsString} ${doGrammar} not exist and ${wasGrammar} thus not added to this issue.`; // template literal comment
-      if (printRejected) newComment(repoOwner, repoName, issueNumber, rejectedLabelError); // post error comment
+      if (printRejected) newComment(github, repoOwner, repoName, issueNumber, rejectedLabelError); // post error comment
       const alreadyAddedString = alreadyAdded.join(", "); // joins all elements in alreadyAdded array
       let printAlreadyAdded = true; // initialize print already added labels to true
       let existGrammar; // initialize grammar variables
@@ -61,7 +60,7 @@ module.exports = exports = function(body, issueNumber, repoName, repoOwner, issu
         wasGrammar = "was";
       } else printAlreadyAdded = false; // when there are no already added labels
       const alreadyAddedError = `**Error:** ${labelGrammar} ${alreadyAddedString} already ${existGrammar} and ${wasGrammar} thus not added again to this issue.`; // template literal comment
-      if (printAlreadyAdded) newComment(repoOwner, repoName, issueNumber, alreadyAddedError); // post error comment
+      if (printAlreadyAdded) newComment(github, repoOwner, repoName, issueNumber, alreadyAddedError); // post error comment
     });
   });
 };

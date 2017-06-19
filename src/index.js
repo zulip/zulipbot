@@ -29,17 +29,17 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
 // handle POST requests
-app.post("/", function(req, res) {
+app.post("/", (req, res) => {
   res.render("index"); // Send contents of index.ejs
   // check if event is for an issue opening or issue comment creation
   if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event").includes("issue")) {
-    issues(req.body); // send parsed payload to issues.js
+    issues(req.body, github); // send parsed payload to issues.js
   } else if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event").includes("pull_request")) {
-    pullRequests(req.body); // send parsed payload to pullRequests.js
+    pullRequests(req.body, github); // send parsed payload to pullRequests.js
   } else if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event") === "push" && github.cfg.checkMergeConflicts) {
-    setTimeout(checkMergeConflicts(req.body), github.cfg.checkMergeConflictsDelay); // check pull requests for merge conflicts on repository push
+    setTimeout(checkMergeConflicts(req.body, github), github.cfg.checkMergeConflictsDelay); // check pull requests for merge conflicts on repository push
   } else if (req.get("user-agent") && req.get("user-agent") === "Travis CI Notifications") {
-    travis(JSON.parse(req.body.payload));
+    travis(JSON.parse(req.body.payload), github);
   }
 });
 
@@ -47,4 +47,4 @@ process.on("unhandledRejection", (reason, promise) => {
   console.log("An unhandled promise rejection was detected!\nPromise ", promise, "\nReason: ", reason);
 });
 
-if (github.cfg.checkInactivityTimeout) setInterval(() => checkInactivity(), github.cfg.checkInactivityTimeout * 1000); // check every hour
+if (github.cfg.checkInactivityTimeout) setInterval(() => checkInactivity(github), github.cfg.checkInactivityTimeout * 1000); // check every hour

@@ -1,11 +1,10 @@
 "use strict"; // catch errors easier
 
-const github = require("../github.js"); // GitHub wrapper initialization
 const newComment = require("../issues/newComment.js"); // create comment
 const fs = require("fs"); // for reading messages
 const fixCommitMessage = fs.readFileSync("./src/templates/fixCommitMessage.md", "utf8"); // get fix commit message contents
 
-module.exports = exports = function(body, pullRequestNumber, repoName, repoOwner) {
+module.exports = exports = function(github, body, pullRequestNumber, repoName, repoOwner) {
   const referencedIssueNumber = body.match(/#([0-9]+)/)[1];
   let issueLabels = []; // initialize array for area labels
   let labelTeams = [];
@@ -23,7 +22,7 @@ module.exports = exports = function(body, pullRequestNumber, repoName, repoOwner
       if (!message) return;
       if (message.match(/#([0-9]+)/) && message.match(/#([0-9]+)/)[1] === referencedIssueNumber) referencedIssue = true;
     });
-    if (!referencedIssue) newComment(repoOwner, repoName, pullRequestNumber, fixCommitMessage.replace("[author]", commitAuthor));
+    if (!referencedIssue) newComment(github, repoOwner, repoName, pullRequestNumber, fixCommitMessage.replace("[author]", commitAuthor));
     github.issues.getComments({ // get comments of issue
       owner: repoOwner,
       repo: repoName,
@@ -58,7 +57,7 @@ module.exports = exports = function(body, pullRequestNumber, repoName, repoOwner
           labelGrammar = "label";
         } else return;
         const comment = `Hello @${repoOwner}/${areaLabelTeams} members, this pull request references an issue with the "${referencedAreaLabels}" ${labelGrammar}, so you may want to check it out!`; // comment template
-        newComment(repoOwner, repoName, pullRequestNumber, comment); // create comment
+        newComment(github, repoOwner, repoName, pullRequestNumber, comment); // create comment
       });
     });
   });
