@@ -67,5 +67,6 @@ module.exports = {
   reviewedLabel: "reviewed", // label for reviewed PRs; review system disabled if null
   needsReviewLabel: "needs review", // label for PRs needign review; review system disabled if null
   priorityLabel: "priority", // label for unclaimed "priority" issues daily digest
-  pullRequestsAssignee: false // enable/disable assigning PR reviewers to PRs
+  pullRequestsAssignee: false, // enable/disable assigning PR reviewers to PRs
+  defaultStream: "zulipbot" // default stream for zulipbot to send messages to in a Zulip organization
 };

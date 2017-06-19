@@ -1,109 +1,140 @@
 "use strict";
 
 const assert = require("chai").assert;
-const cfg = require("../src/config.js"); // config file
+const github = require("../src/github.js");
 
-describe("config.js lint", function() {
-  it("claimCommands should be an array that only contains strings.", function() {
-    assert.typeOf(cfg.claimCommands, "array");
-    cfg.claimCommands.forEach((command) => {
+describe("secrets.json lint", () => {
+  it("username should be a string.", () => {
+    assert.typeOf(github.cfg.username, "string");
+  });
+  it("password should be a string.", () => {
+    assert.typeOf(github.cfg.password, "string");
+  });
+  it("zulip.username should be a valid email and a string.", () => {
+    assert.typeOf(github.cfg.zulip.username, "string");
+    assert.isOk(/\S+@\S+\.\S+/.test(github.cfg.zulip.username));
+  });
+  it("zulip.apiKey should be an alphanumeric string.", () => {
+    assert.typeOf(github.cfg.zulip.apiKey, "string");
+    assert.isOk(new RegExp(/^[a-z0-9]+$/, "i").test(github.cfg.zulip.apiKey));
+  });
+  it("zulip.realm should be a valid URL and a string.", () => {
+    assert.typeOf(github.cfg.zulip.realm, "string");
+    assert.isOk(new RegExp(/[-a-zA-Z0-9@:\\\\%_+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_+\\\\.~#?&//=]*)?/, "i").test(github.cfg.zulip.realm));
+  });
+});
+
+describe("config.js lint", () => {
+  it("claimCommands should be an array that only contains strings.", () => {
+    assert.typeOf(github.cfg.claimCommands, "array");
+    github.cfg.claimCommands.forEach((command) => {
       assert.typeOf(command, "string");
     });
   });
-  it("abandonCommands should be an array that only contains strings.", function() {
-    assert.typeOf(cfg.abandonCommands, "array");
-    cfg.abandonCommands.forEach((command) => {
+  it("abandonCommands should be an array that only contains strings.", () => {
+    assert.typeOf(github.cfg.abandonCommands, "array");
+    github.cfg.abandonCommands.forEach((command) => {
       assert.typeOf(command, "string");
     });
   });
-  it("labelCommands should be an array that only contains strings.", function() {
-    assert.typeOf(cfg.labelCommands, "array");
-    cfg.labelCommands.forEach((command) => {
+  it("labelCommands should be an array that only contains strings.", () => {
+    assert.typeOf(github.cfg.labelCommands, "array");
+    github.cfg.labelCommands.forEach((command) => {
       assert.typeOf(command, "string");
     });
   });
-  it("removeCommands should be an array that only contains strings.", function() {
-    assert.typeOf(cfg.removeCommands, "array");
-    cfg.removeCommands.forEach((command) => {
+  it("removeCommands should be an array that only contains strings.", () => {
+    assert.typeOf(github.cfg.removeCommands, "array");
+    github.cfg.removeCommands.forEach((command) => {
       assert.typeOf(command, "string");
     });
   });
-  it("selfLabelingOnly should be a boolean.", function() {
-    assert.isNotNull(cfg.selfLabelingOnly);
-    assert.typeOf(cfg.selfLabelingOnly, "boolean");
+  it("selfLabelingOnly should be a boolean.", () => {
+    assert.isNotNull(github.cfg.selfLabelingOnly);
+    assert.typeOf(github.cfg.selfLabelingOnly, "boolean");
   });
-  it("joinCommands should be an array that only contains strings.", function() {
-    assert.typeOf(cfg.joinCommands, "array");
-    cfg.joinCommands.forEach((command) => {
+  it("joinCommands should be an array that only contains strings.", () => {
+    assert.typeOf(github.cfg.joinCommands, "array");
+    github.cfg.joinCommands.forEach((command) => {
       assert.typeOf(command, "string");
     });
   });
-  it("commitReferenceEnabled should be a boolean.", function() {
-    assert.isNotNull(cfg.commitReferenceEnabled);
-    assert.typeOf(cfg.commitReferenceEnabled, "boolean");
+  it("commitReferenceEnabled should be a boolean.", () => {
+    assert.isNotNull(github.cfg.commitReferenceEnabled);
+    assert.typeOf(github.cfg.commitReferenceEnabled, "boolean");
   });
-  it("checkMergeConflicts should be a boolean.", function() {
-    assert.isNotNull(cfg.checkMergeConflicts);
-    assert.typeOf(cfg.checkMergeConflicts, "boolean");
+  it("checkMergeConflicts should be a boolean.", () => {
+    assert.isNotNull(github.cfg.checkMergeConflicts);
+    assert.typeOf(github.cfg.checkMergeConflicts, "boolean");
   });
-  it("checkMergeConflictsDelay should be a postive integer if it is defined.", function() {
-    if (cfg.checkMergeConflictsDelay) assert(!isNaN(parseFloat(cfg.checkMergeConflictsDelay)) && isFinite(cfg.checkMergeConflictsDelay));
-    else assert.isUndefined(cfg.checkMergeConflictsDelay);
+  it("checkMergeConflictsDelay should be a postive integer if it is defined.", () => {
+    if (github.cfg.checkMergeConflictsDelay) assert(!isNaN(parseFloat(github.cfg.checkMergeConflictsDelay)) && isFinite(github.cfg.checkMergeConflictsDelay));
+    else assert.isUndefined(github.cfg.checkMergeConflictsDelay);
   });
-  it("areaLabels should be a map if it is defined.", function() {
-    if (cfg.areaLabels) assert.typeOf(cfg.areaLabels, "map");
-    else assert.isUndefined(cfg.areaLabels);
+  it("areaLabels should be a map if it is defined.", () => {
+    if (github.cfg.areaLabels) assert.typeOf(github.cfg.areaLabels, "map");
+    else assert.isUndefined(github.cfg.areaLabels);
   });
-  it("addCollabPermission should be a valid string if it is defined.", function() {
+  it("addCollabPermission should be a valid string if it is defined.", () => {
     const permissions = ["pull", "push", "admin"];
-    if (cfg.addCollabPermission) assert(permissions.includes(cfg.addCollabPermission));
-    else assert.isUndefined(cfg.addCollabPermission);
+    if (github.cfg.addCollabPermission) assert(permissions.includes(github.cfg.addCollabPermission));
+    else assert.isUndefined(github.cfg.addCollabPermission);
   });
-  it("escapeWIPString should be a string if it is defined.", function() {
-    if (cfg.escapeWIPString) assert.typeOf(cfg.escapeWIPString, "string");
-    else assert.isUndefined(cfg.escapeWIPString);
+  it("escapeWIPString should be a string if it is defined.", () => {
+    if (github.cfg.escapeWIPString) assert.typeOf(github.cfg.escapeWIPString, "string");
+    else assert.isUndefined(github.cfg.escapeWIPString);
   });
-  it("activeRepos should be an array of properly-formatted strings.", function() {
-    assert.typeOf(cfg.activeRepos, "array");
-    cfg.activeRepos.forEach((repo) => {
+  it("activeRepos should be an array of properly-formatted strings.", () => {
+    assert.typeOf(github.cfg.activeRepos, "array");
+    github.cfg.activeRepos.forEach((repo) => {
       assert.typeOf(repo, "string");
       assert.include(repo, "/", "Repositories are in format repoOwner/repoName");
     });
   });
-  it("checkInactivityTimeout should be a postive integer if it is defined.", function() {
-    if (cfg.checkInactivityTimeout) assert(!isNaN(parseFloat(cfg.checkInactivityTimeout)) && isFinite(cfg.checkInactivityTimeout));
-    else assert.isUndefined(cfg.checkInactivityTimeout);
+  it("checkInactivityTimeout should be a postive integer if it is defined.", () => {
+    if (github.cfg.checkInactivityTimeout) assert(!isNaN(parseFloat(github.cfg.checkInactivityTimeout)) && isFinite(github.cfg.checkInactivityTimeout));
+    else assert.isUndefined(github.cfg.checkInactivityTimeout);
   });
-  it("inactivityTimeLimit should be a postive integer if it is defined.", function() {
-    if (cfg.inactivityTimeLimit) assert(!isNaN(parseFloat(cfg.inactivityTimeLimit)) && isFinite(cfg.inactivityTimeLimit));
-    else assert.isUndefined(cfg.inactivityTimeLimit);
+  it("inactivityTimeLimit should be a postive integer if it is defined.", () => {
+    if (github.cfg.inactivityTimeLimit) assert(!isNaN(parseFloat(github.cfg.inactivityTimeLimit)) && isFinite(github.cfg.inactivityTimeLimit));
+    else assert.isUndefined(github.cfg.inactivityTimeLimit);
   });
-  it("autoAbandonTimeLimit should be a postive integer if it is defined.", function() {
-    if (cfg.autoAbandonTimeLimit) assert(!isNaN(parseFloat(cfg.autoAbandonTimeLimit)) && isFinite(cfg.autoAbandonTimeLimit));
-    else assert.isUndefined(cfg.autoAbandonTimeLimit);
+  it("autoAbandonTimeLimit should be a postive integer if it is defined.", () => {
+    if (github.cfg.autoAbandonTimeLimit) assert(!isNaN(parseFloat(github.cfg.autoAbandonTimeLimit)) && isFinite(github.cfg.autoAbandonTimeLimit));
+    else assert.isUndefined(github.cfg.autoAbandonTimeLimit);
   });
-  it("travisLabel should be a string if it is defined.", function() {
-    if (cfg.travisLabel) assert.typeOf(cfg.travisLabel, "string");
-    else assert.isUndefined(cfg.travisLabel);
+  it("travisLabel should be a string if it is defined.", () => {
+    if (github.cfg.travisLabel) assert.typeOf(github.cfg.travisLabel, "string");
+    else assert.isUndefined(github.cfg.travisLabel);
   });
-  it("inProgressLabel should be a string if it is defined.", function() {
-    if (cfg.inProgressLabel) assert.typeOf(cfg.inProgressLabel, "string");
-    else assert.isUndefined(cfg.inProgressLabel);
+  it("inProgressLabel should be a string if it is defined.", () => {
+    if (github.cfg.inProgressLabel) assert.typeOf(github.cfg.inProgressLabel, "string");
+    else assert.isUndefined(github.cfg.inProgressLabel);
   });
-  it("inactiveLabel should be a string if it is defined.", function() {
-    if (cfg.inactiveLabel) assert.typeOf(cfg.inactiveLabel, "string");
-    else assert.isUndefined(cfg.inactiveLabel);
+  it("inactiveLabel should be a string if it is defined.", () => {
+    if (github.cfg.inactiveLabel) assert.typeOf(github.cfg.inactiveLabel, "string");
+    else assert.isUndefined(github.cfg.inactiveLabel);
   });
-  it("reviewedLabel should be a string if it is defined.", function() {
-    if (cfg.reviewedLabel) assert.typeOf(cfg.reviewedLabel, "string");
-    else assert.isUndefined(cfg.reviewedLabel);
+  it("reviewedLabel should be a string if it is defined.", () => {
+    if (github.cfg.reviewedLabel) assert.typeOf(github.cfg.reviewedLabel, "string");
+    else assert.isUndefined(github.cfg.reviewedLabel);
   });
-  it("needsReviewLabel should be a string if it is defined.", function() {
-    if (cfg.needsReviewLabel) assert.typeOf(cfg.needsReviewLabel, "string");
-    else assert.isUndefined(cfg.needsReviewLabel);
+  it("needsReviewLabel should be a string if it is defined.", () => {
+    if (github.cfg.needsReviewLabel) assert.typeOf(github.cfg.needsReviewLabel, "string");
+    else assert.isUndefined(github.cfg.needsReviewLabel);
   });
-  it("pullRequestsAssignee should be a boolean.", function() {
-    assert.isNotNull(cfg.pullRequestsAssignee);
-    assert.typeOf(cfg.pullRequestsAssignee, "boolean");
+  it("priorityLabels should be an array of properly-formatted strings.", () => {
+    assert.typeOf(github.cfg.priorityLabels, "array");
+    github.cfg.priorityLabels.forEach((repo) => {
+      assert.typeOf(repo, "string");
+    });
+  });
+  it("pullRequestsAssignee should be a boolean.", () => {
+    assert.isNotNull(github.cfg.pullRequestsAssignee);
+    assert.typeOf(github.cfg.pullRequestsAssignee, "boolean");
+  });
+  it("defaultStream should be a string.", () => {
+    assert.isNotNull(github.cfg.defaultStream);
+    assert.typeOf(github.cfg.defaultStream, "string");
   });
 });
