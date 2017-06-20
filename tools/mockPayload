@@ -19,7 +19,7 @@
 //  YP  YP  YP  `Y88P"   `Y88P" YP   YD 88      YP   YP    YP    Y88888P  `Y88P"  YP   YP Y8888D"
 
 const inquirer = require("inquirer");
-const github = require("../src/github.js");
+const client = require("../src/client.js");
 const addLabels = require("../src/issues/addLabels.js");
 const claimIssue = require("../src/issues/claimIssue.js");
 const abandonIssue = require("../src/issues/abandonIssue.js");
@@ -38,7 +38,7 @@ inquirer.prompt({
   message: "What's your GitHub username?"
 }).then((response) => {
   const username = response.username;
-  github.repos.get({
+  client.repos.get({
     owner: "zulipbot-testing",
     repo: username
   })
@@ -63,12 +63,12 @@ inquirer.prompt({
     }]).then((response) => {
       const issueNumber = response.number;
       const payloadType = response.payload;
-      github.issues.get({
+      client.issues.get({
         owner: "zulipbot-testing",
         repo: username,
         number: issueNumber
       }).then(() => {
-        github.pullRequests.get({
+        client.pullRequests.get({
           owner: "zulipbot-testing",
           repo: username,
           number: issueNumber
@@ -122,10 +122,10 @@ inquirer.prompt({
               const body = response.body;
               const travis = response.travis;
               const buildURL = response.buildURL;
-              if (body && body.match(/#([0-9]+)/) && github.cfg.areaLabels) {
-                issueReferenced(github, body, pullRequestNumber, username, "zulipbot-testing");
+              if (body && body.match(/#([0-9]+)/) && client.cfg.areaLabels) {
+                issueReferenced(client, body, pullRequestNumber, username, "zulipbot-testing");
                 console.log(`Payload sent! Check https://github.com/zulipbot-testing/${username}/pull/${issueNumber} for any responses.`);
-              } else if (travis && buildURL && github.cfg.travisLabel) {
+              } else if (travis && buildURL && client.cfg.travisLabel) {
                 travisBuildStatus(travis, "zulipbot-testing", username, issueNumber, buildURL);
                 console.log(`Payload sent! Check https://github.com/zulipbot-testing/${username}/pull/${issueNumber} for any responses.`);
               } else {
@@ -197,32 +197,32 @@ inquirer.prompt({
                   issueLabelArray.push({name: label.replace(/"/g, "")});
                 });
               }
-              if (commenter === github.cfg.username) return;
-              if (addedLabel && github.cfg.areaLabels) issueAreaLabeled(addedLabel, issueNumber, username, "zulipbot-testing", issueLabelArray);
+              if (commenter === client.cfg.username) return;
+              if (addedLabel && client.cfg.areaLabels) issueAreaLabeled(addedLabel, issueNumber, username, "zulipbot-testing", issueLabelArray);
               if (!body) return;
-              const commands = body.match(new RegExp("@" + github.cfg.username + "\\s(\\w*)", "g"));
+              const commands = body.match(new RegExp("@" + client.cfg.username + "\\s(\\w*)", "g"));
               if (!commands) return;
-              if (body.match(/#([0-9]+)/) && github.cfg.areaLabels) checkPullRequestComment(body, issueNumber, username, "zulipbot-testing");
+              if (body.match(/#([0-9]+)/) && client.cfg.areaLabels) checkPullRequestComment(body, issueNumber, username, "zulipbot-testing");
               commands.forEach((command) => {
                 if (body.includes(`\`${command}\``) || body.includes(`\`\`\`\r\n${command}\r\n\`\`\``)) return;
                 const commandName = command.split(" ")[1];
-                if (commandName === "claim" && github.cfg.claimEnabled) claimIssue(github, commenter, issueNumber, username, "zulipbot-testing");
-                else if ((commandName === "abandon" || commandName === "unclaim") && github.cfg.abandonEnabled) abandonIssue(github, commenter, issueNumber, username, "zulipbot-testing");
-                else if (commandName === "label" && github.cfg.labelEnabled && github.cfg.selfLabelingOnly && commenter === issueCreator) {
-                  const splitBody = body.split(`@${github.cfg.username}`).filter((splitString) => {
+                if (commandName === "claim" && client.cfg.claimEnabled) claimIssue(client, commenter, issueNumber, username, "zulipbot-testing");
+                else if ((commandName === "abandon" || commandName === "unclaim") && client.cfg.abandonEnabled) abandonIssue(client, commenter, issueNumber, username, "zulipbot-testing");
+                else if (commandName === "label" && client.cfg.labelEnabled && client.cfg.selfLabelingOnly && commenter === issueCreator) {
+                  const splitBody = body.split(`@${client.cfg.username}`).filter((splitString) => {
                     return splitString.includes(" label \"");
                   }).join(" ");
-                  addLabels(github, splitBody, issueNumber, username, "zulipbot-testing", issueLabelArray);
-                } else if (commandName === "remove" && github.cfg.removeEnabled && github.cfg.selfLabelingOnly && commenter === issueCreator) {
-                  const splitBody = body.split(`@${github.cfg.username}`).filter((splitString) => {
+                  addLabels(client, splitBody, issueNumber, username, "zulipbot-testing", issueLabelArray);
+                } else if (commandName === "remove" && client.cfg.removeEnabled && client.cfg.selfLabelingOnly && commenter === issueCreator) {
+                  const splitBody = body.split(`@${client.cfg.username}`).filter((splitString) => {
                     return splitString.includes(" remove \"");
                   }).join(" ");
-                  removeLabels(github, splitBody, issueNumber, username, "zulipbot-testing", issueLabelArray);
-                } else if (commandName === "join" && github.cfg.joinEnabled && github.cfg.areaLabels) {
-                  const splitBody = body.split(`@${github.cfg.username}`).filter((splitString) => {
+                  removeLabels(client, splitBody, issueNumber, username, "zulipbot-testing", issueLabelArray);
+                } else if (commandName === "join" && client.cfg.joinEnabled && client.cfg.areaLabels) {
+                  const splitBody = body.split(`@${client.cfg.username}`).filter((splitString) => {
                     return splitString.includes(" join \"");
                   }).join(" ");
-                  joinLabelTeam(github, splitBody, commenter, "zulipbot-testing", username, issueNumber);
+                  joinLabelTeam(client, splitBody, commenter, "zulipbot-testing", username, issueNumber);
                 }
               });
               console.log(`Payload sent! Check https://github.com/zulipbot-testing/${username}/issues/${issueNumber} for any responses.\nIf you received no notifications, then your payload body didn't trigger any functions.`);

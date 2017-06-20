@@ -2,7 +2,7 @@
 
 const newComment = require("./newComment.js"); // create comment
 
-module.exports = exports = function(github, body, issueNumber, repoName, repoOwner, issueLabelArray) {
+module.exports = exports = function(client, body, issueNumber, repoName, repoOwner, issueLabelArray) {
   if (!body.match(/"(.*?)"/g)) return; // return if no parameters were specified
   let rejectedLabels = []; // initialize array for rejected labels that don't exist
   let issueLabels = []; // initialize array for labels that won't be removed
@@ -16,7 +16,7 @@ module.exports = exports = function(github, body, issueNumber, repoName, repoOwn
       rejectedLabels.push(label); // specified label doesn't exist and wasn't removed, reject it
     }
   });
-  github.issues.replaceAllLabels({ // replace labels without removed labels
+  client.issues.replaceAllLabels({ // replace labels without removed labels
     owner: repoOwner,
     repo: repoName,
     number: issueNumber,
@@ -36,6 +36,6 @@ module.exports = exports = function(github, body, issueNumber, repoName, repoOwn
       wasGrammar = "was";
     } else return; // no rejected labels
     const rejectedLabelError = `**Error:** ${labelGrammar} ${rejectedLabelsString} ${doGrammar} not exist and ${wasGrammar} thus not removed from this issue.`; // template literal comment
-    newComment(github, repoOwner, repoName, issueNumber, rejectedLabelError); // post error comment
+    newComment(client, repoOwner, repoName, issueNumber, rejectedLabelError); // post error comment
   });
 };

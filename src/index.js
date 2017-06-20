@@ -1,7 +1,7 @@
 "use strict"; // catch errors easier
 
 // requirements
-const github = require("./github.js");
+const client = require("./client.js");
 const express = require("express");
 const bodyParser = require("body-parser");
 const issues = require("./issues.js");
@@ -33,13 +33,13 @@ app.post("/", (req, res) => {
   res.render("index"); // Send contents of index.ejs
   // check if event is for an issue opening or issue comment creation
   if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event").includes("issue")) {
-    issues(req.body, github); // send parsed payload to issues.js
+    issues(req.body, client); // send parsed payload to issues.js
   } else if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event").includes("pull_request")) {
-    pullRequests(req.body, github); // send parsed payload to pullRequests.js
-  } else if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event") === "push" && github.cfg.checkMergeConflicts) {
-    setTimeout(checkMergeConflicts(req.body, github), github.cfg.checkMergeConflictsDelay); // check pull requests for merge conflicts on repository push
+    pullRequests(req.body, client); // send parsed payload to pullRequests.js
+  } else if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event") === "push" && client.cfg.checkMergeConflicts) {
+    setTimeout(checkMergeConflicts(req.body, client), client.cfg.checkMergeConflictsDelay); // check pull requests for merge conflicts on repository push
   } else if (req.get("user-agent") && req.get("user-agent") === "Travis CI Notifications") {
-    travis(JSON.parse(req.body.payload), github);
+    travis(JSON.parse(req.body.payload), client);
   }
 });
 
@@ -47,4 +47,4 @@ process.on("unhandledRejection", (reason, promise) => {
   console.log("An unhandled promise rejection was detected!\nPromise ", promise, "\nReason: ", reason);
 });
 
-if (github.cfg.checkInactivityTimeout) setInterval(() => checkInactivity(github), github.cfg.checkInactivityTimeout * 1000); // check every hour
+if (client.cfg.checkInactivityTimeout) setInterval(() => checkInactivity(client), client.cfg.checkInactivityTimeout * 1000); // check every hour

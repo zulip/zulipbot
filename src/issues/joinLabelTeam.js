@@ -2,12 +2,12 @@
 
 const newComment = require("./newComment.js"); // create comment
 
-module.exports = exports = function(github, body, commenter, repoOwner, repoName, issueNumber) {
+module.exports = exports = function(client, body, commenter, repoOwner, repoName, issueNumber) {
   if (!body.match(/"(.*?)"/g)) return;
   let labelTeams = new Map();
   let joinedTeams = [];
   let teamIDs = [];
-  github.orgs.getTeams({
+  client.orgs.getTeams({
     org: repoOwner
   }).then((teams) => {
     teams.forEach((team) => {
@@ -15,13 +15,13 @@ module.exports = exports = function(github, body, commenter, repoOwner, repoName
     });
     body.match(/"(.*?)"/g).forEach((label) => {
       let labelString = label.replace(/"/g, "");
-      if (github.cfg.areaLabels.has(labelString)) {
-        joinedTeams.push(github.cfg.areaLabels.get(labelString));
-        teamIDs.push(labelTeams.get(github.cfg.areaLabels.get(labelString)));
+      if (client.cfg.areaLabels.has(labelString)) {
+        joinedTeams.push(client.cfg.areaLabels.get(labelString));
+        teamIDs.push(labelTeams.get(client.cfg.areaLabels.get(labelString)));
       }
     });
     teamIDs.forEach((teamID) => {
-      github.orgs.getTeamMembership({
+      client.orgs.getTeamMembership({
         id: teamID,
         username: commenter
       }).then(
@@ -29,7 +29,7 @@ module.exports = exports = function(github, body, commenter, repoOwner, repoName
           joinedTeams.pop();
         },
         () => {
-          github.orgs.addTeamMembership({
+          client.orgs.addTeamMembership({
             id: teamID,
             username: commenter
           });
@@ -37,7 +37,7 @@ module.exports = exports = function(github, body, commenter, repoOwner, repoName
     });
     const joinedTeamsString = joinedTeams.join(`**, **${repoOwner}/`);
     if (!joinedTeamsString) return;
-    github.orgs.checkMembership({
+    client.orgs.checkMembership({
       org: repoOwner,
       username: commenter
     })
@@ -45,13 +45,13 @@ module.exports = exports = function(github, body, commenter, repoOwner, repoName
       if (response.meta.status === "204 No Content") {
         let teamGrammar = "team";
         if (joinedTeams.length > 1) teamGrammar = "teams";
-        newComment(github, repoOwner, repoName, issueNumber, `Congratulations @${commenter}, you successfully joined ${teamGrammar} **${repoOwner}/${joinedTeamsString}**!`);
+        newComment(client, repoOwner, repoName, issueNumber, `Congratulations @${commenter}, you successfully joined ${teamGrammar} **${repoOwner}/${joinedTeamsString}**!`);
       }
     }, (response) => {
       if (response.headers.status === "404 Not Found") {
         let invitationGrammar = "invitation";
         if (joinedTeams.length > 1) invitationGrammar = "invitations";
-        newComment(github, repoOwner, repoName, issueNumber, `Hello @${commenter}, please check your email for an organization invitation or visit https://github.com/orgs/${repoOwner}/invitation in order to accept your team ${invitationGrammar}!`);
+        newComment(client, repoOwner, repoName, issueNumber, `Hello @${commenter}, please check your email for an organization invitation or visit https://github.com/orgs/${repoOwner}/invitation in order to accept your team ${invitationGrammar}!`);
       }
     });
   });

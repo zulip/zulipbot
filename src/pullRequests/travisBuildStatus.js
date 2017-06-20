@@ -2,7 +2,7 @@
 
 const newComment = require("../issues/newComment.js"); // create comment
 
-module.exports = exports = function(github, state, repoOwner, repoName, pullRequestNumber, buildURL) {
+module.exports = exports = function(client, state, repoOwner, repoName, pullRequestNumber, buildURL) {
   let comment = "(unknown state)";
   if (state === "passed") {
     comment = `Congratulations, the Travis [builds](${buildURL}) for this pull request **${state}**!`;
@@ -10,14 +10,14 @@ module.exports = exports = function(github, state, repoOwner, repoName, pullRequ
     comment = `Oh no, something went wrong: the Travis builds for this pull request **${state}**! Review the [build logs](${buildURL}) for more details.`;
   }
   let labelCheck;
-  github.issues.getIssueLabels({
+  client.issues.getIssueLabels({
     owner: repoOwner,
     repo: repoName,
     number: pullRequestNumber
   }).then((labels) => {
     labelCheck = labels.data.find((label) => {
-      return label.name === github.cfg.travisLabel;
+      return label.name === client.cfg.travisLabel;
     });
-    if (labelCheck) newComment(github, repoOwner, repoName, pullRequestNumber, comment);
+    if (labelCheck) newComment(client, repoOwner, repoName, pullRequestNumber, comment);
   });
 };

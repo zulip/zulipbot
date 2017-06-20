@@ -2,14 +2,14 @@
 
 const newComment = require("./newComment.js"); // create comment
 
-module.exports = exports = function(github, body, issueNumber, repoName, repoOwner, issueLabelArray) {
+module.exports = exports = function(client, body, issueNumber, repoName, repoOwner, issueLabelArray) {
   if (!body.match(/"(.*?)"/g)) return; // return if no parameters were specified
   let addedLabels = []; // initialize array for labels to be added to issue
   let rejectedLabels = []; // initialize array for rejected labels that don't exist
   let repoLabels = []; // initialize array for existing labels in repository
   let issueLabels = []; // initialize array for existing labels in issue
   let alreadyAdded = []; // initialize array for labels that have already been added
-  github.issues.getLabels({
+  client.issues.getLabels({
     owner: repoOwner,
     repo: repoName,
     per_page: 100 // if not specified, it only retrieves the first 30, creating some errors
@@ -25,7 +25,7 @@ module.exports = exports = function(github, body, issueNumber, repoName, repoOwn
         rejectedLabels.push(label); // label doesn't exist in repository, reject it
       }
     });
-    github.issues.addLabels({ // add labels
+    client.issues.addLabels({ // add labels
       owner: repoOwner,
       repo: repoName,
       number: issueNumber,
@@ -46,7 +46,7 @@ module.exports = exports = function(github, body, issueNumber, repoName, repoOwn
         wasGrammar = "was";
       } else printRejected = false; // when there are no rejected labels
       const rejectedLabelError = `**Error:** ${labelGrammar} ${rejectedLabelsString} ${doGrammar} not exist and ${wasGrammar} thus not added to this issue.`; // template literal comment
-      if (printRejected) newComment(github, repoOwner, repoName, issueNumber, rejectedLabelError); // post error comment
+      if (printRejected) newComment(client, repoOwner, repoName, issueNumber, rejectedLabelError); // post error comment
       const alreadyAddedString = alreadyAdded.join(", "); // joins all elements in alreadyAdded array
       let printAlreadyAdded = true; // initialize print already added labels to true
       let existGrammar; // initialize grammar variables
@@ -60,7 +60,7 @@ module.exports = exports = function(github, body, issueNumber, repoName, repoOwn
         wasGrammar = "was";
       } else printAlreadyAdded = false; // when there are no already added labels
       const alreadyAddedError = `**Error:** ${labelGrammar} ${alreadyAddedString} already ${existGrammar} and ${wasGrammar} thus not added again to this issue.`; // template literal comment
-      if (printAlreadyAdded) newComment(github, repoOwner, repoName, issueNumber, alreadyAddedError); // post error comment
+      if (printAlreadyAdded) newComment(client, repoOwner, repoName, issueNumber, alreadyAddedError); // post error comment
     });
   });
 };

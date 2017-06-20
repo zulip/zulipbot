@@ -18,12 +18,12 @@
 //  88      88.        88    Y8b  d8 88   88 88      88 `88.   .88.   `8b  d8' 88 `88.   .88.      88       88
 //  YP      Y88888P    YP     `Y88P' YP   YP 88      88   YD Y888888P  `Y88P'  88   YD Y888888P    YP       YP
 
-const github = require("../src/github.js");
+const client = require("../src/client.js");
 
-if (!github.cfg.priorityLabels) return console.log("No priority labels were specified in config.js!");
+if (!client.cfg.priorityLabels) return console.log("No priority labels were specified in config.js!");
 
-github.cfg.priorityLabels.forEach((label) => {
-  github.issues.getAll({
+client.cfg.priorityLabels.forEach((label) => {
+  client.issues.getAll({
     filter: "all",
     state: "open",
     sort: "created",

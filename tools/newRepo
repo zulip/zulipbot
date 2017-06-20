@@ -19,7 +19,7 @@
 //  VP   V8P Y88888P  `8b8' `8d8'  88   YD Y88888P 88       `Y88P'
 
 const inquirer = require("inquirer");
-const github = require("../src/github.js"); 
+const client = require("../src/client.js"); 
 
 console.log("d8b   db d88888b db   d8b   db d8888b. d88888b d8888b.  .d88b.  \r\n888o  88 88\'     88   I8I   88 88  `8D 88\'     88  `8D .8P  Y8. \r\n88V8o 88 88ooooo 88   I8I   88 88oobY\' 88ooooo 88oodD\' 88    88 \r\n88 V8o88 88~~~~~ Y8   I8I   88 88`8b   88~~~~~ 88~~~   88    88 \r\n88  V888 88.     `8b d8\'8b d8\' 88 `88. 88.     88      `8b  d8\' \r\nVP   V8P Y88888P  `8b8\' `8d8\'  88   YD Y88888P 88       `Y88P\'                                  ");
 console.log("Hello, welcome to newRepo!");
@@ -31,16 +31,16 @@ inquirer.prompt({
   message: "What's your GitHub username?"
 }).then((answer) => {
   const username = answer.username;
-  github.repos.get({
+  client.repos.get({
     owner: "zulipbot-testing",
     repo: username
   }).then(() => {
     console.log(`Nice try, you already have a test repository at https://github.com/zulipbot-testing/${username}. No extras :P`);
   }, () => {
-    github.users.getForUser({
+    client.users.getForUser({
       username: username
     }).then(() => {
-      github.repos.createForOrg({
+      client.repos.createForOrg({
         org: "zulipbot-testing",
         name: username,
         auto_init: true
@@ -48,14 +48,14 @@ inquirer.prompt({
       .catch(console.error)
       .then(() => {
         console.log(`Repository successfully created at https://github.com/zulipbot-testing/${username}!`);
-        github.repos.addCollaborator({
+        client.repos.addCollaborator({
           owner: "zulipbot-testing",
           repo: username,
           username: username,
           permission: "admin"
         }).then(() => {
           console.log("You now have admin access to your test repository, use it wisely!");
-          github.orgs.addOrgMembership({
+          client.orgs.addOrgMembership({
             org: "zulipbot-testing",
             username: username,
             role: "member"

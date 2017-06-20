@@ -2,8 +2,8 @@
 
 const issueReferenced = require("../pullRequests/issueReferenced.js"); // check referenced issues
 
-module.exports = exports = function(github, body, pullRequestNumber, repoName, repoOwner) {
-  github.pullRequests.getCommits({
+module.exports = exports = function(client, body, pullRequestNumber, repoName, repoOwner) {
+  client.pullRequests.getCommits({
     owner: repoOwner,
     repo: repoName,
     number: pullRequestNumber
@@ -15,7 +15,7 @@ module.exports = exports = function(github, body, pullRequestNumber, repoName, r
       const reference = message.match(/#([0-9]+)/);
       if (!reference) return;
       if (!multipleReferences.includes(reference[1])) {
-        issueReferenced(github, message, pullRequestNumber, repoName, repoOwner);
+        issueReferenced(client, message, pullRequestNumber, repoName, repoOwner);
         multipleReferences.push(reference[1]);
       }
     });
