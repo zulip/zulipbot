@@ -16,6 +16,8 @@ module.exports = exports = function(payload, github) {
   const issueCreator = payload.issue.user.login;
   const repoName = payload.repository.name; // issue repository
   const repoOwner = payload.repository.owner.login; // repository owner
+  const issue = payload.issue;
+  const repository = payload.repository;
   let commenter, body, addedLabel; // initialize variables for commenter, issue (comment) body, and added label
   if (action === "opened") { // if issue was opened
     commenter = payload.issue.user.login; // issue creator's username
@@ -25,12 +27,10 @@ module.exports = exports = function(payload, github) {
     body = payload.comment.body; // contents of issue comment
   } else if (action === "labeled" && github.cfg.areaLabels) {
     addedLabel = payload.label.name;
-    issueAreaLabeled(github, addedLabel, issueNumber, repoName, repoOwner, issueLabelArray); // check if issue labeled with area label
-    return;
+    return issueAreaLabeled(github, addedLabel, issueNumber, repoName, repoOwner, issueLabelArray); // check if issue labeled with area label
   } else if (action === "closed") {
     const hasInProgressLabel = issueLabelArray.find(issueLabel => issueLabel.name === github.cfg.inProgressLabel);
-    if (hasInProgressLabel) github.issues.removeLabel({owner: repoOwner, repo: repoName, number: issueNumber, name: github.cfg.inProgressLabel});
-    return;
+    if (hasInProgressLabel) return github.issues.removeLabel({owner: repoOwner, repo: repoName, number: issueNumber, name: github.cfg.inProgressLabel});
   } else return;
   if (commenter === github.cfg.username) return;
   if (!body) return; // if body is empty
@@ -41,7 +41,7 @@ module.exports = exports = function(payload, github) {
     if (body.includes(`\`${command}\``) || body.includes(`\`\`\`\r\n${command}\r\n\`\`\``)) return;
     const commandName = command.split(" ")[1];
     if (github.cfg.claimCommands.includes(commandName)) claimIssue(github, commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot claim"
-    else if (github.cfg.abandonCommands.includes(commandName)) abandonIssue(github, commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot abandon" or "@zulipbot claim"
+    else if (github.cfg.abandonCommands.includes(commandName)) abandonIssue.run(github, payload.comment, issue, repository);
     else if (github.cfg.labelCommands.includes(commandName)) {
       if (github.cfg.selfLabelingOnly && commenter !== issueCreator) return;
       const splitBody = body.split(`@${github.cfg.username}`).filter((splitString) => {
