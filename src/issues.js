@@ -8,7 +8,7 @@ const issueAreaLabeled = require("./issues/issueAreaLabeled.js"); // issue label
 const checkPullRequestComment = require("./issues/checkPullRequestComment.js"); // check if comment belongs to PR
 const joinLabelTeam = require("./issues/joinLabelTeam.js"); // join label team
 
-module.exports = exports = function(payload, client) {
+module.exports = exports = (payload, client) => {
   // get necessary information from request body
   const action = payload.action;
   const issueLabelArray = payload.issue.labels;

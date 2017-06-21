@@ -2,7 +2,7 @@
 
 const addCollaborator = require("./addCollaborator.js"); // add collaborator
 
-module.exports = exports = function(client, commenter, issueNumber, repoName, repoOwner) {
+module.exports = exports = (client, commenter, issueNumber, repoName, repoOwner) => {
   const issueLabels = [client.cfg.inProgressLabel]; // create array for new issue labels
   const issueAssignees = [commenter]; // create array for new assignees
   client.repos.checkCollaborator({ // check if commenter is a collaborator

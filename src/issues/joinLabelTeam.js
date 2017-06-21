@@ -2,7 +2,7 @@
 
 const newComment = require("./newComment.js"); // create comment
 
-module.exports = exports = function(client, body, commenter, repoOwner, repoName, issueNumber) {
+module.exports = exports = (client, body, commenter, repoOwner, repoName, issueNumber) => {
   if (!body.match(/"(.*?)"/g)) return;
   let labelTeams = new Map();
   let joinedTeams = [];

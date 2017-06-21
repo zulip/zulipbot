@@ -2,7 +2,7 @@
 
 const newComment = require("../issues/newComment.js"); // create comment
 
-module.exports = exports = function(client, state, repoOwner, repoName, pullRequestNumber, buildURL) {
+module.exports = exports = (client, state, repoOwner, repoName, pullRequestNumber, buildURL) => {
   let comment = "(unknown state)";
   if (state === "passed") {
     comment = `Congratulations, the Travis [builds](${buildURL}) for this pull request **${state}**!`;

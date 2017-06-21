@@ -1,6 +1,6 @@
 "use strict"; // catch errors easier
 
-module.exports = exports = function(client, repoOwner, repoName, issueNumber, body) {
+module.exports = exports = (client, repoOwner, repoName, issueNumber, body) => {
   client.pullRequests.get({
     owner: repoOwner,
     repo: repoName,

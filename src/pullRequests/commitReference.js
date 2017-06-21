@@ -2,7 +2,7 @@
 
 const issueReferenced = require("../pullRequests/issueReferenced.js"); // check referenced issues
 
-module.exports = exports = function(client, body, pullRequestNumber, repoName, repoOwner) {
+module.exports = exports = (client, body, pullRequestNumber, repoName, repoOwner) => {
   client.pullRequests.getCommits({
     owner: repoOwner,
     repo: repoName,

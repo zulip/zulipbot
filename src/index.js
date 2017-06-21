@@ -14,13 +14,13 @@ const checkMergeConflicts = require("./pullRequests/checkMergeConflicts.js");
 const app = express(); // initialize express app
 const port = process.env.PORT || 8080; // set post to 8080
 
-app.listen(port, function() {
+app.listen(port, () => {
   console.log("Website is running on http://localhost:" + port); // localhost website testing
 });
 
 app.set("view engine", "ejs"); // set rendering engine
 
-app.get("/", function(req, res) {
+app.get("/", (req, res) => {
   res.redirect("https://github.com/zulip/zulipbot"); // redirect GET requests to GitHub repo
 });
 

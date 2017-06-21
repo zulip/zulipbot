@@ -4,7 +4,7 @@ const issueAreaLabeled = require("./issues/issueAreaLabeled.js"); // issue label
 const issueReferenced = require("./pullRequests/issueReferenced.js"); // pull request references an issue
 const commitReference = require("./pullRequests/commitReference.js"); // create comment
 
-module.exports = exports = function(payload, client) {
+module.exports = exports = (payload, client) => {
   // get necessary information from request body
   const action = payload.action;
   let body, addedLabel; // initialize variables for pull request review (comment) body and added label

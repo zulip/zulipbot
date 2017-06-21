@@ -8,7 +8,7 @@ const abandonWarning = fs.readFileSync("./src/templates/abandonWarning.md", "utf
 const newComment = require("./newComment.js"); // create comment
 const abandonIssue = require("./abandonIssue.js"); // abandon issue
 
-module.exports = exports = function(client) {
+module.exports = exports = (client) => {
   client.repos.getAll({ // get all repositories zulipbot is in
     per_page: 100
   }).then((response) => {

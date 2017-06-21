@@ -3,7 +3,7 @@
 const newComment = require("../issues/newComment.js"); // create comment
 let referencedIssues = [];
 
-module.exports = exports = function(client, areaLabel, issueNumber, repoName, repoOwner, issueLabelArray) {
+module.exports = exports = (client, areaLabel, issueNumber, repoName, repoOwner, issueLabelArray) => {
   if (!client.cfg.areaLabels.has(areaLabel)) return; // if added label isn't an area label, return;
   client.issues.getComments({
     owner: repoOwner,

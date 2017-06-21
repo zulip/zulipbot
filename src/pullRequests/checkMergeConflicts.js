@@ -4,7 +4,7 @@ const newComment = require("../issues/newComment.js"); // create comment
 const fs = require("fs"); // for reading messages
 const mergeConflictWarning = fs.readFileSync("./src/templates/mergeConflictWarning.md", "utf8"); // get merge conflict warning contents
 
-module.exports = exports = function(payload, client) {
+module.exports = exports = (payload, client) => {
   if (payload.ref !== "refs/heads/master") return; // break if push wasn't towards master branch
   const repoName = payload.repository.name; // PR repository
   const repoOwner = payload.repository.owner.login; // repository owner

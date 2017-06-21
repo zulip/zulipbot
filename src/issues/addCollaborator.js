@@ -4,7 +4,7 @@ const fs = require("fs"); // for reading welcome message
 const newContributor = fs.readFileSync("./src/templates/newContributor.md", "utf8"); // get welcome message contents
 const newComment = require("./newComment.js"); // create comment
 
-module.exports = exports = function(client, commenter, repoName, repoOwner, issueNumber) {
+module.exports = exports = (client, commenter, repoName, repoOwner, issueNumber) => {
   const issueLabels = [client.cfg.inProgressLabel]; // create array for new issue labels
   const issueAssignees = [commenter]; // create array for new assignees
   if (!client.cfg.addCollabPermission) return;

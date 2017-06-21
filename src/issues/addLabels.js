@@ -2,7 +2,7 @@
 
 const newComment = require("./newComment.js"); // create comment
 
-module.exports = exports = function(client, body, issueNumber, repoName, repoOwner, issueLabelArray) {
+module.exports = exports = (client, body, issueNumber, repoName, repoOwner, issueLabelArray) => {
   if (!body.match(/"(.*?)"/g)) return; // return if no parameters were specified
   let addedLabels = []; // initialize array for labels to be added to issue
   let rejectedLabels = []; // initialize array for rejected labels that don't exist

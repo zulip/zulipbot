@@ -4,7 +4,7 @@ const newComment = require("../issues/newComment.js"); // create comment
 const fs = require("fs"); // for reading messages
 const fixCommitMessage = fs.readFileSync("./src/templates/fixCommitMessage.md", "utf8"); // get fix commit message contents
 
-module.exports = exports = function(client, body, pullRequestNumber, repoName, repoOwner) {
+module.exports = exports = (client, body, pullRequestNumber, repoName, repoOwner) => {
   const referencedIssueNumber = body.match(/#([0-9]+)/)[1];
   let issueLabels = []; // initialize array for area labels
   let labelTeams = [];
