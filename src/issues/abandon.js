@@ -1,4 +1,4 @@
-"use strict"; // catch errors easier
+"use strict";
 
 const snekfetch = require("snekfetch");
 
@@ -8,7 +8,11 @@ exports.run = (client, comment, issue, repository) => {
   const repoName = repository.name;
   const repoOwner = repository.owner.login;
   const assignees = issue.assignees.map(assignee => assignee.login);
-  if (!assignees.includes(commenter)) return; // return if commenter is not an assignee
+  if (!assignees.includes(commenter)) return;
+  exports.abandon(client, commenter, repoOwner, repoName, issueNumber);
+};
+
+exports.abandon = (client, commenter, repoOwner, repoName, issueNumber) => {
   const auth = new Buffer(client.cfg.username + ":" + client.cfg.password, "ascii").toString("base64");
   const json = JSON.stringify({
     assignees: commenter

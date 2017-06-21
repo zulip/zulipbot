@@ -2,7 +2,7 @@
 
 const addLabels = require("./issues/addLabels.js"); // add labels
 const claimIssue = require("./issues/claimIssue.js"); // claim issue
-const abandonIssue = require("./issues/abandonIssue.js"); // abandon issue
+const abandonIssue = require("./issues/abandon.js"); // abandon issue
 const removeLabels = require("./issues/removeLabels.js"); // remove labels
 const issueAreaLabeled = require("./issues/issueAreaLabeled.js"); // issue labeled with area label
 const checkPullRequestComment = require("./issues/checkPullRequestComment.js"); // check if comment belongs to PR

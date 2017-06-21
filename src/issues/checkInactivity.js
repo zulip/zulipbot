@@ -6,7 +6,7 @@ const updateWarning = fs.readFileSync("./src/templates/updateWarning.md", "utf8"
 const needsReviewWarning = fs.readFileSync("./src/templates/needsReviewWarning.md", "utf8"); // get update message contents
 const abandonWarning = fs.readFileSync("./src/templates/abandonWarning.md", "utf8"); // get update message contents
 const newComment = require("./newComment.js"); // create comment
-const abandonIssue = require("./abandonIssue.js"); // abandon issue
+const abandonIssue = require("./abandon.js"); // abandon issue
 
 module.exports = exports = (client) => {
   client.repos.getAll({ // get all repositories zulipbot is in
@@ -103,7 +103,7 @@ function scrapeInactiveIssues(client, references, owner, name) {
         });
         if (labelComment && time + (client.cfg.autoAbandonTimeLimit * 1000) <= now) { // if 3 day warning time limit pased and not updated
           assignees.forEach((assignee) => {
-            abandonIssue(client, assignee, issueNumber, repoName, repoOwner); // remove each assignee
+            abandonIssue.abandon(client, assignee, repoOwner, repoName, issueNumber);
           });
           if (client.cfg.inProgressLabel) client.issues.removeLabel({owner: repoOwner, repo: repoName, number: issueNumber, name: client.cfg.inProgressLabel}).catch(console.error); // remove "in progress" label
           client.issues.editComment({

@@ -22,7 +22,7 @@ const inquirer = require("inquirer");
 const client = require("../src/client.js");
 const addLabels = require("../src/issues/addLabels.js");
 const claimIssue = require("../src/issues/claimIssue.js");
-const abandonIssue = require("../src/issues/abandonIssue.js");
+const abandonIssue = require("../src/issues/abandon.js");
 const removeLabels = require("../src/issues/removeLabels.js");
 const issueAreaLabeled = require("../src/issues/issueAreaLabeled.js");
 const issueReferenced = require("../src/pullRequests/issueReferenced.js");
@@ -207,7 +207,7 @@ inquirer.prompt({
                 if (body.includes(`\`${command}\``) || body.includes(`\`\`\`\r\n${command}\r\n\`\`\``)) return;
                 const commandName = command.split(" ")[1];
                 if (commandName === "claim" && client.cfg.claimEnabled) claimIssue(client, commenter, issueNumber, username, "zulipbot-testing");
-                else if ((commandName === "abandon" || commandName === "unclaim") && client.cfg.abandonEnabled) abandonIssue(client, commenter, issueNumber, username, "zulipbot-testing");
+                else if ((commandName === "abandon" || commandName === "unclaim") && client.cfg.abandonEnabled) abandonIssue.abandon(client, commenter, "zulipbot-testing", username, issueNumber);
                 else if (commandName === "label" && client.cfg.labelEnabled && client.cfg.selfLabelingOnly && commenter === issueCreator) {
                   const splitBody = body.split(`@${client.cfg.username}`).filter((splitString) => {
                     return splitString.includes(" label \"");
