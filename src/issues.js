@@ -43,23 +43,12 @@ module.exports = exports = (payload, client) => {
     const commandName = command.split(" ")[1];
     if (client.cfg.claimCommands.includes(commandName)) claimIssue.run(client, payloadBody, issue, repository); // check body content for "@zulipbot claim"
     else if (client.cfg.abandonCommands.includes(commandName)) abandonIssue.run(client, payloadBody, issue, repository);
-    else if (client.cfg.labelCommands.includes(commandName)) {
-      if (client.cfg.selfLabelingOnly && commenter !== issueCreator) return;
-      const splitBody = body.split(`@${client.cfg.username}`).filter((splitString) => {
-        return splitString.includes(` ${commandName} "`);
-      }).join(" ");
-      addLabels(client, splitBody, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot label" and ensure commenter opened the issue
-    } else if (client.cfg.removeCommands.includes(commandName)) {
-      if (client.cfg.selfLabelingOnly && commenter !== issueCreator) return;
-      const splitBody = body.split(`@${client.cfg.username}`).filter((splitString) => {
-        return splitString.includes(` ${commandName} "`);
-      }).join(" ");
-      removeLabels(client, splitBody, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot remove" and ensure commenter opened the issue
-    } else if (client.cfg.joinCommands.includes(commandName) && client.cfg.areaLabels) {
-      const splitBody = body.split(`@${client.cfg.username}`).filter((splitString) => {
-        return splitString.includes(` ${commandName} "`);
-      }).join(" ");
-      joinLabelTeam(client, splitBody, commenter, repoOwner, repoName, issueNumber); // check body content for "@zulipbot join"
-    }
+    else if (client.cfg.selfLabelingOnly && commenter !== issueCreator) return;
+    const splitBody = body.split(`@${client.cfg.username}`).filter((splitString) => {
+      return splitString.includes(` ${commandName} "`);
+    }).join(" ");
+    if (client.cfg.labelCommands.includes(commandName)) addLabels(client, splitBody, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot label" and ensure commenter opened the issue
+    else if (client.cfg.removeCommands.includes(commandName)) removeLabels(client, splitBody, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot remove" and ensure commenter opened the issue
+    else if (client.cfg.joinCommands.includes(commandName) && client.cfg.areaLabels) joinLabelTeam(client, splitBody, commenter, repoOwner, repoName, issueNumber); // check body content for "@zulipbot join"
   });
 };
