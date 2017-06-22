@@ -20,7 +20,7 @@
 
 const inquirer = require("inquirer");
 const client = require("../src/client.js");
-const addLabels = require("../src/issues/addLabels.js");
+const addLabels = require("../src/issues/label.js");
 const claimIssue = require("../src/issues/claim.js");
 const abandonIssue = require("../src/issues/abandon.js");
 const removeLabels = require("../src/issues/removeLabels.js");

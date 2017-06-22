@@ -1,6 +1,6 @@
 "use strict"; // catch errors easier
 
-const addLabels = require("./issues/addLabels.js"); // add labels
+const addLabels = require("./issues/label.js"); // add labels
 const claimIssue = require("./issues/claim.js"); // claim issue
 const abandonIssue = require("./issues/abandon.js"); // abandon issue
 const removeLabels = require("./issues/removeLabels.js"); // remove labels
@@ -47,7 +47,8 @@ module.exports = exports = (payload, client) => {
     const splitBody = body.split(`@${client.cfg.username}`).filter((splitString) => {
       return splitString.includes(` ${commandName} "`);
     }).join(" ");
-    if (client.cfg.labelCommands.includes(commandName)) addLabels(client, splitBody, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot label" and ensure commenter opened the issue
+    if (!body.match(/".*?"/g)) return;
+    if (client.cfg.labelCommands.includes(commandName)) addLabels.run(client, splitBody, issue, repository); // check body content for "@zulipbot label" and ensure commenter opened the issue
     else if (client.cfg.removeCommands.includes(commandName)) removeLabels(client, splitBody, issueNumber, repoName, repoOwner, issueLabelArray); // check body content for "@zulipbot remove" and ensure commenter opened the issue
     else if (client.cfg.joinCommands.includes(commandName) && client.cfg.areaLabels) joinLabelTeam(client, splitBody, commenter, repoOwner, repoName, issueNumber); // check body content for "@zulipbot join"
   });

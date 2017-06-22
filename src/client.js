@@ -13,8 +13,8 @@ client.newComment = (issue, repository, body, replacePR) => {
   const issueNumber = issue.number;
   const repoName = repository.name;
   const repoOwner = repository.owner.login;
-  if (replacePR) body = body.replace("[payload]", "pull request");
-  else body = body.replace("[payload]", "issue");
+  if (replacePR) body = body.replace(/\[payload\]/g, "pull request");
+  else body = body.replace(/\[payload\]/g, "issue");
   client.issues.createComment({owner: repoOwner, repo: repoName, number: issueNumber, body: body});
 };
 
