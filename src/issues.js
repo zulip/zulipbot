@@ -18,6 +18,7 @@ module.exports = exports = (payload, client) => {
   const repoOwner = payload.repository.owner.login; // repository owner
   const issue = payload.issue;
   const repository = payload.repository;
+  const payloadBody = payload.comment || issue;
   let commenter, body, addedLabel; // initialize variables for commenter, issue (comment) body, and added label
   if (action === "opened") { // if issue was opened
     commenter = payload.issue.user.login; // issue creator's username
@@ -42,6 +43,7 @@ module.exports = exports = (payload, client) => {
     const commandName = command.split(" ")[1];
     if (client.cfg.claimCommands.includes(commandName)) claimIssue(client, commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot claim"
     else if (client.cfg.abandonCommands.includes(commandName)) abandonIssue.run(client, payload.comment, issue, repository);
+    else if (client.cfg.abandonCommands.includes(commandName)) abandonIssue.run(client, payloadBody, issue, repository);
     else if (client.cfg.labelCommands.includes(commandName)) {
       if (client.cfg.selfLabelingOnly && commenter !== issueCreator) return;
       const splitBody = body.split(`@${client.cfg.username}`).filter((splitString) => {
