@@ -1,7 +1,7 @@
 "use strict"; // catch errors easier
 
 const addLabels = require("./issues/addLabels.js"); // add labels
-const claimIssue = require("./issues/claimIssue.js"); // claim issue
+const claimIssue = require("./issues/claim.js"); // claim issue
 const abandonIssue = require("./issues/abandon.js"); // abandon issue
 const removeLabels = require("./issues/removeLabels.js"); // remove labels
 const issueAreaLabeled = require("./issues/issueAreaLabeled.js"); // issue labeled with area label
@@ -41,8 +41,7 @@ module.exports = exports = (payload, client) => {
   commands.forEach((command) => {
     if (body.includes(`\`${command}\``) || body.includes(`\`\`\`\r\n${command}\r\n\`\`\``)) return;
     const commandName = command.split(" ")[1];
-    if (client.cfg.claimCommands.includes(commandName)) claimIssue(client, commenter, issueNumber, repoName, repoOwner); // check body content for "@zulipbot claim"
-    else if (client.cfg.abandonCommands.includes(commandName)) abandonIssue.run(client, payload.comment, issue, repository);
+    if (client.cfg.claimCommands.includes(commandName)) claimIssue.run(client, payloadBody, issue, repository); // check body content for "@zulipbot claim"
     else if (client.cfg.abandonCommands.includes(commandName)) abandonIssue.run(client, payloadBody, issue, repository);
     else if (client.cfg.labelCommands.includes(commandName)) {
       if (client.cfg.selfLabelingOnly && commenter !== issueCreator) return;
