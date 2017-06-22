@@ -1,8 +1,9 @@
 const secrets = require("./secrets.json");
 
 module.exports = {
-  username: secrets.username, // hidden username in secrets.js
-  password: secrets.password, // hidden password in secrets.js
+  username: secrets.username, // hidden username for GitHub API client in secrets.js
+  password: secrets.password, // hidden password for GitHub API client in secrets.js
+  zulip: secrets.zulip, // hidden credentials for Zulip API client in secrets.js
   claimCommands: ["claim"], // configured aliases for "claim" command
   addCollabPermission: "pull", // permission level of new collaborator; collaborator will not be added if null
   abandonCommands: ["abandon", "unclaim", "abort"], // configured aliases for "abandon" command
@@ -27,6 +28,7 @@ module.exports = {
     ["area: documentation (developer)", "server-development"],
     ["area: documentation (production)", "server-production"],
     ["area: documentation (user)", "server-user-docs"],
+    ["area: emails", "server-development"],
     ["area: emoji", "server-emoji"],
     ["area: export", "server-misc"],
     ["area: hotkeys", "server-hotkeys"],
@@ -55,7 +57,8 @@ module.exports = {
     ["area: testing-infrastructure", "server-testing"],
     ["area: tooling", "server-tooling"],
     ["area: topics", "server-misc"],
-    ["area: uploads", "server-misc"]
+    ["area: uploads", "server-misc"],
+    ["area: webpack", "server-development"]
   ]),
   activeRepos: ["zulip/zulip", "zulip/zulip-mobile", "zulip/zulip-electron", "zulip/zulipbot"], // array of repositories to check inactivity for
   checkInactivityTimeout: 3600, // how often to check for inactivity (1 hour); will not check for inactivity if null
