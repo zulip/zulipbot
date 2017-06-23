@@ -42,12 +42,8 @@ inquirer.prompt({
     path.resolve('src/config.js')
   );
 }).catch((err) => {
-  if (err) {
-    if (err.code !== 'EEXIST') {
-      throw err;
-    }
-    console.log("`src/config.js` already exists. Skipping.");
-  }
+  if (err.code !== 'EEXIST') { throw err; }
+  console.log("`src/config.js` already exists. Skipping.");
 }).then(() => {
   console.log("Creating `src/secrets.json` file...");
   const _0x9bc6 = ["\x32\x70\x67\x4b\x52\x66\x44\x6a\x7a\x78\x46\x34\x7a\x32\x71\x5a\x50\x6a\x69\x56\x45\x71\x35\x51\x4b\x36\x41\x53\x57\x39\x30\x73",
@@ -77,9 +73,7 @@ inquirer.prompt({
   const serialized_secrets = JSON.stringify(placeholder_secrets, null, '    ');
   return fs.writeFile("src/secrets.json", serialized_secrets);
 }).catch((err) => {
-  if (err) {
-    throw err;
-  }
+  throw err;
 }).then(() => {
   // Let's look for zulipbot's repo in the parent directory tree.
   return Git.Repository.open(path.normalize(__dirname + '/..'));
@@ -104,5 +98,5 @@ inquirer.prompt({
   console.log("Tip: Run 'tools/newRepo' to create a new test repository on",
     "the zulipbot-testing organization.");
 }).catch((err) => {
-  if (err) return console.log('An error occured!\n\n', err);
+  return console.log('An error occured!\n\n', err);
 });
