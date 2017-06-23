@@ -16,7 +16,8 @@ module.exports = {
   checkMergeConflictsDelay: 3 * 60 * 1000, // delay for checking merge conflicts on PRs
   escapeWIPString: "WIP", // disable mentioning of teams on PRs with WIP string in title; teams will always be notified if null
   areaLabels: new Map([ // map of area labels and corresponding teams; area label team references will not be enabled if null
-    ["area: analytics", "server-analytics"], // format: ["label name", "team-slug"]
+    ["area: accessibility", "server-misc"], // format: ["label name", "team-slug"]
+    ["area: analytics", "server-analytics"],
     ["area: api", "server-api"],
     ["area: authentication", "server-authentication"],
     ["area: bots", "server-bots"],
@@ -42,6 +43,7 @@ module.exports = {
     ["area: misc", "server-misc"],
     ["area: notifications", "server-notifications"],
     ["area: onboarding", "server-onboarding"],
+    ["area: portico", "server-misc"],
     ["area: production installer", "server-production"],
     ["area: production", "server-production"],
     ["area: provision", "server-development"],
