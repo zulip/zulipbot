@@ -42,10 +42,8 @@ inquirer.prompt({
     path.resolve('src/config.js')
   );
 }).catch((err) => {
-  if (err) {
-    if (err.code !== 'EEXIST') { throw err; }
-    console.log("`src/config.js` already exists. Skipping.");
-  }
+  if (err.code !== 'EEXIST') { throw err; }
+  console.log("`src/config.js` already exists. Skipping.");
 }).then(() => {
   console.log("Creating `src/secrets.json` file...");
   const placeholder_secrets = {
@@ -60,7 +58,7 @@ inquirer.prompt({
   const serialized_secrets = JSON.stringify(placeholder_secrets, null, '    ');
   return fs.writeFile("src/secrets.json", serialized_secrets);
 }).catch((err) => {
-  if (err) { throw err; }
+  throw err;
 }).then(() => {
   // Let's look for zulipbot's repo in the parent directory tree.
   return Git.Repository.open(path.normalize(__dirname + '/..'));
@@ -85,5 +83,5 @@ inquirer.prompt({
   console.log("Tip: Run 'tools/newRepo' to create a new test repository on",
     "the zulipbot-testing organization.");
 }).catch((err) => {
-  if (err) return console.log('An error occured!\n\n', err);
+  return console.log('An error occured!\n\n', err);
 });
