@@ -19,13 +19,16 @@
 //  `8888Y" Y88888P    YP    ~Y8888P" 88
 
 const cmd = require("node-cmd");
-const inquirer = require("inquirer");
 const fs = require("mz/fs");
+const Git = require("nodegit");
+const inquirer = require("inquirer");
 const path = require("path");
 
 console.log(".d8888. d88888b d888888b db    db d8888b. \r\n88\"  YP 88\"     `~~88~~\" 88    88 88  `8D \r\n`8bo.   88ooooo    88    88    88 88oodD\" \r\n  `Y8b. 88~~~~~    88    88    88 88~~~   \r\ndb   8D 88.        88    88b  d88 88      \r\n`8888Y\" Y88888P    YP    ~Y8888P\" 88\n");
 console.log("Hello, welcome to setup!");
 console.log("~ Setup your local environment for zulipbot development! ~\n");
+
+var repo;
 
 inquirer.prompt({
   type: "confirm",
@@ -39,10 +42,8 @@ inquirer.prompt({
     path.resolve('src/config.js')
   );
 }).catch((err) => {
-  if (err) {
-    if (err.code !== 'EEXIST') { throw err; }
-    console.log("`src/config.js` already exists. Skipping.");
-  }
+  if (err.code !== 'EEXIST') { throw err; }
+  console.log("`src/config.js` already exists. Skipping.");
 }).then(() => {
   console.log("Creating `src/secrets.json` file...");
   const placeholder_secrets = {
@@ -57,20 +58,30 @@ inquirer.prompt({
   const serialized_secrets = JSON.stringify(placeholder_secrets, null, '    ');
   return fs.writeFile("src/secrets.json", serialized_secrets);
 }).catch((err) => {
-  if (err) { throw err; }
+  throw err;
 }).then(() => {
+  // Let's look for zulipbot's repo in the parent directory tree.
+  return Git.Repository.open(path.normalize(__dirname + '/..'));
+}).then((r) => {
   console.log("Setting up GitHub `upstream` remote...");
   console.log("> git remote add upstream https://github.com/zulip/zulipbot.git");
-  cmd.get("git remote add upstream https://github.com/zulip/zulipbot.git", (err, data, stderr) => {
-    if (err) return console.log('An error occured!\n\n', err);
-    console.log('Done!', data);
-    console.log("Fetching from `upstream`...");
-    console.log("> git fetch upstream");
-    cmd.get("git fetch upstream", (err, data, stderr) => {
-      if (err) return console.log('An error occured!\n\n', err);
-      console.log('Done!', data);
-      console.log("Environment setup complete.\n");
-      console.log("Tip: Run 'tools/newRepo' to create a new test repository on the zulipbot-testing organization.");
-    });
-  });
+  repo = r;
+  return Git.Remote.create(repo, "upstream",
+    "https://github.com/zulip/zulipbot.git");
+}).catch((err) => {
+  if (err.errno !== -4) { throw err; }
+  console.log("Remote 'upstream' already exists. Skipping.");
+  return repo.getRemote("upstream");
+}).then((remote) => {
+  console.log('Done!');
+  console.log("fetching from `upstream`...");
+  console.log("> git fetch upstream");
+  return remote.fetch();
+}).then((number) => {
+  console.log('Done!');
+  console.log("Environment setup complete.\n");
+  console.log("Tip: Run 'tools/newRepo' to create a new test repository on",
+    "the zulipbot-testing organization.");
+}).catch((err) => {
+  return console.log('An error occured!\n\n', err);
 });
