@@ -21,6 +21,7 @@
 const cmd = require("node-cmd");
 const inquirer = require("inquirer");
 const fs = require("mz/fs");
+const path = require("path");
 
 console.log(".d8888. d88888b d888888b db    db d8888b. \r\n88\"  YP 88\"     `~~88~~\" 88    88 88  `8D \r\n`8bo.   88ooooo    88    88    88 88oodD\" \r\n  `Y8b. 88~~~~~    88    88    88 88~~~   \r\ndb   8D 88.        88    88b  d88 88      \r\n`8888Y\" Y88888P    YP    ~Y8888P\" 88\n");
 console.log("Hello, welcome to setup!");
@@ -33,7 +34,10 @@ inquirer.prompt({
 }).then((answer) => {
   if (!answer.confirm) return;
   console.log("Creating `src/config.js` file...");
-  return fs.link('src/zulip_project_config.js', 'src/config.js');
+  return fs.symlink(
+    path.resolve('src/zulip_project_config.js'),
+    path.resolve('src/config.js')
+  );
 }).catch((err) => {
   if (err) {
     if (err.code !== 'EEXIST') { throw err; }
