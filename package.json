@@ -15,8 +15,6 @@
     "ejs": "^2.5.5",
     "express": "^4.15.3",
     "github": "^9.2.0",
-    "mz": "2.6.0",
-    "nodegit": "0.18.3",
     "snekfetch": "^3.1.11",
     "zulip-js": "^1.0.12"
   },
@@ -35,7 +33,9 @@
     "gulp-plumber": "^1.1.0",
     "inquirer": "^3.1.0",
     "mocha": "^3.4.2",
-    "node-cmd": "^3.0.0"
+    "mz": "^2.6.0",
+    "node-cmd": "^3.0.0",
+    "nodegit": "^0.18.3"
   },
   "eslintConfig": {
     "extends": "xo-space",
