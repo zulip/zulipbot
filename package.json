@@ -44,25 +44,25 @@
       "mocha": true
     },
     "rules": {
-      "quotes": ["error", "double"],
+      "arrow-parens": [2, "as-needed", {
+        "requireForBlockBody": true
+      }],
+      "camelcase": "off",
+      "capitalized-comments": ["off"],
+      "curly": ["error", "multi-line"],
       "indent": ["error", 2, {
         "ObjectExpression": 1,
         "SwitchCase": 1,
         "MemberExpression": 0
       }],
-      "space-before-function-paren": ["error", "never"],
-      "curly": ["error", "multi-line"],
+      "max-nested-callbacks": ["error", 7],
+      "max-params": ["error", 10],
+      "no-multi-assign": ["off"],
       "one-var": ["error", {
         "initialized": "never"
       }],
-      "camelcase": "off",
-      "arrow-parens": [2, "as-needed", {
-        "requireForBlockBody": true
-      }],
-      "max-nested-callbacks": ["error", 7],
-      "max-params": ["error", 10],
-      "capitalized-comments": ["off"],
-      "no-multi-assign": ["off"]
+      "quotes": ["error", "double"],
+      "space-before-function-paren": ["error", "never"]
     }
   },
   "scripts": {
