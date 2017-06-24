@@ -20,7 +20,7 @@
 
 const client = require("../src/client.js");
 
-if (!client.cfg.priorityLabels) return console.log("No priority labels were specified in config.js!");
+if (!client.cfg.priorityLabels) console.log("No priority labels were specified in config.js!");
 
 client.cfg.priorityLabels.forEach((label) => {
   client.issues.getAll({

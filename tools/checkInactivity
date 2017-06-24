@@ -1,5 +1,5 @@
 #!/usr/bin/env node
- //
+//
 //                          88  88               88                                                                      88
 //                          88  ""               88                         ,d           ,d                              88
 //                          88                   88                         88           88                              88
@@ -22,7 +22,7 @@ const inquirer = require("inquirer");
 const client = require("../src/client.js");
 const checkInactivity = require("../src/issues/checkInactivity.js");
 
-console.log("       _               _    ___                  _   _       _ _         \r\n   ___| |__   ___  ___| | _|_ _|_ __   __ _  ___| |_(___   _(_| |_ _   _ \r\n  \/ __| \'_ \\ \/ _ \\\/ __| |\/ \/| || \'_ \\ \/ _` |\/ __| __| \\ \\ \/ | | __| | | |\r\n | (__| | | |  __| (__|   < | || | | | (_| | (__| |_| |\\ V \/| | |_| |_| |\r\n  \\___|_| |_|\\___|\\___|_|\\_|___|_| |_|\\__,_|\\___|\\__|_| \\_\/ |_|\\__|\\__, |\r\n                                                                   |___\/ ");
+console.log("       _               _    ___                  _   _       _ _         \r\n   ___| |__   ___  ___| | _|_ _|_ __   __ _  ___| |_(___   _(_| |_ _   _ \r\n  / __| '_ \\ / _ \\/ __| |/ /| || '_ \\ / _` |/ __| __| \\ \\ / | | __| | | |\r\n | (__| | | |  __| (__|   < | || | | | (_| | (__| |_| |\\ V /| | |_| |_| |\r\n  \\___|_| |_|\\___|\\___|_|\\_|___|_| |_|\\__,_|\\___|\\__|_| \\_/ |_|\\__|\\__, |\r\n                                                                   |___/ ");
 console.log("Hello, welcome to checkInactivity!");
 console.log("~ Check your zulipbot-testing repository for inactive issues and pull requests ~\n");
 inquirer.prompt({
