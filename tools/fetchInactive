@@ -1,5 +1,5 @@
 #!/usr/bin/env node
- //
+//
 //                          88  88               88                                                                      88
 //                          88  ""               88                         ,d           ,d                              88
 //                          88                   88                         88           88                              88
@@ -18,8 +18,8 @@
 //  88      88.        88    Y8b  d8 88   88   .88.   88  V888 88   88 Y8b  d8    88      .88.    `8bd8'  88.
 //  YP      Y88888P    YP     `Y88P' YP   YP Y888888P VP   V8P YP   YP  `Y88P'    YP    Y888888P    YP    Y88888P
 
-const client = require("../src/client.js"); 
-const dateFormat = require('dateformat');
+const client = require("../src/client.js");
+const dateFormat = require("dateformat");
 let references = new Map();
 const repos = ["zulip", "zulip-mobile", "zulip-electron", "zulipbot"];
 
@@ -59,8 +59,8 @@ function scrapeInactivePullRequests(pullRequests, repoName, repoOwner) {
       repo: repoName,
       number: number
     }).then((response) => {
-      const inactiveLabel = response.data.find(label => {
-        return label.name === client.cfg.inactiveLabel
+      const inactiveLabel = response.data.find((label) => {
+        return label.name === client.cfg.inactiveLabel;
       });
       if (inactiveLabel) return;
       const reviewedLabel = response.data.find((label) => {
@@ -83,7 +83,7 @@ function scrapeInactivePullRequests(pullRequests, repoName, repoOwner) {
   });
   let issues = [];
   getIssues(issues, references, repoOwner, repoName, 1);
-};
+}
 
 function getIssues(issues, references, repoOwner, repoName, pageCount) {
   client.issues.getAll({
@@ -105,8 +105,8 @@ function getIssues(issues, references, repoOwner, repoName, pageCount) {
 
 function scrapeInactiveIssues(references, issues, owner, name) {
   issues.forEach((issue) => {
-    const inactiveLabel = issue.labels.find(label => {
-      return label.name === client.cfg.inactiveLabel
+    const inactiveLabel = issue.labels.find((label) => {
+      return label.name === client.cfg.inactiveLabel;
     });
     if (inactiveLabel) return;
     let time = Date.parse(issue.updated_at);
@@ -118,6 +118,6 @@ function scrapeInactiveIssues(references, issues, owner, name) {
     let assignees = [];
     issue.assignees.forEach(assignee => assignees.push(assignee.login));
     const assigneeString = assignees.join(", @");
-    console.log(`Claimed issue #${issueNumber} in ${repoOwner}/${repoName} is inactive.\nAssignee(s): @${assigneeString}. Last updated: ${dateFormat(time, "UTC:dddd, mmmm dS, yyyy, h:MM TT")}.\n`)
+    console.log(`Claimed issue #${issueNumber} in ${repoOwner}/${repoName} is inactive.\nAssignee(s): @${assigneeString}. Last updated: ${dateFormat(time, "UTC:dddd, mmmm dS, yyyy, h:MM TT")}.\n`);
   });
-};
+}

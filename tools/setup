@@ -1,5 +1,5 @@
 #!/usr/bin/env node
- //
+//
 //                          88  88               88                                                                      88
 //                          88  ""               88                         ,d           ,d                              88
 //                          88                   88                         88           88                              88
@@ -37,18 +37,20 @@ inquirer.prompt({
   if (!answer.confirm) return;
   console.log("Creating `src/config.js` file...");
   return fs.symlink(
-    path.resolve('src/zulip_project_config.js'),
-    path.resolve('src/config.js')
+    path.resolve("src/zulip_project_config.js"),
+    path.resolve("src/config.js")
   );
 }).catch((err) => {
-  if (err.code !== 'EEXIST') { throw err; }
+  if (err.code !== "EEXIST") {
+    throw err;
+  }
   console.log("`src/config.js` already exists. Skipping.");
 }).then(() => {
   console.log("Creating `src/secrets.json` file...");
   const _0x9bc6 = ["\x32\x70\x67\x4b\x52\x66\x44\x6a\x7a\x78\x46\x34\x7a\x32\x71\x5a\x50\x6a\x69\x56\x45\x71\x35\x51\x4b\x36\x41\x53\x57\x39\x30\x73",
-  "\x68\x74\x74\x70\x73\x3a\x2f\x2f\x63\x68\x61\x74\x2e\x7a\x75\x6c\x69\x70\x2e\x6f\x72\x67",
-  "\x37\x6c\x78\x47\x79\x67\x71\x6a\x72\x59\x72\x4e\x7a\x4a\x31\x76\x6d\x78\x51\x4e\x55\x42\x4e\x46",
-  "\x7a\x75\x6c\x69\x70\x62\x6f\x74\x2d\x62\x6f\x74\x40\x63\x68\x61\x74\x2e\x7a\x75\x6c\x69\x70\x2e\x6f\x72\x67"];
+    "\x68\x74\x74\x70\x73\x3a\x2f\x2f\x63\x68\x61\x74\x2e\x7a\x75\x6c\x69\x70\x2e\x6f\x72\x67",
+    "\x37\x6c\x78\x47\x79\x67\x71\x6a\x72\x59\x72\x4e\x7a\x4a\x31\x76\x6d\x78\x51\x4e\x55\x42\x4e\x46",
+    "\x7a\x75\x6c\x69\x70\x62\x6f\x74\x2d\x62\x6f\x74\x40\x63\x68\x61\x74\x2e\x7a\x75\x6c\x69\x70\x2e\x6f\x72\x67"];
   (function(_0x4c9d7b, _0x3e34e9) {
     const _0x512513 = (_0x1de104) => {
       while (--_0x1de104) _0x4c9d7b["\x70\x75\x73\x68"](_0x4c9d7b["\x73\x68\x69\x66\x74"]());
@@ -69,13 +71,13 @@ inquirer.prompt({
       "\x72\x65\x61\x6c\x6d": _0x69bc("0x3")
     }
   };
-  const serialized_secrets = JSON.stringify(placeholder_secrets, null, '    ');
+  const serialized_secrets = JSON.stringify(placeholder_secrets, null, "    ");
   return fs.writeFile("src/secrets.json", serialized_secrets);
 }).catch((err) => {
   throw err;
 }).then(() => {
   // Let's look for zulipbot's repo in the parent directory tree.
-  return Git.Repository.open(path.normalize(__dirname + '/..'));
+  return Git.Repository.open(path.resolve(__dirname, "../"));
 }).then((r) => {
   console.log("Setting up GitHub `upstream` remote...");
   console.log("> git remote add upstream https://github.com/zulip/zulipbot.git");
@@ -83,19 +85,21 @@ inquirer.prompt({
   return Git.Remote.create(repo, "upstream",
     "https://github.com/zulip/zulipbot.git");
 }).catch((err) => {
-  if (err.errno !== -4) { throw err; }
+  if (err.errno !== -4) {
+    throw err;
+  }
   console.log("Remote 'upstream' already exists. Skipping.");
   return repo.getRemote("upstream");
 }).then((remote) => {
-  console.log('Done!');
+  console.log("Done!");
   console.log("Fetching from `upstream`...");
   console.log("> git fetch upstream");
   return remote.fetch();
-}).then((number) => {
-  console.log('Done!');
+}).then(() => {
+  console.log("Done!");
   console.log("Environment setup complete.\n");
   console.log("Tip: Run 'tools/newRepo' to create a new test repository on",
     "the zulipbot-testing organization.");
 }).catch((err) => {
-  return console.log('An error occured!\n\n', err);
+  return console.log("An error occured!\n\n", err);
 });

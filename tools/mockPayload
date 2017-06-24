@@ -1,5 +1,5 @@
 #!/usr/bin/env node
- //
+//
 //                          88  88               88                                                                      88
 //                          88  ""               88                         ,d           ,d                              88
 //                          88                   88                         88           88                              88
@@ -29,7 +29,7 @@ const issueReferenced = require("../src/pullRequests/issueReferenced.js");
 const checkPullRequestComment = require("../src/issues/checkPullRequestComment.js");
 const travisBuildStatus = require("../src/pullRequests/travisBuildStatus.js");
 
-console.log("                       _    ____             _                 _ \r\n  _ __ ___   ___   ___| | _|  _ \\ __ _ _   _| | ___   __ _  __| |\r\n | \"_ ` _ \\ \/ _ \\ \/ __| |\/ | |_) \/ _` | | | | |\/ _ \\ \/ _` |\/ _` |\r\n | | | | | | (_) | (__|   <|  __| (_| | |_| | | (_) | (_| | (_| |\r\n |_| |_| |_|\\___\/ \\___|_|\\_|_|   \\__,_|\\__, |_|\\___\/ \\__,_|\\__,_|\r\n                                       |___\/                     ");
+console.log("                       _    ____             _                 _ \r\n  _ __ ___   ___   ___| | _|  _ \\ __ _ _   _| | ___   __ _  __| |\r\n | \"_ ` _ \\ / _ \\ / __| |/ | |_) / _` | | | | |/ _ \\ / _` |/ _` |\r\n | | | | | | (_) | (__|   <|  __| (_| | |_| | | (_) | (_| | (_| |\r\n |_| |_| |_|\\___/ \\___|_|\\_|_|   \\__,_|\\__, |_|\\___/ \\__,_|\\__,_|\r\n                                       |___/                     ");
 console.log("Hello, welcome to mockPayload!");
 console.log("~ Send test payloads to your repository in zulipbot-testing ~\n");
 inquirer.prompt({
@@ -104,7 +104,7 @@ inquirer.prompt({
                 "errored"
               ],
               when: (answers) => {
-                return answers.payloadType === "Pull request Travis build status updated (Travis webhook)"
+                return answers.payloadType === "Pull request Travis build status updated (Travis webhook)";
               }
             },
             {
@@ -112,7 +112,7 @@ inquirer.prompt({
               name: "buildURL",
               message: "Enter the URL of the Travis build logs for the pull request:",
               validate: (value) => {
-                var valid = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/.test(value);
+                var valid = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/.test(value);
                 return valid || "Please enter a valid URL!";
               },
               when: (answers) => {
@@ -123,6 +123,7 @@ inquirer.prompt({
               const travis = response.travis;
               const buildURL = response.buildURL;
               if (body && body.match(/#([0-9]+)/) && client.cfg.areaLabels) {
+                // eslint-disable-next-line no-undef
                 issueReferenced(client, body, pullRequestNumber, username, "zulipbot-testing");
                 console.log(`Payload sent! Check https://github.com/zulipbot-testing/${username}/pull/${issueNumber} for any responses.`);
               } else if (travis && buildURL && client.cfg.travisLabel) {
@@ -222,6 +223,7 @@ inquirer.prompt({
                   const splitBody = body.split(`@${client.cfg.username}`).filter((splitString) => {
                     return splitString.includes(" join \"");
                   }).join(" ");
+                  // eslint-disable-next-line no-undef
                   joinLabelTeam(client, splitBody, commenter, "zulipbot-testing", username, issueNumber);
                 }
               });

@@ -10,7 +10,7 @@ var plumber = require("gulp-plumber");
 var coveralls = require("gulp-coveralls");
 
 gulp.task("static", () => {
-  return gulp.src("**/*.js")
+  return gulp.src(["**/*.js", "tools/*", "!tools/setup"])
   .pipe(excludeGitignore())
   .pipe(eslint())
   .pipe(eslint.format())
