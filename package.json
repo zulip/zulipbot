@@ -34,7 +34,6 @@
     "inquirer": "^3.1.0",
     "mocha": "^3.4.2",
     "mz": "^2.6.0",
-    "node-cmd": "^3.0.0",
     "nodegit": "^0.18.3"
   },
   "eslintConfig": {

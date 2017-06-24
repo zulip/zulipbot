@@ -18,7 +18,6 @@
 //  db   8D 88.        88    88b  d88 88
 //  `8888Y" Y88888P    YP    ~Y8888P" 88
 
-const cmd = require("node-cmd");
 const fs = require("mz/fs");
 const Git = require("nodegit");
 const inquirer = require("inquirer");

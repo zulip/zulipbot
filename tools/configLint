@@ -20,8 +20,8 @@
 
 "use strict";
 
-const cmd = require("node-cmd");
 const inquirer = require("inquirer")
+const Mocha = require("mocha");
 
 console.log("                   __ _       _      _       _   \r\n                  \/ _(_)     | |    (_)     | |  \r\n   ___ ___  _ __ | |_ _  __ _| |     _ _ __ | |_ \r\n  \/ __\/ _ \\| \'_ \\|  _| |\/ _` | |    | | \'_ \\| __|\r\n | (_| (_) | | | | | | | (_| | |____| | | | | |_ \r\n  \\___\\___\/|_| |_|_| |_|\\__, |______|_|_| |_|\\__|\r\n                         __\/ |                   \r\n                        |___\/                    \n");
 console.log("Hello, welcome to configLint!");
@@ -33,8 +33,5 @@ inquirer.prompt({
   message: "Are you sure you want to test ./src/config.js?"
 }).then((answer) => {
   if (!answer.confirm) return;
-  cmd.get("mocha ./test/configLint.js", (err, data, stderr) => {
-    if (!err) return console.log('Testing complete!', data);
-    else return console.log('An error occured!\n\n', err);
-  });
+  const mocha = new Mocha().addFile('./test/configLint.js').run();
 });
