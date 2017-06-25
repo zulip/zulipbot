@@ -1,6 +1,6 @@
 "use strict"; // catch errors easier
 
-const issueAreaLabeled = require("./issues/issueAreaLabeled.js"); // issue labeled with area label
+const issueAreaLabeled = require("./issues/areaLabel.js"); // issue labeled with area label
 const issueReferenced = require("./pullRequests/issueReferenced.js"); // pull request references an issue
 const commitReference = require("./pullRequests/commitReference.js"); // create comment
 
