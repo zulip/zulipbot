@@ -13,3 +13,7 @@ exports.run = (client, body, issue, repository) => {
     client.newComment(issue, repository, rejectedLabelError, issue.pull_request);
   });
 };
+
+exports.name = "remove";
+exports.aliases = require("../config.js").removeCommands;
+exports.args = true;

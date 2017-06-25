@@ -24,3 +24,7 @@ exports.abandon = (client, commenter, repoOwner, repoName, issueNumber) => {
     client.issues.removeLabel({owner: repoOwner, repo: repoName, number: issueNumber, name: client.cfg.inProgressLabel});
   });
 };
+
+exports.name = "abandon";
+exports.aliases = require("../config.js").abandonCommands;
+exports.args = false;

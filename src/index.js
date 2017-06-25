@@ -33,7 +33,7 @@ app.post("/", (req, res) => {
   res.render("index"); // Send contents of index.ejs
   // check if event is for an issue opening or issue comment creation
   if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event").includes("issue")) {
-    issues(req.body, client); // send parsed payload to issues.js
+    issues.run(client, req.body); // send parsed payload to issues.js
   } else if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event").includes("pull_request")) {
     pullRequests(req.body, client); // send parsed payload to pullRequests.js
   } else if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event") === "push" && client.cfg.checkMergeConflicts) {

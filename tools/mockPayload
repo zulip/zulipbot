@@ -20,10 +20,10 @@
 
 const inquirer = require("inquirer");
 const client = require("../src/client.js");
-const addLabels = require("../src/issues/label.js");
-const claimIssue = require("../src/issues/claim.js");
-const abandonIssue = require("../src/issues/abandon.js");
-const removeLabels = require("../src/issues/remove.js");
+const addLabels = require("../src/commands/label.js");
+const claimIssue = require("../src/commands/claim.js");
+const abandonIssue = require("../src/commands/abandon.js");
+const removeLabels = require("../src/commands/remove.js");
 const issueAreaLabeled = require("../src/issues/areaLabel.js");
 const issueReferenced = require("../src/pullRequests/issueReferenced.js");
 const checkPullRequestComment = require("../src/issues/checkPullRequestComment.js");

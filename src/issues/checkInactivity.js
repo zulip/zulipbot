@@ -6,7 +6,7 @@ const updateWarning = fs.readFileSync("./src/templates/updateWarning.md", "utf8"
 const needsReviewWarning = fs.readFileSync("./src/templates/needsReviewWarning.md", "utf8"); // get update message contents
 const abandonWarning = fs.readFileSync("./src/templates/abandonWarning.md", "utf8"); // get update message contents
 const newComment = require("./newComment.js"); // create comment
-const abandonIssue = require("./abandon.js"); // abandon issue
+const abandonIssue = require("../commands/abandon.js"); // abandon issue
 
 module.exports = exports = (client) => {
   client.repos.getAll({ // get all repositories zulipbot is in

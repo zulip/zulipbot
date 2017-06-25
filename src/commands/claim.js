@@ -37,3 +37,7 @@ exports.claimIssue = (client, comment, issue, repository, newContrib) => {
     client.issues.addLabels({owner: repoOwner, repo: repoName, number: issueNumber, labels: [client.cfg.inProgressLabel]});
   });
 };
+
+exports.name = "claim";
+exports.aliases = require("../config.js").claimCommands;
+exports.args = false;

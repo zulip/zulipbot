@@ -1,32 +1,40 @@
-const addLabels = require("./issues/label.js");
-const claimIssue = require("./issues/claim.js");
-const abandonIssue = require("./issues/abandon.js");
-const removeLabels = require("./issues/remove.js");
-const issueAreaLabeled = require("./issues/areaLabel.js");
+const fs = require("fs");
+const commands = new Map();
+const aliases = new Map();
 
-module.exports = exports = (payload, client) => {
+fs.readdir("./src/commands", (err, files) => {
+  if (err) return console.error(err);
+  for (const file of files) {
+    const data = require(`./commands/${file}`);
+    commands.set(file.slice(0, -3), data);
+    for (let i = data.aliases.length; i--;) aliases.set(data.aliases[i], data.name);
+  }
+});
+
+exports.run = (client, payload) => {
   const action = payload.action;
   const issue = payload.issue;
   const repository = payload.repository;
-  const issueCreator = issue.user.login;
   const payloadBody = payload.comment || issue;
-  if (action === "labeled" && client.cfg.areaLabels) return issueAreaLabeled.run(client, issue, repository, payload.label);
+  if (action === "labeled" && client.cfg.areaLabels) return require("./issues/areaLabel.js").run(client, issue, repository, payload.label);
   else if (action === "closed") return exports.closeIssue(client, issue, repository);
-  else if (action !== "opened" && action !== "created") return;
+  else if (action === "opened" || action === "created") exports.parseCommands(client, payloadBody, issue, repository);
+};
+
+exports.parseCommands = (client, payloadBody, issue, repository) => {
   const commenter = payloadBody.user.login;
   const body = payloadBody.body;
+  const issueCreator = issue.user.login;
   if (commenter === client.cfg.username || !body) return;
-  const commands = body.match(new RegExp("@" + client.cfg.username + "\\s(\\w*)", "g"));
-  if (!commands) return;
-  commands.forEach((command) => {
+  const parseCommands = body.match(new RegExp("@" + client.cfg.username + "\\s(\\w*)", "g"));
+  if (!parseCommands) return;
+  parseCommands.forEach((command) => {
     if (body.includes(`\`${command}\``) || body.includes(`\`\`\`\r\n${command}\r\n\`\`\``)) return;
-    const commandName = command.split(" ")[1];
-    if (client.cfg.claimCommands.includes(commandName)) claimIssue.run(client, payloadBody, issue, repository);
-    else if (client.cfg.abandonCommands.includes(commandName)) abandonIssue.run(client, payloadBody, issue, repository);
-    else if ((client.cfg.selfLabelingOnly && commenter !== issueCreator) || !body.match(/".*?"/g)) return;
-    const splitBody = body.split(`@${client.cfg.username}`).filter(splitString => splitString.includes(` ${commandName} "`)).join(" ");
-    if (client.cfg.labelCommands.includes(commandName)) addLabels.run(client, splitBody, issue, repository);
-    else if (client.cfg.removeCommands.includes(commandName)) removeLabels.run(client, splitBody, issue, repository);
+    let cmdFile = commands.get(aliases.get(command.split(" ")[1]));
+    if (cmdFile && !cmdFile.args) return cmdFile.run(client, payloadBody, issue, repository);
+    else if (!cmdFile || !body.match(/".*?"/g) || (client.cfg.selfLabelingOnly && commenter !== issueCreator)) return;
+    const splitBody = body.split(`@${client.cfg.username}`).filter(splitString => splitString.includes(` ${command.split(" ")[1]} "`)).join(" ");
+    cmdFile.run(client, splitBody, issue, repository);
   });
 };
 
