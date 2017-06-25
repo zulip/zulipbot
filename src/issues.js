@@ -5,7 +5,6 @@ const claimIssue = require("./issues/claim.js"); // claim issue
 const abandonIssue = require("./issues/abandon.js"); // abandon issue
 const removeLabels = require("./issues/remove.js"); // remove labels
 const issueAreaLabeled = require("./issues/issueAreaLabeled.js"); // issue labeled with area label
-const checkPullRequestComment = require("./issues/checkPullRequestComment.js"); // check if comment belongs to PR
 const joinLabelTeam = require("./issues/joinLabelTeam.js"); // join label team
 
 module.exports = exports = (payload, client) => {
@@ -37,7 +36,6 @@ module.exports = exports = (payload, client) => {
   if (!body) return; // if body is empty
   const commands = body.match(new RegExp("@" + client.cfg.username + "\\s(\\w*)", "g"));
   if (!commands) return; // if there is no command
-  if (body.match(/#([0-9]+)/) && client.cfg.areaLabels) checkPullRequestComment(client, body, issueNumber, repoName, repoOwner); // check if comment is from PR
   commands.forEach((command) => {
     if (body.includes(`\`${command}\``) || body.includes(`\`\`\`\r\n${command}\r\n\`\`\``)) return;
     const commandName = command.split(" ")[1];
