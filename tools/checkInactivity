@@ -24,7 +24,8 @@ const checkInactivity = require("../src/issues/checkInactivity.js");
 
 console.log("       _               _    ___                  _   _       _ _         \r\n   ___| |__   ___  ___| | _|_ _|_ __   __ _  ___| |_(___   _(_| |_ _   _ \r\n  / __| '_ \\ / _ \\/ __| |/ /| || '_ \\ / _` |/ __| __| \\ \\ / | | __| | | |\r\n | (__| | | |  __| (__|   < | || | | | (_| | (__| |_| |\\ V /| | |_| |_| |\r\n  \\___|_| |_|\\___|\\___|_|\\_|___|_| |_|\\__,_|\\___|\\__|_| \\_/ |_|\\__|\\__, |\r\n                                                                   |___/ ");
 console.log("Hello, welcome to checkInactivity!");
-console.log("~ Check your zulipbot-testing repository for inactive issues and pull requests ~\n");
+console.log("~ Check your zulipbot-testing repository for inactive issues and",
+  "pull requests ~\n");
 inquirer.prompt({
   type: "input",
   name: "username",
@@ -37,7 +38,8 @@ inquirer.prompt({
   });
 }).catch((ex) => {
   if (ex.code === 404) {
-    console.log("You don't have a repository on zulipbot-testing yet! Please make one before running this tool again.");
+    console.log("You don't have a repository on zulipbot-testing yet! Please",
+      "make one before running this tool again.");
     process.exit(1);
   }
   throw ex;
@@ -45,7 +47,8 @@ inquirer.prompt({
   return inquirer.prompt({
     type: "confirm",
     name: "confirm",
-    message: "Are you sure you want to check your repository for inactive issues and pull requests??"
+    message: "Are you sure you want to check your repository for inactive " +
+      "issues and pull requests?"
   });
 }).then((answer) => {
   if (answer.confirm) checkInactivity(client);
