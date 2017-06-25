@@ -219,12 +219,6 @@ inquirer.prompt({
                     return splitString.includes(" remove \"");
                   }).join(" ");
                   removeLabels(client, splitBody, issueNumber, username, "zulipbot-testing", issueLabelArray);
-                } else if (commandName === "join" && client.cfg.joinEnabled && client.cfg.areaLabels) {
-                  const splitBody = body.split(`@${client.cfg.username}`).filter((splitString) => {
-                    return splitString.includes(" join \"");
-                  }).join(" ");
-                  // eslint-disable-next-line no-undef
-                  joinLabelTeam(client, splitBody, commenter, "zulipbot-testing", username, issueNumber);
                 }
               });
               console.log(`Payload sent! Check https://github.com/zulipbot-testing/${username}/issues/${issueNumber} for any responses.\nIf you received no notifications, then your payload body didn't trigger any functions.`);

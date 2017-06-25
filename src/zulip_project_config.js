@@ -10,7 +10,6 @@ module.exports = {
   labelCommands: ["label", "add"], // configured aliases for "label" command
   removeCommands: ["remove", "unlabel"], // configured aliases for "remove"" command
   selfLabelingOnly: true, // enable/disable only issue/PR author can label their issue/PR
-  joinCommands: [], // configured aliases for "join" command
   commitReferenceEnabled: true, // enable/disable commit reference notifications for label teams
   checkMergeConflicts: true, // enable/disable merge conflict warnings on PRs
   checkMergeConflictsDelay: 3 * 60 * 1000, // delay for checking merge conflicts on PRs

@@ -5,7 +5,6 @@ const claimIssue = require("./issues/claim.js"); // claim issue
 const abandonIssue = require("./issues/abandon.js"); // abandon issue
 const removeLabels = require("./issues/remove.js"); // remove labels
 const issueAreaLabeled = require("./issues/issueAreaLabeled.js"); // issue labeled with area label
-const joinLabelTeam = require("./issues/joinLabelTeam.js"); // join label team
 
 module.exports = exports = (payload, client) => {
   // get necessary information from request body
@@ -48,6 +47,5 @@ module.exports = exports = (payload, client) => {
     if (!body.match(/".*?"/g)) return;
     if (client.cfg.labelCommands.includes(commandName)) addLabels.run(client, splitBody, issue, repository);
     else if (client.cfg.removeCommands.includes(commandName)) removeLabels.run(client, splitBody, issue, repository);
-    else if (client.cfg.joinCommands.includes(commandName) && client.cfg.areaLabels) joinLabelTeam(client, splitBody, commenter, repoOwner, repoName, issueNumber); // check body content for "@zulipbot join"
   });
 };

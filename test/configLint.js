@@ -53,12 +53,6 @@ describe("config.js lint", () => {
     assert.isNotNull(client.cfg.selfLabelingOnly);
     assert.typeOf(client.cfg.selfLabelingOnly, "boolean");
   });
-  it("joinCommands should be an array that only contains strings.", () => {
-    assert.typeOf(client.cfg.joinCommands, "array");
-    client.cfg.joinCommands.forEach((command) => {
-      assert.typeOf(command, "string");
-    });
-  });
   it("commitReferenceEnabled should be a boolean.", () => {
     assert.isNotNull(client.cfg.commitReferenceEnabled);
     assert.typeOf(client.cfg.commitReferenceEnabled, "boolean");
