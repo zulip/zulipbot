@@ -31,19 +31,24 @@ inquirer.prompt({
   message: "What's your GitHub username?"
 }).then((response) => {
   const username = response.username;
-  client.repos.get({
+  return client.repos.get({
     owner: "zulipbot-testing",
     repo: username
-  })
-  .then(() => {
-    inquirer.prompt({
-      type: "confirm",
-      name: "confirm",
-      message: "Are you sure you want to check your repository for inactive issues and pull requests??"
-    }).then((answer) => {
-      if (answer.confirm) checkInactivity(client);
-    }, () => {
-      console.log("You don't have a repository on zulipbot-testing yet! Please make one before running this tool again.");
-    });
   });
+}).catch((ex) => {
+  if (ex.code === 404) {
+    console.log("You don't have a repository on zulipbot-testing yet! Please make one before running this tool again.");
+    process.exit(1);
+  }
+  throw ex;
+}).then(() => {
+  return inquirer.prompt({
+    type: "confirm",
+    name: "confirm",
+    message: "Are you sure you want to check your repository for inactive issues and pull requests??"
+  });
+}).then((answer) => {
+  if (answer.confirm) checkInactivity(client);
+}).catch((ex) => {
+  console.error(ex);
 });
