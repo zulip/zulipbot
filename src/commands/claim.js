@@ -4,7 +4,6 @@ exports.run = (client, comment, issue, repository) => {
   const commenter = comment.user.login;
   const repoName = repository.name;
   const repoOwner = repository.owner.login;
-  if (issue.pull_request) return client.newComment(issue, repository, "**ERROR:** Users cannot claim pull requests to work on.");
   if (issue.assignees && issue.assignees.find(assignee => assignee.login === commenter)) return client.newComment(issue, repository, "**ERROR:** You have already claimed this issue.");
   client.repos.checkCollaborator({owner: repoOwner, repo: repoName, username: commenter})
   .then((response) => {
@@ -33,7 +32,7 @@ exports.claimIssue = (client, comment, issue, repository, newContrib) => {
   client.issues.addAssigneesToIssue({owner: repoOwner, repo: repoName, number: issueNumber, assignees: [commenter]})
   .then(() => {
     if (newContrib) client.newComment(issue, repository, newContributor.replace("[commenter]", commenter));
-    if (!client.cfg.inProgressLabel || issue.labels.find(label => label.name === client.cfg.inProgressLabel)) return;
+    if (!client.cfg.inProgressLabel || issue.labels.find(label => label.name === client.cfg.inProgressLabel || issue.pull_request)) return;
     client.issues.addLabels({owner: repoOwner, repo: repoName, number: issueNumber, labels: [client.cfg.inProgressLabel]});
   });
 };
