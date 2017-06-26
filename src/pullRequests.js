@@ -1,13 +1,12 @@
 "use strict"; // catch errors easier
 
-const issueAreaLabeled = require("./issues/areaLabel.js"); // issue labeled with area label
 const issueReferenced = require("./pullRequests/issueReferenced.js"); // pull request references an issue
 const commitReference = require("./pullRequests/commitReference.js"); // create comment
 
 module.exports = exports = (payload, client) => {
   // get necessary information from request body
   const action = payload.action;
-  let body, addedLabel; // initialize variables for pull request review (comment) body and added label
+  let body; // initialize variables for pull request review (comment) body and added label
   const pullRequestNumber = payload.pull_request.number; // number of PR
   const repoName = payload.repository.name; // PR repository
   const repoOwner = payload.repository.owner.login; // repository owner
@@ -40,15 +39,10 @@ module.exports = exports = (payload, client) => {
         replaceLabels(client, repoOwner, repoName, pullRequestNumber, labels);
       }
       return;
-    } else if (action === "labeled") {
-      addedLabel = payload.label.name;
-      client.issues.getIssueLabels({
-        owner: repoOwner,
-        repo: repoName,
-        number: pullRequestNumber
-      }).then((response) => {
-        const issueLabelArray = response.data;
-        if (client.cfg.areaLabels) return issueAreaLabeled(client, addedLabel, pullRequestNumber, repoName, repoOwner, issueLabelArray);
+    } else if (action === "labeled" && client.cfg.areaLabels) {
+      client.issues.get({owner: repoOwner, repo: repoName, number: pullRequestNumber})
+      .then((response) => {
+        require("./issues/areaLabel.js").run(client, response.data.issue, response.data.repository, payload.label);
       });
     } else if (action === "closed") {
       if (!client.cfg.reviewedLabel || !client.cfg.needsReviewLabel) return;
