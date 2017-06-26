@@ -19,9 +19,9 @@
 //  `8888Y" Y88888P    YP    ~Y8888P" 88
 
 const fs = require("mz/fs");
-const Git = require("nodegit");
 const inquirer = require("inquirer");
 const path = require("path");
+const Git = require("simple-git/promise")(path.resolve(__dirname, "../"));
 
 console.log(".d8888. d88888b d888888b db    db d8888b. \r\n88\"  YP 88\"     `~~88~~\" 88    88 88  `8D \r\n`8bo.   88ooooo    88    88    88 88oodD\" \r\n  `Y8b. 88~~~~~    88    88    88 88~~~   \r\ndb   8D 88.        88    88b  d88 88      \r\n`8888Y\" Y88888P    YP    ~Y8888P\" 88\n");
 console.log("Hello, welcome to setup!");
@@ -76,28 +76,25 @@ inquirer.prompt({
 }).catch((err) => {
   throw err;
 }).then(() => {
-  // Let's look for zulipbot's repo in the parent directory tree.
-  return Git.Repository.open(path.resolve(__dirname, "../"));
-}).then((r) => {
-  console.log("Setting up GitHub `upstream` remote...");
-  console.log("> git remote add upstream https://github.com/zulip/zulipbot.git");
-  repo = r;
-  return Git.Remote.create(repo, "upstream",
-    "https://github.com/zulip/zulipbot.git");
+  console.log("Looking for GitHub `upstream` remote...");
+  return Git.getRemotes(true);
 }).catch((err) => {
-  if (err.errno !== -4) {
-    throw err;
-  }
-  console.log("Remote 'upstream' already exists. Skipping.");
-  return repo.getRemote("upstream");
-}).then((remote) => {
-  console.log("Done!");
+  throw err;
+}).then((remotes) => {
+  const upstream = remotes.find(r => r.name === "upstream" && r.refs.fetch === "https://github.com/zulip/zulipbot.git");
+  if (upstream) return console.log("Remote `upstream` found.");
+  console.log("Remote `upstream` does not exist, creating remote `upstream`...");
+  console.log("> git remote add upstream https://github.com/zulip/zulipbot.git");
+  return Git.addRemote("upstream", "https://github.com/zulip/zulipbot.git");
+}).catch((err) => {
+  throw err;
+})
+.then(() => {
   console.log("Fetching from `upstream`...");
   console.log("> git fetch upstream");
-  return remote.fetch();
+  return Git.fetch("upstream", "master");
 }).then(() => {
-  console.log("Done!");
-  console.log("Environment setup complete.\n");
+  console.log("Done! Environment setup complete.\n");
   console.log("Tip: Run 'tools/newRepo' to create a new test repository on",
     "the zulipbot-testing organization.");
 }).catch((err) => {
