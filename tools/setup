@@ -36,7 +36,7 @@ inquirer.prompt({
 }).then((answer) => {
   if (!answer.confirm) return;
   console.log("Creating `src/config.js` file...");
-  return fs.symlink(
+  return fs.link(
     path.resolve("src/zulip_project_config.js"),
     path.resolve("src/config.js")
   );

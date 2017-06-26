@@ -112,7 +112,7 @@ inquirer.prompt({
               name: "buildURL",
               message: "Enter the URL of the Travis build logs for the pull request:",
               validate: (value) => {
-                var valid = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%\\\\._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%\\\\_+.~#?&//=]*)/.test(value);
+                var valid = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%\\._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%\\_+.~#?&//=]*)/.test(value);
                 return valid || "Please enter a valid URL!";
               },
               when: (answers) => {
