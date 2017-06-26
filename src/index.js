@@ -37,7 +37,7 @@ app.post("/", (req, res) => {
   } else if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event").includes("pull_request")) {
     pullRequests(req.body, client); // send parsed payload to pullRequests.js
   } else if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event") === "push" && client.cfg.checkMergeConflicts) {
-    setTimeout(checkMergeConflicts(req.body, client), client.cfg.checkMergeConflictsDelay); // check pull requests for merge conflicts on repository push
+    setTimeout(() => checkMergeConflicts(req.body, client), client.cfg.checkMergeConflictsDelay); // check pull requests for merge conflicts on repository push
   } else if (req.get("user-agent") && req.get("user-agent") === "Travis CI Notifications") {
     travis(JSON.parse(req.body.payload), client);
   }
