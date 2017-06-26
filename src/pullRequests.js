@@ -42,7 +42,7 @@ module.exports = exports = (payload, client) => {
     } else if (action === "labeled" && client.cfg.areaLabels) {
       client.issues.get({owner: repoOwner, repo: repoName, number: pullRequestNumber})
       .then((response) => {
-        require("./issues/areaLabel.js").run(client, response.data.issue, response.data.repository, payload.label);
+        require("./issues/areaLabel.js").run(client, response.data, payload.repository, payload.label);
       });
     } else if (action === "closed") {
       if (!client.cfg.reviewedLabel || !client.cfg.needsReviewLabel) return;
