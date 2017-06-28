@@ -57,6 +57,10 @@ describe("config.js lint", () => {
     assert.isNotNull(client.cfg.commitReferenceEnabled);
     assert.typeOf(client.cfg.commitReferenceEnabled, "boolean");
   });
+  it("clearClosedIssues should be a boolean.", () => {
+    assert.isNotNull(client.cfg.clearClosedIssues);
+    assert.typeOf(client.cfg.clearClosedIssues, "boolean");
+  });
   it("checkMergeConflicts should be a boolean.", () => {
     assert.isNotNull(client.cfg.checkMergeConflicts);
     assert.typeOf(client.cfg.checkMergeConflicts, "boolean");

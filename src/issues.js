@@ -17,8 +17,7 @@ exports.run = (client, payload) => {
   const repository = payload.repository;
   const payloadBody = payload.comment || issue;
   if (action === "labeled" && client.cfg.areaLabels) return require("./issues/areaLabel.js").run(client, issue, repository, payload.label);
-  else if (action === "closed") return exports.closeIssue(client, issue, repository);
-  else if (action === "reopened" && issue.assignees) return exports.reopenedIssue(client, issue, repository);
+  else if (action === "closed" && issue.assignees && client.cfg.clearClosedIssues) return setTimeout(() => exports.closeIssue(client, issue, repository), client.cfg.repoEventsDelay);
   else if (action === "opened" || action === "created") exports.parseCommands(client, payloadBody, issue, repository);
 };
 
@@ -40,14 +39,6 @@ exports.parseCommands = (client, payloadBody, issue, repository) => {
 };
 
 exports.closeIssue = (client, issue, repository) => {
-  const issueNumber = issue.number;
-  const repoName = repository.name;
-  const repoOwner = repository.owner.login;
-  const hasInProgressLabel = issue.labels.find(label => label.name === client.cfg.inProgressLabel);
-  if (hasInProgressLabel) client.issues.removeLabel({owner: repoOwner, repo: repoName, number: issueNumber, name: client.cfg.inProgressLabel});
-};
-
-exports.reopenedIssue = (client, issue, repository) => {
   const issueNumber = issue.number;
   const repoName = repository.name;
   const repoOwner = repository.owner.login;

@@ -11,6 +11,7 @@ module.exports = {
   removeCommands: ["remove", "unlabel"], // configured aliases for "remove"" command
   selfLabelingOnly: true, // enable/disable only issue/PR author can label their issue/PR
   commitReferenceEnabled: true, // enable/disable commit reference notifications for label teams
+  clearClosedIssues: true, // enable/disable removing "in progress" labels and assignees from closed issues
   checkMergeConflicts: true, // enable/disable merge conflict warnings on PRs
   repoEventsDelay: 3 * 60 * 1000, // delay for repo events (merge conflict checks, closed issue clearance)
   escapeWIPString: "WIP", // disable mentioning of teams on PRs with WIP string in title; teams will always be notified if null
