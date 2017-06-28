@@ -1,6 +1,7 @@
 const fs = require("fs");
 const commands = new Map();
 const aliases = new Map();
+const recentlyClosed = new Map();
 
 fs.readdir("./src/commands", (err, files) => {
   if (err) return console.error(err);
@@ -17,7 +18,13 @@ exports.run = (client, payload) => {
   const repository = payload.repository;
   const payloadBody = payload.comment || issue;
   if (action === "labeled" && client.cfg.areaLabels) return require("./issues/areaLabel.js").run(client, issue, repository, payload.label);
-  else if (action === "closed" && issue.assignees && client.cfg.clearClosedIssues) return setTimeout(() => exports.closeIssue(client, issue, repository), client.cfg.repoEventsDelay);
+  else if (action === "closed" && issue.assignees && client.cfg.clearClosedIssues) {
+    recentlyClosed.set(issue.id, issue);
+    return setTimeout(() => {
+      if (recentlyClosed.has(issue.id)) exports.closeIssue(client, issue, repository);
+      recentlyClosed.delete(issue.id);
+    }, client.cfg.repoEventsDelay);
+  } else if (action === "reopened" && recentlyClosed.has(issue.id)) return recentlyClosed.delete(issue.id);
   else if (action === "opened" || action === "created") exports.parseCommands(client, payloadBody, issue, repository);
 };
 
