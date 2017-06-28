@@ -61,9 +61,9 @@ describe("config.js lint", () => {
     assert.isNotNull(client.cfg.checkMergeConflicts);
     assert.typeOf(client.cfg.checkMergeConflicts, "boolean");
   });
-  it("checkMergeConflictsDelay should be a postive integer if it is defined.", () => {
-    if (client.cfg.checkMergeConflictsDelay) assert(!isNaN(parseFloat(client.cfg.checkMergeConflictsDelay)) && isFinite(client.cfg.checkMergeConflictsDelay));
-    else assert.isUndefined(client.cfg.checkMergeConflictsDelay);
+  it("repoEventsDelay should be a postive integer if it is defined.", () => {
+    if (client.cfg.repoEventsDelay) assert(!isNaN(parseFloat(client.cfg.repoEventsDelay)) && isFinite(client.cfg.repoEventsDelay));
+    else assert.isUndefined(client.cfg.repoEventsDelay);
   });
   it("areaLabels should be a map if it is defined.", () => {
     if (client.cfg.areaLabels) assert.typeOf(client.cfg.areaLabels, "map");
