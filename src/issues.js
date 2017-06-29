@@ -1,16 +1,4 @@
-const fs = require("fs");
-const commands = new Map();
-const aliases = new Map();
 const recentlyClosed = new Map();
-
-fs.readdir("./src/commands", (err, files) => {
-  if (err) return console.error(err);
-  for (const file of files) {
-    const data = require(`./commands/${file}`);
-    commands.set(file.slice(0, -3), data);
-    for (let i = data.aliases.length; i--;) aliases.set(data.aliases[i], data.name);
-  }
-});
 
 exports.run = (client, payload) => {
   const action = payload.action;
@@ -37,7 +25,7 @@ exports.parseCommands = (client, payloadBody, issue, repository) => {
   if (!parseCommands) return;
   parseCommands.forEach((command) => {
     if (body.includes(`\`${command}\``) || body.includes(`\`\`\`\r\n${command}\r\n\`\`\``)) return;
-    let cmdFile = commands.get(aliases.get(command.split(" ")[1]));
+    let cmdFile = client.commands.get(client.aliases.get(command.split(" ")[1]));
     if (cmdFile && !cmdFile.args) return cmdFile.run(client, payloadBody, issue, repository);
     else if (!cmdFile || !body.match(/".*?"/g) || (client.cfg.selfLabelingOnly && commenter !== issueCreator)) return;
     const splitBody = body.split(`@${client.cfg.username}`).filter(splitString => splitString.includes(` ${command.split(" ")[1]} "`)).join(" ");
@@ -49,5 +37,5 @@ exports.closeIssue = (client, issue, repository) => {
   const issueNumber = issue.number;
   const repoName = repository.name;
   const repoOwner = repository.owner.login;
-  issue.assignees.forEach(a => commands.get("abandon").abandon(client, a.login, repoOwner, repoName, issueNumber));
+  issue.assignees.forEach(a => client.commands.get("abandon").abandon(client, a.login, repoOwner, repoName, issueNumber));
 };

@@ -1,7 +1,25 @@
 const GitHub = require("github");
 const client = new GitHub();
+const fs = require("fs");
+
 client.cfg = require("./config.js");
 client.zulip = require("zulip-js")(client.cfg.zulip);
+client.commands = new Map();
+client.aliases = new Map();
+client.templates = new Map();
+
+const commands = fs.readdirSync("./src/commands");
+for (const file of commands) {
+  const data = require(`./commands/${file}`);
+  client.commands.set(file.slice(0, -3), data);
+  for (let i = data.aliases.length; i--;) client.aliases.set(data.aliases[i], data.name);
+}
+
+const templates = fs.readdirSync("./src/templates");
+for (const file of templates) {
+  const text = fs.readFileSync(`./src/templates/${file}`, "utf8");
+  client.templates.set(file.slice(0, -3), text);
+}
 
 client.authenticate({
   type: "basic",
