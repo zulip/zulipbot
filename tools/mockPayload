@@ -26,7 +26,6 @@ const abandonIssue = require("../src/commands/abandon.js");
 const removeLabels = require("../src/commands/remove.js");
 const issueAreaLabeled = require("../src/issues/areaLabel.js");
 const issueReferenced = require("../src/pullRequests/issueReferenced.js");
-const checkPullRequestComment = require("../src/issues/checkPullRequestComment.js");
 const travisBuildStatus = require("../src/pullRequests/travisBuildStatus.js");
 
 console.log("                       _    ____             _                 _ \r\n  _ __ ___   ___   ___| | _|  _ \\ __ _ _   _| | ___   __ _  __| |\r\n | \"_ ` _ \\ / _ \\ / __| |/ | |_) / _` | | | | |/ _ \\ / _` |/ _` |\r\n | | | | | | (_) | (__|   <|  __| (_| | |_| | | (_) | (_| | (_| |\r\n |_| |_| |_|\\___/ \\___|_|\\_|_|   \\__,_|\\__, |_|\\___/ \\__,_|\\__,_|\r\n                                       |___/                     ");
@@ -203,7 +202,6 @@ inquirer.prompt({
               if (!body) return;
               const commands = body.match(new RegExp("@" + client.cfg.username + "\\s(\\w*)", "g"));
               if (!commands) return;
-              if (body.match(/#([0-9]+)/) && client.cfg.areaLabels) checkPullRequestComment(body, issueNumber, username, "zulipbot-testing");
               commands.forEach((command) => {
                 if (body.includes(`\`${command}\``) || body.includes(`\`\`\`\r\n${command}\r\n\`\`\``)) return;
                 const commandName = command.split(" ")[1];
