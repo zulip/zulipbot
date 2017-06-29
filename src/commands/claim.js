@@ -1,5 +1,3 @@
-const newContributor = require("fs").readFileSync("./src/templates/newContributor.md", "utf8");
-
 exports.run = (client, comment, issue, repository) => {
   const commenter = comment.user.login;
   const repoName = repository.name;
@@ -31,7 +29,7 @@ exports.claimIssue = (client, comment, issue, repository, newContrib) => {
   const repoOwner = repository.owner.login;
   client.issues.addAssigneesToIssue({owner: repoOwner, repo: repoName, number: issueNumber, assignees: [commenter]})
   .then(() => {
-    if (newContrib) client.newComment(issue, repository, newContributor.replace("[commenter]", commenter));
+    if (newContrib) client.newComment(issue, repository, client.templates.get("newContributor").replace("[commenter]", commenter));
     if (!client.cfg.inProgressLabel || issue.labels.find(label => label.name === client.cfg.inProgressLabel || issue.pull_request)) return;
     client.issues.addLabels({owner: repoOwner, repo: repoName, number: issueNumber, labels: [client.cfg.inProgressLabel]});
   });
