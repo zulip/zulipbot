@@ -1,4 +1,4 @@
-const issueReferenced = require("./pullRequests/issueReferenced.js");
+const issueRef = require("./pullRequests/issueReferenced.js");
 
 exports.run = (client, payload) => {
   const action = payload.action;
@@ -15,8 +15,8 @@ exports.run = (client, payload) => {
     client.issues.get({owner: repoOwner, repo: repoName, number: number})
     .then(response => require("./issues/areaLabel.js").run(client, response.data, repository, payload.label));
   } else if (!client.cfg.areaLabels || !client.cfg.commitReferenceEnabled) return;
-  if (action === "opened") exports.commitReference(client, number, repository);
-  else if (action === "synchronize") exports.commitReference(client, number, repository);
+  if (action === "opened") issueRef.run(client, pullRequest, repository);
+  else if (action === "synchronize") issueRef.run(client, pullRequest, repository);
 };
 
 exports.managePRLabels = (client, action, pullRequest, review, repository) => {
@@ -38,16 +38,5 @@ exports.managePRLabels = (client, action, pullRequest, review, repository) => {
       labels.splice(labels.indexOf(client.cfg.needsReviewLabel), 1);
     } else return;
     client.issues.replaceAllLabels({owner: repoOwner, repo: repoName, number: number, labels: labels});
-  });
-};
-
-exports.commitReference = (client, number, repoName, repoOwner) => {
-  client.pullRequests.getCommits({owner: repoOwner, repo: repoName, number: number})
-  .then((response) => {
-    response.data.filter((c, index) => {
-      return c.commit.message.match(/#([0-9]+)/) && response.data.indexOf(c) === index;
-    }).map(c => c.commit.message).forEach((commit) => {
-      issueReferenced(client, commit, number, repoName, repoOwner);
-    });
   });
 };

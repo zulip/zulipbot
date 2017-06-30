@@ -1,64 +1,36 @@
-"use strict"; // catch errors easier
-
-const newComment = require("../issues/newComment.js"); // create comment
-const fs = require("fs"); // for reading messages
-const fixCommitMessage = fs.readFileSync("./src/templates/fixCommitMessage.md", "utf8"); // get fix commit message contents
-
-module.exports = exports = (client, body, pullRequestNumber, repoName, repoOwner) => {
-  const referencedIssueNumber = body.match(/#([0-9]+)/)[1];
-  let issueLabels = []; // initialize array for area labels
-  let labelTeams = [];
-  let mentionedLabels = [];
-  client.pullRequests.getCommits({
-    owner: repoOwner,
-    repo: repoName,
-    number: pullRequestNumber
-  }).then((response) => {
-    let referencedIssue = false;
-    let commitAuthor = "";
-    response.data.forEach((commit) => {
-      const message = commit.commit.message;
-      if (commit.author) commitAuthor = commit.author.login;
-      if (!message) return;
-      if (message.match(/#([0-9]+)/) && message.match(/#([0-9]+)/)[1] === referencedIssueNumber) referencedIssue = true;
+exports.run = (client, pullRequest, repository) => {
+  const author = pullRequest.user.login;
+  const number = pullRequest.number;
+  const repoName = repository.name;
+  const repoOwner = repository.owner.login;
+  client.pullRequests.getCommits({owner: repoOwner, repo: repoName, number: number})
+  .then((response) => {
+    const refIssues = response.data.filter((c, index) => {
+      return c.commit.message.match(/#([0-9]+)/) && response.data.indexOf(c) === index;
+    }).map(c => c.commit.message.match(/#([0-9]+)/)[1]);
+    if (!refIssues) {
+      const comment = client.templates.get("fixCommitMessage").replace("[author]", author);
+      return client.newComment(pullRequest, repository, comment);
+    }
+    refIssues.forEach((referencedIssue) => {
+      exports.referenceIssue(client, referencedIssue, pullRequest, repository);
     });
-    if (!referencedIssue) newComment(client, repoOwner, repoName, pullRequestNumber, fixCommitMessage.replace("[author]", commitAuthor));
-    client.issues.getComments({ // get comments of issue
-      owner: repoOwner,
-      repo: repoName,
-      number: pullRequestNumber,
-      per_page: 100
-    }).then((pullComments) => {
-      if (pullComments.data.length) {
-        pullComments.data.forEach((pullComment) => {
-          if (pullComment.body.includes("this pull request references") && pullComment.user.login === client.cfg.username) {
-            mentionedLabels = mentionedLabels.concat(pullComment.body.match(/"(.*?)"/g));
-          }
-        });
-      }
-      client.issues.getIssueLabels({ // get referenced issue labels
-        owner: repoOwner,
-        repo: repoName,
-        number: referencedIssueNumber
-      }).then((issueLabelArray) => {
-        issueLabelArray.data.forEach((issueLabel) => {
-          const labelName = issueLabel.name; // label name
-          if (client.cfg.areaLabels.has(labelName) && !issueLabels.includes(labelName) && !mentionedLabels.includes("\"" + labelName + "\"")) { // make sure the label team hasn't been mentioned yet
-            issueLabels.push(labelName); // push all associated area labels to array
-            labelTeams.push(client.cfg.areaLabels.get(labelName)); // push all associated area labels to array
-          }
-        }); // add all issue label names and area label teams to issueLabels to labelTeams
-        const areaLabelTeams = labelTeams.join(`, @${repoOwner}/`);
-        const referencedAreaLabels = issueLabels.join("\", \""); // join corresponding area label teams into one string
-        let labelGrammar;
-        if (labelTeams.length > 1) {
-          labelGrammar = "labels";
-        } else if (labelTeams.length === 1) {
-          labelGrammar = "label";
-        } else return;
-        const comment = `Hello @${repoOwner}/${areaLabelTeams} members, this pull request references an issue with the "${referencedAreaLabels}" ${labelGrammar}, so you may want to check it out!`; // comment template
-        newComment(client, repoOwner, repoName, pullRequestNumber, comment); // create comment
-      });
-    });
+  });
+};
+
+exports.referenceIssue = (client, referencedIssue, pullRequest, repository) => {
+  const repoName = repository.name;
+  const repoOwner = repository.owner.login;
+  client.issues.getIssueLabels({owner: repoOwner, repo: repoName, number: referencedIssue})
+  .then((labels) => {
+    const issueLabels = labels.data.filter((l) => {
+      return client.cfg.areaLabels.has(l.name);
+    }).map(l => l.name);
+    const areaLabelTeams = issueLabels.map(l => client.cfg.areaLabels.get(l)).filter((l, index, array) => {
+      return array.indexOf(l) === index;
+    }).join(`, @${repoOwner}/`);
+    const areaLabels = issueLabels.join("\", \"");
+    const comment = `Hello @${repoOwner}/${areaLabelTeams} members, this pull request references an issue with the "${areaLabels}" label${issueLabels.length === 1 ? "" : "s"}, so you may want to check it out!`;
+    client.newComment(pullRequest, repository, comment);
   });
 };
