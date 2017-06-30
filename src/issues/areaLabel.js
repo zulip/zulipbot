@@ -11,7 +11,9 @@ exports.run = (client, issue, repository, label) => {
   .then((issueComments) => {
     const issueAreaLabels = issueLabels.filter(l => client.cfg.areaLabels.has(l.name) && !issueLabels.includes(l.name)).map(l => l.name);
     const labelTeams = issueAreaLabels.map(l => client.cfg.areaLabels.get(l));
-    const areaLabelTeams = labelTeams.join(`, @${repoOwner}/`);
+    const areaLabelTeams = labelTeams.filter((l, index, array) => {
+      return array.indexOf(l) === index;
+    }).join(`, @${repoOwner}/`);
     const referencedAreaLabels = issueAreaLabels.join("**, **");
     const comment = `Hello @${repoOwner}/${areaLabelTeams} members, this issue was labeled with the **${referencedAreaLabels}** label${labelTeams.length === 1 ? "" : "s"}, so you may want to check it out!`;
     const labelComment = issueComments.data.find(issueComment => issueComment.body.includes("this issue was labeled with the") && issueComment.user.login === client.cfg.username);
