@@ -27,7 +27,7 @@ exports.managePRLabels = (client, action, pullRequest, review, repository) => {
   .then((response) => {
     let labels = response.data.map(label => label.name);
     if (action === "opened" || action === "reopened") {
-      labels = [client.cfg.needsReviewLabel];
+      labels.push(client.cfg.needsReviewLabel);
     } else if (action === "submitted" && labels.includes(client.cfg.needsReviewLabel) && review.user.login !== pullRequest.user.login) {
       labels[labels.indexOf(client.cfg.needsReviewLabel)] = client.cfg.reviewedLabel;
     } else if (action === "synchronize" && labels.includes(client.cfg.reviewedLabel)) {
