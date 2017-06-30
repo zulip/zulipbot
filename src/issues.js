@@ -13,7 +13,9 @@ exports.run = (client, payload) => {
       recentlyClosed.delete(issue.id);
     }, client.cfg.repoEventsDelay);
   } else if (action === "reopened" && recentlyClosed.has(issue.id)) return recentlyClosed.delete(issue.id);
-  else if (action === "opened" || action === "created") exports.parseCommands(client, payloadBody, issue, repository);
+  else if (client.cfg.inProgressLabel && !issue.labels.find(label => label.name === client.cfg.inProgressLabel) && !issue.pull_request) {
+    return client.issues.addLabels({owner: repository.owner.login, repo: repository.name, number: issue.number, labels: [client.cfg.inProgressLabel]});
+  } else if (action === "opened" || action === "created") exports.parseCommands(client, payloadBody, issue, repository);
 };
 
 exports.parseCommands = (client, payloadBody, issue, repository) => {
