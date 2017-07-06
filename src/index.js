@@ -7,7 +7,7 @@ const bodyParser = require("body-parser");
 const issues = require("./issues.js");
 const pullRequests = require("./pullRequests.js");
 const travis = require("./travis.js");
-const checkInactivity = require("./issues/checkInactivity.js");
+const checkInactivity = require("./automations/checkInactivity.js");
 const push = require("./push.js");
 
 // server
@@ -43,8 +43,6 @@ app.post("/", (req, res) => {
   }
 });
 
-process.on("unhandledRejection", (reason, promise) => {
-  console.log("An unhandled promise rejection was detected!\nPromise ", promise, "\nReason: ", reason);
-});
+process.on("unhandledRejection", promise => console.log("An unhandled promise rejection was detected!\nPromise ", promise));
 
-if (client.cfg.checkInactivityTimeout) setInterval(() => checkInactivity(client), client.cfg.checkInactivityTimeout * 1000); // check every hour
+if (client.cfg.checkInactivityTimeout) setInterval(() => checkInactivity.run(client), client.cfg.checkInactivityTimeout * 1000);
