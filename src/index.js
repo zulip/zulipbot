@@ -43,6 +43,6 @@ app.post("/", (req, res) => {
   }
 });
 
-process.on("unhandledRejection", promise => console.log("An unhandled promise rejection was detected!\nPromise ", promise));
+process.on("unhandledRejection", (error, promise) => console.error("An unhandled promise rejection was detected at:", promise));
 
 if (client.cfg.checkInactivityTimeout) setInterval(() => checkInactivity.run(client), client.cfg.checkInactivityTimeout * 1000);
