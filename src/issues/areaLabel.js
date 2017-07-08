@@ -13,12 +13,12 @@ exports.run = (client, issue, repository, label) => {
     const labelTeams = issueAreaLabels.map(l => client.cfg.areaLabels.get(l));
     const areaLabelTeams = Array.from(new Set(labelTeams)).join(`, @${repoOwner}/`);
     const referencedAreaLabels = issueAreaLabels.join("**, **");
-    const comment = `Hello @${repoOwner}/${areaLabelTeams} members, this issue was labeled with the **${referencedAreaLabels}** label${labelTeams.length === 1 ? "" : "s"}, so you may want to check it out!`;
+    const comment = `Hello @${repoOwner}/${areaLabelTeams} members, this ${issue.pull_request ? "pull request" : "issue"} was labeled with the **${referencedAreaLabels}** label${labelTeams.length === 1 ? "" : "s"}, so you may want to check it out!`;
     const labelComment = issueComments.data.find(issueComment => issueComment.body.includes("this issue was labeled with the") && issueComment.user.login === client.cfg.username);
     if (labelComment) client.issues.editComment({owner: repoOwner, repo: repoName, id: labelComment.id, body: comment});
     else {
       if (referencedIssues.includes(issueNumber)) return;
-      client.newComment(issue, repository, comment, issue.pull_request);
+      client.newComment(issue, repository, comment);
       referencedIssues.push(issueNumber);
       setTimeout(() => {
         referencedIssues.splice(referencedIssues.indexOf(issueNumber), 1);
