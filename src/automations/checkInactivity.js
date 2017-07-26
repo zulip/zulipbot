@@ -1,27 +1,24 @@
-let references = new Map();
-
 exports.run = (client) => {
-  client.cfg.activeRepos.forEach((repo) => {
+  client.cfg.activeRepos.forEach(async(repo) => {
     const repoOwner = repo.split("/")[0];
     const repoName = repo.split("/")[1];
-    let pullRequests = [];
-    exports.getPullRequests(client, pullRequests, repoName, repoOwner, 1);
+    const pullRequests = await getPullRequests(client, [], repoName, repoOwner);
+    await scrapeInactivePullRequests(client, pullRequests, repoName, repoOwner);
   });
 };
 
-exports.getPullRequests = (client, pullRequests, repoName, repoOwner, pageCount) => {
-  client.pullRequests.getAll({owner: repoOwner, repo: repoName, sort: "updated", direction: "asc", page: pageCount, per_page: 100})
-  .then((res) => {
-    pullRequests = pullRequests.concat(res.data);
-    if (client.hasNextPage(res)) {
-      exports.getPullRequests(client, pullRequests, repoName, repoOwner, pageCount + 1);
-    } else {
-      exports.scrapeInactivePullRequests(client, pullRequests, repoName, repoOwner);
-    }
-  });
-};
+async function getPullRequests(client, pullRequests, repoName, repoOwner) {
+  let response = await client.pullRequests.getAll({owner: repoOwner, repo: repoName, sort: "updated", direction: "asc", page: 1, per_page: 100});
+  pullRequests = pullRequests.concat(response.data);
+  while (client.hasNextPage(response)) {
+    response = await client.getNextPage(response);
+    pullRequests = pullRequests.concat(response.data);
+  }
+  return pullRequests;
+}
 
-exports.scrapeInactivePullRequests = (client, pullRequests, repoName, repoOwner) => {
+async function scrapeInactivePullRequests(client, pullRequests, repoName, repoOwner) {
+  let references = new Map();
   pullRequests.forEach((pullRequest) => {
     const body = pullRequest.body;
     const time = Date.parse(pullRequest.updated_at);
@@ -45,21 +42,19 @@ exports.scrapeInactivePullRequests = (client, pullRequests, repoName, repoOwner)
     const issueNumber = body.match(/#([0-9]+)/)[1];
     references.set(`${repoName}/${issueNumber}`, time);
   });
-  let issues = [];
-  exports.getIssues(client, issues, references, repoOwner, repoName, 1);
-};
+  const issues = await getIssues(client, []);
+  exports.scrapeInactiveIssues(client, references, issues, repoOwner, repoName);
+}
 
-exports.getIssues = (client, issues, references, repoOwner, repoName, pageCount) => {
-  client.issues.getAll({page: pageCount, filter: "all", sort: "updated", labels: client.cfg.inProgressLabel, direction: "asc", per_page: 100})
-  .then((res) => {
-    issues = issues.concat(res.data);
-    if (client.hasNextPage(res)) {
-      exports.getIssues(client, issues, references, repoOwner, repoName, pageCount + 1);
-    } else {
-      exports.scrapeInactiveIssues(client, references, issues, repoOwner, repoName);
-    }
-  });
-};
+async function getIssues(client, issues) {
+  let response = await client.issues.getAll({page: 1, filter: "all", sort: "updated", labels: client.cfg.inProgressLabel, direction: "asc", per_page: 100});
+  issues = issues.concat(response.data);
+  while (client.hasNextPage(response)) {
+    response = await client.getNextPage(response);
+    issues = issues.concat(response.data);
+  }
+  return issues;
+}
 
 exports.scrapeInactiveIssues = (client, references, issues, owner, name) => {
   issues.forEach((issue) => {
