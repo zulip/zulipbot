@@ -23,14 +23,9 @@
     "eslint": "^4.0.0",
     "eslint-config-xo-space": "^0.16.0",
     "gulp": "^3.9.1",
-    "gulp-coveralls": "^0.1.4",
     "gulp-eslint": "^4.0.0",
     "gulp-exclude-gitignore": "^1.1.1",
-    "gulp-istanbul": "^1.1.2",
-    "gulp-line-ending-corrector": "^1.0.1",
-    "gulp-mocha": "^4.3.1",
     "gulp-nsp": "^2.4.2",
-    "gulp-plumber": "^1.1.0",
     "inquirer": "^3.1.0",
     "mocha": "^3.4.2",
     "mz": "^2.6.0",
@@ -55,9 +50,8 @@
         "SwitchCase": 1,
         "MemberExpression": 0
       }],
-      "max-nested-callbacks": ["error", 7],
-      "max-params": ["error", 10],
-      "no-multi-assign": ["off"],
+      "max-params": ["error", 5],
+      "no-await-in-loop": ["off"],
       "one-var": ["error", {
         "initialized": "never"
       }],
