@@ -33,6 +33,5 @@ exports.claimIssue = (client, comment, issue, repository, newContrib) => {
   });
 };
 
-exports.name = "claim";
 exports.aliases = require("../config.js").claimCommands;
 exports.args = false;

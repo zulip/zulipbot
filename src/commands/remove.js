@@ -14,6 +14,5 @@ exports.run = (client, body, issue, repository) => {
   });
 };
 
-exports.name = "remove";
 exports.aliases = require("../config.js").removeCommands;
 exports.args = true;

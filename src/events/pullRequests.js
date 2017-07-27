@@ -1,4 +1,4 @@
-const issueRef = require("./pullRequests/issueReferenced.js");
+const issueRef = require("../pullRequests/issueReferenced.js");
 
 exports.run = (client, payload) => {
   const action = payload.action;
@@ -40,3 +40,5 @@ exports.managePRLabels = (client, action, pullRequest, review, repository) => {
     client.issues.replaceAllLabels({owner: repoOwner, repo: repoName, number: number, labels: labels});
   });
 };
+
+exports.events = ["pull_request", "pull_request_review"];

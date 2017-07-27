@@ -1,46 +1,38 @@
-"use strict"; // catch errors easier
-
-// requirements
 const client = require("./client.js");
+const crypto = require("crypto");
 const express = require("express");
 const bodyParser = require("body-parser");
-const issues = require("./issues.js");
-const pullRequests = require("./pullRequests.js");
 const travis = require("./travis.js");
 const checkInactivity = require("./automations/checkInactivity.js");
-const push = require("./push.js");
 
-// server
-const app = express(); // initialize express app
-const port = process.env.PORT || 8080; // set post to 8080
+const app = express();
+const port = process.env.PORT || 8080;
 
 app.listen(port, () => {
-  console.log("Website is running on http://localhost:" + port); // localhost website testing
+  console.log("Website is running on http://localhost:" + port);
 });
-
-app.set("view engine", "ejs"); // set rendering engine
 
 app.get("/", (req, res) => {
-  res.redirect("https://github.com/zulip/zulipbot"); // redirect GET requests to GitHub repo
+  res.redirect("https://github.com/zulip/zulipbot");
 });
 
-// parse JSON
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-// handle POST requests
 app.post("/", (req, res) => {
-  res.render("index"); // Send contents of index.ejs
-  // check if event is for an issue opening or issue comment creation
-  if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event").includes("issue")) {
-    issues.run(client, req.body); // send parsed payload to issues.js
-  } else if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event").includes("pull_request")) {
-    pullRequests.run(client, req.body); // send parsed payload to pullRequests.js
-  } else if (req.get("X-GitHub-Event") && req.get("X-GitHub-Event") === "push") {
-    push.run(client, req.body);
+  if (req.get("X-GitHub-Event")) {
+    const signature = req.get("X-Hub-Signature");
+    const hmac = crypto.createHmac("sha1", client.cfg.webhookSecret).update(JSON.stringify(req.body)).digest("hex");
+    if (signature === `sha1=${hmac}`) {
+      const validEvent = client.events.get(req.get("X-GitHub-Event"));
+      if (validEvent) validEvent.run(client, req.body);
+      return res.status(200).send("Valid request");
+    }
   } else if (req.get("user-agent") && req.get("user-agent") === "Travis CI Notifications") {
     travis.run(client, JSON.parse(req.body.payload));
+    return res.status(200).send("Valid request");
   }
+  res.status(500).send("Invalid request");
 });
 
 process.on("unhandledRejection", (error, promise) => console.error("An unhandled promise rejection was detected at:", promise));

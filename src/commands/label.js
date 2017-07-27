@@ -24,6 +24,5 @@ exports.run = (client, body, issue, repository) => {
   });
 };
 
-exports.name = "label";
 exports.aliases = require("../config.js").labelCommands;
 exports.args = true;

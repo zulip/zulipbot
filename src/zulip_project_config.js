@@ -3,6 +3,7 @@ const secrets = require("./secrets.json");
 module.exports = {
   username: secrets.username, // hidden username for GitHub API client in secrets.js
   password: secrets.password, // hidden password for GitHub API client in secrets.js
+  webhookSecret: secrets.webhookSecret, // hidden webhook secret for validating GitHub
   zulip: secrets.zulip, // hidden credentials for Zulip API client in secrets.js
   claimCommands: ["claim"], // configured aliases for "claim" command
   addCollabPermission: "pull", // permission level of new collaborator; collaborator will not be added if null

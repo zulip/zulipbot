@@ -25,6 +25,5 @@ exports.abandon = (client, commenter, repoOwner, repoName, issueNumber) => {
   });
 };
 
-exports.name = "abandon";
 exports.aliases = require("../config.js").abandonCommands;
 exports.args = false;

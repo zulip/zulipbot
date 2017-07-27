@@ -27,7 +27,7 @@ exports.parseCommands = (client, payloadBody, issue, repository) => {
   if (!parseCommands) return;
   parseCommands.forEach((command) => {
     if (body.includes(`\`${command}\``) || body.includes(`\`\`\`\r\n${command}\r\n\`\`\``)) return;
-    let cmdFile = client.commands.get(client.aliases.get(command.split(" ")[1]));
+    let cmdFile = client.commands.get(command.split(" ")[1]);
     if (cmdFile && !cmdFile.args) return cmdFile.run(client, payloadBody, issue, repository);
     else if (!cmdFile || !body.match(/".*?"/g) || (client.cfg.selfLabelingOnly && commenter !== issueCreator)) return;
     const splitBody = body.split(`@${client.cfg.username}`).filter(splitString => splitString.includes(` ${command.split(" ")[1]} "`)).join(" ");
@@ -41,3 +41,5 @@ exports.closeIssue = (client, issue, repository) => {
   const repoOwner = repository.owner.login;
   issue.assignees.forEach(a => client.commands.get("abandon").abandon(client, a.login, repoOwner, repoName, issueNumber));
 };
+
+exports.events = ["issues", "issue_comment"];
