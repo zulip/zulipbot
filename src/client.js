@@ -3,7 +3,6 @@ const client = new GitHub();
 const fs = require("fs");
 
 client.cfg = require("./config.js");
-client.zulip = require("zulip-js")(client.cfg.zulip);
 client.automations = new Map();
 client.commands = new Map();
 client.events = new Map();
@@ -46,16 +45,6 @@ client.newComment = (issue, repository, body, replacePR) => {
   if (replacePR) body = body.replace(/\[payload\]/g, "pull request");
   else body = body.replace(/\[payload\]/g, "issue");
   client.issues.createComment({owner: repoOwner, repo: repoName, number: issueNumber, body: body});
-};
-
-client.send = (msg, topic) => {
-  const params = {
-    to: client.cfg.defaultStream,
-    type: "stream",
-    subject: topic,
-    content: msg
-  };
-  client.zulip.messages.send(params);
 };
 
 module.exports = client;

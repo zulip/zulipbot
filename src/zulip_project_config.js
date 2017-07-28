@@ -4,7 +4,6 @@ module.exports = {
   username: secrets.username, // hidden username for GitHub API client in secrets.js
   password: secrets.password, // hidden password for GitHub API client in secrets.js
   webhookSecret: secrets.webhookSecret, // hidden webhook secret for validating GitHub
-  zulip: secrets.zulip, // hidden credentials for Zulip API client in secrets.js
   claimCommands: ["claim"], // configured aliases for "claim" command
   addCollabPermission: "pull", // permission level of new collaborator; collaborator will not be added if null
   abandonCommands: ["abandon", "unclaim", "abort"], // configured aliases for "abandon" command
@@ -73,6 +72,5 @@ module.exports = {
   reviewedLabel: "reviewed", // label for reviewed PRs; review system disabled if null
   needsReviewLabel: "needs review", // label for PRs needign review; review system disabled if null
   priorityLabels: ["priority: high", "priority: medium", "priority: low", "priority"], // array of labels for unclaimed "priority" issues daily digest
-  pullRequestsAssignee: false, // enable/disable assigning PR reviewers to PRs
-  defaultStream: "zulipbot" // default stream for zulipbot to send messages to in a Zulip organization
+  pullRequestsAssignee: false // enable/disable assigning PR reviewers to PRs
 };
