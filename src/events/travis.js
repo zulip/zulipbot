@@ -25,3 +25,5 @@ exports.run = (client, payload) => {
     client.newComment({number: number}, {name: repoName, owner: {login: repoOwner}}, comment);
   });
 };
+
+exports.events = ["travis"];

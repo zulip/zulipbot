@@ -1,8 +1,9 @@
+const bodyParser = require("body-parser");
 const client = require("./client.js");
 const crypto = require("crypto");
 const express = require("express");
-const bodyParser = require("body-parser");
-const travis = require("./travis.js");
+const NodeRSA = require("node-rsa");
+const snekfetch = require("snekfetch");
 const checkInactivity = require("./automations/checkInactivity.js");
 
 const app = express();
@@ -28,9 +29,17 @@ app.post("/", (req, res) => {
       if (validEvent) validEvent.run(client, req.body);
       return res.status(200).send("Valid request");
     }
-  } else if (req.get("user-agent") && req.get("user-agent") === "Travis CI Notifications") {
-    travis.run(client, JSON.parse(req.body.payload));
-    return res.status(200).send("Valid request");
+  } else if (req.get("Travis-Repo-Slug")) {
+    snekfetch.get("https://api.travis-ci.org/config").then((r) => {
+      const publicKey = JSON.parse(r.text).config.notifications.webhook.public_key;
+      const key = new NodeRSA(publicKey, {signingScheme: "sha1"});
+      const signature = req.get("Signature");
+      const valid = key.verify(JSON.parse(req.body.payload), signature, "base64", "base64");
+      if (valid) {
+        client.events.get("travis").run(client, JSON.parse(req.body.payload));
+        return res.status(200).send("Valid request");
+      }
+    });
   }
   res.status(500).send("Invalid request");
 });
