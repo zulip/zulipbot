@@ -5,7 +5,7 @@ exports.run = (client, payload) => {
   const issue = payload.issue;
   const repository = payload.repository;
   const payloadBody = payload.comment || issue;
-  if (action === "labeled" && client.cfg.areaLabels) return require("./issues/areaLabel.js").run(client, issue, repository, payload.label);
+  if (action === "labeled" && client.cfg.areaLabels) return client.automations.get("areaLabel").run(client, issue, repository, payload.label);
   else if (action === "closed" && issue.assignees && client.cfg.clearClosedIssues) {
     recentlyClosed.set(issue.id, issue);
     return setTimeout(() => {

@@ -4,7 +4,6 @@ const crypto = require("crypto");
 const express = require("express");
 const NodeRSA = require("node-rsa");
 const snekfetch = require("snekfetch");
-const checkInactivity = require("./automations/checkInactivity.js");
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -46,4 +45,4 @@ app.post("/", (req, res) => {
 
 process.on("unhandledRejection", (error, promise) => console.error("An unhandled promise rejection was detected at:", promise));
 
-if (client.cfg.checkInactivityTimeout) setInterval(() => checkInactivity.run(client), client.cfg.checkInactivityTimeout * 1000);
+if (client.cfg.checkInactivityTimeout) setInterval(() => client.automations.get("checkInactivity").run(client), client.cfg.checkInactivityTimeout * 1000);

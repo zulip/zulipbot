@@ -4,6 +4,7 @@ const fs = require("fs");
 
 client.cfg = require("./config.js");
 client.zulip = require("zulip-js")(client.cfg.zulip);
+client.automations = new Map();
 client.commands = new Map();
 client.events = new Map();
 client.templates = new Map();
@@ -24,6 +25,12 @@ const events = fs.readdirSync("./src/events");
 for (const event of events) {
   const data = require(`./events/${event}`);
   for (let i = data.events.length; i--;) client.events.set(data.events[i], data);
+}
+
+const automations = fs.readdirSync("./src/automations");
+for (const file of automations) {
+  const data = require(`./automations/${file}`);
+  client.automations.set(file.slice(0, -3), data);
 }
 
 client.authenticate({

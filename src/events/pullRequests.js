@@ -1,5 +1,3 @@
-const issueRef = require("../pullRequests/issueReferenced.js");
-
 exports.run = (client, payload) => {
   const action = payload.action;
   const pullRequest = payload.pull_request;
@@ -13,10 +11,10 @@ exports.run = (client, payload) => {
     client.issues.addAssigneesToIssue({owner: repoOwner, repo: repoName, number: number, assignees: [review.user.login]});
   } else if (action === "labeled" && client.cfg.areaLabels) {
     client.issues.get({owner: repoOwner, repo: repoName, number: number})
-    .then(response => require("./issues/areaLabel.js").run(client, response.data, repository, payload.label));
+    .then(response => client.automations.get("areaLabel").run(client, response.data, repository, payload.label));
   } else if (!client.cfg.areaLabels || !client.cfg.commitReferenceEnabled) return;
-  if (action === "opened") issueRef.run(client, pullRequest, repository);
-  else if (action === "synchronize") issueRef.run(client, pullRequest, repository);
+  if (action === "opened") client.automations.get("issueReferenced").run(client, pullRequest, repository);
+  else if (action === "synchronize") client.automations.get("issueReferenced").run(client, pullRequest, repository);
 };
 
 exports.managePRLabels = (client, action, pullRequest, review, repository) => {
