@@ -54,8 +54,11 @@ describe("config.js lint", () => {
     assert.typeOf(client.cfg.checkMergeConflicts, "boolean");
   });
   it("repoEventsDelay should be a postive integer if it is defined.", () => {
-    if (client.cfg.repoEventsDelay) assert(!isNaN(parseFloat(client.cfg.repoEventsDelay)) && isFinite(client.cfg.repoEventsDelay));
-    else assert.isUndefined(client.cfg.repoEventsDelay);
+    if (client.cfg.repoEventsDelay) {
+      assert(Number.isInteger(client.cfg.repoEventsDelay) > 0);
+    } else {
+      assert.isUndefined(client.cfg.repoEventsDelay);
+    }
   });
   it("areaLabels should be a map if it is defined.", () => {
     if (client.cfg.areaLabels) assert.typeOf(client.cfg.areaLabels, "map");
@@ -63,8 +66,11 @@ describe("config.js lint", () => {
   });
   it("addCollabPermission should be a valid string if it is defined.", () => {
     const permissions = ["pull", "push", "admin"];
-    if (client.cfg.addCollabPermission) assert(permissions.includes(client.cfg.addCollabPermission));
-    else assert.isUndefined(client.cfg.addCollabPermission);
+    if (client.cfg.addCollabPermission) {
+      assert(permissions.includes(client.cfg.addCollabPermission));
+    } else {
+      assert.isUndefined(client.cfg.addCollabPermission);
+    }
   });
   it("escapeWIPString should be a string if it is defined.", () => {
     if (client.cfg.escapeWIPString) assert.typeOf(client.cfg.escapeWIPString, "string");
@@ -78,16 +84,25 @@ describe("config.js lint", () => {
     });
   });
   it("checkInactivityTimeout should be a postive integer if it is defined.", () => {
-    if (client.cfg.checkInactivityTimeout) assert(!isNaN(parseFloat(client.cfg.checkInactivityTimeout)) && isFinite(client.cfg.checkInactivityTimeout));
-    else assert.isUndefined(client.cfg.checkInactivityTimeout);
+    if (client.cfg.checkInactivityTimeout) {
+      assert(Number.isInteger(client.cfg.checkInactivityTimeout) > 0);
+    } else {
+      assert.isUndefined(client.cfg.checkInactivityTimeout);
+    }
   });
   it("inactivityTimeLimit should be a postive integer if it is defined.", () => {
-    if (client.cfg.inactivityTimeLimit) assert(!isNaN(parseFloat(client.cfg.inactivityTimeLimit)) && isFinite(client.cfg.inactivityTimeLimit));
-    else assert.isUndefined(client.cfg.inactivityTimeLimit);
+    if (client.cfg.inactivityTimeLimit) {
+      assert(Number.isInteger(client.cfg.inactivityTimeLimit) > 0);
+    } else {
+      assert.isUndefined(client.cfg.inactivityTimeLimit);
+    }
   });
   it("autoAbandonTimeLimit should be a postive integer if it is defined.", () => {
-    if (client.cfg.autoAbandonTimeLimit) assert(!isNaN(parseFloat(client.cfg.autoAbandonTimeLimit)) && isFinite(client.cfg.autoAbandonTimeLimit));
-    else assert.isUndefined(client.cfg.autoAbandonTimeLimit);
+    if (client.cfg.autoAbandonTimeLimit) {
+      assert(Number.isInteger(client.cfg.autoAbandonTimeLimit) > 0);
+    } else {
+      assert.isUndefined(client.cfg.autoAbandonTimeLimit);
+    }
   });
   it("travisLabel should be a string if it is defined.", () => {
     if (client.cfg.travisLabel) assert.typeOf(client.cfg.travisLabel, "string");

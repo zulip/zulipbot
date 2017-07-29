@@ -1,22 +1,22 @@
 const secrets = require("./secrets.json");
 
 module.exports = {
-  username: secrets.username, // hidden username for GitHub API client in secrets.js
-  password: secrets.password, // hidden password for GitHub API client in secrets.js
-  webhookSecret: secrets.webhookSecret, // hidden webhook secret for validating GitHub
-  claimCommands: ["claim"], // configured aliases for "claim" command
-  addCollabPermission: "pull", // permission level of new collaborator; collaborator will not be added if null
-  abandonCommands: ["abandon", "unclaim", "abort"], // configured aliases for "abandon" command
-  labelCommands: ["label", "add"], // configured aliases for "label" command
-  removeCommands: ["remove", "unlabel"], // configured aliases for "remove"" command
-  selfLabelingOnly: true, // enable/disable only issue/PR author can label their issue/PR
-  commitReferenceEnabled: true, // enable/disable commit reference notifications for label teams
-  clearClosedIssues: true, // enable/disable removing "in progress" labels and assignees from closed issues
-  checkMergeConflicts: true, // enable/disable merge conflict warnings on PRs
-  repoEventsDelay: 3 * 60 * 1000, // delay for repo events (merge conflict checks, closed issue clearance)
-  escapeWIPString: "WIP", // disable mentioning of teams on PRs with WIP string in title; teams will always be notified if null
-  areaLabels: new Map([ // map of area labels and corresponding teams; area label team references will not be enabled if null
-    ["area: accessibility", "server-misc"], // format: ["label name", "team-slug"]
+  username: secrets.username,
+  password: secrets.password,
+  webhookSecret: secrets.webhookSecret,
+  claimCommands: ["claim"],
+  addCollabPermission: "pull",
+  abandonCommands: ["abandon", "unclaim", "abort"],
+  labelCommands: ["label", "add"],
+  removeCommands: ["remove", "unlabel"],
+  selfLabelingOnly: true,
+  commitReferenceEnabled: true,
+  clearClosedIssues: true,
+  checkMergeConflicts: true,
+  repoEventsDelay: 3 * 60 * 1000,
+  escapeWIPString: "WIP",
+  areaLabels: new Map([
+    ["area: accessibility", "server-misc"],
     ["area: analytics", "server-analytics"],
     ["area: api", "server-api"],
     ["area: authentication", "server-authentication"],
@@ -62,15 +62,14 @@ module.exports = {
     ["area: uploads", "server-misc"],
     ["area: webpack", "server-development"]
   ]),
-  activeRepos: ["zulip/zulip", "zulip/zulip-mobile", "zulip/zulip-electron", "zulip/zulipbot"], // array of repositories to check inactivity for
-  // checkInactivityTimeout: 3600, // how often to check for inactivity (1 hour); will not check for inactivity if null
-  inactivityTimeLimit: 3600 * 24 * 7, // time limit of inactive issue/PR (7 days)
-  autoAbandonTimeLimit: 3600 * 24 * 3, // time limit of auto-unassigning of inactive issue (3 days)
-  travisLabel: "travis updates", // label for tracking Travis build updates of PRs (needs webhook configuration .travis.yml); will not track Travis builds if null
-  inProgressLabel: "in progress", // label for progress that were claimed; will not be added to claimed issues if null
-  inactiveLabel: "inactive", // label for inactive issues/PRs that zulipbot will not track for activity; will track all issues/PRs for activity if null
-  reviewedLabel: "reviewed", // label for reviewed PRs; review system disabled if null
-  needsReviewLabel: "needs review", // label for PRs needign review; review system disabled if null
-  priorityLabels: ["priority: high", "priority: medium", "priority: low", "priority"], // array of labels for unclaimed "priority" issues daily digest
-  pullRequestsAssignee: false // enable/disable assigning PR reviewers to PRs
+  activeRepos: ["zulip/zulip", "zulip/zulip-mobile", "zulip/zulip-electron", "zulip/zulipbot"],
+  inactivityTimeLimit: 3600 * 24 * 7,
+  autoAbandonTimeLimit: 3600 * 24 * 3,
+  travisLabel: "travis updates",
+  inProgressLabel: "in progress",
+  inactiveLabel: "inactive",
+  reviewedLabel: "reviewed",
+  needsReviewLabel: "needs review",
+  priorityLabels: ["priority: high", "priority: medium", "priority: low", "priority"],
+  pullRequestsAssignee: false
 };

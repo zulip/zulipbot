@@ -6,7 +6,9 @@ exports.run = (client, comment, issue, repository) => {
   const repoName = repository.name;
   const repoOwner = repository.owner.login;
   const assignees = issue.assignees.map(assignee => assignee.login);
-  if (!assignees.includes(commenter)) return client.newComment(issue, repository, "**ERROR:** You have not claimed this issue to work on yet.");
+  if (!assignees.includes(commenter)) {
+    return client.newComment(issue, repository, "**ERROR:** You have not claimed this issue to work on yet.");
+  }
   exports.abandon(client, commenter, repoOwner, repoName, issueNumber);
 };
 
@@ -20,8 +22,12 @@ exports.abandon = (client, commenter, repoOwner, repoName, issueNumber) => {
   .set("accept", "application/json").set("user-agent", client.cfg.username).send(json)
   .then((r) => {
     const response = JSON.parse(r.text);
-    if (!response.labels.find(label => label.name === client.cfg.inProgressLabel) || response.assignees.length !== 0) return;
-    client.issues.removeLabel({owner: repoOwner, repo: repoName, number: issueNumber, name: client.cfg.inProgressLabel});
+    if (!response.labels.find(label => label.name === client.cfg.inProgressLabel) || response.assignees.length !== 0) {
+      return;
+    }
+    client.issues.removeLabel({
+      owner: repoOwner, repo: repoName, number: issueNumber, name: client.cfg.inProgressLabel
+    });
   });
 };
 
