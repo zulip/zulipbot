@@ -6,15 +6,27 @@ exports.run = (client, payload) => {
   const repoName = repository.name;
   const repoOwner = repository.owner.login;
   const review = payload.review;
-  if (client.cfg.reviewedLabel && client.cfg.needsReviewLabel) exports.managePRLabels(client, action, pullRequest, review, repository);
+  if (client.cfg.reviewedLabel && client.cfg.needsReviewLabel) {
+    exports.managePRLabels(client, action, pullRequest, review, repository);
+  }
   if (action === "submitted" && client.cfg.pullRequestsAssignee) {
-    client.issues.addAssigneesToIssue({owner: repoOwner, repo: repoName, number: number, assignees: [review.user.login]});
+    client.issues.addAssigneesToIssue({
+      owner: repoOwner, repo: repoName, number: number, assignees: [review.user.login]
+    });
   } else if (action === "labeled" && client.cfg.areaLabels) {
-    client.issues.get({owner: repoOwner, repo: repoName, number: number})
-    .then(response => client.automations.get("areaLabel").run(client, response.data, repository, payload.label));
-  } else if (!client.cfg.areaLabels || !client.cfg.commitReferenceEnabled) return;
-  if (action === "opened") client.automations.get("issueReferenced").run(client, pullRequest, repository);
-  else if (action === "synchronize") client.automations.get("issueReferenced").run(client, pullRequest, repository);
+    client.issues.get({
+      owner: repoOwner, repo: repoName, number: number
+    }).then((response) => {
+      client.automations.get("areaLabel").run(client, response.data, repository, payload.label);
+    });
+  } else if (!client.cfg.areaLabels || !client.cfg.commitReferenceEnabled) {
+    return;
+  }
+  if (action === "opened") {
+    client.automations.get("issueReferenced").run(client, pullRequest, repository);
+  } else if (action === "synchronize") {
+    client.automations.get("issueReferenced").run(client, pullRequest, repository);
+  }
 };
 
 exports.managePRLabels = (client, action, pullRequest, review, repository) => {
@@ -24,18 +36,24 @@ exports.managePRLabels = (client, action, pullRequest, review, repository) => {
   client.issues.getIssueLabels({owner: repoOwner, repo: repoName, number: number})
   .then((response) => {
     let labels = response.data.map(label => label.name);
+    const needsReview = labels.includes(client.cfg.needsReviewLabel);
+    const reviewed = labels.includes(client.cfg.reviewedLabel);
     if (action === "opened" || action === "reopened") {
       labels.push(client.cfg.needsReviewLabel);
-    } else if (action === "submitted" && labels.includes(client.cfg.needsReviewLabel) && review.user.login !== pullRequest.user.login) {
+    } else if (action === "submitted" && needsReview && review.user.login !== pullRequest.user.login) {
       labels[labels.indexOf(client.cfg.needsReviewLabel)] = client.cfg.reviewedLabel;
-    } else if (action === "synchronize" && labels.includes(client.cfg.reviewedLabel)) {
+    } else if (action === "synchronize" && reviewed) {
       labels[labels.indexOf(client.cfg.reviewedLabel)] = client.cfg.needsReviewLabel;
-    } else if (action === "closed" && labels.includes(client.cfg.reviewedLabel)) {
+    } else if (action === "closed" && reviewed) {
       labels.splice(labels.indexOf(client.cfg.reviewedLabel), 1);
-    } else if (action === "closed" && labels.includes(client.cfg.needsReviewLabel)) {
+    } else if (action === "closed" && needsReview) {
       labels.splice(labels.indexOf(client.cfg.needsReviewLabel), 1);
-    } else return;
-    client.issues.replaceAllLabels({owner: repoOwner, repo: repoName, number: number, labels: labels});
+    } else {
+      return;
+    }
+    client.issues.replaceAllLabels({
+      owner: repoOwner, repo: repoName, number: number, labels: labels
+    });
   });
 };
 

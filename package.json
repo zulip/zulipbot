@@ -1,10 +1,10 @@
 {
   "name": "zulipbot",
   "version": "1.0.0",
-  "description": "GitHub workflow bot for @zulip",
+  "description": "GitHub workflow-optimizing bot",
   "main": "src/index.js",
   "engines": {
-    "node": "*",
+    "node": ">=7.0.0",
     "npm": "*"
   },
   "files": [
@@ -29,34 +29,6 @@
     "mocha": "^3.4.2",
     "mz": "^2.6.0",
     "simple-git": "^1.73.0"
-  },
-  "eslintConfig": {
-    "extends": "xo-space",
-    "env": {
-      "node": true,
-      "es6": true,
-      "mocha": true
-    },
-    "rules": {
-      "arrow-parens": [2, "as-needed", {
-        "requireForBlockBody": true
-      }],
-      "camelcase": "off",
-      "capitalized-comments": ["off"],
-      "curly": ["error", "multi-line"],
-      "indent": ["error", 2, {
-        "ObjectExpression": 1,
-        "SwitchCase": 1,
-        "MemberExpression": 0
-      }],
-      "max-params": ["error", 5],
-      "no-await-in-loop": ["off"],
-      "one-var": ["error", {
-        "initialized": "never"
-      }],
-      "quotes": ["error", "double"],
-      "space-before-function-paren": ["error", "never"]
-    }
   },
   "scripts": {
     "start": "node ./src/index.js",

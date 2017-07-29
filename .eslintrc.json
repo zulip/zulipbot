@@ -1,0 +1,26 @@
+{
+	"extends": "xo-space",
+  "env": {
+    "node": true,
+    "es6": true,
+    "mocha": true
+  },
+  "rules": {
+    "arrow-parens": [2, "as-needed", {
+      "requireForBlockBody": true
+    }],
+    "camelcase": "off",
+    "capitalized-comments": "off",
+    "curly": ["error", "multi-line", "consistent"],
+    "indent": ["error", 2, {
+      "ObjectExpression": 1,
+      "SwitchCase": 1,
+      "MemberExpression": 0
+    }],
+    "max-len": ["error", 120],
+    "max-params": ["error", 5],
+    "no-await-in-loop": "off",
+    "quotes": ["error", "double"],
+    "space-before-function-paren": ["error", "never"]
+  }
+}

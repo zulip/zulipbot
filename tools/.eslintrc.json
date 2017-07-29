@@ -1,0 +1,6 @@
+{
+  "rules": {
+    "curly": ["error", "multi-line"],
+    "max-len": ["off"]
+  }
+}

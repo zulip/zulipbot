@@ -3,8 +3,9 @@ exports.run = (client, payload) => {
   const repoOwner = payload.repository.owner_name;
   const repoName = payload.repository.name;
   const number = payload.pull_request_number;
-  client.issues.getIssueLabels({owner: repoOwner, repo: repoName, number: number})
-  .then((labels) => {
+  client.issues.getIssueLabels({
+    owner: repoOwner, repo: repoName, number: number
+  }).then((labels) => {
     const labelCheck = labels.data.find(label => label.name === client.cfg.travisLabel);
     if (!labelCheck) return;
     const state = payload.state;
@@ -16,7 +17,8 @@ exports.run = (client, payload) => {
         break;
       case "failed":
       case "errored":
-        comment = `Oh no, something went wrong: the Travis builds for this pull request **${state}**! Review the [build logs](${buildURL}) for more details.`;
+        comment = `Oh no, something went wrong: the Travis builds for this pull request **${state}**!`;
+        if (buildURL) comment.concat(` Review the [build logs](${buildURL}) for more details.`);
         break;
       default:
         comment = "(unknown state)";
