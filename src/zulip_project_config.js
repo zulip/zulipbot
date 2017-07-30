@@ -4,6 +4,7 @@ module.exports = {
   username: secrets.username,
   password: secrets.password,
   webhookSecret: secrets.webhookSecret,
+  zulip: secrets.zulip,
   claimCommands: ["claim"],
   addCollabPermission: "pull",
   abandonCommands: ["abandon", "unclaim", "abort"],
@@ -71,5 +72,6 @@ module.exports = {
   reviewedLabel: "reviewed",
   needsReviewLabel: "needs review",
   priorityLabels: ["priority: high", "priority: medium", "priority: low", "priority"],
-  pullRequestsAssignee: false
+  pullRequestsAssignee: false,
+  defaultStream: "zulipbot"
 };

@@ -10,6 +10,19 @@ describe("secrets.json lint", () => {
   it("password should be a string.", () => {
     assert.typeOf(client.cfg.password, "string");
   });
+  it("zulip.username should be a valid email and a string.", () => {
+    assert.typeOf(client.cfg.zulip.username, "string");
+    assert.isOk(/\S+@\S+\.\S+/.test(client.cfg.zulip.username));
+  });
+  it("zulip.apiKey should be an alphanumeric string.", () => {
+    assert.typeOf(client.cfg.zulip.apiKey, "string");
+    assert.isOk(new RegExp(/^[a-z0-9]+$/, "i").test(client.cfg.zulip.apiKey));
+  });
+  it("zulip.realm should be a valid URL and a string.", () => {
+    assert.typeOf(client.cfg.zulip.realm, "string");
+    const r = new RegExp(/[-a-zA-Z0-9@:\\\\%_+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_+\\.~#?&//=]*)?/, "i");
+    assert.isOk(r.test(client.cfg.zulip.realm));
+  });
 });
 
 describe("config.js lint", () => {
