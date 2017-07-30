@@ -22,11 +22,9 @@ exports.check = (client, number, repoName, repoOwner) => {
     owner: repoOwner, repo: repoName, number: number
   }).then((pull) => {
     const mergeable = pull.data.mergeable;
-    if (mergeable) return;
     const author = pull.data.user.login;
     const comment = client.templates.get("mergeConflictWarning").replace("[username]", author)
     .replace("[repoOwner]", repoOwner).replace("[repoName]", repoName);
-    const oldComment = "merge conflict";
     client.pullRequests.getCommits({
       owner: repoOwner, repo: repoName, number: number, per_page: 100
     }).then((commits) => {
@@ -36,9 +34,20 @@ exports.check = (client, number, repoName, repoOwner) => {
       }).then((comments) => {
         const labelComment = comments.data.find((c) => {
           const synchCheck = lastCommitTime < Date.parse(c.updated_at);
-          return c.body.includes(oldComment) && synchCheck && c.user.login === client.cfg.username;
+          return c.body.includes(comment) && synchCheck && c.user.login === client.cfg.username;
         });
-        if (!labelComment) client.newComment(pull.data, pull.data.base.repo, comment);
+        if (!labelComment) {
+          client.newComment(pull.data, pull.data.base.repo, comment);
+        } else if (mergeable) {
+          const oldComments = comments.data.filter((c) => {
+            return c.body.includes(comment) && c.user.login === client.cfg.username;
+          }).map(c => c.id);
+          oldComments.forEach((c) => {
+            client.issues.deleteComment({
+              owner: repoOwner, repo: repoName, id: c
+            });
+          });
+        }
       });
     });
   });
