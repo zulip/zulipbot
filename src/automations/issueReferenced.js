@@ -9,7 +9,7 @@ exports.run = (client, pullRequest, repository) => {
     const refIssues = response.data.filter((c) => {
       return c.commit.message.match(/#([0-9]+)/);
     }).map(c => c.commit.message.match(/#([0-9]+)/)[1]);
-    if (!refIssues.length) {
+    if (!refIssues.length && pullRequest.body.match(/#([0-9]+)/)) {
       const comment = client.templates.get("fixCommitMessage").replace("[author]", author);
       return client.newComment(pullRequest, repository, comment);
     }
