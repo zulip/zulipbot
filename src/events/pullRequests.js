@@ -33,8 +33,9 @@ exports.managePRLabels = (client, action, pullRequest, review, repository) => {
   const number = pullRequest.number;
   const repoName = repository.name;
   const repoOwner = repository.owner.login;
-  client.issues.getIssueLabels({owner: repoOwner, repo: repoName, number: number})
-  .then((response) => {
+  client.issues.getIssueLabels({
+    owner: repoOwner, repo: repoName, number: number
+  }).then((response) => {
     let labels = response.data.map(label => label.name);
     const needsReview = labels.includes(client.cfg.needsReviewLabel);
     const reviewed = labels.includes(client.cfg.reviewedLabel);
