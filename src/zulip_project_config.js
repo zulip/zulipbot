@@ -9,6 +9,7 @@ module.exports = {
   abandonCommands: ["abandon", "unclaim", "abort"],
   labelCommands: ["label", "add"],
   removeCommands: ["remove", "unlabel"],
+  sudoUsers: ["tabbott", "showell", "rishig"],
   selfLabelingOnly: true,
   commitReferenceEnabled: true,
   clearClosedIssues: true,

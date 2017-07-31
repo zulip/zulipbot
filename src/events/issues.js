@@ -36,7 +36,8 @@ exports.parseCommands = (client, payloadBody, issue, repository) => {
     if (body.includes(`\`${command}\``) || body.includes(`\`\`\`\r\n${command}\r\n\`\`\``)) return;
     let cmdFile = client.commands.get(command.split(" ")[1]);
     if (cmdFile && !cmdFile.args) return cmdFile.run(client, payloadBody, issue, repository);
-    else if (!cmdFile || !body.match(/".*?"/g) || (client.cfg.selfLabelingOnly && commenter !== issueCreator)) return;
+    else if (!cmdFile || !body.match(/".*?"/g)) return;
+    if (client.cfg.selfLabelingOnly && commenter !== issueCreator && !client.cfg.sudoUsers.includes(commenter)) return;
     const splitBody = body.split(`@${client.cfg.username}`).filter((splitString) => {
       return splitString.includes(` ${command.split(" ")[1]} "`);
     }).join(" ");
