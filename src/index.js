@@ -50,5 +50,5 @@ process.on("unhandledRejection", (error, promise) => {
 if (client.cfg.checkInactivityTimeout) {
   setInterval(() => {
     client.automations.get("checkInactivity").run(client);
-  }, client.cfg.checkInactivityTimeout * 1000);
+  }, client.cfg.checkInactivityTimeout * 3600000);
 }

@@ -21,7 +21,7 @@ async function getPullRequests(client, pullRequests, repoName, repoOwner) {
 
 async function scrapeInactivePullRequests(client, pullRequests, repoName, repoOwner) {
   const references = new Map();
-  const ims = client.cfg.inactivityTimeLimit * 1000;
+  const ims = client.cfg.inactivityTimeLimit * 86400000;
   pullRequests.forEach(async(pullRequest, index) => {
     setTimeout(async() => {
       const time = Date.parse(pullRequest.updated_at);
@@ -72,8 +72,8 @@ async function getIssues(client, issues) {
 }
 
 exports.scrapeInactiveIssues = (client, references, issues, owner, name) => {
-  const ms = client.cfg.autoAbandonTimeLimit * 1000;
-  const ims = client.cfg.inactivityTimeLimit * 1000;
+  const ms = client.cfg.autoAbandonTimeLimit * 86400000;
+  const ims = client.cfg.inactivityTimeLimit * 86400000;
   issues.forEach((issue, index) => {
     setTimeout(() => {
       const inactiveLabel = issue.labels.find(label => label.name === client.cfg.inactiveLabel);
