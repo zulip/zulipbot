@@ -17,6 +17,7 @@
       "SwitchCase": 1,
       "MemberExpression": 0
     }],
+		"max-nested-callbacks": ["error", 3],
     "max-len": ["error", 120],
     "max-params": ["error", 5],
     "no-await-in-loop": "off",

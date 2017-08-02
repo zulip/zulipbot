@@ -1,6 +1,7 @@
 {
   "rules": {
-    "curly": ["error", "multi-line"],
-    "max-len": ["off"]
+    "curly": "off",
+    "max-nested-callbacks": "off",
+    "max-len": "off"
   }
 }

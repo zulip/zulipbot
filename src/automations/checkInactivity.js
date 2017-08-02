@@ -56,7 +56,7 @@ async function scrapeInactivePullRequests(client, pullRequests, repoName, repoOw
     }, index * 500);
   });
   const issues = await getIssues(client, []);
-  exports.scrapeInactiveIssues(client, references, issues, repoOwner, repoName);
+  await scrapeInactiveIssues(client, references, issues, repoOwner, repoName);
 }
 
 async function getIssues(client, issues) {
@@ -71,11 +71,11 @@ async function getIssues(client, issues) {
   return issues;
 }
 
-exports.scrapeInactiveIssues = (client, references, issues, owner, name) => {
+async function scrapeInactiveIssues(client, references, issues, owner, name) {
   const ms = client.cfg.autoAbandonTimeLimit * 86400000;
   const ims = client.cfg.inactivityTimeLimit * 86400000;
-  issues.forEach((issue, index) => {
-    setTimeout(() => {
+  issues.forEach(async(issue, index) => {
+    setTimeout(async() => {
       const inactiveLabel = issue.labels.find(label => label.name === client.cfg.inactiveLabel);
       if (inactiveLabel) return;
       let time = Date.parse(issue.updated_at);
@@ -90,31 +90,27 @@ exports.scrapeInactiveIssues = (client, references, issues, owner, name) => {
       }
       const assigneeString = issue.assignees.map(assignee => assignee.login).join(", @");
       const comment = client.templates.get("inactiveWarning").replace("[assignee]", assigneeString);
-      client.issues.getComments({
+      const issueComments = await client.issues.getComments({
         owner: repoOwner, repo: repoName, number: issueNumber, per_page: 100
-      }).then((issueComments) => {
-        const labelComment = issueComments.data.find((issueComment) => {
-          const commentTime = Date.parse(issueComment.created_at);
-          const timeLimit = Date.now() - (ms + ims) < commentTime && commentTime - ms < Date.now();
-          return issueComment.body.includes(comment) && timeLimit && issueComment.user.login === client.cfg.username;
-        });
-        if (labelComment && time + ms <= Date.now()) {
-          assigneeString.split(/\s*\b\s*/g).filter(a => a.match(/\b/)).forEach((a) => {
-            client.commands.get("abandon").abandon(client, a.login, repoOwner, repoName, issueNumber);
-          });
-          if (client.cfg.inProgressLabel) {
-            client.issues.removeLabel({
-              owner: repoOwner, repo: repoName, number: issueNumber, name: client.cfg.inProgressLabel
-            });
-          }
-          const warning = client.templates.get("abandonWarning").replace("[assignee]", assigneeString);
-          client.issues.editComment({
-            owner: repoOwner, repo: repoName, id: labelComment.id, body: warning
-          });
-        } else if (!labelComment) {
-          client.newComment(issue, issue.repository, comment);
-        }
       });
+      const issueComment = issueComments.data.slice(-1).pop();
+      const labelComment = issueComment.body.includes(comment) && issueComment.user.login === client.cfg.username;
+      if (labelComment && time + ms <= Date.now()) {
+        assigneeString.split(/\s*\b\s*/g).filter(a => a.match(/\b/)).forEach((a) => {
+          client.commands.get("abandon").abandon(client, a.login, repoOwner, repoName, issueNumber);
+        });
+        if (client.cfg.inProgressLabel) {
+          client.issues.removeLabel({
+            owner: repoOwner, repo: repoName, number: issueNumber, name: client.cfg.inProgressLabel
+          });
+        }
+        const warning = client.templates.get("abandonWarning").replace("[assignee]", assigneeString);
+        client.issues.editComment({
+          owner: repoOwner, repo: repoName, id: labelComment.id, body: warning
+        });
+      } else if (!labelComment) {
+        client.newComment(issue, issue.repository, comment);
+      }
     }, index * 500);
   });
-};
+}
