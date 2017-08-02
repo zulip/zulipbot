@@ -103,11 +103,6 @@ async function scrapeInactiveIssues(client, references, issues, owner, name) {
         assigneeString.split(/\s*\b\s*/g).filter(a => a.match(/\b/)).forEach((a) => {
           client.commands.get("abandon").abandon(client, a.login, repoOwner, repoName, issueNumber);
         });
-        if (client.cfg.inProgressLabel) {
-          client.issues.removeLabel({
-            owner: repoOwner, repo: repoName, number: issueNumber, name: client.cfg.inProgressLabel
-          });
-        }
         const warning = client.templates.get("abandonWarning")
         .replace("[assignee]", assigneeString)
         .replace("[total]", client.cfg.autoAbandonTimeLimit + client.cfg.inactivityTimeLimit)

@@ -17,6 +17,8 @@ exports.run = (client, payload) => {
   } else if (action === "reopened" && recentlyClosed.has(issue.id)) {
     return recentlyClosed.delete(issue.id);
   } else if (inProgress && client.cfg.inProgressLabel && issue.assignees && !issue.pull_request) {
+    const botUnlabeled = payload.sender.login === client.cfg.username;
+    if (action === "unlabeled" && payload.label.name === client.cfg.inProgressLabel && botUnlabeled) return;
     return client.issues.addLabels({
       owner: repository.owner.login, repo: repository.name, number: issue.number, labels: [client.cfg.inProgressLabel]
     });
