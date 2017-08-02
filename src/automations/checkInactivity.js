@@ -25,6 +25,7 @@ async function scrapeInactivePullRequests(client, pullRequests, repoName, repoOw
   pullRequests.forEach(async(pullRequest, index) => {
     setTimeout(async() => {
       const time = Date.parse(pullRequest.updated_at);
+      const body = pullRequest.body;
       const number = pullRequest.number;
       const author = pullRequest.user.login;
       if (time + ims <= Date.now()) {
@@ -32,27 +33,26 @@ async function scrapeInactivePullRequests(client, pullRequests, repoName, repoOw
           owner: repoOwner, repo: repoName, number: number
         });
         const inactiveLabel = labels.data.find(l => l.name === client.cfg.inactiveLabel);
-        if (inactiveLabel) return;
         const reviewedLabel = labels.data.find(l => l.name === client.cfg.reviewedLabel);
-        const needsReviewLabel = labels.data.find(l => l.name === client.cfg.needsReviewLabel);
-        if (reviewedLabel) {
-          const comment = client.templates.get("updateWarning").replace("[author]", author);
+        if (inactiveLabel || !reviewedLabel) return;
+        const comment = client.templates.get("updateWarning").replace("[author]", author);
+        const comments = await client.issues.getComments({
+          owner: repoOwner, repo: repoName, number: number, per_page: 100
+        });
+        const issueComment = comments.data.slice(-1).pop();
+        const lastComment = issueComment.body.includes(comment) && issueComment.user.login === client.cfg.username;
+        if (reviewedLabel && !lastComment) {
           client.newComment(pullRequest, pullRequest.base.repo, comment);
-        } else if (needsReviewLabel) {
-          // notify project maintainers
-        } else {
-          // inactive PR (status unknown)
         }
       }
+      if (body.match(/#([0-9]+)/)) return references.set(`${repoName}/${body.match(/#([0-9]+)/)[1]}`, time);
       const commits = await client.pullRequests.getCommits({
         owner: repoOwner, repo: repoName, number: number
       });
-      const refIssues = commits.data.filter((c) => {
+      const refIssues = commits.data.find((c) => {
         return c.commit.message.match(/#([0-9]+)/);
-      }).map(c => c.commit.message.match(/#([0-9]+)/)[1]);
-      Array.from(new Set(refIssues)).forEach((issueNumber) => {
-        references.set(`${repoName}/${issueNumber}`, time);
       });
+      if (refIssues) references.set(`${repoName}/${refIssues.commit.message.match(/#([0-9]+)/)[1]}`, time);
     }, index * 500);
   });
   const issues = await getIssues(client, []);
@@ -85,7 +85,7 @@ async function scrapeInactiveIssues(client, references, issues, owner, name) {
       if (time < references.get(`${repoName}/${issueNumber}`)) {
         time = references.get(`${repoName}/${issueNumber}`);
       }
-      if (repoOwner !== owner || repoName !== name || time + ims >= Date.now()) {
+      if (repoOwner !== owner || repoName !== name || time + ms >= Date.now()) {
         return;
       }
       const assigneeString = issue.assignees.map(assignee => assignee.login).join(", @");
@@ -113,9 +113,9 @@ async function scrapeInactiveIssues(client, references, issues, owner, name) {
         .replace("[total]", client.cfg.autoAbandonTimeLimit + client.cfg.inactivityTimeLimit)
         .replace("[username]", client.cfg.username);
         client.issues.editComment({
-          owner: repoOwner, repo: repoName, id: labelComment.id, body: warning
+          owner: repoOwner, repo: repoName, id: issueComment.id, body: warning
         });
-      } else if (!labelComment) {
+      } else if (!labelComment && time + ims <= Date.now()) {
         client.newComment(issue, issue.repository, comment);
       }
     }, index * 500);
