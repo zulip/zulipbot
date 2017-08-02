@@ -100,7 +100,7 @@ async function scrapeInactiveIssues(client, references, issues, owner, name) {
       const issueComment = issueComments.data.slice(-1).pop();
       const labelComment = issueComment.body.includes(comment) && issueComment.user.login === client.cfg.username;
       if (labelComment && time + ms <= Date.now()) {
-        assigneeString.split(/\s*\b\s*/g).filter(a => a.match(/\b/)).forEach((a) => {
+        issue.assignees.forEach((a) => {
           client.commands.get("abandon").abandon(client, a.login, repoOwner, repoName, issueNumber);
         });
         const warning = client.templates.get("abandonWarning")
