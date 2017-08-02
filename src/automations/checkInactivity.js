@@ -89,7 +89,11 @@ async function scrapeInactiveIssues(client, references, issues, owner, name) {
         return;
       }
       const assigneeString = issue.assignees.map(assignee => assignee.login).join(", @");
-      const comment = client.templates.get("inactiveWarning").replace("[assignee]", assigneeString);
+      const comment = client.templates.get("inactiveWarning")
+      .replace("[assignee]", assigneeString)
+      .replace("[inactive]", client.cfg.inactivityTimeLimit)
+      .replace("[abandon]", client.cfg.autoAbandonTimeLimit)
+      .replace("[username]", client.cfg.username);
       const issueComments = await client.issues.getComments({
         owner: repoOwner, repo: repoName, number: issueNumber, per_page: 100
       });
@@ -104,7 +108,10 @@ async function scrapeInactiveIssues(client, references, issues, owner, name) {
             owner: repoOwner, repo: repoName, number: issueNumber, name: client.cfg.inProgressLabel
           });
         }
-        const warning = client.templates.get("abandonWarning").replace("[assignee]", assigneeString);
+        const warning = client.templates.get("abandonWarning")
+        .replace("[assignee]", assigneeString)
+        .replace("[total]", client.cfg.autoAbandonTimeLimit + client.cfg.inactivityTimeLimit)
+        .replace("[username]", client.cfg.username);
         client.issues.editComment({
           owner: repoOwner, repo: repoName, id: labelComment.id, body: warning
         });
