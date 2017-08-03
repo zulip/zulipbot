@@ -40,10 +40,12 @@ exports.claimIssue = (client, comment, issue, repository, newContrib) => {
   const repoOwner = repository.owner.login;
   client.issues.addAssigneesToIssue({
     owner: repoOwner, repo: repoName, number: issueNumber, assignees: [commenter]
-  }).then(() => {
-    if (newContrib) {
-      client.newComment(issue, repository, client.templates.get("newContributor").replace("[commenter]", commenter));
+  }).then((response) => {
+    if (!response.data.assignees) {
+      return client.newComment(issue, repository, "**ERROR:** Issue claiming failed (no assignee was added).");
     }
+    if (!newContrib) return;
+    client.newComment(issue, repository, client.templates.get("newContributor").replace("[commenter]", commenter));
   });
 };
 
