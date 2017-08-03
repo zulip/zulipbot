@@ -1,123 +1,121 @@
 #!/usr/bin/env node
-//
-//                          88  88               88                                                                      88
-//                          88  ""               88                         ,d           ,d                              88
-//                          88                   88                         88           88                              88
-//  888888888  88       88  88  88  8b,dPPYba,   88,dPPYba,    ,adPPYba,  MM88MMM      MM88MMM  ,adPPYba,    ,adPPYba,   88  ,adPPYba,
-//       a8P"  88       88  88  88  88P"    "8a  88P"    "8a  a8"     "8a   88           88    a8"     "8a  a8"     "8a  88  I8[    ""
-//    ,d8P"    88       88  88  88  88       d8  88       d8  8b       d8   88           88    8b       d8  8b       d8  88   `"Y8ba,
-//  ,d8"       "8a,   ,a88  88  88  88b,   ,a8"  88b,   ,a8"  "8a,   ,a8"   88,          88,   "8a,   ,a8"  "8a,   ,a8"  88  aa    ]8I
-//  888888888   `"YbbdP"Y8  88  88  88`YbbdP""   8Y"Ybbd8""    `"YbbdP""    "Y888        "Y888  `"YbbdP""    `"YbbdP""   88  `"YbbdP""
-//                                  88
-//                                  88
-//
-//  d88888b d88888b d888888b  .o88b. db   db d888888b d8b   db  .d8b.   .o88b. d888888b d888888b db    db d88888b
-//  88'     88'     `~~88~~' d8P  Y8 88   88   `88'   888o  88 d8' `8b d8P  Y8 `~~88~~'   `88'   88    88 88'
-//  88ooo   88ooooo    88    8P      88ooo88    88    88V8o 88 88ooo88 8P         88       88    Y8    8P 88ooooo
-//  88~~~   88~~~~~    88    8b      88~~~88    88    88 V8o88 88~~~88 8b         88       88    `8b  d8' 88~~~~~
-//  88      88.        88    Y8b  d8 88   88   .88.   88  V888 88   88 Y8b  d8    88      .88.    `8bd8'  88.
-//  YP      Y88888P    YP     `Y88P' YP   YP Y888888P VP   V8P YP   YP  `Y88P'    YP    Y888888P    YP    Y88888P
 
 const client = require("../src/client.js");
 const dateFormat = require("dateformat");
-let references = new Map();
-const repos = ["zulip", "zulip-mobile", "zulip-electron", "zulipbot"];
 
-repos.forEach((repo) => {
-  const repoName = repo;
-  const repoOwner = "zulip";
-  let pullRequests = [];
-  getPullRequests(pullRequests, repoName, repoOwner, 1);
+client.cfg.activeRepos.forEach(async(repo) => {
+  const repoOwner = repo.split("/")[0];
+  const repoName = repo.split("/")[1];
+  const pullRequests = await getPullRequests(client, [], repoName, repoOwner);
+  await scrapeInactivePullRequests(client, pullRequests, repoName, repoOwner);
 });
 
-function getPullRequests(pullRequests, repoName, repoOwner, pageCount) {
-  client.pullRequests.getAll({
-    owner: repoOwner,
-    repo: repoName,
-    sort: "updated",
-    direction: "asc",
-    page: pageCount,
-    per_page: 100
-  }).then((res) => {
-    pullRequests = pullRequests.concat(res.data);
-    if (client.hasNextPage(res)) {
-      getPullRequests(pullRequests, repoName, repoOwner, pageCount + 1);
-    } else {
-      scrapeInactivePullRequests(pullRequests, repoName, repoOwner);
-    }
+async function getPullRequests(client, pullRequests, repoName, repoOwner) {
+  let response = await client.pullRequests.getAll({
+    owner: repoOwner, repo: repoName, per_page: 100
   });
+  pullRequests = pullRequests.concat(response.data);
+  while (client.hasNextPage(response)) {
+    response = await client.getNextPage(response);
+    pullRequests = pullRequests.concat(response.data);
+  }
+  return pullRequests;
 }
 
-function scrapeInactivePullRequests(pullRequests, repoName, repoOwner) {
-  pullRequests.forEach((pullRequest) => {
-    const body = pullRequest.body;
-    const time = Date.parse(pullRequest.updated_at);
-    const number = pullRequest.number;
-    const author = pullRequest.user.login;
-    client.issues.getIssueLabels({
-      owner: repoOwner,
-      repo: repoName,
-      number: number
-    }).then((response) => {
-      const inactiveLabel = response.data.find((label) => {
-        return label.name === client.cfg.inactiveLabel;
-      });
-      if (inactiveLabel) return;
-      const reviewedLabel = response.data.find((label) => {
-        return label.name === client.cfg.reviewedLabel;
-      });
-      const needsReviewLabel = response.data.find((label) => {
-        return label.name === client.cfg.needsReviewLabel;
-      });
-      if (reviewedLabel && time + (client.cfg.inactivityTimeLimit * 1000) <= Date.now()) {
-        console.log(`Inactive pull request #${number} in ${repoOwner}/${repoName} needs to be updated.\nPull request author: @${author}. Last updated: ${dateFormat(time, "UTC:dddd, mmmm dS, yyyy, h:MM TT")}.\n`);
-      } else if (needsReviewLabel && time + (client.cfg.inactivityTimeLimit * 1000) <= Date.now()) {
-        console.log(`Inactive pull request #${number} in ${repoOwner}/${repoName} needs a review.\nPull request author: @${author}. Last updated: ${dateFormat(time, "UTC:dddd, mmmm dS, yyyy, h:MM TT")}.\n`);
-      } else if (time + (client.cfg.inactivityTimeLimit * 1000) <= Date.now()) {
-        console.log(`Pull request #${number} in ${repoOwner}/${repoName} is inactive.\nPull request author: @${author}. Last updated: ${dateFormat(time, "UTC:dddd, mmmm dS, yyyy, h:MM TT")}.\n`);
+async function scrapeInactivePullRequests(client, pullRequests, repoName, repoOwner) {
+  const references = new Map();
+  const ims = client.cfg.inactivityTimeLimit * 86400000;
+  if (!pullRequests.length) return;
+  pullRequests.forEach(async(pullRequest, index, array) => {
+    setTimeout(async() => {
+      const time = Date.parse(pullRequest.updated_at);
+      const body = pullRequest.body;
+      const number = pullRequest.number;
+      const author = pullRequest.user.login;
+      if (time + ims <= Date.now()) {
+        const labels = await client.issues.getIssueLabels({
+          owner: repoOwner, repo: repoName, number: number
+        });
+        const inactiveLabel = labels.data.find(l => l.name === client.cfg.inactiveLabel);
+        if (inactiveLabel) return;
+        const reviewedLabel = labels.data.find(l => l.name === client.cfg.reviewedLabel);
+        const needsReviewLabel = labels.data.find(l => l.name === client.cfg.needsReviewLabel);
+        if (reviewedLabel) {
+          console.log(`\n* PR [${pullRequest.title} (#${number})](${pullRequest.html_url}) **was warned to update.**`,
+            `\nAuthor: ${author} Last updated: ${dateFormat(time, "UTC:dddd, mmmm dS, yyyy, h:MM TT")}.`);
+        } else if (needsReviewLabel) {
+          console.log(`\n* PR [${pullRequest.title} (#${number})](${pullRequest.html_url}) **needs a review.**`,
+            `\nAuthor: ${author} Last updated: ${dateFormat(time, "UTC:dddd, mmmm dS, yyyy, h:MM TT")}.`);
+        } else {
+          console.log(`\n* PR [${pullRequest.title} (#${number})](${pullRequest.html_url}) **is inactive.**`,
+            `\nAuthor: ${author} Last updated: ${dateFormat(time, "UTC:dddd, mmmm dS, yyyy, h:MM TT")}.`);
+        }
       }
-    });
-    if (!body.match(/#([0-9]+)/)) return;
-    const issueNumber = body.match(/#([0-9]+)/)[1];
-    references.set(`${repoName}/${issueNumber}`, time);
-  });
-  let issues = [];
-  getIssues(issues, references, repoOwner, repoName, 1);
-}
-
-function getIssues(issues, references, repoOwner, repoName, pageCount) {
-  client.issues.getAll({
-    page: pageCount,
-    filter: "all",
-    sort: "updated",
-    labels: client.cfg.inProgressLabel,
-    direction: "asc",
-    per_page: 100
-  }).then((res) => {
-    issues = issues.concat(res.data);
-    if (client.hasNextPage(res)) {
-      getIssues(issues, references, repoOwner, repoName, pageCount + 1);
-    } else {
-      scrapeInactiveIssues(references, issues, repoOwner, repoName);
-    }
+      const commits = await client.pullRequests.getCommits({
+        owner: repoOwner, repo: repoName, number: number
+      });
+      const refIssues = commits.data.filter((c) => {
+        return c.commit.message.match(/#([0-9]+)/);
+      }).map(c => c.commit.message);
+      if (body.match(/#([0-9]+)/) || refIssues.length) {
+        const commitRef = refIssues[0] ? refIssues[0].match(/#([0-9]+)/)[1] : null;
+        const ref = commitRef || body.match(/#([0-9]+)/)[1];
+        references.set(`${repoName}/${ref}`, time);
+      }
+      if (index !== array.length - 1) return;
+      const issues = await getIssues(client, []);
+      await scrapeInactiveIssues(client, references, issues, repoOwner, repoName);
+    }, index * 500);
   });
 }
 
-function scrapeInactiveIssues(references, issues, owner, name) {
-  issues.forEach((issue) => {
-    const inactiveLabel = issue.labels.find((label) => {
-      return label.name === client.cfg.inactiveLabel;
-    });
-    if (inactiveLabel) return;
-    let time = Date.parse(issue.updated_at);
-    const issueNumber = issue.number;
-    const repoName = issue.repository.name;
-    const repoOwner = issue.repository.owner.login;
-    if (time < references.get(`${repoName}/${issueNumber}`)) time = references.get(`${repoName}/${issueNumber}`);
-    if (repoOwner !== owner || repoName !== name || time + (client.cfg.inactivityTimeLimit * 1000) >= Date.now()) return;
-    let assignees = [];
-    issue.assignees.forEach(assignee => assignees.push(assignee.login));
-    const assigneeString = assignees.join(", @");
-    console.log(`Claimed issue #${issueNumber} in ${repoOwner}/${repoName} is inactive.\nAssignee(s): @${assigneeString}. Last updated: ${dateFormat(time, "UTC:dddd, mmmm dS, yyyy, h:MM TT")}.\n`);
+async function getIssues(client, issues) {
+  let response = await client.issues.getAll({
+    filter: "all", labels: client.cfg.inProgressLabel, per_page: 100
+  });
+  issues = issues.concat(response.data);
+  while (client.hasNextPage(response)) {
+    response = await client.getNextPage(response);
+    issues = issues.concat(response.data);
+  }
+  return issues;
+}
+
+async function scrapeInactiveIssues(client, references, issues, owner, name) {
+  const ms = client.cfg.autoAbandonTimeLimit * 86400000;
+  const ims = client.cfg.inactivityTimeLimit * 86400000;
+  issues.forEach(async(issue, index) => {
+    setTimeout(async() => {
+      const inactiveLabel = issue.labels.find(label => label.name === client.cfg.inactiveLabel);
+      if (inactiveLabel) return;
+      let time = Date.parse(issue.updated_at);
+      const issueNumber = issue.number;
+      const repoName = issue.repository.name;
+      const repoOwner = issue.repository.owner.login;
+      if (time < references.get(`${repoName}/${issueNumber}`)) {
+        time = references.get(`${repoName}/${issueNumber}`);
+      }
+      if (repoOwner !== owner || repoName !== name || time + ms >= Date.now()) {
+        return;
+      }
+      const issueComments = await client.issues.getComments({
+        owner: repoOwner, repo: repoName, number: issueNumber, per_page: 100
+      });
+      const assigneeString = issue.assignees.map(assignee => assignee.login).join(", @");
+      const comment = client.templates.get("inactiveWarning")
+      .replace("[assignee]", assigneeString)
+      .replace("[inactive]", client.cfg.inactiveTimeLimit)
+      .replace("[abandon]", client.cfg.autoAbandonTimeLimit)
+      .replace("[username]", client.cfg.username);
+      const issueComment = issueComments.data.slice(-1).pop();
+      const labelComment = issueComment.body.includes(comment) && issueComment.user.login === client.cfg.username;
+      if (labelComment) {
+        console.log(`* Issue [${issue.title} (#${issueNumber})](${issue.html_url}) **was abandoned**\n`,
+          `Assignee(s): ${assigneeString} Last updated: ${dateFormat(time, "UTC:dddd, mmmm dS, yyyy, h:MM TT")}.\n`);
+      } else if (!labelComment && time + ims <= Date.now()) {
+        console.log(`* Issue [${issue.title} (#${issueNumber})](${issue.html_url}) **is inactive**\n`,
+          `Assignee(s): ${assigneeString} Last updated: ${dateFormat(time, "UTC:dddd, mmmm dS, yyyy, h:MM TT")}.\n`);
+      }
+    }, index * 500);
   });
 }
