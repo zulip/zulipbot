@@ -5,7 +5,9 @@ exports.run = (client, payload) => {
   const issue = payload.issue;
   const repository = payload.repository;
   const payloadBody = payload.comment || issue;
-  const inProgress = !issue.labels.find(label => label.name === client.cfg.inProgressLabel);
+  if (client.cfg.inProgressLabel) {
+    exports.cleanInProgress(client, issue, repository);
+  }
   if (action === "labeled" && client.cfg.areaLabels) {
     return client.automations.get("areaLabel").run(client, issue, repository, payload.label);
   } else if (action === "closed" && issue.assignees && client.cfg.clearClosedIssues) {
@@ -16,12 +18,6 @@ exports.run = (client, payload) => {
     }, client.cfg.repoEventsDelay);
   } else if (action === "reopened" && recentlyClosed.has(issue.id)) {
     return recentlyClosed.delete(issue.id);
-  } else if (inProgress && client.cfg.inProgressLabel && issue.assignees && !issue.pull_request) {
-    const botUnlabeled = payload.sender.login === client.cfg.username;
-    if (action === "unlabeled" && payload.label.name === client.cfg.inProgressLabel && botUnlabeled) return;
-    return client.issues.addLabels({
-      owner: repository.owner.login, repo: repository.name, number: issue.number, labels: [client.cfg.inProgressLabel]
-    });
   } else if (action === "opened" || action === "created") {
     exports.parseCommands(client, payloadBody, issue, repository);
   }
@@ -54,6 +50,16 @@ exports.closeIssue = (client, issue, repository) => {
   issue.assignees.forEach((a) => {
     client.commands.get("abandon").abandon(client, a.login, repoOwner, repoName, issueNumber);
   });
+};
+
+exports.cleanInProgress = (client, issue, repository) => {
+  const labeled = issue.labels.find(label => label.name === client.cfg.inProgressLabel);
+  if (!issue.assignees.length && labeled) {
+    client.newComment(issue, repository, "**ERROR:** This issue is in progress, but has no assignee.");
+  } else if (issue.assignees.length && !labeled) {
+    const comment = "**ERROR:** This issue has been assigned but is not labeled as being in progress.";
+    client.newComment(issue, repository, comment);
+  }
 };
 
 exports.events = ["issues", "issue_comment"];
