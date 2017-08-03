@@ -16,10 +16,11 @@ exports.run = (client, payload) => {
         comment = `Congratulations, the Travis [builds](${buildURL}) for this pull request **${state}**!`;
         break;
       case "failed":
-      case "errored":
-        comment = `Oh no, something went wrong: the Travis builds for this pull request **${state}**!`;
-        if (buildURL) comment.concat(` Review the [build logs](${buildURL}) for more details.`);
+      case "errored": {
+        const logs = buildURL ? ` Review the [build logs](${buildURL}) for more details.` : "";
+        comment = `Oh no, something went wrong: the Travis builds for this pull request **${state}**!${logs}`;
         break;
+      }
       default:
         comment = "(unknown state)";
         break;
