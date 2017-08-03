@@ -22,7 +22,7 @@ async function getPullRequests(client, pullRequests, repoName, repoOwner) {
 async function scrapeInactivePullRequests(client, pullRequests, repoName, repoOwner) {
   const references = new Map();
   const ims = client.cfg.inactivityTimeLimit * 86400000;
-  pullRequests.forEach(async(pullRequest, index) => {
+  pullRequests.forEach(async(pullRequest, index, array) => {
     setTimeout(async() => {
       const time = Date.parse(pullRequest.updated_at);
       const body = pullRequest.body;
@@ -45,18 +45,22 @@ async function scrapeInactivePullRequests(client, pullRequests, repoName, repoOw
           client.newComment(pullRequest, pullRequest.base.repo, comment);
         }
       }
-      if (body.match(/#([0-9]+)/)) return references.set(`${repoName}/${body.match(/#([0-9]+)/)[1]}`, time);
       const commits = await client.pullRequests.getCommits({
         owner: repoOwner, repo: repoName, number: number
       });
-      const refIssues = commits.data.find((c) => {
+      const refIssues = commits.data.filter((c) => {
         return c.commit.message.match(/#([0-9]+)/);
-      });
-      if (refIssues) references.set(`${repoName}/${refIssues.commit.message.match(/#([0-9]+)/)[1]}`, time);
+      }).map(c => c.commit.message);
+      if (body.match(/#([0-9]+)/) || refIssues.length) {
+        const commitRef = refIssues[0] ? refIssues[0].match(/#([0-9]+)/)[1] : null;
+        const ref = commitRef || body.match(/#([0-9]+)/)[1];
+        references.set(`${repoName}/${ref}`, time);
+      }
+      if (index !== array.length - 1) return;
+      const issues = await getIssues(client, []);
+      await scrapeInactiveIssues(client, references, issues, repoOwner, repoName);
     }, index * 500);
   });
-  const issues = await getIssues(client, []);
-  await scrapeInactiveIssues(client, references, issues, repoOwner, repoName);
 }
 
 async function getIssues(client, issues) {
