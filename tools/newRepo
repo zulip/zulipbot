@@ -1,29 +1,7 @@
 #!/usr/bin/env node
-//
-//                          88  88               88                                                                      88
-//                          88  ""               88                         ,d           ,d                              88
-//                          88                   88                         88           88                              88
-//  888888888  88       88  88  88  8b,dPPYba,   88,dPPYba,    ,adPPYba,  MM88MMM      MM88MMM  ,adPPYba,    ,adPPYba,   88  ,adPPYba,
-//       a8P"  88       88  88  88  88P"    "8a  88P"    "8a  a8"     "8a   88           88    a8"     "8a  a8"     "8a  88  I8[    ""
-//    ,d8P"    88       88  88  88  88       d8  88       d8  8b       d8   88           88    8b       d8  8b       d8  88   `"Y8ba,
-//  ,d8"       "8a,   ,a88  88  88  88b,   ,a8"  88b,   ,a8"  "8a,   ,a8"   88,          88,   "8a,   ,a8"  "8a,   ,a8"  88  aa    ]8I
-//  888888888   `"YbbdP"Y8  88  88  88`YbbdP""   8Y"Ybbd8""    `"YbbdP""    "Y888        "Y888  `"YbbdP""    `"YbbdP""   88  `"YbbdP""
-//                                  88
-//                                  88
-//
-//  d8b   db d88888b db   d8b   db d8888b. d88888b d8888b.  .d88b.
-//  888o  88 88'     88   I8I   88 88  `8D 88'     88  `8D .8P  Y8.
-//  88V8o 88 88ooooo 88   I8I   88 88oobY' 88ooooo 88oodD' 88    88
-//  88 V8o88 88~~~~~ Y8   I8I   88 88`8b   88~~~~~ 88~~~   88    88
-//  88  V888 88.     `8b d8'8b d8' 88 `88. 88.     88      `8b  d8'
-//  VP   V8P Y88888P  `8b8' `8d8'  88   YD Y88888P 88       `Y88P'
 
 const inquirer = require("inquirer");
 const client = require("../src/client.js");
-
-console.log("d8b   db d88888b db   d8b   db d8888b. d88888b d8888b.  .d88b.  \r\n888o  88 88'     88   I8I   88 88  `8D 88'     88  `8D .8P  Y8. \r\n88V8o 88 88ooooo 88   I8I   88 88oobY' 88ooooo 88oodD' 88    88 \r\n88 V8o88 88~~~~~ Y8   I8I   88 88`8b   88~~~~~ 88~~~   88    88 \r\n88  V888 88.     `8b d8'8b d8' 88 `88. 88.     88      `8b  d8' \r\nVP   V8P Y88888P  `8b8' `8d8'  88   YD Y88888P 88       `Y88P'                                  ");
-console.log("Hello, welcome to newRepo!");
-console.log("~ Create a new test repository in the zulipbot-testing organization ~\n");
 
 let username;
 
@@ -41,9 +19,7 @@ inquirer.prompt({
   process.exit(1);
 }).then(() => {
   return client.repos.createForOrg({
-    org: "zulipbot-testing",
-    name: username,
-    auto_init: true
+    org: "zulipbot-testing", name: username, auto_init: true
   });
 }).catch((ex) => {
   const errorMsg = JSON.parse(ex.message);
@@ -57,20 +33,16 @@ inquirer.prompt({
 }).then(() => {
   console.log(`Repository successfully created at https://github.com/zulipbot-testing/${username}!`);
   return client.repos.addCollaborator({
-    owner: "zulipbot-testing",
-    repo: username,
-    username: username,
-    permission: "admin"
+    owner: "zulipbot-testing", repo: username, username: username, permission: "admin"
   });
 }).then(() => {
   console.log("You now have admin access to your test repository, use it wisely!");
   return client.orgs.addOrgMembership({
-    org: "zulipbot-testing",
-    username: username,
-    role: "member"
+    org: "zulipbot-testing", username: username, role: "member"
   });
 }).then(() => {
-  console.log("Also, please accept your invitation to the zulipbot-testing organization at https://github.com/zulipbot-testing.");
+  console.log("Please accept your invitation to the zulipbot-testing organization ",
+    "at https://github.com/zulipbot-testing.");
   console.log("Have fun testing!");
 }).catch((ex) => {
   console.error(ex);

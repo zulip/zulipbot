@@ -1,31 +1,9 @@
 #!/usr/bin/env node
-//
-//                          88  88               88                                                                      88
-//                          88  ""               88                         ,d           ,d                              88
-//                          88                   88                         88           88                              88
-//  888888888  88       88  88  88  8b,dPPYba,   88,dPPYba,    ,adPPYba,  MM88MMM      MM88MMM  ,adPPYba,    ,adPPYba,   88  ,adPPYba,
-//       a8P"  88       88  88  88  88P"    "8a  88P"    "8a  a8"     "8a   88           88    a8"     "8a  a8"     "8a  88  I8[    ""
-//    ,d8P"    88       88  88  88  88       d8  88       d8  8b       d8   88           88    8b       d8  8b       d8  88   `"Y8ba,
-//  ,d8"       "8a,   ,a88  88  88  88b,   ,a8"  88b,   ,a8"  "8a,   ,a8"   88,          88,   "8a,   ,a8"  "8a,   ,a8"  88  aa    ]8I
-//  888888888   `"YbbdP"Y8  88  88  88`YbbdP""   8Y"Ybbd8""    `"YbbdP""    "Y888        "Y888  `"YbbdP""    `"YbbdP""   88  `"YbbdP""
-//                                  88
-//                                  88
-//
-//  .d8888. d88888b d888888b db    db d8888b.
-//  88"  YP 88"     `~~88~~" 88    88 88  `8D
-//  `8bo.   88ooooo    88    88    88 88oodD"
-//    `Y8b. 88~~~~~    88    88    88 88~~~
-//  db   8D 88.        88    88b  d88 88
-//  `8888Y" Y88888P    YP    ~Y8888P" 88
 
 const fs = require("mz/fs");
 const inquirer = require("inquirer");
 const path = require("path");
 const Git = require("simple-git/promise")(path.resolve(__dirname, "../"));
-
-console.log(".d8888. d88888b d888888b db    db d8888b. \r\n88\"  YP 88\"     `~~88~~\" 88    88 88  `8D \r\n`8bo.   88ooooo    88    88    88 88oodD\" \r\n  `Y8b. 88~~~~~    88    88    88 88~~~   \r\ndb   8D 88.        88    88b  d88 88      \r\n`8888Y\" Y88888P    YP    ~Y8888P\" 88\n");
-console.log("Hello, welcome to setup!");
-console.log("~ Setup your local environment for zulipbot development! ~\n");
 
 let repo;
 
@@ -36,10 +14,7 @@ inquirer.prompt({
 }).then((answer) => {
   if (!answer.confirm) return;
   console.log("Creating `src/config.js` file...");
-  return fs.link(
-    path.resolve("src/zulip_project_config.js"),
-    path.resolve("src/config.js")
-  );
+  return fs.link(path.resolve("src/zulip_project_config.js"), path.resolve("src/config.js"));
 }).catch((err) => {
   if (err.code !== "EEXIST") {
     throw err;

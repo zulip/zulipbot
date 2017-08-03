@@ -1,5 +1,3 @@
-"use strict";
-
 const assert = require("assert");
 
 describe("WIP Unit Test", function() {

@@ -1,5 +1,3 @@
-"use strict";
-
 const assert = require("chai").assert;
 const client = require("../src/client.js");
 
