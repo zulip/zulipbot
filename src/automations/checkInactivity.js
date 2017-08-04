@@ -35,7 +35,8 @@ async function scrapeInactivePullRequests(client, pullRequests, repoName, repoOw
         const inactiveLabel = labels.data.find(l => l.name === client.cfg.inactiveLabel);
         const reviewedLabel = labels.data.find(l => l.name === client.cfg.reviewedLabel);
         if (inactiveLabel || !reviewedLabel) return;
-        const comment = client.templates.get("updateWarning").replace("[author]", author);
+        const comment = client.templates.get("updateWarning").replace("[author]", author)
+        .replace("[days]", client.cfg.inactivityTimeLimit);
         const comments = await client.issues.getComments({
           owner: repoOwner, repo: repoName, number: number, per_page: 100
         });
