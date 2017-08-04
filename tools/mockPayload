@@ -1,235 +1,254 @@
 #!/usr/bin/env node
-//
-//                          88  88               88                                                                      88
-//                          88  ""               88                         ,d           ,d                              88
-//                          88                   88                         88           88                              88
-//  888888888  88       88  88  88  8b,dPPYba,   88,dPPYba,    ,adPPYba,  MM88MMM      MM88MMM  ,adPPYba,    ,adPPYba,   88  ,adPPYba,
-//       a8P"  88       88  88  88  88P"    "8a  88P"    "8a  a8"     "8a   88           88    a8"     "8a  a8"     "8a  88  I8[    ""
-//    ,d8P"    88       88  88  88  88       d8  88       d8  8b       d8   88           88    8b       d8  8b       d8  88   `"Y8ba,
-//  ,d8"       "8a,   ,a88  88  88  88b,   ,a8"  88b,   ,a8"  "8a,   ,a8"   88,          88,   "8a,   ,a8"  "8a,   ,a8"  88  aa    ]8I
-//  888888888   `"YbbdP"Y8  88  88  88`YbbdP""   8Y"Ybbd8""    `"YbbdP""    "Y888        "Y888  `"YbbdP""    `"YbbdP""   88  `"YbbdP""
-//                                  88
-//                                  88
-//
-//  .88b  d88.  .d88b.   .o88b. db   dD d8888b.  .d8b.  db    db db       .d88b.   .d8b.  d8888b.
-//  88"YbdP`88 .8P  Y8. d8P  Y8 88 ,8P" 88  `8D d8" `8b `8b  d8" 88      .8P  Y8. d8" `8b 88  `8D
-//  88  88  88 88    88 8P      88,8P   88oodD" 88ooo88  `8bd8"  88      88    88 88ooo88 88   88
-//  88  88  88 88    88 8b      88`8b   88~~~   88~~~88    88    88      88    88 88~~~88 88   88
-//  88  88  88 `8b  d8" Y8b  d8 88 `88. 88      88   88    88    88booo. `8b  d8" 88   88 88  .8D
-//  YP  YP  YP  `Y88P"   `Y88P" YP   YD 88      YP   YP    YP    Y88888P  `Y88P"  YP   YP Y8888D"
 
 const inquirer = require("inquirer");
 const client = require("../src/client.js");
-const addLabels = require("../src/commands/label.js");
-const claimIssue = require("../src/commands/claim.js");
-const abandonIssue = require("../src/commands/abandon.js");
-const removeLabels = require("../src/commands/remove.js");
-const issueAreaLabeled = require("../src/issues/areaLabel.js");
-const issueReferenced = require("../src/pullRequests/issueReferenced.js");
-const travisBuildStatus = require("../src/pullRequests/travisBuildStatus.js");
 
-console.log("                       _    ____             _                 _ \r\n  _ __ ___   ___   ___| | _|  _ \\ __ _ _   _| | ___   __ _  __| |\r\n | \"_ ` _ \\ / _ \\ / __| |/ | |_) / _` | | | | |/ _ \\ / _` |/ _` |\r\n | | | | | | (_) | (__|   <|  __| (_| | |_| | | (_) | (_| | (_| |\r\n |_| |_| |_|\\___/ \\___|_|\\_|_|   \\__,_|\\__, |_|\\___/ \\__,_|\\__,_|\r\n                                       |___/                     ");
-console.log("Hello, welcome to mockPayload!");
-console.log("~ Send test payloads to your repository in zulipbot-testing ~\n");
+let username;
+let number;
+let payload;
+let pullRequest;
+let issue;
+
 inquirer.prompt({
-  type: "input",
-  name: "username",
-  message: "What's your GitHub username?"
+  type: "input", name: "username", message: "What's your GitHub username?"
 }).then((response) => {
-  const username = response.username;
-  client.repos.get({
-    owner: "zulipbot-testing",
-    repo: username
-  })
-  .then(() => {
-    inquirer.prompt([{
-      type: "list",
-      name: "payload",
-      message: "What's your payload type?",
+  username = response.username;
+  return client.repos.get({
+    owner: "zulipbot-testing", repo: username
+  });
+}).catch(() => {
+  console.log("You don't have a repository on zulipbot-testing yet!",
+    "Please make one before running this tool again.");
+  process.exit(0);
+}).then(() => {
+  return inquirer.prompt([
+    {
+      type: "list", name: "payload", message: "What's your payload type?",
+      choices: ["Issue", "Pull request"]
+    },
+    {
+      type: "input", name: "number", message: "What is its number?",
+      validate: (value) => {
+        return /^\d+$/.test(value) || "Please enter a valid number!";
+      }
+    }
+  ]);
+}).then((response) => {
+  number = response.number;
+  payload = response.payload;
+  return client.issues.get({
+    owner: "zulipbot-testing", repo: username, number: number
+  });
+}).catch(() => {
+  console.log("That was an invalid issue/pull request number!",
+    "Please create an issue/pull request in your repository with the same number and try again.");
+  process.exit(0);
+}).then((response) => {
+  issue = response.data;
+  return client.pullRequests.get({
+    owner: "zulipbot-testing", repo: username, number: number
+  });
+}).catch(() => {
+  if (payload === "Pull request") {
+    console.log("That was an invalid pull request number; it was an issue number!",
+      "Please select the 'Issue' option next time.");
+    process.exit(0);
+  }
+  return issueOptions(username, issue);
+}).then((response) => {
+  if (payload === "Issue" && response) {
+    console.log("That was an invalid issue number; it was a pull request number!",
+      "Please select the 'Pull request' option next time.");
+    return process.exit(0);
+  } else if (payload === "Pull request" && response) {
+    pullRequest = response.data;
+    pullRequestOptions(username, pullRequest);
+  }
+});
+
+function issueOptions(username, issue) {
+  inquirer.prompt([
+    {
+      type: "list", name: "action", message: "What is the payload action?",
       choices: [
-        "Issue",
-        "Pull request"
+        "Issue opened (opened)",
+        "Issue comment created (created)",
+        "Issue labeled (labeled)",
+        "Issue reopened (reopened)",
+        "Issue closed (closed)"
       ]
     },
     {
-      type: "input",
-      name: "number",
-      message: "What's the number of the issue/pull request that @zulipbot-test should respond to?",
-      validate: (value) => {
-        var valid = /^\d+$/.test(value);
-        return valid || "Please enter a valid number!";
+      type: "input", name: "comment",
+      message: "Enter the comment body:",
+      when: (answers) => {
+        return answers.action === "Issue comment created (created)";
       }
-    }]).then((response) => {
-      const issueNumber = response.number;
-      const payloadType = response.payload;
-      client.issues.get({
-        owner: "zulipbot-testing",
-        repo: username,
-        number: issueNumber
-      }).then(() => {
-        client.pullRequests.get({
-          owner: "zulipbot-testing",
-          repo: username,
-          number: issueNumber
-        }).then(() => {
-          if (payloadType === "Pull request") {
-            inquirer.prompt([{
-              type: "list",
-              name: "payloadType",
-              message: "What type of payload do you want to mock?",
-              choices: [
-                "Pull request opened (pull_request)",
-                "Pull request comment created (issue_comment)",
-                "Pull request review submitted (pull_request_review)",
-                "Pull request review comment created (pull_request_review_comment)",
-                "Pull request Travis build status updated (Travis webhook)"
-              ]
-            },
-            {
-              type: "input",
-              name: "body",
-              message: "Enter the payload's body:",
-              when: (answers) => {
-                return answers.payloadType !== "Pull request Travis build status updated (Travis webhook)";
-              }
-            },
-            {
-              type: "list",
-              name: "travis",
-              message: "What was the Travis build status for the pull request?",
-              choices: [
-                "passed",
-                "failed",
-                "errored"
-              ],
-              when: (answers) => {
-                return answers.payloadType === "Pull request Travis build status updated (Travis webhook)";
-              }
-            },
-            {
-              type: "input",
-              name: "buildURL",
-              message: "Enter the URL of the Travis build logs for the pull request:",
-              validate: (value) => {
-                var valid = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%\\._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%\\_+.~#?&//=]*)/.test(value);
-                return valid || "Please enter a valid URL!";
-              },
-              when: (answers) => {
-                return answers.payloadType === "Pull request Travis build status updated (Travis webhook)";
-              }
-            }]).then((response) => {
-              const body = response.body;
-              const travis = response.travis;
-              const buildURL = response.buildURL;
-              if (body && body.match(/#([0-9]+)/) && client.cfg.areaLabels) {
-                // eslint-disable-next-line no-undef
-                issueReferenced(client, body, pullRequestNumber, username, "zulipbot-testing");
-                console.log(`Payload sent! Check https://github.com/zulipbot-testing/${username}/pull/${issueNumber} for any responses.`);
-              } else if (travis && buildURL && client.cfg.travisLabel) {
-                travisBuildStatus(travis, "zulipbot-testing", username, issueNumber, buildURL);
-                console.log(`Payload sent! Check https://github.com/zulipbot-testing/${username}/pull/${issueNumber} for any responses.`);
-              } else {
-                console.log("The payload body that you entered did not trigger any functions; please try again!");
-              }
-            });
-          } else {
-            console.log("That was an invalid issue number; it was an pull request number! Please select the 'Pull request' option next time.");
-          }
-        }, () => {
-          if (payloadType === "Issue") {
-            inquirer.prompt([{
-              type: "list",
-              name: "payloadType",
-              message: "What type of payload do you want to mock?",
-              choices: [
-                "Issue opened (issues)",
-                "Issue comment created (issue_comment)",
-                "Issue labeled (issues)"
-              ]
-            },
-            {
-              type: "input",
-              name: "body",
-              message: "Enter the payload's body:",
-              when: (answers) => {
-                return answers.payloadType !== "Issue labeled (issues)";
-              }
-            },
-            {
-              type: "input",
-              name: "addedLabel",
-              message: "Enter the name of the added label:",
-              when: (answers) => {
-                return answers.payloadType === "Issue labeled (issues)";
-              }
-            },
-            {
-              type: "input",
-              name: "commenter",
-              message: "What's the username of the user that is triggering this issue payload?",
-              when: (answers) => {
-                return answers.payloadType !== "Issue labeled (issues)";
-              }
-            },
-            {
-              type: "input",
-              name: "issueCreator",
-              message: "Who opened or created the issue?",
-              when: (answers) => {
-                return answers.payloadType !== "Issue labeled (issues)";
-              }
-            },
-            {
-              type: "input",
-              name: "labels",
-              message: "Enter any labels the issue has within double quotes (\"\"):",
-              when: (answers) => {
-                return answers.payloadType !== "Issue labeled (issues)";
-              }
-            }]).then((response) => {
-              const body = response.body;
-              const commenter = response.commenter;
-              const issueCreator = response.issueCreator;
-              const addedLabel = response.addedLabel;
-              let issueLabelArray = [];
-              if (response.labels) {
-                response.labels.match(/"(.*?)"/g).forEach((label) => {
-                  issueLabelArray.push({name: label.replace(/"/g, "")});
-                });
-              }
-              if (commenter === client.cfg.username) return;
-              if (addedLabel && client.cfg.areaLabels) issueAreaLabeled(addedLabel, issueNumber, username, "zulipbot-testing", issueLabelArray);
-              if (!body) return;
-              const commands = body.match(new RegExp("@" + client.cfg.username + "\\s(\\w*)", "g"));
-              if (!commands) return;
-              commands.forEach((command) => {
-                if (body.includes(`\`${command}\``) || body.includes(`\`\`\`\r\n${command}\r\n\`\`\``)) return;
-                const commandName = command.split(" ")[1];
-                if (commandName === "claim" && client.cfg.claimEnabled) claimIssue(client, commenter, issueNumber, username, "zulipbot-testing");
-                else if ((commandName === "abandon" || commandName === "unclaim") && client.cfg.abandonEnabled) abandonIssue.abandon(client, commenter, "zulipbot-testing", username, issueNumber);
-                else if (commandName === "label" && client.cfg.labelEnabled && client.cfg.selfLabelingOnly && commenter === issueCreator) {
-                  const splitBody = body.split(`@${client.cfg.username}`).filter((splitString) => {
-                    return splitString.includes(" label \"");
-                  }).join(" ");
-                  addLabels(client, splitBody, issueNumber, username, "zulipbot-testing", issueLabelArray);
-                } else if (commandName === "remove" && client.cfg.removeEnabled && client.cfg.selfLabelingOnly && commenter === issueCreator) {
-                  const splitBody = body.split(`@${client.cfg.username}`).filter((splitString) => {
-                    return splitString.includes(" remove \"");
-                  }).join(" ");
-                  removeLabels(client, splitBody, issueNumber, username, "zulipbot-testing", issueLabelArray);
-                }
-              });
-              console.log(`Payload sent! Check https://github.com/zulipbot-testing/${username}/issues/${issueNumber} for any responses.\nIf you received no notifications, then your payload body didn't trigger any functions.`);
-            });
-          } else {
-            console.log("That was an invalid pull request number; it was an issue number! Please select the 'Issue' option next time.");
-          }
-        });
-      }, () => {
-        console.log("That was an invalid issue/pull request number! Please enter create an issue/pull request in your repository with the same number and try again.");
-      });
-    });
-  }, () => {
-    console.log("You don't have a repository on zulipbot-testing yet! Please make one before running this tool again.");
+    },
+    {
+      type: "input", name: "commenter",
+      message: "Enter the username of the user that created the comment:",
+      when: (answers) => {
+        return answers.action === "Issue comment created (created)";
+      }
+    },
+    {
+      type: "input", name: "label", message: "Enter the added label name:",
+      when: (answers) => {
+        return answers.action === "Issue labeled (labeled)";
+      }
+    }
+  ]).then((response) => {
+    const action = response.action.match(/\(([^)]+)\)/)[1];
+    const payload = {
+      action: action,
+      issue: issue,
+      repository: {
+        owner: {
+          login: "zulipbot-testing"
+        },
+        name: username
+      },
+      comment: response.comment ? {
+        body: response.comment,
+        user: {
+          login: response.commenter
+        }
+      } : null
+    };
+    const event = response.comment ? "issue_comment" : "issues";
+    client.events.get(event).run(client, payload);
+    console.log("Payload sent! Check ",
+      `https://github.com/zulipbot-testing/${username}/issues/${number} for any responses.`);
   });
-});
+}
+
+function pullRequestOptions(username, pullRequest) {
+  inquirer.prompt({
+    type: "list", name: "payloadType",
+    message: "What type of event do you want to mock?",
+    choices: [
+      "GitHub webhook",
+      "Travis webhook"
+    ]
+  }).then((response) => {
+    if (response.payloadType.includes("Travis")) return travisOptions(username);
+    return inquirer.prompt([
+      {
+        type: "list", name: "action", message: "What is the payload action?",
+        choices: [
+          "Pull request opened (opened)",
+          "Pull request comment created (created)",
+          "Pull request synchronized (synchronize)",
+          "Pull request review submitted (submitted)",
+          "Pull request labeled (labeled)",
+          "Pull request reopened (reopened)",
+          "Pull request closed (closed)"
+        ]
+      },
+      {
+        type: "input", name: "review",
+        message: "Enter the username of the user that submitted the review:",
+        when: (answers) => {
+          return answers.action === "Pull request review submitted (submitted)";
+        }
+      },
+      {
+        type: "input", name: "comment",
+        message: "Enter the comment body:",
+        when: (answers) => {
+          return answers.action === "Pull request comment created (created)";
+        }
+      },
+      {
+        type: "input", name: "commenter",
+        message: "Enter the username of the user that created the comment:",
+        when: (answers) => {
+          return answers.action === "Pull request comment created (created)";
+        }
+      },
+      {
+        type: "input", name: "label", message: "Enter the added label name:",
+        when: (answers) => {
+          return answers.action === "Pull request labeled (labeled)";
+        }
+      }
+    ]);
+  }).then((response) => {
+    const action = response.action.match(/\(([^)]+)\)/)[1];
+    if (action === "created") {
+      const payload = {
+        action: action,
+        issue: issue,
+        repository: {
+          owner: {
+            login: "zulipbot-testing"
+          },
+          name: username
+        },
+        comment: {
+          body: response.comment,
+          user: {
+            login: response.commenter
+          }
+        }
+      };
+      client.events.get("issue_comment").run(client, payload);
+      return console.log("Payload sent! Check ",
+        `https://github.com/zulipbot-testing/${username}/pull/${number} for any responses.`);
+    }
+    const payload = {
+      action: action,
+      pull_request: pullRequest,
+      repository: {
+        owner: {
+          login: "zulipbot-testing"
+        },
+        name: username
+      },
+      label: response.label ? {
+        name: response.label
+      } : null,
+      review: response.review ? {
+        user: {
+          login: response.review
+        }
+      } : null
+    };
+    client.events.get("pull_request").run(client, payload);
+    console.log("Payload sent! Check ",
+      `https://github.com/zulipbot-testing/${username}/pull/${number} for any responses.`);
+  });
+}
+
+function travisOptions(username) {
+  const r = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%\\._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%\\_+.~#?&//=]*)/;
+  inquirer.prompt([
+    {
+      type: "list", name: "state",
+      message: "What was the Travis build status for the pull request?",
+      choices: ["passed", "failed", "errored"]
+    },
+    {
+      type: "input", name: "buildURL",
+      message: "Enter the URL of the Travis build logs for the pull request:",
+      validate: (value) => {
+        return r.test(value) || "Please enter a valid URL!";
+      }
+    }
+  ]).then((response) => {
+    const payload = {
+      repository: {
+        name: username,
+        owner_name: "zulipbot-testing"
+      },
+      pull_request_number: number,
+      state: response.state,
+      build_url: response.buildURL,
+      pull_request: true
+    };
+    client.events.get("travis").run(client, payload);
+    console.log("Payload sent! Check ",
+      `https://github.com/zulipbot-testing/${username}/pull/${number} for any responses.`);
+  });
+}

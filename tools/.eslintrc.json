@@ -1,7 +1,0 @@
-{
-  "rules": {
-    "curly": "off",
-    "max-nested-callbacks": "off",
-    "max-len": "off"
-  }
-}
