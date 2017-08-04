@@ -15,7 +15,7 @@ exports.run = (client, payload) => {
     return setTimeout(() => {
       if (recentlyClosed.has(issue.id)) exports.closeIssue(client, issue, repository);
       recentlyClosed.delete(issue.id);
-    }, client.cfg.repoEventsDelay);
+    }, client.cfg.repoEventsDelay * 60 * 1000);
   } else if (action === "reopened" && recentlyClosed.has(issue.id)) {
     return recentlyClosed.delete(issue.id);
   } else if (action === "opened" || action === "created") {

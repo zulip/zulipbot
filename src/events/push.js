@@ -3,7 +3,7 @@ exports.run = (client, payload) => {
   if (payload.ref !== "refs/heads/master" || !client.cfg.checkMergeConflicts) return;
   setTimeout(() => {
     client.automations.get("checkMergeConflicts").run(client, repository);
-  }, client.cfg.repoEventsDelay);
+  }, client.cfg.repoEventsDelay * 60 * 1000);
 };
 
 exports.events = ["push"];

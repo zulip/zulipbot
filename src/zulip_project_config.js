@@ -14,7 +14,7 @@ module.exports = {
   commitReferenceEnabled: true,
   clearClosedIssues: true,
   checkMergeConflicts: true,
-  repoEventsDelay: 3 * 60 * 1000,
+  repoEventsDelay: 3,
   escapeWIPString: "WIP",
   areaLabels: new Map([
     ["area: accessibility", "server-misc"],
