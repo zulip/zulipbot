@@ -1,9 +1,15 @@
 exports.run = (client) => {
-  client.cfg.activeRepos.forEach(async(repo) => {
-    const repoOwner = repo.split("/")[0];
-    const repoName = repo.split("/")[1];
-    const pullRequests = await getPullRequests(client, [], repoName, repoOwner);
-    await scrapeInactivePullRequests(client, pullRequests, repoName, repoOwner);
+  Promise.all(
+    client.cfg.activeRepos.reduce((all, repo) => {
+      const repoOwner = repo.split("/")[0];
+      const repoName = repo.split("/")[1];
+      return all.concat(getPullRequests(client, [], repoName, repoOwner));
+    }, [])
+  ).then(async(array) => {
+    const pullRequests = array.reduce((a, element) => {
+      return a.concat(element);
+    }, []);
+    await scrapeInactivePullRequests(client, pullRequests);
   });
 };
 
@@ -19,7 +25,7 @@ async function getPullRequests(client, pullRequests, repoName, repoOwner) {
   return pullRequests;
 }
 
-async function scrapeInactivePullRequests(client, pullRequests, repoName, repoOwner) {
+async function scrapeInactivePullRequests(client, pullRequests) {
   const references = new Map();
   const ims = client.cfg.inactivityTimeLimit * 86400000;
   pullRequests.forEach(async(pullRequest, index, array) => {
@@ -28,6 +34,8 @@ async function scrapeInactivePullRequests(client, pullRequests, repoName, repoOw
       const body = pullRequest.body;
       const number = pullRequest.number;
       const author = pullRequest.user.login;
+      const repoName = pullRequest.base.repo.name;
+      const repoOwner = pullRequest.base.repo.owner.login;
       if (time + ims <= Date.now()) {
         const labels = await client.issues.getIssueLabels({
           owner: repoOwner, repo: repoName, number: number
@@ -59,7 +67,7 @@ async function scrapeInactivePullRequests(client, pullRequests, repoName, repoOw
       }
       if (index !== array.length - 1) return;
       const issues = await getIssues(client, []);
-      await scrapeInactiveIssues(client, references, issues, repoOwner, repoName);
+      await scrapeInactiveIssues(client, references, issues);
     }, index * 500);
   });
 }
@@ -76,7 +84,7 @@ async function getIssues(client, issues) {
   return issues;
 }
 
-async function scrapeInactiveIssues(client, references, issues, owner, name) {
+async function scrapeInactiveIssues(client, references, issues) {
   const ms = client.cfg.autoAbandonTimeLimit * 86400000;
   const ims = client.cfg.inactivityTimeLimit * 86400000;
   issues.forEach(async(issue, index) => {
@@ -90,9 +98,7 @@ async function scrapeInactiveIssues(client, references, issues, owner, name) {
       if (time < references.get(`${repoName}/${issueNumber}`)) {
         time = references.get(`${repoName}/${issueNumber}`);
       }
-      if (repoOwner !== owner || repoName !== name || time + ms >= Date.now()) {
-        return;
-      }
+      if (time + ms >= Date.now() || !client.cfg.activeRepos.includes(`${repoOwner}/${repoName}`)) return;
       const assigneeString = issue.assignees.map(assignee => assignee.login).join(", @");
       const comment = client.templates.get("inactiveWarning")
       .replace("[assignee]", assigneeString)
@@ -104,7 +110,7 @@ async function scrapeInactiveIssues(client, references, issues, owner, name) {
       });
       const issueComment = issueComments.data.slice(-1).pop();
       const labelComment = issueComment.body.includes(comment) && issueComment.user.login === client.cfg.username;
-      if (labelComment && time + ms <= Date.now()) {
+      if (labelComment) {
         issue.assignees.forEach((a) => {
           client.commands.get("abandon").abandon(client, a.login, repoOwner, repoName, issueNumber);
         });
