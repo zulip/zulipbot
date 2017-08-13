@@ -108,13 +108,13 @@ async function scrapeInactiveIssues(client, references, issues) {
         owner: repoOwner, repo: repoName, number: issueNumber, per_page: 100
       });
       const assigneeString = issue.assignees.map(assignee => assignee.login).join(", @");
-      const comment = client.templates.get("inactiveWarning")
+      const c = client.templates.get("inactiveWarning")
       .replace("[assignee]", assigneeString)
       .replace("[inactive]", client.cfg.inactiveTimeLimit)
       .replace("[abandon]", client.cfg.autoAbandonTimeLimit)
       .replace("[username]", client.cfg.username);
-      const issueComment = issueComments.data.slice(-1).pop();
-      const labelComment = issueComment.body.includes(comment) && issueComment.user.login === client.cfg.username;
+      const com = issueComments.data.slice(-1).pop();
+      const labelComment = com ? com.body.includes(c) && com.user.login === client.cfg.username : false;
       if (labelComment) {
         console.log(`* Issue [${issue.title} (#${issueNumber})](${issue.html_url}) **was abandoned**\n`,
           `Assignee(s): ${assigneeString} Last updated: ${dateFormat(time, "UTC:dddd, mmmm dS, yyyy, h:MM TT")}.\n`);

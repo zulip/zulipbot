@@ -100,7 +100,7 @@ async function scrapeInactiveIssues(client, references, issues) {
       }
       if (time + ms >= Date.now() || !client.cfg.activeRepos.includes(`${repoOwner}/${repoName}`)) return;
       const assigneeString = issue.assignees.map(assignee => assignee.login).join(", @");
-      const comment = client.templates.get("inactiveWarning")
+      const c = client.templates.get("inactiveWarning")
       .replace("[assignee]", assigneeString)
       .replace("[inactive]", client.cfg.inactivityTimeLimit)
       .replace("[abandon]", client.cfg.autoAbandonTimeLimit)
@@ -108,8 +108,8 @@ async function scrapeInactiveIssues(client, references, issues) {
       const issueComments = await client.issues.getComments({
         owner: repoOwner, repo: repoName, number: issueNumber, per_page: 100
       });
-      const issueComment = issueComments.data.slice(-1).pop();
-      const labelComment = issueComment.body.includes(comment) && issueComment.user.login === client.cfg.username;
+      const com = issueComments.data.slice(-1).pop();
+      const labelComment = com ? com.body.includes(c) && com.user.login === client.cfg.username : false;
       if (labelComment) {
         issue.assignees.forEach((a) => {
           client.commands.get("abandon").abandon(client, a.login, repoOwner, repoName, issueNumber);
@@ -119,10 +119,10 @@ async function scrapeInactiveIssues(client, references, issues) {
         .replace("[total]", client.cfg.autoAbandonTimeLimit + client.cfg.inactivityTimeLimit)
         .replace("[username]", client.cfg.username);
         client.issues.editComment({
-          owner: repoOwner, repo: repoName, id: issueComment.id, body: warning
+          owner: repoOwner, repo: repoName, id: com.id, body: warning
         });
       } else if (!labelComment && time + ims <= Date.now()) {
-        client.newComment(issue, issue.repository, comment);
+        client.newComment(issue, issue.repository, c);
       }
     }, index * 500);
   });
