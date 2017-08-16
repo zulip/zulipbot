@@ -19,7 +19,7 @@ async function getPriority(client, issues, label) {
 client.cfg.priorityLabels.forEach(async(label) => {
   const labels = await getPriority(client, [], label);
   if (!labels.length) return console.log(`There are no unclaimed issues with the "${label}" label!`);
-  let report = `Unclaimed issues labeled with the "${label}" label:`;
+  let report = `\nUnclaimed issues labeled with the "${label}" label:`;
   labels.forEach((issue, index, array) => {
     if (!issue.assignees.length) {
       report += `\n* ${issue.repository.full_name} — [${issue.title} (#${issue.number})](${issue.html_url})`;
