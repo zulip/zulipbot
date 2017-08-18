@@ -6,11 +6,11 @@ exports.run = (client, payload) => {
   const repository = payload.repository;
   const payloadBody = payload.comment || issue;
   if (client.cfg.inProgressLabel) {
-    exports.cleanInProgress(client, issue, repository);
+    exports.cleanInProgress(client, action, issue, repository);
   }
   if (action === "labeled" && client.cfg.areaLabels) {
     return client.automations.get("areaLabel").run(client, issue, repository, payload.label);
-  } else if (action === "closed" && issue.assignees && client.cfg.clearClosedIssues) {
+  } else if (action === "closed" && !issue.assignees.length && client.cfg.clearClosedIssues) {
     recentlyClosed.set(issue.id, issue);
     return setTimeout(() => {
       if (recentlyClosed.has(issue.id)) exports.closeIssue(client, issue, repository);
@@ -52,10 +52,16 @@ exports.closeIssue = (client, issue, repository) => {
   });
 };
 
-exports.cleanInProgress = (client, issue, repository) => {
+exports.cleanInProgress = (client, action, issue, repository) => {
   const labeled = issue.labels.find(label => label.name === client.cfg.inProgressLabel);
-  if (!issue.assignees.length && labeled) {
-    client.newComment(issue, repository, "**ERROR:** This issue is in progress, but has no assignee.");
+  if (action === "assigned" && !labeled) {
+    client.issues.addLabel({
+      owner: repository.owner.login, repo: repository.name, number: issue.number, name: client.cfg.inProgressLabel
+    });
+  } else if (action === "unassigned" && !issue.assignees.length && labeled) {
+    client.issues.removeLabel({
+      owner: repository.owner.login, repo: repository.name, number: issue.number, name: client.cfg.inProgressLabel
+    });
   } else if (issue.assignees.length && !labeled) {
     const comment = "**ERROR:** This issue has been assigned but is not labeled as being in progress.";
     client.newComment(issue, repository, comment);

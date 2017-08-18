@@ -101,7 +101,8 @@ async function scrapeInactiveIssues(client, references, issues) {
       if (time + ms >= Date.now() || !client.cfg.activeRepos.includes(`${repoOwner}/${repoName}`)) return;
       const assigneeString = issue.assignees.map(assignee => assignee.login).join(", @");
       if (!assigneeString) {
-        return client.events.get("issues").cleanInProgress(client, issue, issue.repository);
+        const comment = "**ERROR:** This issue is in progress, but has no assignee.";
+        return client.newComment(issue, issue.repository, comment);
       }
       const c = client.templates.get("inactiveWarning")
       .replace("[assignee]", assigneeString)
