@@ -1,6 +1,7 @@
 const GitHub = require("github");
 const client = new GitHub();
 const fs = require("fs");
+const snekfetch = require("snekfetch");
 
 client.cfg = require("./config.js");
 client.automations = new Map();
@@ -45,6 +46,19 @@ client.newComment = (issue, repository, body, replacePR) => {
   if (replacePR) body = body.replace(/\[payload\]/g, "pull request");
   else body = body.replace(/\[payload\]/g, "issue");
   client.issues.createComment({owner: repoOwner, repo: repoName, number: issueNumber, body: body});
+};
+
+client.abandonIssue = async function(client, commenter, repository, issue) {
+  const issueNumber = issue.number;
+  const repoName = repository.name;
+  const repoOwner = repository.owner.login;
+  const auth = new Buffer(client.cfg.username + ":" + client.cfg.password, "ascii").toString("base64");
+  const json = JSON.stringify({
+    assignees: commenter
+  });
+  await snekfetch.delete(`https://api.github.com/repos/${repoOwner}/${repoName}/issues/${issueNumber}/assignees`)
+  .set("content-type", "application/json").set("content-length", json.length).set("authorization", `Basic ${auth}`)
+  .set("accept", "application/json").set("user-agent", client.cfg.username).send(json);
 };
 
 module.exports = client;

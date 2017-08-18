@@ -10,10 +10,13 @@ exports.run = (client, payload) => {
   }
   if (action === "labeled" && client.cfg.areaLabels) {
     return client.automations.get("areaLabel").run(client, issue, repository, payload.label);
-  } else if (action === "closed" && !issue.assignees.length && client.cfg.clearClosedIssues) {
+  } else if (action === "closed" && issue.assignees.length && client.cfg.clearClosedIssues) {
     recentlyClosed.set(issue.id, issue);
     return setTimeout(() => {
-      if (recentlyClosed.has(issue.id)) exports.closeIssue(client, issue, repository);
+      if (recentlyClosed.has(issue.id)) {
+        const assignees = issue.assignees.map(a => a.login);
+        client.abandonIssue(client, assignees, repository, issue);
+      }
       recentlyClosed.delete(issue.id);
     }, client.cfg.repoEventsDelay * 60 * 1000);
   } else if (action === "reopened" && recentlyClosed.has(issue.id)) {
@@ -47,9 +50,8 @@ exports.closeIssue = (client, issue, repository) => {
   const issueNumber = issue.number;
   const repoName = repository.name;
   const repoOwner = repository.owner.login;
-  issue.assignees.forEach((a) => {
-    client.commands.get("abandon").abandon(client, a.login, repoOwner, repoName, issueNumber);
-  });
+  const assignees = issue.assignees.map(a => a.login);
+  client.commands.get("abandon").abandon(client, assignees, repoOwner, repoName, issueNumber);
 };
 
 exports.cleanInProgress = (client, action, issue, repository) => {

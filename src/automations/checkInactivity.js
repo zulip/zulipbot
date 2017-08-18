@@ -99,13 +99,13 @@ async function scrapeInactiveIssues(client, references, issues) {
         time = references.get(`${repoName}/${issueNumber}`);
       }
       if (time + ms >= Date.now() || !client.cfg.activeRepos.includes(`${repoOwner}/${repoName}`)) return;
-      const assigneeString = issue.assignees.map(assignee => assignee.login).join(", @");
-      if (!assigneeString) {
+      const aString = issue.assignees.map(assignee => assignee.login).join(", @");
+      if (!aString) {
         const comment = "**ERROR:** This issue is in progress, but has no assignee.";
         return client.newComment(issue, issue.repository, comment);
       }
       const c = client.templates.get("inactiveWarning")
-      .replace("[assignee]", assigneeString)
+      .replace("[assignee]", aString)
       .replace("[inactive]", client.cfg.inactivityTimeLimit)
       .replace("[abandon]", client.cfg.autoAbandonTimeLimit)
       .replace("[username]", client.cfg.username);
@@ -115,11 +115,9 @@ async function scrapeInactiveIssues(client, references, issues) {
       const com = issueComments.data.slice(-1).pop();
       const labelComment = com ? com.body.includes(c) && com.user.login === client.cfg.username : false;
       if (labelComment) {
-        issue.assignees.forEach((a) => {
-          client.commands.get("abandon").abandon(client, a.login, repoOwner, repoName, issueNumber);
-        });
+        client.abandonIssue(client, aString.split(", @"), issue.repository, issue);
         const warning = client.templates.get("abandonWarning")
-        .replace("[assignee]", assigneeString)
+        .replace("[assignee]", aString)
         .replace("[total]", client.cfg.autoAbandonTimeLimit + client.cfg.inactivityTimeLimit)
         .replace("[username]", client.cfg.username);
         client.issues.editComment({
