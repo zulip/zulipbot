@@ -75,12 +75,13 @@ function issueOptions(username, issue) {
         "Issue comment created (created)",
         "Issue labeled (labeled)",
         "Issue reopened (reopened)",
+        "Issue assigned (assigned)",
+        "Issue unassigned (unassigned)",
         "Issue closed (closed)"
       ]
     },
     {
-      type: "input", name: "comment",
-      message: "Enter the comment body:",
+      type: "input", name: "comment", message: "Enter the comment body:",
       when: (answers) => {
         return answers.action === "Issue comment created (created)";
       }
