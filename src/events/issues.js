@@ -6,7 +6,7 @@ exports.run = (client, payload) => {
   const repository = payload.repository;
   const payloadBody = payload.comment || issue;
   if (client.cfg.inProgressLabel) {
-    exports.cleanInProgress(client, action, issue, repository);
+    exports.cleanInProgress(client, payload);
   }
   if (action === "labeled" && client.cfg.areaLabels) {
     return client.automations.get("areaLabel").run(client, issue, repository, payload.label);
@@ -46,25 +46,21 @@ exports.parseCommands = (client, payloadBody, issue, repository) => {
   });
 };
 
-exports.closeIssue = (client, issue, repository) => {
-  const issueNumber = issue.number;
-  const repoName = repository.name;
-  const repoOwner = repository.owner.login;
-  const assignees = issue.assignees.map(a => a.login);
-  client.commands.get("abandon").abandon(client, assignees, repoOwner, repoName, issueNumber);
-};
-
-exports.cleanInProgress = (client, action, issue, repository) => {
+exports.cleanInProgress = (client, payload) => {
+  const action = payload.action;
+  const issue = payload.issue;
+  const repository = payload.repository;
+  const sender = payload.sender;
   const labeled = issue.labels.find(label => label.name === client.cfg.inProgressLabel);
   if (action === "assigned" && !labeled) {
-    client.issues.addLabel({
-      owner: repository.owner.login, repo: repository.name, number: issue.number, name: client.cfg.inProgressLabel
+    client.issues.addLabels({
+      owner: repository.owner.login, repo: repository.name, number: issue.number, labels: [client.cfg.inProgressLabel]
     });
   } else if (action === "unassigned" && !issue.assignees.length && labeled) {
     client.issues.removeLabel({
       owner: repository.owner.login, repo: repository.name, number: issue.number, name: client.cfg.inProgressLabel
     });
-  } else if (issue.assignees.length && !labeled) {
+  } else if (issue.assignees.length && !labeled && sender.login !== client.cfg.username) {
     const comment = "**ERROR:** This issue has been assigned but is not labeled as being in progress.";
     client.newComment(issue, repository, comment);
   }

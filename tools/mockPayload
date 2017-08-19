@@ -114,7 +114,10 @@ function issueOptions(username, issue) {
         user: {
           login: response.commenter
         }
-      } : null
+      } : null,
+      sender: {
+        login: response.comment ? response.commenter : username
+      }
     };
     const event = response.comment ? "issue_comment" : "issues";
     client.events.get(event).run(client, payload);
@@ -191,6 +194,9 @@ function pullRequestOptions(username, pullRequest) {
           user: {
             login: response.commenter
           }
+        },
+        sender: {
+          login: response.commenter
         }
       };
       client.events.get("issue_comment").run(client, payload);
