@@ -3,7 +3,10 @@ exports.run = (client) => {
     client.cfg.activeRepos.reduce((all, repo) => {
       const repoOwner = repo.split("/")[0];
       const repoName = repo.split("/")[1];
-      return all.concat(getPullRequests(client, [], repoName, repoOwner));
+      const func = client.pullRequests.getAll({
+        owner: repoOwner, repo: repoName, per_page: 100
+      });
+      return all.concat(client.getAll(client, [], func));
     }, [])
   ).then(async(array) => {
     const pullRequests = array.reduce((a, element) => {
@@ -12,18 +15,6 @@ exports.run = (client) => {
     await scrapeInactivePullRequests(client, pullRequests);
   });
 };
-
-async function getPullRequests(client, pullRequests, repoName, repoOwner) {
-  let response = await client.pullRequests.getAll({
-    owner: repoOwner, repo: repoName, per_page: 100
-  });
-  pullRequests = pullRequests.concat(response.data);
-  while (client.hasNextPage(response)) {
-    response = await client.getNextPage(response);
-    pullRequests = pullRequests.concat(response.data);
-  }
-  return pullRequests;
-}
 
 async function scrapeInactivePullRequests(client, pullRequests) {
   const references = new Map();
@@ -66,22 +57,13 @@ async function scrapeInactivePullRequests(client, pullRequests) {
         references.set(`${repoName}/${ref}`, time);
       }
       if (index !== array.length - 1) return;
-      const issues = await getIssues(client, []);
+      const func = client.issues.getAll({
+        filter: "all", labels: client.cfg.inProgressLabel, per_page: 100
+      });
+      const issues = await client.getAll(client, [], func);
       await scrapeInactiveIssues(client, references, issues);
     }, index * 500);
   });
-}
-
-async function getIssues(client, issues) {
-  let response = await client.issues.getAll({
-    filter: "all", labels: client.cfg.inProgressLabel, per_page: 100
-  });
-  issues = issues.concat(response.data);
-  while (client.hasNextPage(response)) {
-    response = await client.getNextPage(response);
-    issues = issues.concat(response.data);
-  }
-  return issues;
 }
 
 async function scrapeInactiveIssues(client, references, issues) {

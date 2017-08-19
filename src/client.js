@@ -61,4 +61,14 @@ client.abandonIssue = async function(client, commenter, repository, issue) {
   .set("accept", "application/json").set("user-agent", client.cfg.username).send(json);
 };
 
+client.getAll = async function(client, responses, func) {
+  let response = await func;
+  responses = responses.concat(response.data);
+  while (client.hasNextPage(response)) {
+    response = await client.getNextPage(response);
+    responses = responses.concat(response.data);
+  }
+  return responses;
+};
+
 module.exports = client;
