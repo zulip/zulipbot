@@ -4,7 +4,7 @@
   "description": "GitHub workflow-optimizing bot",
   "main": "src/index.js",
   "engines": {
-    "node": ">=7.0.0",
+    "node": ">=7.6.0",
     "npm": "*"
   },
   "files": [
@@ -48,7 +48,7 @@
     "zulipbot",
     "synicalsyntax"
   ],
-  "author": "Cynthia Lin <cynthialin1004@gmail.com> (http://clin-dump.co.nf)",
+  "author": "Cynthia Lin <cynthialin1004@gmail.com> (https://synicalsyntax.me)",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/zulip/zulipbot/issues"
