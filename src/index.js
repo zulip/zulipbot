@@ -19,26 +19,26 @@ app.get("/", (req, res) => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-app.post("/", (req, res) => {
+app.post("/", async(req, res) => {
   if (req.get("X-GitHub-Event")) {
     const signature = req.get("X-Hub-Signature");
-    const hmac = crypto.createHmac("sha1", client.cfg.webhookSecret).update(JSON.stringify(req.body)).digest("hex");
+    const secret = client.cfg.webhookSecret.toString();
+    const hmac = crypto.createHmac("sha1", secret).update(JSON.stringify(req.body)).digest("hex");
     if (signature === `sha1=${hmac}`) {
       const validEvent = client.events.get(req.get("X-GitHub-Event"));
       if (validEvent) validEvent.run(client, req.body);
       return res.status(200).send("Valid request");
     }
   } else if (req.get("Travis-Repo-Slug")) {
-    snekfetch.get("https://api.travis-ci.org/config").then((r) => {
-      const publicKey = JSON.parse(r.text).config.notifications.webhook.public_key;
-      const key = new NodeRSA(publicKey, {signingScheme: "sha1"});
-      const signature = req.get("Signature");
-      const valid = key.verify(JSON.parse(req.body.payload), signature, "base64", "base64");
-      if (valid) {
-        client.events.get("travis").run(client, JSON.parse(req.body.payload));
-        return res.status(200).send("Valid request");
-      }
-    });
+    const r = await snekfetch.get("https://api.travis-ci.org/config");
+    const publicKey = JSON.parse(r.text).config.notifications.webhook.public_key;
+    const key = new NodeRSA(publicKey, {signingScheme: "sha1"});
+    const signature = req.get("Signature");
+    const valid = key.verify(JSON.parse(req.body.payload), signature, "base64", "base64");
+    if (valid) {
+      client.events.get("travis").run(client, JSON.parse(req.body.payload));
+      return res.status(200).send("Valid request");
+    }
   }
   res.status(500).send("Invalid request");
 });
