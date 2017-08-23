@@ -64,7 +64,7 @@ module.exports = {
     ["area: webpack", "server-development"]
   ]),
   activeRepos: ["zulip/zulip", "zulip/zulip-mobile", "zulip/zulip-electron", "zulip/zulipbot"],
-  checkInactivityTimeout: 6,
+  // checkInactivityTimeout: 6,
   inactivityTimeLimit: 7,
   autoAbandonTimeLimit: 3,
   travisLabel: "travis updates",
