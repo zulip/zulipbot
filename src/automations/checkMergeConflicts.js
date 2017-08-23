@@ -27,7 +27,7 @@ exports.check = async function(client, number, repoName, repoOwner) {
     const synchCheck = lastCommitTime < Date.parse(c.updated_at);
     return c.body.includes(comment) && synchCheck && c.user.login === client.cfg.username;
   });
-  if (!labelComment && !mergeable) {
+  if (!labelComment && mergeable === false) {
     client.newComment(pull.data, pull.data.base.repo, comment);
   } else if (mergeable) {
     const oldComments = comments.data.filter((c) => {
