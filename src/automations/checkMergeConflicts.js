@@ -5,10 +5,10 @@ exports.run = async function(client, repository) {
     owner: repoOwner, repo: repoName, per_page: 100
   });
   const pullRequests = await client.getAll(client, [], func);
-  pullRequests.forEach(async p => check(client, p.number, repoName, repoOwner));
+  pullRequests.forEach(async p => exports.check(client, p.number, repoName, repoOwner));
 };
 
-async function check(client, number, repoName, repoOwner) {
+exports.check = async function(client, number, repoName, repoOwner) {
   const pull = await client.pullRequests.get({
     owner: repoOwner, repo: repoName, number: number
   });
@@ -20,7 +20,7 @@ async function check(client, number, repoName, repoOwner) {
     owner: repoOwner, repo: repoName, number: number, per_page: 100
   });
   const lastCommitTime = Date.parse(commits.data.slice(-1).pop().commit.committer.date);
-  const comments = client.issues.getComments({
+  const comments = await client.issues.getComments({
     owner: repoOwner, repo: repoName, number: number, per_page: 100
   });
   const labelComment = comments.data.find((c) => {
@@ -39,4 +39,4 @@ async function check(client, number, repoName, repoOwner) {
       });
     });
   }
-}
+};
