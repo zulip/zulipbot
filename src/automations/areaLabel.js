@@ -17,7 +17,7 @@ exports.run = (client, issue, repository, label) => {
     const areaTeams = `@${repoOwner}/` + Array.from(new Set(labelTeams)).join(`, @${repoOwner}/`);
     const references = issueAreaLabels.join("**, **");
     const payload = issue.pull_request ? "pull request" : "issue";
-    const labelSize = "label" + labelTeams.length === 1 ? "" : "s";
+    const labelSize = labelTeams.length === 1 ? "label" : "labels";
     const comment = client.templates.get("areaLabelNotification").replace("[teams]", areaTeams)
     .replace("[payload]", payload).replace("[refs]", `**${references}**`).replace("[labels]", labelSize);
     const labelComment = issueComments.data.find((issueComment) => {

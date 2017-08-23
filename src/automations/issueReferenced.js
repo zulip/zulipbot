@@ -31,7 +31,7 @@ exports.referenceIssue = (client, referencedIssue, pullRequest, repository) => {
     const teams = issueLabels.map(l => client.cfg.areaLabels.get(l));
     const uniqueTeams = `@${repoOwner}/` + Array.from(new Set(teams)).join(`, @${repoOwner}/`);
     const areaLabels = issueLabels.join("\", \"");
-    const labelSize = issueLabels.length === 1 ? "" : "s";
+    const labelSize = issueLabels.length === 1 ? "label" : "labels";
     const comment = client.templates.get("areaLabelNotification").replace("[teams]", uniqueTeams)
     .replace("[payload]", "pull request").replace("[refs]", `"${areaLabels}"`).replace("[labels]", labelSize);
     client.newComment(pullRequest, repository, comment);
