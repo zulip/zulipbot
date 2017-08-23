@@ -5,7 +5,11 @@ exports.run = async function(client, repository) {
     owner: repoOwner, repo: repoName, per_page: 100
   });
   const pullRequests = await client.getAll(client, [], func);
-  pullRequests.forEach(async p => exports.check(client, p.number, repoName, repoOwner));
+  pullRequests.forEach(async(p, index) => {
+    setTimeout(() => {
+      exports.check(client, p.number, repoName, repoOwner);
+    }, index * 500);
+  });
 };
 
 exports.check = async function(client, number, repoName, repoOwner) {
