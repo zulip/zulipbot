@@ -24,11 +24,8 @@ exports.run = (client, payload) => {
   }
   if (action === "opened") {
     client.automations.get("issueReferenced").run(client, pullRequest, repository);
-  } else if (action === "synchronize") {
-    client.automations.get("issueReferenced").run(client, pullRequest, repository);
-    if (client.cfg.checkMergeConflicts) {
-      client.automations.get("checkMergeConflicts").check(client, number, repoName, repoOwner);
-    }
+  } else if (action === "synchronize" && client.cfg.checkMergeConflicts) {
+    client.automations.get("checkMergeConflicts").check(client, number, repoName, repoOwner);
   }
 };
 
