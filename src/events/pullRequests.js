@@ -23,9 +23,12 @@ exports.run = (client, payload) => {
     return;
   }
   if (action === "opened") {
-    client.automations.get("issueReferenced").run(client, pullRequest, repository);
-  } else if (action === "synchronize" && client.cfg.checkMergeConflicts) {
-    client.automations.get("checkMergeConflicts").check(client, number, repoName, repoOwner);
+    client.automations.get("issueReferenced").run(client, pullRequest, repository, true);
+  } else if (action === "synchronize") {
+    client.automations.get("issueReferenced").run(client, pullRequest, repository, false);
+    if (client.cfg.checkMergeConflicts) {
+      client.automations.get("checkMergeConflicts").check(client, number, repoName, repoOwner);
+    }
   }
 };
 
@@ -33,8 +36,9 @@ exports.managePRLabels = (client, action, pullRequest, review, repository) => {
   const number = pullRequest.number;
   const repoName = repository.name;
   const repoOwner = repository.owner.login;
-  client.issues.getIssueLabels({owner: repoOwner, repo: repoName, number: number})
-  .then((response) => {
+  client.issues.getIssueLabels({
+    owner: repoOwner, repo: repoName, number: number
+  }).then((response) => {
     let labels = response.data.map(label => label.name);
     const needsReview = labels.includes(client.cfg.needsReviewLabel);
     const reviewed = labels.includes(client.cfg.reviewedLabel);

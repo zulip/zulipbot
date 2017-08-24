@@ -1,4 +1,4 @@
-exports.run = (client, pullRequest, repository) => {
+exports.run = (client, pullRequest, repository, opened) => {
   const author = pullRequest.user.login;
   const number = pullRequest.number;
   const repoName = repository.name;
@@ -7,12 +7,13 @@ exports.run = (client, pullRequest, repository) => {
     owner: repoOwner, repo: repoName, number: number
   }).then((response) => {
     const refIssues = response.data.filter((c) => {
-      return c.commit.message.match(/#([0-9]+)/);
+      return findKeywords(c.commit.message);
     }).map(c => c.commit.message.match(/#([0-9]+)/)[1]);
-    if (!refIssues.length && pullRequest.body.match(/#([0-9]+)/)) {
+    if (!refIssues.length && findKeywords(pullRequest.body)) {
       const comment = client.templates.get("fixCommitMessage").replace("[author]", author);
       return client.newComment(pullRequest, repository, comment);
     }
+    if (!opened) return;
     Array.from(new Set(refIssues)).forEach((referencedIssue) => {
       exports.referenceIssue(client, referencedIssue, pullRequest, repository);
     });
@@ -38,3 +39,14 @@ exports.referenceIssue = (client, referencedIssue, pullRequest, repository) => {
     client.newComment(pullRequest, repository, comment);
   });
 };
+
+function findKeywords(string) {
+  const keywords = ["close", "fix", "resolve"];
+  return keywords.some((word) => {
+    const current = new RegExp(`${word} #([0-9]+)`, "i");
+    const past = new RegExp(`${word.endsWith("e") ? `${word}d` : `${word}ed`} #([0-9]+)`, "i");
+    const present = new RegExp(`${word.endsWith("e") ? `${word}s` : `${word}es`} #([0-9]+)`, "i");
+    const tenses = [current, past, present];
+    return tenses.some(t => string.match(t));
+  });
+}
