@@ -50,7 +50,6 @@ exports.cleanInProgress = (client, payload) => {
   const action = payload.action;
   const issue = payload.issue;
   const repository = payload.repository;
-  const sender = payload.sender;
   const labeled = issue.labels.find(label => label.name === client.cfg.inProgressLabel);
   if (action === "assigned" && !labeled) {
     client.issues.addLabels({
@@ -60,9 +59,15 @@ exports.cleanInProgress = (client, payload) => {
     client.issues.removeLabel({
       owner: repository.owner.login, repo: repository.name, number: issue.number, name: client.cfg.inProgressLabel
     });
-  } else if (issue.assignees.length && !labeled && sender.login !== client.cfg.username) {
-    const comment = "**ERROR:** This issue has been assigned but is not labeled as being in progress.";
-    client.newComment(issue, repository, comment);
+  } else if (issue.assignees.length && !labeled) {
+    client.issues.getComments({
+      owner: repository.owner.login, repo: repository.name, number: issue.number, per_page: 100
+    }).then((comments) => {
+      const comment = "**ERROR:** This issue has been assigned but is not labeled as being in progress.";
+      const c = comments.data.slice(-1).pop();
+      const warning = c.body.includes(comment) && c.user.login === client.cfg.username;
+      if (!warning) client.newComment(issue, repository, comment);
+    });
   }
 };
 
