@@ -22,7 +22,7 @@ exports.run = (client, payload) => {
   } else if (!client.cfg.areaLabels || !client.cfg.commitReferenceEnabled) {
     return;
   }
-  if (action === "opened") {
+  if (action === "opened" && !pullRequest.title.includes(client.cfg.escapeWIPString)) {
     client.automations.get("issueReferenced").run(client, pullRequest, repository, true);
   } else if (action === "synchronize") {
     client.automations.get("issueReferenced").run(client, pullRequest, repository, false);
