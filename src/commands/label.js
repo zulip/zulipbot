@@ -20,7 +20,7 @@ exports.run = (client, body, issue, repository) => {
         .replace("[labels]", `Label${singular ? "" : "s"}`)
         .replace("[labelList]", `"${rejected.join("\", \"")}"`)
         .replace("[existState]", `do${singular ? "es" : ""} not exist`)
-        .replace("[beState]", `w${singular === 1 ? "as" : "ere"}`)
+        .replace("[beState]", `w${singular ? "as" : "ere"}`)
         .replace("[action]", "added to");
         client.newComment(issue, repository, rejectedLabelError, issue.pull_request);
       }
@@ -30,7 +30,7 @@ exports.run = (client, body, issue, repository) => {
         .replace("[labels]", `Label${singular ? "" : "s"}`)
         .replace("[labelList]", `"${alreadyAdded.join("\", \"")}"`)
         .replace("[existState]", `already ${singular ? "s" : ""}`)
-        .replace("[beState]", `w${singular === 1 ? "as" : "ere"}`)
+        .replace("[beState]", `w${singular ? "as" : "ere"}`)
         .replace("[action]", "added to");
         client.newComment(issue, repository, alreadyAddedError, issue.pull_request);
       }
