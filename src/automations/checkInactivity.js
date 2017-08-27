@@ -97,7 +97,12 @@ async function scrapeInactiveIssues(client, references, issues) {
       const com = issueComments.data.slice(-1).pop();
       const labelComment = com ? com.body.includes(c) && com.user.login === client.cfg.username : false;
       if (labelComment) {
-        client.abandonIssue(client, aString.split(", @"), issue.repository, issue);
+        const assignees = JSON.stringify({
+          assignees: aString.split(", @")
+        });
+        client.issues.removeAssigneesFromIssue({
+          owner: repoOwner, repo: repoName, number: issueNumber, body: assignees
+        });
         const warning = client.templates.get("abandonWarning")
         .replace("[assignee]", aString)
         .replace("[total]", client.cfg.autoAbandonTimeLimit + client.cfg.inactivityTimeLimit)

@@ -4,7 +4,12 @@ exports.run = (client, comment, issue, repository) => {
   if (!assignees.includes(commenter)) {
     return client.newComment(issue, repository, "**ERROR:** You have not claimed this issue to work on yet.");
   }
-  client.abandonIssue(client, commenter, repository, issue);
+  const assignee = JSON.stringify({
+    assignees: commenter
+  });
+  client.issues.removeAssigneesFromIssue({
+    owner: repository.owner.login, repo: repository.name, number: issue.number, body: assignee
+  });
 };
 
 exports.aliases = require("../config.js").abandonCommands;

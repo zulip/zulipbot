@@ -14,8 +14,12 @@ exports.run = (client, payload) => {
     recentlyClosed.set(issue.id, issue);
     return setTimeout(() => {
       if (recentlyClosed.has(issue.id)) {
-        const assignees = issue.assignees.map(a => a.login);
-        client.abandonIssue(client, assignees, repository, issue);
+        const assignees = JSON.stringify({
+          assignees: issue.assignees.map(a => a.login)
+        });
+        client.issues.removeAssigneesFromIssue({
+          owner: repository.owner.login, repo: repository.name, number: issue.number, body: assignees
+        });
       }
       recentlyClosed.delete(issue.id);
     }, client.cfg.repoEventsDelay * 60 * 1000);
