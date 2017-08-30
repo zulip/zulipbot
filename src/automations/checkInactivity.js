@@ -39,8 +39,8 @@ async function scrapeInactivePullRequests(client, pullRequests) {
         const comments = await client.issues.getComments({
           owner: repoOwner, repo: repoName, number: number, per_page: 100
         });
-        const issueComment = comments.data.slice(-1).pop();
-        const lastComment = issueComment.body.includes(comment) && issueComment.user.login === client.cfg.username;
+        const com = comments.data.slice(-1).pop();
+        const lastComment = com ? com.body.includes(comment) && com.user.login === client.cfg.username : false;
         if (reviewedLabel && !lastComment) {
           client.newComment(pullRequest, pullRequest.base.repo, comment);
         }
