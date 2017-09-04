@@ -11,8 +11,8 @@
     "src"
   ],
   "dependencies": {
-    "@octokit/rest": "^14.0.2",
     "express": "~4.16.0",
+    "github": "^13.1.0",
     "node-rsa": "^0.4.2",
     "snekfetch": "^3.6.1"
   },
