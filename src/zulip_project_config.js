@@ -1,9 +1,9 @@
 const secrets = require("./secrets.json");
 
 module.exports = {
-  username: secrets.username,
-  password: secrets.password,
-  webhookSecret: secrets.webhookSecret,
+  username: process.env.USERNAME || secrets.username,
+  password: process.env.PASSWORD || secrets.password,
+  webhookSecret: process.env.WEBHOOK_SECRET || secrets.webhookSecret,
   claimCommands: ["claim"],
   addCollabPermission: "pull",
   abandonCommands: ["abandon", "unclaim", "abort"],
