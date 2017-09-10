@@ -2,7 +2,7 @@ Congratulations, @[commenter], you've successfully claimed your first issue! Con
 
 First things first:
 * Please read the README.md and CONTRIBUTING.md in this repo. Those two documents have much of what you need to get started. 
-* Join the [ODK developer Slack](http://slack.opendatakit.org/), to get help, chat about this issue, and meet the other developers.
+* Join the [ODK developer Slack](http://slack.opendatakit.org/) to get help, chat about this issue, and meet the other developers.
 * Sign up and introduce yourself on the [ODK community forum](https://forum.opendatakit.org/) to meet the broader ODK community.
 
 See you on the other side (that is, the pull request side)!
