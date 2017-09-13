@@ -7,7 +7,7 @@ exports.run = (client, payload) => {
   const payloadBody = payload.comment || issue;
   const repoOwner = repository.owner.login;
   const repoName = repository.name;
-  if (client.cfg.inProgressLabel && issue.in_progress) {
+  if (client.cfg.inProgressLabel) {
     exports.cleanInProgress(client, payload, repoOwner, repoName);
   }
   if (action === "labeled" && client.cfg.areaLabels) {
