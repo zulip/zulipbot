@@ -6,6 +6,7 @@ client.cfg = require("./config.js");
 client.automations = new Map();
 client.commands = new Map();
 client.events = new Map();
+client.invites = new Map();
 client.templates = new Map();
 
 const commands = fs.readdirSync("./src/commands");

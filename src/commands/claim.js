@@ -5,19 +5,15 @@ exports.run = (client, comment, issue, repository) => {
   if (issue.assignees && issue.assignees.find(assignee => assignee.login === commenter)) {
     return client.newComment(issue, repository, "**ERROR:** You have already claimed this issue.");
   }
-  client.repos.checkCollaborator({
-    owner: repoOwner, repo: repoName, username: commenter
-  }).then((response) => {
-    if (response.meta.status !== "204 No Content") {
-      return client.newComment(issue, repository, "**ERROR:** Unexpected response from GitHub API.");
-    }
-    exports.claimIssue(client, comment, issue, repository);
-  }, (response) => {
-    if (response.headers.status !== "404 Not Found") {
-      return client.newComment(issue, repository, "**ERROR:** Unexpected response from GitHub API.");
-    }
+  if (comment.author_association === "NONE" && !client.invites.get(commenter)) {
     exports.addCollaborator(client, comment, issue, repository);
-  });
+  } else if (comment.author_association === "NONE") {
+    const comment = client.templates.get("newContributor").replace("[commenter]", commenter)
+    .replace("[repoName]", repoName).replace("[repoOwner]", repoOwner);
+    client.newComment(issue, repository, comment);
+  } else {
+    exports.claimIssue(client, comment, issue, repository);
+  }
 };
 
 exports.addCollaborator = (client, comment, issue, repository) => {
@@ -30,10 +26,15 @@ exports.addCollaborator = (client, comment, issue, repository) => {
   }
   client.repos.addCollaborator({
     owner: repoOwner, repo: repoName, username: commenter, permission: client.cfg.addCollabPermission
-  }).then(() => exports.claimIssue(client, comment, issue, repository, true));
+  }).then(() => {
+    client.invites.set(commenter, `${repoOwner}/${repoName}#${issue.number}`);
+    const comment = client.templates.get("newContributor").replace("[commenter]", commenter)
+    .replace("[repoName]", repoName).replace("[repoOwner]", repoOwner);
+    client.newComment(issue, repository, comment);
+  });
 };
 
-exports.claimIssue = (client, comment, issue, repository, newContrib) => {
+exports.claimIssue = (client, comment, issue, repository) => {
   const commenter = comment.user.login;
   const issueNumber = issue.number;
   const repoName = repository.name;
@@ -41,11 +42,8 @@ exports.claimIssue = (client, comment, issue, repository, newContrib) => {
   client.issues.addAssigneesToIssue({
     owner: repoOwner, repo: repoName, number: issueNumber, assignees: [commenter]
   }).then((response) => {
-    if (!response.data.assignees) {
-      return client.newComment(issue, repository, "**ERROR:** Issue claiming failed (no assignee was added).");
-    }
-    if (!newContrib) return;
-    client.newComment(issue, repository, client.templates.get("newContributor").replace("[commenter]", commenter));
+    if (response.data.assignees) return;
+    client.newComment(issue, repository, "**ERROR:** Issue claiming failed (no assignee was added).");
   });
 };
 
