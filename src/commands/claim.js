@@ -5,32 +5,23 @@ exports.run = (client, comment, issue, repository) => {
   if (issue.assignees && issue.assignees.find(assignee => assignee.login === commenter)) {
     return client.newComment(issue, repository, "**ERROR:** You have already claimed this issue.");
   }
-  if (comment.author_association === "NONE" && !client.invites.get(commenter)) {
-    exports.addCollaborator(client, comment, issue, repository);
-  } else if (comment.author_association === "NONE") {
-    const comment = client.templates.get("newContributor").replace("[commenter]", commenter)
+  client.repos.reviewUserPermissionLevel({
+    owner: repoOwner, repo: repoName, username: commenter
+  }).then((response) => {
+    if (response.data.permission !== "none") return exports.claimIssue(client, comment, issue, repository);
+    if (!client.cfg.addCollabPermission) {
+      const newComment = "**ERROR:** `client.cfg.addCollabPermission` wasn't specified in `src/config.js`.";
+      return client.newComment(issue, repository, newComment);
+    }
+    const newComment = client.templates.get("newContributor").replace("[commenter]", commenter)
     .replace("[repoName]", repoName).replace("[repoOwner]", repoOwner);
-    client.newComment(issue, repository, comment);
-  } else {
-    exports.claimIssue(client, comment, issue, repository);
-  }
-};
-
-exports.addCollaborator = (client, comment, issue, repository) => {
-  const commenter = comment.user.login;
-  const repoName = repository.name;
-  const repoOwner = repository.owner.login;
-  if (!client.cfg.addCollabPermission) {
-    const comment = "**ERROR:** `client.cfg.addCollabPermission` wasn't specified in `src/config.js`.";
-    return client.newComment(issue, repository, comment);
-  }
-  client.repos.addCollaborator({
-    owner: repoOwner, repo: repoName, username: commenter, permission: client.cfg.addCollabPermission
-  }).then(() => {
-    client.invites.set(commenter, `${repoOwner}/${repoName}#${issue.number}`);
-    const comment = client.templates.get("newContributor").replace("[commenter]", commenter)
-    .replace("[repoName]", repoName).replace("[repoOwner]", repoOwner);
-    client.newComment(issue, repository, comment);
+    client.newComment(issue, repository, newComment);
+    if (client.invites.get(commenter)) return;
+    client.repos.addCollaborator({
+      owner: repoOwner, repo: repoName, username: commenter, permission: client.cfg.addCollabPermission
+    }).then(() => {
+      client.invites.set(commenter, `${repoOwner}/${repoName}#${issue.number}`);
+    });
   });
 };
 
