@@ -5,10 +5,14 @@ exports.run = (client, comment, issue, repository) => {
   if (issue.assignees && issue.assignees.find(assignee => assignee.login === commenter)) {
     return client.newComment(issue, repository, "**ERROR:** You have already claimed this issue.");
   }
-  client.repos.reviewUserPermissionLevel({
+  client.repos.checkCollaborator({
     owner: repoOwner, repo: repoName, username: commenter
-  }).then((response) => {
-    if (response.data.permission !== "none") return exports.claimIssue(client, comment, issue, repository);
+  }).then(() => {
+    exports.claimIssue(client, comment, issue, repository);
+  }, (response) => {
+    if (response.code !== 404) {
+      return client.newComment(issue, repository, "**ERROR:** Unexpected response from GitHub API.");
+    }
     if (!client.cfg.addCollabPermission) {
       const newComment = "**ERROR:** `client.cfg.addCollabPermission` wasn't specified in `src/config.js`.";
       return client.newComment(issue, repository, newComment);
