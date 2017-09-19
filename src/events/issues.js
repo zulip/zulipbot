@@ -37,18 +37,19 @@ exports.parseCommands = (client, payloadBody, issue, repository) => {
   const body = payloadBody.body;
   const issueCreator = issue.user.login;
   if (c === client.cfg.username || !body) return;
-  const parseCommands = body.match(new RegExp("@" + client.cfg.username + "\\s(\\w*)", "g"));
+  const parseCommands = body.match(new RegExp(`@${client.cfg.username}\\s+(\\S+)`, "g"));
   if (!parseCommands) return;
   parseCommands.forEach((command) => {
     if (body.includes(`\`${command}\``) || body.includes(`\`\`\`\r\n${command}\r\n\`\`\``)) return;
-    let cmdFile = client.commands.get(command.split(" ")[1]);
+    const keyword = command.replace(/\s+/, " ").split(" ")[1];
+    let cmdFile = client.commands.get(keyword);
     if (cmdFile && !cmdFile.args) return cmdFile.run(client, payloadBody, issue, repository);
     else if (!cmdFile || !body.match(/".*?"/g)) return;
     if (client.cfg.selfLabelingOnly && c !== issueCreator && !client.cfg.sudoUsers.includes(c)) return;
     const splitBody = body.split(`@${client.cfg.username}`).filter((splitString) => {
-      return splitString.includes(` ${command.split(" ")[1]} "`);
+      return splitString.match(new RegExp(`\\s+${keyword}\\s+"`));
     }).join(" ");
-    cmdFile.run(client, splitBody, issue, repository);
+    cmdFile.run(client, splitBody.replace(/\s+/, " "), issue, repository);
   });
 };
 
