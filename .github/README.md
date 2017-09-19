@@ -3,25 +3,25 @@
 [![Build Status](https://travis-ci.org/zulip/zulipbot.svg?branch=master)](https://travis-ci.org/zulip/zulipbot)
 [![David](https://img.shields.io/david/zulip/zulipbot.svg)](https://david-dm.org/zulip/zulipbot)
 [![GitHub release](https://img.shields.io/github/release/zulip/zulipbot.svg)](https://github.com/zulip/zulipbot/releases/latest)
-[![**zulipbot** stream](https://img.shields.io/badge/zulipbot-chat-aed9cc.svg)](https://chat.zulip.org/#narrow/stream/zulipbot)
+[![GitHub license](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://raw.githubusercontent.com/zulip/zulipbot/master/LICENSE)
+[![zulipbot chat](https://img.shields.io/badge/chat-zulip-2c7c6e.svg)](https://chat.zulip.org/#narrow/stream/zulipbot)
 
-[@zulipbot](https://github.com/zulipbot) is a GitHub workflow bot for the
-[Zulip organization](https://zulip.org) and its repositories. Written in
-Node.js, the bot handles issues in the repository in order to create a
-better workflow for Zulip contributors.
+[@zulipbot](https://github.com/zulipbot) is a GitHub workflow bot application
+for the [Zulip organization](https://zulip.org) and its repositories. Written in
+Node.js, the bot manages issues and pull requests in the repository in order to
+create a better workflow for Zulip contributors.
 
-Its purpose is to work around various limitations in GitHub’s permissions and
-notifications systems to make it possible to have a much more democratic
-workflow for our contributors. It allows anyone to self-assign or label an
-issue, not just the core contributors trusted with full write access to the
-repository (which is the only model GitHub supports).
-
-**@zulipbot** is currently deployed on all repositories of the [Zulip
-organization](https://zulip.org).
+**zulipbot**'s purpose is to work around various limitations in GitHub’s binary
+permissions and notifications systems to create a better workflow for our
+contributors. It allows anyone to perform issue triage (self-assigning and
+labeling issues), not just the core contributors trusted with full write access
+to the repository (which is the only model GitHub supports). Additionally,
+**zulipbot** checks pull requests for merge conflicts, failing pull request
+checks, and inactivity,
 
 ## Installation
 
-To install a copy of **@zulipbot** on your own GitHub repository, please visit
+To install a copy of **zulipbot** on your own GitHub repository, please visit
 the [Installation](https://github.com/zulip/zulipbot/wiki/Installation) page on
 the **zulipbot wiki**.
 
@@ -29,23 +29,21 @@ the **zulipbot wiki**.
 
 If you're using the [Zulip project
 configuration](https://github.com/zulip/zulipbot/blob/master/src/zulip_project_config.js)
-(`src/zulip_project_config.js`), see zulipbot's [usage
+(`./src/zulip_project_config.js`), see zulipbot's [usage
 instructions](http://zulip.readthedocs.io/en/latest/zulipbot-usage.html) on the
 Zulip documentation.
 
-If you're using your own custom configuration (`src/config.js` is different from
+If you're using your own custom configuration (`./src/config.js` is different from
 the Zulip project configuration), please visit the
 [Commands](https://github.com/zulip/zulipbot/wiki/Commands) page on the
 **zulipbot wiki**.
 
 ## Contributing
 
-If you wish to contribute to **@zulipbot**, please read our [contributing
+If you wish to contribute to **zulipbot**, please read our [contributing
 guidelines](CONTRIBUTING.md) for more information.
 
 ## License
-
-Copyright (c) 2017 Cynthia Lin, Joshua Pan, and contributors
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
 use this file except in compliance with the License. You may obtain a copy

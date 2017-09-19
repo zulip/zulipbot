@@ -12,18 +12,18 @@ Before you get started, make sure you have:
   * registered an account on the [Zulip development
   server](https://chat.zulip.org) and joined us on the [zulipbot
   stream](https://chat.zulip.org/#narrow/stream/zulipbot) on the Zulip
-  development server, where most discussion concerning **@zulipbot** takes place
+  development server, where most discussion concerning **zulipbot** takes place
 
-  * read and followed our [Code of Conduct](https://zulip.readthedocs.io/en/latest/code-of-conduct.html)
+  * read and followed our [Code of Conduct](CODE_OF_CONDUCT.md)
   as a contributor to create a more collaborative and welcoming environment
   for development
 
 ### Opening an issue
-Are you trying to report a bug that you found in **@zulipbot**? Do you have
-suggestions for new features or improvements for **@zulipbot**? These are all
+Are you trying to report a bug that you found in **zulipbot**? Do you have
+suggestions for new features or improvements for **zulipbot**? These are all
 great and valid reasons for opening an issue in our [GitHub issue
 tracker](https://github.com/zulip/zulipbot/issues), where we maintain a list of
-issues about **@zulipbot** that need to be fixed. Please provide as much
+issues about **zulipbot** that need to be fixed. Please provide as much
 information and details as you can in your issue so we can address your issue
 properly.
 
@@ -70,7 +70,8 @@ assign you to the issue so you can begin working on it.
   $ npm start
   ```
 
-If you encounter any problems during installation, let us know on the [zulipbot stream](https://chat.zulip.org/#narrow/stream/zulipbot) and we can help you out!
+If you encounter any problems during installation, let us know on the [zulipbot
+chat](https://chat.zulip.org/#narrow/stream/zulipbot) and we can help you out!
 
 ## Making changes
 
@@ -121,16 +122,16 @@ the pull request's Travis builds pass and any concerns about your pull request
 are settled.
 
 ### Testing
-**@zulipbot** is currently manually tested on a separate
+**zulipbot** is currently manually tested on a separate
 [organization](https://github.com/zulipbot-testing) and its repositories using a
-[test account](https://github.com/zulipbot-test), **@zulipbot-test** while a
+[test account](https://github.com/zulipbot-test), **@zulipbot-test**, while a
 framework for unit and coverage tests using [Mocha](https://mochajs.org) and
 [Istanbul](https://github.com/gotwarlost/istanbul) is being established.
 
 Our current test framework consists of [Travis](https://travis-ci.org/) for
-continuous integration and [Gulp](http://gulpjs.com) (`gulpfile.js`) for running
-automated tests, such as reviewing code quality and consistency with linters
-like [Eslint](http://eslint.org).
+continuous integration and [Gulp](http://gulpjs.com) (`./gulpfile.js`) for
+running automated tests, such as reviewing code quality and consistency with
+linters like [Eslint](http://eslint.org).
 
 ### Tools
 To make contributing and testing easier, we've developed some tools to help you
@@ -140,27 +141,28 @@ with making changes:
   **zulipbot-testing** organization for your personal testing.
 
   * `tools/mockPayload` — Run this tool to send a mock payload to your
-  repository on the **zulipbot-testing** organization to see how **@zulipbot**
-  would respond to a certain payload according to the changes in your code once
-  deployed.
+  repository on the **zulipbot-testing** organization to see how
+  **@zulipbot-test** would respond to a certain payload according to the changes
+  in your code once deployed.
 
-  * `tools/checkInactivity` — Run this tool to see how **@zulipbot** would
+  * `tools/checkInactivity` — Run this tool to see how **@zulipbot-test** would
   respond to open issues and pull requests on your repository on the
   **zulipbot-testing** organization when it checks for inactive issues and
   pull requests.
 
-  * `tools/configLint` — Run this tool to see if **zulipbot**'s configuration
-  file `js/config.js` has been configured correctly.
+  * `tools/configLint` — Run this tool to see if **@zulipbot-test**'s
+  configuration file `js/config.js` has been configured correctly.
 
   * `tools/fetchPriority` — Run this tool to generate a dry run report of all
-  the issues labeled with the "priority" label (configured in `src/config.js`)
-  in the repositories that **zulipbot** works in.
+  the issues labeled with the "priority" label (configured in `./src/config.js`)
+  in the repositories that **@zulipbot** works in.
 
   * `tools/fetchInactive` — Run this tool to fetch all the inactive issues and
-  pull requests in the `activeRepos` repositories configured in `src/config.js`.
+  pull requests in the `activeRepos` repositories configured in `./src/config.js`.
 
-  **Warning:** This tool creates a large amount of API requests; please do
-  not run this tool more than once an hour to prevent **zulipbot** from being rate-limited.
+  **Warning:** This tool creates a large amount of API requests; please do not
+  run this tool more than once an hour to prevent **@zulipbot-test** from being
+  rate-limited.
 
 ## Additional resources
 
