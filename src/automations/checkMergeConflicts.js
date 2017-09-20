@@ -38,7 +38,7 @@ exports.check = async function(client, number, repoName, repoOwner) {
     });
     const lastCommitTime = Date.parse(commits.data.slice(-1).pop().commit.committer.date);
     const labelComment = warnings.find(c => lastCommitTime < Date.parse(c.updated_at));
-    const labels = await client.issues.get({
+    const labels = await client.issues.getIssueLabels({
       owner: repoOwner, repo: repoName, number: number
     });
     const inactive = labels.data.find(l => l.name === client.cfg.inactiveLabel);
