@@ -37,7 +37,7 @@ exports.parseCommands = (client, payloadBody, issue, repository) => {
   const body = payloadBody.body;
   const issueCreator = issue.user.login;
   if (c === client.cfg.username || !body) return;
-  const parseCommands = body.match(new RegExp(`@${client.cfg.username}\\s+(\\S+)`, "g"));
+  const parseCommands = body.match(new RegExp(`@${client.cfg.username}\\s+(\\w+)`, "g"));
   if (!parseCommands) return;
   parseCommands.forEach((command) => {
     if (body.includes(`\`${command}\``) || body.includes(`\`\`\`\r\n${command}\r\n\`\`\``)) return;
