@@ -33,16 +33,17 @@ async function scrapePullRequests(client, pullRequests) {
       });
       const inactiveLabel = labels.data.find(l => l.name === client.cfg.inactiveLabel);
       const reviewedLabel = labels.data.find(l => l.name === client.cfg.reviewedLabel);
-      if (inactiveLabel || !reviewedLabel) return;
-      const comment = client.templates.get("updateWarning").replace("[author]", author)
-      .replace("[days]", client.cfg.inactivityTimeLimit);
-      const comments = await client.issues.getComments({
-        owner: repoOwner, repo: repoName, number: number, per_page: 100
-      });
-      const com = comments.data.slice(-1).pop();
-      const lastComment = com ? com.body.includes(comment) && com.user.login === client.cfg.username : false;
-      if (reviewedLabel && !lastComment) {
-        client.newComment(pullRequest, pullRequest.base.repo, comment);
+      if (!inactiveLabel && reviewedLabel) {
+        const comment = client.templates.get("updateWarning").replace("[author]", author)
+        .replace("[days]", client.cfg.inactivityTimeLimit);
+        const comments = await client.issues.getComments({
+          owner: repoOwner, repo: repoName, number: number, per_page: 100
+        });
+        const com = comments.data.slice(-1).pop();
+        const lastComment = com ? com.body.includes(comment) && com.user.login === client.cfg.username : false;
+        if (reviewedLabel && !lastComment) {
+          client.newComment(pullRequest, pullRequest.base.repo, comment);
+        }
       }
     }
     const commits = await client.pullRequests.getCommits({
