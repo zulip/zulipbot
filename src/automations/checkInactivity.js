@@ -4,7 +4,7 @@ exports.run = (client) => {
       const repoOwner = repo.split("/")[0];
       const repoName = repo.split("/")[1];
       const func = client.pullRequests.getAll({
-        owner: repoOwner, repo: repoName, per_page: 100
+        owner: repoOwner, repo: repoName, per_page: 100, sort: "long-running", direction: "desc"
       });
       return all.concat(client.getAll(client, [], func));
     }, [])
