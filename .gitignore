@@ -55,6 +55,3 @@ jspm_packages/
 config/secrets.json
 config/config.js
 secret.tar
-package-lock.json
-
-Procfile
