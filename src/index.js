@@ -1,4 +1,3 @@
-const bodyParser = require("body-parser");
 const client = require("./client.js");
 const crypto = require("crypto");
 const express = require("express");
@@ -16,10 +15,10 @@ app.get("/", (req, res) => {
   res.redirect("https://github.com/zulip/zulipbot");
 });
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+const jsonParser = express.json();
+const urlencodedParser = express.urlencoded({extended: true});
 
-app.post("/", async(req, res) => {
+app.post("/github", jsonParser, async(req, res) => {
   if (req.get("X-GitHub-Event")) {
     const signature = req.get("X-Hub-Signature");
     const secret = client.cfg.webhookSecret.toString();
@@ -29,7 +28,12 @@ app.post("/", async(req, res) => {
       if (validEvent) validEvent.run(client, req.body);
       return res.status(200).send("Valid request");
     }
-  } else if (req.get("Travis-Repo-Slug")) {
+  }
+  res.status(500).send("Invalid request");
+});
+
+app.post("/travis", urlencodedParser, async(req, res) => {
+  if (req.get("Travis-Repo-Slug")) {
     const r = await snekfetch.get("https://api.travis-ci.org/config");
     const publicKey = JSON.parse(r.text).config.notifications.webhook.public_key;
     const key = new NodeRSA(publicKey, {signingScheme: "sha1"});
