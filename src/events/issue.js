@@ -27,7 +27,7 @@ function parse(payload) {
 
   if (commenter === username || !body) return;
 
-  const prefix = RegExp(`@${username}[ ]+(\\w+)([ ]+(--\\w+|"[^"]+"))*`, "g");
+  const prefix = RegExp(`@${username} +(\\w+)( +(--\\w+|"[^"]+"))*`, "g");
   const parsed = body.match(prefix);
   if (!parsed) return;
 
