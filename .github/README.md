@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/zulip/zulipbot.svg?branch=master)](https://travis-ci.org/zulip/zulipbot)
 [![David](https://img.shields.io/david/zulip/zulipbot.svg)](https://david-dm.org/zulip/zulipbot)
 [![GitHub release](https://img.shields.io/github/release/zulip/zulipbot.svg)](https://github.com/zulip/zulipbot/releases/latest)
-[![GitHub license](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://raw.githubusercontent.com/zulip/zulipbot/master/LICENSE)
+[![GitHub license](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://github.com/zulip/zulipbot/blob/master/LICENSE.md)
 [![zulipbot chat](https://img.shields.io/badge/chat-zulip-2c7c6e.svg)](https://chat.zulip.org/#narrow/stream/zulipbot)
 
 [@zulipbot](https://github.com/zulipbot) is a GitHub workflow bot application
