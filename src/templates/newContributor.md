@@ -7,5 +7,4 @@ Here's some tips to get you off to a good start:
 
 As you work on this issue, you'll also want to refer to the [Zulip code contribution guide](http://zulip.readthedocs.io/en/latest/index.html#code-contribution-guide), as well as the rest of the developer documentation on that site.
 
-
 See you on the other side (that is, the pull request side)!
