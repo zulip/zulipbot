@@ -5,14 +5,14 @@ const excludeGitignore = require("gulp-exclude-gitignore");
 const nsp = require("gulp-nsp");
 
 gulp.task("static", () => {
-  return gulp.src(["**/*.js", "tools/*", "!tools/setup"])
-  .pipe(excludeGitignore())
-  .pipe(eslint())
-  .pipe(eslint.format())
-  .pipe(eslint.failAfterError());
+  return gulp.src(["**/*.js", "!tools/*", "!test/*"])
+    .pipe(excludeGitignore())
+    .pipe(eslint())
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
 });
 
-gulp.task("nsp", (cb) => {
+gulp.task("nsp", cb => {
   nsp({package: path.resolve("package.json")}, cb);
 });
 

@@ -1,14 +1,20 @@
 exports.run = (client, comment, issue, repository) => {
   const commenter = comment.user.login;
   const assignees = issue.assignees.map(assignee => assignee.login);
+
   if (!assignees.includes(commenter)) {
-    return client.newComment(issue, repository, "**ERROR:** You have not claimed this issue to work on yet.");
+    const error = "**ERROR:** You have not claimed this issue to work on yet.";
+    return client.newComment(issue, repository, error);
   }
+
+  const repoOwner = repository.owner.login;
+  const repoName = repository.name;
   const assignee = JSON.stringify({
     assignees: commenter
   });
+
   client.issues.removeAssigneesFromIssue({
-    owner: repository.owner.login, repo: repository.name, number: issue.number, body: assignee
+    owner: repoOwner, repo: repoName, number: issue.number, body: assignee
   });
 };
 

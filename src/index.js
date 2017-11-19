@@ -22,7 +22,9 @@ app.post("/github", jsonParser, async(req, res) => {
   if (req.get("X-GitHub-Event")) {
     const signature = req.get("X-Hub-Signature");
     const secret = client.cfg.webhookSecret.toString();
-    const hmac = crypto.createHmac("sha1", secret).update(JSON.stringify(req.body)).digest("hex");
+    const body = JSON.stringify(req.body);
+    const hmac = crypto.createHmac("sha1", secret).update(body).digest("hex");
+
     if (signature === `sha1=${hmac}`) {
       const validEvent = client.events.get(req.get("X-GitHub-Event"));
       if (validEvent) validEvent.run(client, req.body);
@@ -35,12 +37,14 @@ app.post("/github", jsonParser, async(req, res) => {
 app.post("/travis", urlencodedParser, async(req, res) => {
   if (req.get("Travis-Repo-Slug")) {
     const r = await snekfetch.get("https://api.travis-ci.org/config");
-    const publicKey = JSON.parse(r.text).config.notifications.webhook.public_key;
-    const key = new NodeRSA(publicKey, {signingScheme: "sha1"});
+    const pubKey = JSON.parse(r.text).config.notifications.webhook.public_key;
+    const key = new NodeRSA(pubKey, {signingScheme: "sha1"});
     const signature = req.get("Signature");
-    const valid = key.verify(JSON.parse(req.body.payload), signature, "base64", "base64");
+    const payload = JSON.parse(req.body.payload);
+    const valid = key.verify(payload, signature, "base64", "base64");
+
     if (valid) {
-      client.events.get("travis").run(client, JSON.parse(req.body.payload));
+      client.events.get("travis").run(client, payload);
       return res.status(200).send("Valid request");
     }
   }
