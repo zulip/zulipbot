@@ -79,7 +79,7 @@ chat](https://chat.zulip.org/#narrow/stream/zulipbot) and we can help you out!
 plan to make.
 
 2. Commit your changes, following Zulip's [commit discipline
-practice](http://zulip.readthedocs.io/en/latest/version-control.html#commit-discipline).
+practice](http://zulip.readthedocs.io/en/latest/contributing/version-control.html#commit-discipline).
 
 3. Check if your changes and commits pass all tests:
 
@@ -106,7 +106,7 @@ practice](http://zulip.readthedocs.io/en/latest/version-control.html#commit-disc
   You may need to append `+` before your feature branch name if you failed to
   push some refs.
 
-6. Create a [pull request](http://zulip.readthedocs.io/en/latest/git-guide.html#create-a-pull-request)
+6. Create a [pull request](http://zulip.readthedocs.io/en/latest/contributing/git-guide.html#create-a-pull-request)
 for the changes you made.
 
   * The **base fork** should be `zulip/zulipbot`.
@@ -166,6 +166,6 @@ with making changes:
 
 ## Additional resources
 
-* [Zulip contributing guidelines](http://zulip.readthedocs.io/en/latest/readme-symlink.html)
-* [Zulip Git guide](http://zulip.readthedocs.io/en/latest/git-guide.html)
-* [Zulip version control guide](http://zulip.readthedocs.io/en/latest/version-control.html)
+* [Zulip contributing guidelines](http://zulip.readthedocs.io/en/latest/overview/contributing.html)
+* [Zulip Git guide](http://zulip.readthedocs.io/en/latest/contributing/git-guide.html)
+* [Zulip version control guide](http://zulip.readthedocs.io/en/latest/contributing/version-control.html)
