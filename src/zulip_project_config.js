@@ -64,7 +64,12 @@ module.exports = {
     ["area: uploads", "server-misc"],
     ["area: webpack", "server-development"]
   ]),
-  activeRepos: ["zulip/zulip", "zulip/python-zulip-api", "zulip/zulip-electron", "zulip/zulipbot"],
+  activeRepos: [
+    "zulip/zulip",
+    "zulip/python-zulip-api",
+    "zulip/zulip-electron",
+    "zulip/zulipbot"
+  ],
   checkInactivityTimeout: 12,
   inactivityTimeLimit: 10,
   autoAbandonTimeLimit: 4,
@@ -73,6 +78,6 @@ module.exports = {
   inactiveLabel: "inactive",
   reviewedLabel: "reviewed",
   needsReviewLabel: "needs review",
-  priorityLabels: ["priority: high", "priority: medium", "priority: low", "priority"],
+  priorityLabels: ["priority: blocker", "priority: high"],
   pullRequestsAssignee: false
 };
