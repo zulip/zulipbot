@@ -43,6 +43,7 @@ exports.run = async function(payload, commenter, args) {
     if (!args.includes("--force") && alert) {
       const one = warn.labels.length === 1;
       const comment = this.templates.get("claimWarning")
+        .replace(new RegExp("{username}", "g"), this.cfg.auth.username)
         .replace(new RegExp("{commenter}", "g"), commenter)
         .replace(new RegExp("{state}", "g"), warn.presence ? "with" : "without")
         .replace(new RegExp("{labelGrammar}", "g"), `label${one ? "" : "s"}`)
