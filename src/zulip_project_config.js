@@ -10,7 +10,7 @@ module.exports = {
   labelCommands: ["label", "add"],
   removeCommands: ["remove", "unlabel"],
   sudoUsers: ["tabbott", "showell", "rishig"],
-  selfLabelingOnly: true,
+  selfLabelingOnly: false,
   commitReferenceEnabled: true,
   clearClosedIssues: true,
   checkMergeConflicts: true,
