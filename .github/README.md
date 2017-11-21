@@ -16,8 +16,9 @@ permissions and notifications systems to create a better workflow for our
 contributors. It allows anyone to perform issue triage (self-assigning and
 labeling issues), not just the core contributors trusted with full write access
 to the repository (which is the only model GitHub supports). Additionally,
-**zulipbot** checks pull requests for merge conflicts, failing pull request
-checks, and inactivity,
+**zulipbot** monitors the activity of issues and pull requests, notifying
+contributors about new merge conflicts, continuous integration build results,
+inactivity, and more.
 
 ## Installation
 
