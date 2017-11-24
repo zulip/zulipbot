@@ -106,7 +106,7 @@ practice](http://zulip.readthedocs.io/en/latest/contributing/version-control.htm
   You may need to append `+` before your feature branch name if you failed to
   push some refs.
 
-6. Create a [pull request](http://zulip.readthedocs.io/en/latest/contributing/git-guide.html#create-a-pull-request)
+6. Create a [pull request](https://zulip.readthedocs.io/en/latest/git/pull-requests.html#create-a-pull-request)
 for the changes you made.
 
   * The **base fork** should be `zulip/zulipbot`.
