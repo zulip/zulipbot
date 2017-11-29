@@ -31,7 +31,7 @@ the **zulipbot wiki**.
 If you're using the [Zulip project
 configuration](https://github.com/zulip/zulipbot/blob/master/src/zulip_project_config.js)
 (`./src/zulip_project_config.js`), see zulipbot's [usage
-instructions](http://zulip.readthedocs.io/en/latest/contributing/zulipbot-usage.html)
+instructions](https://zulip.readthedocs.io/en/latest/contributing/zulipbot-usage.html)
 on the Zulip documentation.
 
 If you're using your own custom configuration (`./src/config.js` is different from
@@ -51,7 +51,7 @@ use this file except in compliance with the License. You may obtain a copy
 of the License at
 
 ```
-http://www.apache.org/licenses/LICENSE-2.0
+https://www.apache.org/licenses/LICENSE-2.0
 ```
 
 Unless required by applicable law or agreed to in writing, software

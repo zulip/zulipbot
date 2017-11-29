@@ -5,6 +5,6 @@ Here's some tips to get you off to a good start:
 * Sign the [Dropbox Contributor License Agreement](https://opensource.dropbox.com/cla/), so that Zulip can use your code.
 * [Unwatch this repository](https://help.github.com/articles/unwatching-repositories/), so that you don't get 100 emails a day.
 
-As you work on this issue, you'll also want to refer to the [Zulip code contribution guide](http://zulip.readthedocs.io/en/latest/contributing/index.html), as well as the rest of the developer documentation on that site.
+As you work on this issue, you'll also want to refer to the [Zulip code contribution guide](https://zulip.readthedocs.io/en/latest/contributing/index.html), as well as the rest of the developer documentation on that site.
 
 See you on the other side (that is, the pull request side)!

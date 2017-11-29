@@ -79,7 +79,7 @@ chat](https://chat.zulip.org/#narrow/stream/zulipbot) and we can help you out!
 plan to make.
 
 2. Commit your changes, following Zulip's [commit discipline
-practice](http://zulip.readthedocs.io/en/latest/contributing/version-control.html#commit-discipline).
+practice](https://zulip.readthedocs.io/en/latest/contributing/version-control.html#commit-discipline).
 
 3. Check if your changes and commits pass all tests:
 
@@ -129,9 +129,9 @@ framework for unit and coverage tests using [Mocha](https://mochajs.org) and
 [Istanbul](https://github.com/gotwarlost/istanbul) is being established.
 
 Our current test framework consists of [Travis](https://travis-ci.org/) for
-continuous integration and [Gulp](http://gulpjs.com) (`./gulpfile.js`) for
+continuous integration and [Gulp](https://gulpjs.com) (`./gulpfile.js`) for
 running automated tests, such as reviewing code quality and consistency with
-linters like [Eslint](http://eslint.org).
+linters like [Eslint](https://eslint.org).
 
 ### Tools
 To make contributing and testing easier, we've developed some tools to help you
@@ -166,6 +166,6 @@ with making changes:
 
 ## Additional resources
 
-* [Zulip contributing guidelines](http://zulip.readthedocs.io/en/latest/overview/contributing.html)
-* [Zulip Git guide](http://zulip.readthedocs.io/en/latest/contributing/git-guide.html)
-* [Zulip version control guide](http://zulip.readthedocs.io/en/latest/contributing/version-control.html)
+* [Zulip contributing guidelines](https://zulip.readthedocs.io/en/latest/overview/contributing.html)
+* [Zulip Git guide](https://zulip.readthedocs.io/en/latest/contributing/git-guide.html)
+* [Zulip version control guide](https://zulip.readthedocs.io/en/latest/contributing/version-control.html)
