@@ -102,7 +102,7 @@ async function scrapeInactiveIssues(client, references, issues) {
     const inactiveLabel = issue.labels.find(label => {
       return label.name === client.cfg.inactiveLabel;
     });
-    if (inactiveLabel) return;
+    if (inactiveLabel) continue;
 
     let time = Date.parse(issue.updated_at);
     const issueNumber = issue.number;
@@ -115,7 +115,7 @@ async function scrapeInactiveIssues(client, references, issues) {
 
     const active = client.cfg.activeRepos.includes(`${repoOwner}/${repoName}`);
 
-    if (time + ms >= Date.now() || !active) return;
+    if (time + ms >= Date.now() || !active) continue;
 
     const aString = issue.assignees.map(assignee => assignee.login).join(", @");
 
