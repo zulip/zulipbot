@@ -85,8 +85,8 @@ async function checkInactivePullRequest(client, pullRequest) {
   const com = comments.data.slice(-1).pop();
 
   // Use end of line comments to check if comment is from template
-  const lastComment = com.body.endsWith("<!-- updateWarning -->");
-  const fromClient = com.user.login === client.cfg.username;
+  const lastComment = com ? com.body.endsWith("<!-- updateWarning -->") : null;
+  const fromClient = com ? com.user.login === client.cfg.username : null;
 
   if (reviewedLabel && !(lastComment && fromClient)) {
     client.newComment(pullRequest, pullRequest.base.repo, comment);
@@ -136,10 +136,10 @@ async function scrapeInactiveIssues(client, references, issues) {
     const com = issueComments.data.slice(-1).pop();
 
     // Use end of line comments to check if comment is from template
-    const labelComment = com.body.endsWith("<!-- inactiveWarning -->");
-    const fromClient = com.user.login === client.cfg.username;
+    const warning = com ? com.body.endsWith("<!-- inactiveWarning -->") : null;
+    const fromClient = com ? com.user.login === client.cfg.username : null;
 
-    if (labelComment && fromClient) {
+    if (warning && fromClient) {
       const assignees = JSON.stringify({
         assignees: aString.split(", @")
       });
@@ -156,7 +156,7 @@ async function scrapeInactiveIssues(client, references, issues) {
       client.issues.editComment({
         owner: repoOwner, repo: repoName, id: com.id, body: warning
       });
-    } else if (!(labelComment && fromClient) && time + ims <= Date.now()) {
+    } else if (!(warning && fromClient) && time + ims <= Date.now()) {
       client.newComment(issue, issue.repository, c);
     }
   }
