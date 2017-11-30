@@ -8,10 +8,10 @@ exports.run = async function(client, pullRequest, repository, opened) {
     owner: repoOwner, repo: repoName, number: number
   });
   const refIssues = response.data.filter(c => {
-    return findKeywords(c.commit.message);
+    return exports.findKeywords(c.commit.message);
   }).map(c => c.commit.message.match(/#([0-9]+)/)[1]);
 
-  if (!refIssues.length && findKeywords(pullRequest.body)) {
+  if (!refIssues.length && exports.findKeywords(pullRequest.body)) {
     const comment = client.templates.get("fixCommitMessage")
       .replace("[author]", author);
     return client.newComment(pullRequest, repository, comment);
@@ -61,7 +61,7 @@ exports.referenceIssue = async function(client, refIssue, pullRequest, repo) {
   Referenced issues are only closed when pull requests are merged;
   not necessarily when commits are merged
 */
-function findKeywords(string) {
+exports.findKeywords = string => {
   const keywords = ["close", "fix", "resolve"];
 
   return keywords.some(word => {
@@ -77,4 +77,4 @@ function findKeywords(string) {
 
     return matched;
   });
-}
+};
