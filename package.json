@@ -4,7 +4,7 @@
   "description": "GitHub workflow-optimizing bot",
   "main": "src/index.js",
   "engines": {
-    "node": ">=7.6.0",
+    "node": "7.6.0 - 8",
     "npm": "*"
   },
   "files": [
