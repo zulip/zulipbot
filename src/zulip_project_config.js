@@ -37,6 +37,7 @@ module.exports = {
     ["area: i18n", "server-i18n"],
     ["area: in", "server-in"],
     ["area: integrations", "server-integrations"],
+    ["area: invitations", "server-onboarding"],
     ["area: left-sidebar", "server-sidebars"],
     ["area: markdown", "server-markdown"],
     ["area: message-editing", "server-message-view"],
