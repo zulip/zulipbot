@@ -6,26 +6,30 @@ exports.run = async function(client, payload) {
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
   const review = payload.review;
+  const pullCfg = client.cfg.inactivity.pullRequests;
 
-  if (client.cfg.reviewedLabel && client.cfg.needsReviewLabel) {
+  if (pullCfg.reviewed.label && pullCfg.needsReview.label) {
     exports.managePRLabels(client, action, pull, review, repo);
   }
 
-  if (action === "submitted" && client.cfg.pullsAssignee) {
+  if (action === "submitted" && pullCfg.reviewed.assignee) {
     const reviewer = review.user.login;
     client.issues.addAssigneesToIssue({
       owner: repoOwner, repo: repoName, number: number, assignees: [reviewer]
     });
-  } else if (action === "labeled" && client.cfg.areaLabels) {
+  } else if (action === "labeled" && client.cfg.issues.area.labels) {
     const l = payload.label;
     const issue = await client.issues.get({
       owner: repoOwner, repo: repoName, number: number
     });
     client.automations.get("areaLabel").run(client, issue.data, repo, l);
-  } else if (!client.cfg.areaLabels || !client.cfg.commitReferenceEnabled) {
+  } else if (!client.cfg.issues.area.commitReferences) {
     return;
   }
-  if (action === "opened" && !pull.title.includes(client.cfg.escapeWIPString)) {
+
+  const wip = client.cfg.pullRequests.wip;
+
+  if (action === "opened" && !pull.title.includes(wip)) {
     client.automations.get("issueReferenced").run(client, pull, repo, true);
   } else if (action === "synchronize") {
     client.automations.get("issueReferenced").run(client, pull, repo, false);
@@ -42,8 +46,8 @@ exports.managePRLabels = async function(client, action, pull, review, repo) {
   });
 
   let labels = response.data.map(label => label.name);
-  const needsReviewLabel = client.cfg.needsReviewLabel;
-  const reviewedLabel = client.cfg.reviewedLabel;
+  const needsReviewLabel = client.cfg.inactivity.pullRequests.needsReview.label;
+  const reviewedLabel = client.cfg.inactivity.pullRequests.reviewed.label;
   const needsReview = labels.includes(needsReviewLabel);
   const reviewed = labels.includes(reviewedLabel);
   const a = pull.user.login;

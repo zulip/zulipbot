@@ -9,17 +9,17 @@ exports.run = (client, payload) => {
   const repoName = repository.name;
   const l = payload.label;
 
-  if (client.cfg.inProgressLabel) {
+  if (client.cfg.inactivity.issues.inProgress) {
     exports.cleanInProgress(client, payload, repoOwner, repoName);
   }
 
-  if (action === "labeled" && client.cfg.areaLabels) {
+  if (action === "labeled") {
     client.automations.get("areaLabel").run(client, issue, repository, l);
-  } else if (action === "closed" && client.cfg.clearClosedIssues) {
+  } else if (action === "closed" && client.cfg.inactivity.issues.clearClosed) {
     recentlyClosed.set(issue.id, issue);
     setTimeout(() => {
       exports.clearClosedIssue(client, issue, repoOwner, repoName);
-    }, client.cfg.repoEventsDelay * 60 * 1000);
+    }, client.cfg.eventsDelay * 60 * 1000);
   } else if (action === "reopened" && recentlyClosed.has(issue.id)) {
     recentlyClosed.delete(issue.id);
   } else if (action === "opened" || action === "created") {
@@ -53,7 +53,8 @@ exports.parseCommands = (client, payloadBody, issue, repository) => {
       return;
     }
 
-    const op = client.cfg.selfLabelingOnly && !client.cfg.sudoUsers.includes(c);
+    const labelCfg = client.cfg.issues.commands.label.self;
+    const op = labelCfg.users ? labelCfg.users.includes(c) : labelCfg;
     if (op && c !== issueCreator) return;
 
     const splitBody = body.split(`@${client.cfg.auth.username}`).filter(str => {
@@ -83,7 +84,7 @@ exports.clearClosedIssue = (client, issue, repoOwner, repoName) => {
 exports.cleanInProgress = (client, payload, repoOwner, repoName) => {
   const action = payload.action;
   const number = payload.issue.number;
-  const label = client.cfg.inProgressLabel;
+  const label = client.cfg.inactivity.issues.inProgress;
   const assignees = payload.issue.assignees.length;
   const labeled = payload.issue.labels.find(l => {
     return l.name === label;

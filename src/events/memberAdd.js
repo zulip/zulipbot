@@ -1,5 +1,7 @@
 exports.run = async function(client, payload) {
-  if (payload.action !== "added" || !client.cfg.claimCommands.length) return;
+  const claimEnabled = client.cfg.issues.commands.assign.claim.aliases.length;
+
+  if (payload.action !== "added" || !claimEnabled) return;
 
   const newMember = payload.member.login;
   const invite = client.invites.get(newMember);
@@ -12,7 +14,6 @@ exports.run = async function(client, payload) {
   if (repoFullName !== repo.full_name) return;
 
   const number = invite.split("#")[1];
-
   const repoOwner = repoFullName.split("/")[0];
   const repoName = repoFullName.split("/")[1];
 

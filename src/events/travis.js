@@ -1,5 +1,5 @@
 exports.run = async function(client, payload) {
-  if (!payload.pull_request || !client.cfg.travisLabel) return;
+  if (!payload.pull_request || !client.cfg.pullRequests.travis) return;
 
   const repoOwner = payload.repository.owner_name;
   const repoName = payload.repository.name;
@@ -10,7 +10,7 @@ exports.run = async function(client, payload) {
   });
 
   const labelCheck = labels.data.find(label => {
-    return label.name === client.cfg.travisLabel;
+    return label.name === client.cfg.pullRequests.travis;
   });
 
   if (!labelCheck) return;
