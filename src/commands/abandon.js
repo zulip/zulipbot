@@ -18,5 +18,6 @@ exports.run = (client, comment, issue, repository) => {
   });
 };
 
-exports.aliases = require("../config.js").abandonCommands;
+const cfg = require("../../config/default.js");
+exports.aliases = cfg.issues.commands.assign.abandon.aliases;
 exports.args = false;

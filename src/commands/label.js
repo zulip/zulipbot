@@ -46,5 +46,6 @@ exports.run = async function(client, body, issue, repository) {
   }
 };
 
-exports.aliases = require("../config.js").labelCommands;
+const cfg = require("../../config/default.js");
+exports.aliases = cfg.issues.commands.label.add.aliases;
 exports.args = true;

@@ -19,7 +19,9 @@ exports.run = async function(client, comment, issue, repository) {
       return client.newComment(issue, repository, error);
     }
 
-    if (!client.cfg.addCollabPermission) {
+    const perm = client.cfg.issues.commands.assign.claim.permission;
+
+    if (!perm) {
       const error = "**ERROR:** `addCollabPermission` wasn't configured.";
       return client.newComment(issue, repository, error);
     }
@@ -31,8 +33,6 @@ exports.run = async function(client, comment, issue, repository) {
     client.newComment(issue, repository, newComment);
 
     if (client.invites.get(commenter)) return;
-
-    const perm = client.cfg.addCollabPermission;
 
     client.repos.addCollaborator({
       owner: repoOwner, repo: repoName, username: commenter, permission: perm
@@ -58,5 +58,6 @@ exports.claimIssue = async function(client, comment, issue, repository) {
   client.newComment(issue, repository, error);
 };
 
-exports.aliases = require("../config.js").claimCommands;
+const cfg = require("../../config/default.js");
+exports.aliases = cfg.issues.commands.assign.claim.aliases;
 exports.args = false;

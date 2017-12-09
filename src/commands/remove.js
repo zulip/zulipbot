@@ -25,5 +25,6 @@ exports.run = async function(client, body, issue, repository) {
   client.newComment(issue, repository, rejectedLabelError, issue.pull_request);
 };
 
-exports.aliases = require("../config.js").removeCommands;
+const cfg = require("../../config/default.js");
+exports.aliases = cfg.issues.commands.label.remove.aliases;
 exports.args = true;
