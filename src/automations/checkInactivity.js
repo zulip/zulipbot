@@ -1,7 +1,7 @@
 exports.run = async function(client) {
   // Create array with PRs from all active repositories
   const array = await Promise.all(
-    client.cfg.activeRepos.reduce((all, repo) => {
+    client.cfg.inactivity.check.repositories.reduce((all, repo) => {
       const repoOwner = repo.split("/")[0];
       const repoName = repo.split("/")[1];
       const func = client.pullRequests.getAll({
@@ -21,7 +21,7 @@ exports.run = async function(client) {
 
 async function scrapePullRequests(client, pullRequests) {
   const references = new Map();
-  const ims = client.cfg.inactivityTimeLimit * 86400000;
+  const ims = client.cfg.inactivity.check.reminder * 86400000;
   const iterator = pullRequests[Symbol.iterator]();
 
   for (let pullRequest of iterator) {
@@ -52,7 +52,8 @@ async function scrapePullRequests(client, pullRequests) {
   }
 
   const func = client.issues.getAll({
-    filter: "all", labels: client.cfg.inProgressLabel, per_page: 100
+    filter: "all", per_page: 100,
+    labels: client.cfg.inactivity.issues.inProgress
   });
   const issues = await client.getAll(client, [], func);
 
@@ -69,17 +70,17 @@ async function checkInactivePullRequest(client, pullRequest) {
     owner: repoOwner, repo: repoName, number: number
   });
   const inactiveLabel = labels.data.find(l => {
-    return l.name === client.cfg.inactiveLabel;
+    return l.name === client.cfg.inactivity.label;
   });
   const reviewedLabel = labels.data.find(l => {
-    return l.name === client.cfg.reviewedLabel;
+    return l.name === client.cfg.inactivity.pullRequests.reviewed.label;
   });
 
   if (inactiveLabel || !reviewedLabel) return;
 
   const comment = client.templates.get("updateWarning")
     .replace("[author]", author)
-    .replace("[days]", client.cfg.inactivityTimeLimit);
+    .replace("[days]", client.cfg.inactivity.check.reminder);
 
   const comments = await client.issues.getComments({
     owner: repoOwner, repo: repoName, number: number, per_page: 100
@@ -96,13 +97,13 @@ async function checkInactivePullRequest(client, pullRequest) {
 }
 
 async function scrapeInactiveIssues(client, references, issues) {
-  const ms = client.cfg.autoAbandonTimeLimit * 86400000;
-  const ims = client.cfg.inactivityTimeLimit * 86400000;
+  const ms = client.cfg.inactivity.check.limit * 86400000;
+  const ims = client.cfg.inactivity.check.reminder * 86400000;
   const iterator = issues[Symbol.iterator]();
 
   for (let issue of iterator) {
     const inactiveLabel = issue.labels.find(label => {
-      return label.name === client.cfg.inactiveLabel;
+      return label.name === client.cfg.inactivity.label;
     });
     if (inactiveLabel) continue;
 
@@ -110,12 +111,11 @@ async function scrapeInactiveIssues(client, references, issues) {
     const issueNumber = issue.number;
     const repoName = issue.repository.name;
     const repoOwner = issue.repository.owner.login;
+    const issueTag = `${repoName}/${issueNumber}`;
 
-    if (time < references.get(`${repoName}/${issueNumber}`)) {
-      time = references.get(`${repoName}/${issueNumber}`);
-    }
+    if (time < references.get(issueTag)) time = references.get(issueTag);
 
-    const active = client.cfg.activeRepos.includes(`${repoOwner}/${repoName}`);
+    const active = client.cfg.inactivity.check.repositories.includes(issueTag);
 
     if (time + ms >= Date.now() || !active) continue;
 
@@ -128,8 +128,8 @@ async function scrapeInactiveIssues(client, references, issues) {
 
     const c = client.templates.get("inactiveWarning")
       .replace("[assignee]", aString)
-      .replace("[inactive]", client.cfg.inactivityTimeLimit)
-      .replace("[abandon]", client.cfg.autoAbandonTimeLimit)
+      .replace("[inactive]", client.cfg.inactivity.check.reminder)
+      .replace("[abandon]", client.cfg.inactivity.check.limit)
       .replace("[username]", client.cfg.auth.username);
 
     const issueComments = await client.issues.getComments({

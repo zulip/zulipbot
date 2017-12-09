@@ -6,14 +6,12 @@ exports.run = async function(client, issue, repository, label) {
   const repoName = repository.name;
   const repoOwner = repository.owner.login;
   const issueLabels = issue.labels.map(l => l.name);
+  const areaLabels = client.cfg.issues.area.labels;
 
-  if (!client.cfg.areaLabels.has(areaLabel)) return;
+  if (!areaLabels.has(areaLabel)) return;
 
-  const issueAreaLabels = issueLabels.filter(l => {
-    return client.cfg.areaLabels.has(l);
-  });
-
-  const labelTeams = issueAreaLabels.map(l => client.cfg.areaLabels.get(l));
+  const issueAreaLabels = issueLabels.filter(l => areaLabels.has(l));
+  const labelTeams = issueAreaLabels.map(l => areaLabels.get(l));
 
   // Create unique array of teams (labels can point to same team)
   const uniqueTeams = Array.from(new Set(labelTeams));

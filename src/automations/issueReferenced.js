@@ -32,10 +32,10 @@ exports.referenceIssue = async function(client, refIssue, pullRequest, repo) {
     owner: repoOwner, repo: repoName, number: refIssue
   });
   const issueLabels = labels.data.filter(l => {
-    return client.cfg.areaLabels.has(l.name);
+    return client.cfg.issues.area.labels.has(l.name);
   }).map(l => l.name);
 
-  const teams = issueLabels.map(l => client.cfg.areaLabels.get(l));
+  const teams = issueLabels.map(l => client.cfg.issues.area.labels.get(l));
 
   if (!teams.length) return;
 

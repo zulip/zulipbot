@@ -51,7 +51,9 @@ exports.check = async function(client, number, repoName, repoOwner) {
     const labels = await client.issues.getIssueLabels({
       owner: repoOwner, repo: repoName, number: number
     });
-    const inactive = labels.data.find(l => l.name === client.cfg.inactiveLabel);
+    const inactive = labels.data.find(l => {
+      return l.name === client.cfg.inactivity.label;
+    });
 
     if (!labelComment && !inactive) {
       client.newComment(pull.data, pull.data.base.repo, comment);
