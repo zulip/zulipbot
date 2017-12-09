@@ -33,7 +33,7 @@ exports.check = async function(client, number, repoName, repoOwner) {
   const warnings = comments.data.filter(com => {
     // Use end of line comments to check if comment is from template
     const warn = com.body.endsWith("<!-- mergeConflictWarning -->");
-    const fromClient = com.user.login === client.cfg.username;
+    const fromClient = com.user.login === client.cfg.auth.username;
     return warn && fromClient;
   });
 

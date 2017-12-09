@@ -88,7 +88,7 @@ async function checkInactivePullRequest(client, pullRequest) {
 
   // Use end of line comments to check if comment is from template
   const lastComment = com ? com.body.endsWith("<!-- updateWarning -->") : null;
-  const fromClient = com ? com.user.login === client.cfg.username : null;
+  const fromClient = com ? com.user.login === client.cfg.auth.username : null;
 
   if (reviewedLabel && !(lastComment && fromClient)) {
     client.newComment(pullRequest, pullRequest.base.repo, comment);
@@ -130,7 +130,7 @@ async function scrapeInactiveIssues(client, references, issues) {
       .replace("[assignee]", aString)
       .replace("[inactive]", client.cfg.inactivityTimeLimit)
       .replace("[abandon]", client.cfg.autoAbandonTimeLimit)
-      .replace("[username]", client.cfg.username);
+      .replace("[username]", client.cfg.auth.username);
 
     const issueComments = await client.issues.getComments({
       owner: repoOwner, repo: repoName, number: issueNumber, per_page: 100
@@ -139,7 +139,7 @@ async function scrapeInactiveIssues(client, references, issues) {
 
     // Use end of line comments to check if comment is from template
     const warning = com ? com.body.endsWith("<!-- inactiveWarning -->") : null;
-    const fromClient = com ? com.user.login === client.cfg.username : null;
+    const fromClient = com ? com.user.login === client.cfg.auth.username : null;
 
     if (warning && fromClient) {
       const assignees = JSON.stringify({
@@ -153,7 +153,7 @@ async function scrapeInactiveIssues(client, references, issues) {
       const warning = client.templates.get("abandonWarning")
         .replace("[assignee]", aString)
         .replace("[total]", (ms + ims) / 86400000)
-        .replace("[username]", client.cfg.username);
+        .replace("[username]", client.cfg.auth.username);
 
       client.issues.editComment({
         owner: repoOwner, repo: repoName, id: com.id, body: warning

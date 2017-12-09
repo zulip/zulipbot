@@ -34,7 +34,7 @@ exports.run = async function(client, issue, repository, label) {
   const labelComment = issueComments.data.find(com => {
     // Use end of line comments to check if comment is from template
     const comment = com.body.endsWith("<!-- areaLabelNotification -->");
-    const fromClient = com.user.login === client.cfg.username;
+    const fromClient = com.user.login === client.cfg.auth.username;
     return comment && fromClient;
   });
 
