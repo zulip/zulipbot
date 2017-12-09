@@ -68,8 +68,8 @@ exports.pullRequests = {
   * - Review statuses for pull requests
   */
 
-exports.inactivity = {
-  label: null,
+exports.activity = {
+  inactive: null,
   check: {
     repositories: [],
     interval: null,

@@ -89,10 +89,10 @@ describe("config.js lint", () => {
     }
   });
   it("inactivityTimeLimit should be a postive integer if it is defined.", () => {
-    if (client.cfg.inactivityTimeLimit) {
-      assert(Number.isInteger(client.cfg.inactivityTimeLimit) > 0);
+    if (client.cfg.activityTimeLimit) {
+      assert(Number.isInteger(client.cfg.activityTimeLimit) > 0);
     } else {
-      assert.isUndefined(client.cfg.inactivityTimeLimit);
+      assert.isUndefined(client.cfg.activityTimeLimit);
     }
   });
   it("autoAbandonTimeLimit should be a postive integer if it is defined.", () => {
@@ -111,8 +111,8 @@ describe("config.js lint", () => {
     else assert.isUndefined(client.cfg.inProgressLabel);
   });
   it("inactiveLabel should be a string if it is defined.", () => {
-    if (client.cfg.inactiveLabel) assert.typeOf(client.cfg.inactiveLabel, "string");
-    else assert.isUndefined(client.cfg.inactiveLabel);
+    if (client.cfg.activeLabel) assert.typeOf(client.cfg.activeLabel, "string");
+    else assert.isUndefined(client.cfg.activeLabel);
   });
   it("reviewedLabel should be a string if it is defined.", () => {
     if (client.cfg.reviewedLabel) assert.typeOf(client.cfg.reviewedLabel, "string");

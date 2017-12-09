@@ -9,13 +9,13 @@ exports.run = (client, payload) => {
   const repoName = repository.name;
   const l = payload.label;
 
-  if (client.cfg.inactivity.issues.inProgress) {
+  if (client.cfg.activity.issues.inProgress) {
     exports.cleanInProgress(client, payload, repoOwner, repoName);
   }
 
   if (action === "labeled") {
     client.automations.get("areaLabel").run(client, issue, repository, l);
-  } else if (action === "closed" && client.cfg.inactivity.issues.clearClosed) {
+  } else if (action === "closed" && client.cfg.activity.issues.clearClosed) {
     recentlyClosed.set(issue.id, issue);
     setTimeout(() => {
       exports.clearClosedIssue(client, issue, repoOwner, repoName);
@@ -84,7 +84,7 @@ exports.clearClosedIssue = (client, issue, repoOwner, repoName) => {
 exports.cleanInProgress = (client, payload, repoOwner, repoName) => {
   const action = payload.action;
   const number = payload.issue.number;
-  const label = client.cfg.inactivity.issues.inProgress;
+  const label = client.cfg.activity.issues.inProgress;
   const assignees = payload.issue.assignees.length;
   const labeled = payload.issue.labels.find(l => {
     return l.name === label;

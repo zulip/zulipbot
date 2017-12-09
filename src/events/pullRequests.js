@@ -6,7 +6,7 @@ exports.run = async function(client, payload) {
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
   const review = payload.review;
-  const pullCfg = client.cfg.inactivity.pullRequests;
+  const pullCfg = client.cfg.activity.pullRequests;
 
   if (pullCfg.reviewed.label && pullCfg.needsReview.label) {
     exports.managePRLabels(client, action, pull, review, repo);
@@ -46,8 +46,8 @@ exports.managePRLabels = async function(client, action, pull, review, repo) {
   });
 
   let labels = response.data.map(label => label.name);
-  const needsReviewLabel = client.cfg.inactivity.pullRequests.needsReview.label;
-  const reviewedLabel = client.cfg.inactivity.pullRequests.reviewed.label;
+  const needsReviewLabel = client.cfg.activity.pullRequests.needsReview.label;
+  const reviewedLabel = client.cfg.activity.pullRequests.reviewed.label;
   const needsReview = labels.includes(needsReviewLabel);
   const reviewed = labels.includes(reviewedLabel);
   const a = pull.user.login;

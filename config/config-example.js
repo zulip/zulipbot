@@ -84,8 +84,8 @@ exports.pullRequests = {
   travis: "travis updates"
 };
 
-exports.inactivity = {
-  label: "inactive",
+exports.activity = {
+  inactive: "inactive",
   check: {
     repositories: [
       "zulip/zulip",

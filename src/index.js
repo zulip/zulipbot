@@ -55,8 +55,8 @@ process.on("unhandledRejection", (error, promise) => {
   console.error("An unhandled promise rejection was detected at:", promise);
 });
 
-if (client.cfg.inactivity) {
+if (client.cfg.activity.check.interval) {
   setInterval(() => {
     client.automations.get("checkInactivity").run(client);
-  }, client.cfg.inactivity.check.interval * 3600000);
+  }, client.cfg.activity.check.interval * 3600000);
 }

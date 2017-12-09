@@ -52,7 +52,7 @@ exports.check = async function(client, number, repoName, repoOwner) {
       owner: repoOwner, repo: repoName, number: number
     });
     const inactive = labels.data.find(l => {
-      return l.name === client.cfg.inactivity.label;
+      return l.name === client.cfg.activity.inactive;
     });
 
     if (!labelComment && !inactive) {

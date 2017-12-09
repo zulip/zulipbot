@@ -21,7 +21,7 @@ Promise.all(
 
 async function scrapeInactivePullRequests(client, pullRequests) {
   const references = new Map();
-  const ims = client.cfg.inactivityTimeLimit * 86400000;
+  const ims = client.cfg.activityTimeLimit * 86400000;
   if (!pullRequests.length) return;
   pullRequests.forEach(async(pullRequest, index, array) => {
     setTimeout(async() => {
@@ -35,7 +35,7 @@ async function scrapeInactivePullRequests(client, pullRequests) {
         const labels = await client.issues.getIssueLabels({
           owner: repoOwner, repo: repoName, number: number
         });
-        const inactiveLabel = labels.data.find(l => l.name === client.cfg.inactiveLabel);
+        const inactiveLabel = labels.data.find(l => l.name === client.cfg.activeLabel);
         if (inactiveLabel) return;
         const reviewedLabel = labels.data.find(l => l.name === client.cfg.reviewedLabel);
         const needsReviewLabel = labels.data.find(l => l.name === client.cfg.needsReviewLabel);
@@ -73,10 +73,10 @@ async function scrapeInactivePullRequests(client, pullRequests) {
 
 async function scrapeInactiveIssues(client, references, issues) {
   const ms = client.cfg.autoAbandonTimeLimit * 86400000;
-  const ims = client.cfg.inactivityTimeLimit * 86400000;
+  const ims = client.cfg.activityTimeLimit * 86400000;
   issues.forEach(async(issue, index) => {
     setTimeout(async() => {
-      const inactiveLabel = issue.labels.find(label => label.name === client.cfg.inactiveLabel);
+      const inactiveLabel = issue.labels.find(label => label.name === client.cfg.activeLabel);
       if (inactiveLabel) return;
       let time = Date.parse(issue.updated_at);
       const issueNumber = issue.number;
@@ -96,7 +96,7 @@ async function scrapeInactiveIssues(client, references, issues) {
       }
       const c = client.templates.get("inactiveWarning")
       .replace("[assignee]", assigneeString)
-      .replace("[inactive]", client.cfg.inactiveTimeLimit)
+      .replace("[inactive]", client.cfg.activeTimeLimit)
       .replace("[abandon]", client.cfg.autoAbandonTimeLimit)
       .replace("[username]", client.cfg.username);
       const com = issueComments.data.slice(-1).pop();
