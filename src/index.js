@@ -21,7 +21,7 @@ const urlencodedParser = express.urlencoded({extended: true});
 app.post("/github", jsonParser, async(req, res) => {
   if (req.get("X-GitHub-Event")) {
     const signature = req.get("X-Hub-Signature");
-    const secret = client.cfg.webhookSecret.toString();
+    const secret = client.cfg.auth.webhookSecret.toString();
     const body = JSON.stringify(req.body);
     const hmac = crypto.createHmac("sha1", secret).update(body).digest("hex");
 
@@ -55,8 +55,8 @@ process.on("unhandledRejection", (error, promise) => {
   console.error("An unhandled promise rejection was detected at:", promise);
 });
 
-if (client.cfg.checkInactivityTimeout) {
+if (client.cfg.inactivity) {
   setInterval(() => {
     client.automations.get("checkInactivity").run(client);
-  }, client.cfg.checkInactivityTimeout * 3600000);
+  }, client.cfg.inactivity.check.interval * 3600000);
 }

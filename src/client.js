@@ -2,7 +2,8 @@ const GitHub = require("github");
 const client = new GitHub();
 const fs = require("fs");
 
-client.cfg = require("./config.js");
+client.cfg = require("../config/default.js");
+
 client.automations = new Map();
 client.commands = new Map();
 client.events = new Map();
@@ -38,7 +39,9 @@ for (const file of automations) {
 }
 
 client.authenticate({
-  type: "basic", username: client.cfg.username, password: client.cfg.password
+  type: "basic",
+  username: client.cfg.auth.username,
+  password: client.cfg.auth.password
 });
 
 client.newComment = (issue, repository, body, replacePR) => {
