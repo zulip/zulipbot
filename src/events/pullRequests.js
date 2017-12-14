@@ -7,6 +7,8 @@ exports.run = async function(client, payload) {
   const repoOwner = repo.owner.login;
   const review = payload.review;
   const pullCfg = client.cfg.activity.pullRequests;
+  const ref = client.cfg.issues.area.commitReferences;
+  const wip = client.cfg.pullRequests.wip;
 
   if (pullCfg.reviewed.label && pullCfg.needsReview.label) {
     exports.managePRLabels(client, action, pull, review, repo);
@@ -23,13 +25,11 @@ exports.run = async function(client, payload) {
       owner: repoOwner, repo: repoName, number: number
     });
     client.automations.get("areaLabel").run(client, issue.data, repo, l);
-  } else if (!client.cfg.issues.area.commitReferences) {
-    return;
   }
 
-  const wip = client.cfg.pullRequests.wip;
+  if (!ref || pull.title.includes(wip)) return;
 
-  if (action === "opened" && !pull.title.includes(wip)) {
+  if (action === "opened") {
     client.automations.get("issueReferenced").run(client, pull, repo, true);
   } else if (action === "synchronize") {
     client.automations.get("issueReferenced").run(client, pull, repo, false);
