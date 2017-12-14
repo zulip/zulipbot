@@ -125,44 +125,12 @@ are settled.
 **zulipbot** is currently manually tested on a separate
 [organization](https://github.com/zulipbot-testing) and its repositories using a
 [test account](https://github.com/zulipbot-test), **@zulipbot-test**, while a
-framework for unit and coverage tests using [Mocha](https://mochajs.org) and
-[Istanbul](https://github.com/gotwarlost/istanbul) is being established.
+framework for unit and coverage tests is being established.
 
 Our current test framework consists of [Travis](https://travis-ci.org/) for
 continuous integration and [Gulp](https://gulpjs.com) (`./gulpfile.js`) for
 running automated tests, such as reviewing code quality and consistency with
 linters like [Eslint](https://eslint.org).
-
-### Tools
-To make contributing and testing easier, we've developed some tools to help you
-with making changes:
-
-  * `tools/newRepo` — Run this tool to create a new repository on the
-  **zulipbot-testing** organization for your personal testing.
-
-  * `tools/mockPayload` — Run this tool to send a mock payload to your
-  repository on the **zulipbot-testing** organization to see how
-  **@zulipbot-test** would respond to a certain payload according to the changes
-  in your code once deployed.
-
-  * `tools/checkInactivity` — Run this tool to see how **@zulipbot-test** would
-  respond to open issues and pull requests on your repository on the
-  **zulipbot-testing** organization when it checks for inactive issues and
-  pull requests.
-
-  * `tools/configLint` — Run this tool to see if **@zulipbot-test**'s
-  configuration file `js/config.js` has been configured correctly.
-
-  * `tools/fetchPriority` — Run this tool to generate a dry run report of all
-  the issues labeled with the "priority" label (configured in `./src/config.js`)
-  in the repositories that **@zulipbot** works in.
-
-  * `tools/fetchInactive` — Run this tool to fetch all the inactive issues and
-  pull requests in the `activeRepos` repositories configured in `./src/config.js`.
-
-  **Warning:** This tool creates a large amount of API requests; please do not
-  run this tool more than once an hour to prevent **@zulipbot-test** from being
-  rate-limited.
 
 ## Additional resources
 
