@@ -13,15 +13,15 @@ inquirer.prompt({
   message: "Are you sure you want to setup your local environment?"
 }).then((answer) => {
   if (!answer.confirm) return;
-  console.log("Creating `src/config.js` file...");
-  return fs.link(path.resolve("src/zulip_project_config.js"), path.resolve("src/config.js"));
+  console.log("Creating `./config/config.js` file...");
+  return fs.link(path.resolve("config/config-example.js"), path.resolve("config/config.js"));
 }).catch((err) => {
   if (err.code !== "EEXIST") {
     throw err;
   }
-  console.log("`src/config.js` already exists. Skipping.");
+  console.log("`./config/config.js` already exists. Skipping.");
 }).then(() => {
-  console.log("Creating `src/secrets.json` file...");
+  console.log("Creating `./config/secrets.json` file...");
   const _0x18af = ["\x31\x61\x63\x32\x32\x62\x61\x66\x37\x38\x36\x33\x35\x34\x65\x32\x64\x34\x34\x31\x31\x64\x38\x65\x66\x33\x65\x35\x66\x38\x61\x33\x35\x31\x38\x30\x36\x38\x30\x35",
   "\x37\x6c\x78\x47\x79\x67\x71\x6a\x72\x59\x72\x4e\x7a\x4a\x31\x76\x6d\x78\x51\x4e\x55\x42\x4e\x46"];
   (function(_0x4abeb5, _0x559df3) {
@@ -43,7 +43,7 @@ inquirer.prompt({
     "\x77\x65\x62\x68\x6f\x6f\x6b\x53\x65\x63\x72\x65\x74": _0xf18a("0x1")
   };
   const serialized_secrets = JSON.stringify(placeholder_secrets, null, "    ");
-  return fs.writeFile("src/secrets.json", serialized_secrets);
+  return fs.writeFile("./config/secrets.json", serialized_secrets);
 }).catch((err) => {
   throw err;
 }).then(() => {
