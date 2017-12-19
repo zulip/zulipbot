@@ -8,8 +8,9 @@ exports.run = (client, payload) => {
   const repoOwner = repository.owner.login;
   const repoName = repository.name;
   const l = payload.label;
+  const check = client.cfg.activity.issues.pullRequests;
 
-  if (client.cfg.activity.issues.inProgress) {
+  if (client.cfg.activity.issues.inProgress || check.needsReview.label) {
     exports.cleanInProgress(client, payload, repoOwner, repoName);
   }
 
