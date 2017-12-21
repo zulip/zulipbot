@@ -30,6 +30,7 @@ async function scrapePullRequests(client, pullRequests) {
     const number = pullRequest.number;
     const repoName = pullRequest.base.repo.name;
     const repoOwner = pullRequest.base.repo.owner.login;
+    const check = pullRequest.reviewed.label;
 
     if (time + ims <= Date.now()) {
       checkInactivePullRequest(client, pullRequest);
@@ -47,7 +48,11 @@ async function scrapePullRequests(client, pullRequests) {
     if (bodRef && refIssues.length) {
       const commitRef = refIssues[0].match(/#([0-9]+)/)[1];
       const ref = commitRef || body.match(/#([0-9]+)/)[1];
-      references.set(`${repoName}/${ref}`, time);
+      const data = {
+        time: time,
+        review: check
+      };
+      references.set(`${repoName}/${ref}`, data);
     }
   }
 
@@ -102,64 +107,72 @@ async function scrapeInactiveIssues(client, references, issues) {
   const iterator = issues[Symbol.iterator]();
 
   for (let issue of iterator) {
-    const inactiveLabel = issue.labels.find(label => {
-      return label.name === client.cfg.activity.inactive;
-    });
-    if (inactiveLabel) continue;
-
-    let time = Date.parse(issue.updated_at);
     const issueNumber = issue.number;
     const repoName = issue.repository.name;
     const repoOwner = issue.repository.owner.login;
     const issueTag = `${repoName}/${issueNumber}`;
 
-    if (time < references.get(issueTag)) time = references.get(issueTag);
-
-    const active = client.cfg.activity.check.repositories.includes(issueTag);
-
-    if (time + ms >= Date.now() || !active) continue;
-
-    const aString = issue.assignees.map(assignee => assignee.login).join(", @");
-
-    if (!aString) {
-      const comment = "**ERROR:** This active issue has no assignee.";
-      return client.newComment(issue, issue.repository, comment);
-    }
-
-    const c = client.templates.get("inactiveWarning")
-      .replace("[assignee]", aString)
-      .replace("[inactive]", client.cfg.activity.check.reminder)
-      .replace("[abandon]", client.cfg.activity.check.limit)
-      .replace("[username]", client.cfg.auth.username);
-
-    const issueComments = await client.issues.getComments({
-      owner: repoOwner, repo: repoName, number: issueNumber, per_page: 100
-    });
-    const com = issueComments.data.slice(-1).pop();
-
-    // Use end of line comments to check if comment is from template
-    const warning = com ? com.body.endsWith("<!-- inactiveWarning -->") : null;
-    const fromClient = com ? com.user.login === client.cfg.auth.username : null;
-
-    if (warning && fromClient) {
-      const assignees = JSON.stringify({
-        assignees: aString.split(", @")
+    if (references.get(issueTag).review) {
+      const inactiveLabel = issue.labels.find(label => {
+        return label.name === client.cfg.activity.inactive;
       });
+      if (inactiveLabel) continue;
 
-      client.issues.removeAssigneesFromIssue({
-        owner: repoOwner, repo: repoName, number: issueNumber, body: assignees
-      });
+      let time = Date.parse(issue.updated_at);
+      let prUpdateTime = references.get(issueTag).time;
 
-      const warning = client.templates.get("abandonWarning")
+      if (time < prUpdateTime) time = prUpdateTime;
+
+      const active = client.cfg.activity.check.repositories.includes(issueTag);
+
+      if (time + ms >= Date.now() || !active) continue;
+
+      const assignedTo = issue.assignees;
+
+      const aString = assignedTo.map(assignee => assignee.login).join(", @");
+
+      if (!aString) {
+        const comment = "**ERROR:** This active issue has no assignee.";
+        return client.newComment(issue, issue.repository, comment);
+      }
+
+      const c = client.templates.get("inactiveWarning")
         .replace("[assignee]", aString)
-        .replace("[total]", (ms + ims) / 86400000)
+        .replace("[inactive]", client.cfg.activity.check.reminder)
+        .replace("[abandon]", client.cfg.activity.check.limit)
         .replace("[username]", client.cfg.auth.username);
 
-      client.issues.editComment({
-        owner: repoOwner, repo: repoName, id: com.id, body: warning
+      const issueComments = await client.issues.getComments({
+        owner: repoOwner, repo: repoName, number: issueNumber, per_page: 100
       });
-    } else if (!(warning && fromClient) && time + ims <= Date.now()) {
-      client.newComment(issue, issue.repository, c);
+      const com = issueComments.data.slice(-1).pop();
+      const Body = com.body;
+      const user = com.user.login;
+
+      // Use end of line comments to check if comment is from template
+      const warning = com ? Body.endsWith("<!-- inactiveWarning -->") : null;
+      const fromClient = com ? user === client.cfg.auth.username : null;
+
+      if (warning && fromClient) {
+        const assignees = JSON.stringify({
+          assignees: aString.split(", @")
+        });
+
+        client.issues.removeAssigneesFromIssue({
+          owner: repoOwner, repo: repoName, number: issueNumber, body: assignees
+        });
+
+        const warning = client.templates.get("abandonWarning")
+          .replace("[assignee]", aString)
+          .replace("[total]", (ms + ims) / 86400000)
+          .replace("[username]", client.cfg.auth.username);
+
+        client.issues.editComment({
+          owner: repoOwner, repo: repoName, id: com.id, body: warning
+        });
+      } else if (!(warning && fromClient) && time + ims <= Date.now()) {
+        client.newComment(issue, issue.repository, c);
+      }
     }
   }
 }
