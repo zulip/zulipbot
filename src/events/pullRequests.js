@@ -9,8 +9,9 @@ exports.run = async function(client, payload) {
   const pullCfg = client.cfg.activity.pullRequests;
   const ref = client.cfg.issues.area.commitReferences;
   const wip = client.cfg.pullRequests.wip;
+  const check = client.cfg.activity.check.repositories.includes(repo.full_name);
 
-  if (pullCfg.reviewed.label && pullCfg.needsReview.label) {
+  if (pullCfg.reviewed.label && pullCfg.needsReview.label && check) {
     exports.managePRLabels(client, action, pull, review, repo);
   }
 
