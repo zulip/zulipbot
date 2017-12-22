@@ -44,9 +44,9 @@ async function scrapePullRequests(client, pullRequests) {
     }).map(c => c.commit.message);
     const bodRef = client.automations.get("issueReferenced").findKeywords(body);
 
-    if (bodRef && refIssues.length) {
-      const commitRef = refIssues[0].match(/#([0-9]+)/)[1];
-      const ref = commitRef || body.match(/#([0-9]+)/)[1];
+    if (bodRef || refIssues.length) {
+      const com = refIssues[0];
+      const ref = com ? com.match(/#([0-9]+)/)[1] : body.match(/#([0-9]+)/)[1];
       references.set(`${repoName}/${ref}`, time);
     }
   }
