@@ -112,10 +112,11 @@ async function scrapeInactiveIssues(client, references, issues) {
     const repoName = issue.repository.name;
     const repoOwner = issue.repository.owner.login;
     const issueTag = `${repoName}/${issueNumber}`;
+    const repoTag = issue.repository.full_name;
 
     if (time < references.get(issueTag)) time = references.get(issueTag);
 
-    const active = client.cfg.activity.check.repositories.includes(issueTag);
+    const active = client.cfg.activity.check.repositories.includes(repoTag);
 
     if (time + ms >= Date.now() || !active) continue;
 
