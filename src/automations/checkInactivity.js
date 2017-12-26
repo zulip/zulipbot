@@ -123,7 +123,7 @@ async function scrapeInactiveIssues(client, references, issues) {
 
     if (time < pullReqUpdateTime) time = pullReqUpdateTime;
 
-    const active = client.cfg.activity.check.repositories.includes(issueTag);
+    const active = client.cfg.activity.check.repositories.includes(repoTag);
 
     if (time + ms >= Date.now() || !active) continue;
 

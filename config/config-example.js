@@ -89,7 +89,7 @@ exports.activity = {
   check: {
     repositories: [
       "zulip/zulip",
-      "zulip/zulip-mobile",
+      "zulip/python-zulip-api",
       "zulip/zulip-electron",
       "zulip/zulipbot"
     ],
