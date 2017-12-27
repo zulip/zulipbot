@@ -117,7 +117,7 @@ async function scrapeInactiveIssues(client, references, issues) {
       return label.name === client.cfg.activity.inactive;
     });
     if (inactiveLabel) continue;
-    if (references.has(issueTag) || !references.get(issueTag).review) continue;
+    if (references.has(issueTag) && !references.get(issueTag).review) continue;
 
     let time = Date.parse(issue.updated_at);
     const pullReqUpdateTime = references.get(issueTag).time;
