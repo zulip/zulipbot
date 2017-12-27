@@ -111,6 +111,7 @@ async function scrapeInactiveIssues(client, references, issues) {
     const repoName = issue.repository.name;
     const repoOwner = issue.repository.owner.login;
     const issueTag = `${repoName}/${issueNumber}`;
+    const repoTag = issue.repository.full_name;
 
     const inactiveLabel = issue.labels.find(label => {
       return label.name === client.cfg.activity.inactive;
@@ -146,12 +147,9 @@ async function scrapeInactiveIssues(client, references, issues) {
       owner: repoOwner, repo: repoName, number: issueNumber, per_page: 100
     });
     const com = issueComments.data.slice(-1).pop();
-    const Body = com.body;
-    const user = com.user.login;
-
     // Use end of line comments to check if comment is from template
-    const warning = com ? Body.endsWith("<!-- inactiveWarning -->") : null;
-    const fromClient = com ? user === client.cfg.auth.username : null;
+    const warning = com ? com.body.endsWith("<!-- inactiveWarning -->") : null;
+    const fromClient = com ? com.user.login === client.cfg.auth.username : null;
 
     if (warning && fromClient) {
       const assignees = JSON.stringify({
