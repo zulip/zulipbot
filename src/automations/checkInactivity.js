@@ -30,7 +30,7 @@ async function scrapePullRequests(client, pullRequests) {
     const number = pullRequest.number;
     const repoName = pullRequest.base.repo.name;
     const repoOwner = pullRequest.base.repo.owner.login;
-    const check = pullRequest.reviewed.label;
+    const reviewedLabel = pullRequest.reviewed.label;
 
     if (time + ims <= Date.now()) {
       checkInactivePullRequest(client, pullRequest);
@@ -45,12 +45,12 @@ async function scrapePullRequests(client, pullRequests) {
     }).map(c => c.commit.message);
     const bodRef = client.automations.get("issueReferenced").findKeywords(body);
 
-    if (bodRef && refIssues.length) {
-      const commitRef = refIssues[0].match(/#([0-9]+)/)[1];
-      const ref = commitRef || body.match(/#([0-9]+)/)[1];
+    if (bodRef || refIssues.length) {
+      const com = refIssues[0];
+      const ref = com ? com.match(/#([0-9]+)/)[1] : body.match(/#([0-9]+)/)[1];
       const data = {
         time: time,
-        review: check
+        review: reviewedLabel
       };
       references.set(`${repoName}/${ref}`, data);
     }
@@ -117,7 +117,7 @@ async function scrapeInactiveIssues(client, references, issues) {
       return label.name === client.cfg.activity.inactive;
     });
     if (inactiveLabel) continue;
-    if (!references.get(issueTag).review) continue;
+    if (references.has(issueTag) || !references.get(issueTag).review) continue;
 
     let time = Date.parse(issue.updated_at);
     const pullReqUpdateTime = references.get(issueTag).time;
@@ -128,9 +128,7 @@ async function scrapeInactiveIssues(client, references, issues) {
 
     if (time + ms >= Date.now() || !active) continue;
 
-    const assignedTo = issue.assignees;
-
-    const aString = assignedTo.map(assignee => assignee.login).join(", @");
+    const aString = issue.assignees.map(assignee => assignee.login).join(", @");
 
     if (!aString) {
       const comment = "**ERROR:** This active issue has no assignee.";
