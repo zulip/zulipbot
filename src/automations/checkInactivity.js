@@ -30,6 +30,7 @@ async function scrapePullRequests(client, pullRequests) {
     const number = pullRequest.number;
     const repoName = pullRequest.base.repo.name;
     const repoOwner = pullRequest.base.repo.owner.login;
+    const reviewedLabel = pullRequest.reviewed.label;
 
     if (time + ims <= Date.now()) {
       checkInactivePullRequest(client, pullRequest);
@@ -47,7 +48,11 @@ async function scrapePullRequests(client, pullRequests) {
     if (bodRef || refIssues.length) {
       const com = refIssues[0];
       const ref = com ? com.match(/#([0-9]+)/)[1] : body.match(/#([0-9]+)/)[1];
-      references.set(`${repoName}/${ref}`, time);
+      const data = {
+        time: time,
+        review: reviewedLabel
+      };
+      references.set(`${repoName}/${ref}`, data);
     }
   }
 
@@ -102,19 +107,22 @@ async function scrapeInactiveIssues(client, references, issues) {
   const iterator = issues[Symbol.iterator]();
 
   for (let issue of iterator) {
-    const inactiveLabel = issue.labels.find(label => {
-      return label.name === client.cfg.activity.inactive;
-    });
-    if (inactiveLabel) continue;
-
-    let time = Date.parse(issue.updated_at);
     const issueNumber = issue.number;
     const repoName = issue.repository.name;
     const repoOwner = issue.repository.owner.login;
     const issueTag = `${repoName}/${issueNumber}`;
     const repoTag = issue.repository.full_name;
 
-    if (time < references.get(issueTag)) time = references.get(issueTag);
+    const inactiveLabel = issue.labels.find(label => {
+      return label.name === client.cfg.activity.inactive;
+    });
+    if (inactiveLabel) continue;
+    if (references.has(issueTag) && !references.get(issueTag).review) continue;
+
+    let time = Date.parse(issue.updated_at);
+    const pullUpdateTime = references.get(issueTag).time;
+
+    if (time < pullUpdateTime) time = pullUpdateTime;
 
     const active = client.cfg.activity.check.repositories.includes(repoTag);
 
