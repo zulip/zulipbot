@@ -120,9 +120,9 @@ async function scrapeInactiveIssues(client, references, issues) {
     if (references.has(issueTag) && !references.get(issueTag).review) continue;
 
     let time = Date.parse(issue.updated_at);
-    const pullReqUpdateTime = references.get(issueTag).time;
+    const pullUpdateTime = references.get(issueTag).time;
 
-    if (time < pullReqUpdateTime) time = pullReqUpdateTime;
+    if (time < pullUpdateTime) time = pullUpdateTime;
 
     const active = client.cfg.activity.check.repositories.includes(repoTag);
 
@@ -145,6 +145,7 @@ async function scrapeInactiveIssues(client, references, issues) {
       owner: repoOwner, repo: repoName, number: issueNumber, per_page: 100
     });
     const com = issueComments.data.slice(-1).pop();
+
     // Use end of line comments to check if comment is from template
     const warning = com ? com.body.endsWith("<!-- inactiveWarning -->") : null;
     const fromClient = com ? com.user.login === client.cfg.auth.username : null;
