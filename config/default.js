@@ -27,7 +27,8 @@ exports.issues = {
       claim: [],
       abandon: [],
       newContributors: {
-        permission: null
+        permission: null,
+        restricted: Infinity
       }
     },
     label: {

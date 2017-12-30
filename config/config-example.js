@@ -11,7 +11,8 @@ exports.issues = {
       claim: ["claim"],
       abandon: ["abandon", "unclaim", "abort"],
       newContributors: {
-        permission: "pull"
+        permission: "pull",
+        restricted: 1
       }
     },
     label: {
