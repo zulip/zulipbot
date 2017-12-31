@@ -24,21 +24,15 @@ exports.auth = {
 exports.issues = {
   commands: {
     assign: {
-      claim: {
-        aliases: [],
+      claim: [],
+      abandon: [],
+      newContributors: {
         permission: null
-      },
-      abandon: {
-        aliases: []
       }
     },
     label: {
-      add: {
-        aliases: []
-      },
-      remove: {
-        aliases: []
-      },
+      add: [],
+      remove: [],
       self: false
     }
   },

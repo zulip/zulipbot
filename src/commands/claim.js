@@ -19,7 +19,7 @@ exports.run = async function(client, comment, issue, repository) {
       return client.newComment(issue, repository, error);
     }
 
-    const perm = client.cfg.issues.commands.assign.claim.permission;
+    const perm = client.cfg.issues.commands.assign.newContributors.permission;
 
     if (!perm) {
       const error = "**ERROR:** `addCollabPermission` wasn't configured.";
@@ -59,5 +59,5 @@ exports.claimIssue = async function(client, comment, issue, repository) {
 };
 
 const cfg = require("../../config/default.js");
-exports.aliases = cfg.issues.commands.assign.claim.aliases;
+exports.aliases = cfg.issues.commands.assign.claim;
 exports.args = false;

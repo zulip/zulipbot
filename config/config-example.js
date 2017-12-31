@@ -8,21 +8,15 @@
 exports.issues = {
   commands: {
     assign: {
-      claim: {
-        aliases: ["claim"],
+      claim: ["claim"],
+      abandon: ["abandon", "unclaim", "abort"],
+      newContributors: {
         permission: "pull"
-      },
-      abandon: {
-        aliases: ["abandon", "unclaim", "abort"]
       }
     },
     label: {
-      add: {
-        aliases: ["label", "add"]
-      },
-      remove: {
-        aliases: ["unlabel", "remove"]
-      }
+      add: ["label", "add"],
+      remove: ["unlabel", "remove"]
     }
   },
   area: {
