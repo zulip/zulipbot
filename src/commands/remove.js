@@ -14,13 +14,13 @@ exports.run = async function(client, body, issue, repository) {
 
   if (!rejected.length) return;
 
-  const singular = rejected.length === 1;
+  const one = rejected.length === 1;
   const rejectedLabelError = client.templates.get("labelError")
-    .replace("[labels]", `Label${singular ? "" : "s"}`)
-    .replace("[labelList]", `"${rejected.join("\", \"")}"`)
-    .replace("[existState]", `do${singular ? "es" : ""} not exist`)
-    .replace("[beState]", `w${singular ? "as" : "ere"}`)
-    .replace("[action]", "removed from");
+    .replace(new RegExp("{labels}", "g"), `Label${one ? "" : "s"}`)
+    .replace(new RegExp("{labelList}", "g"), `"${rejected.join("\", \"")}"`)
+    .replace(new RegExp("{existState}", "g"), `do${one ? "es" : ""} not exist`)
+    .replace(new RegExp("{beState}", "g"), `w${one ? "as" : "ere"}`)
+    .replace(new RegExp("{action}", "g"), "removed from");
 
   client.newComment(issue, repository, rejectedLabelError, issue.pull_request);
 };

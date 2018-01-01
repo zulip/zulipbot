@@ -23,8 +23,9 @@ exports.check = async function(client, number, repoName, repoOwner) {
   const author = pull.data.user.login;
 
   const comment = client.templates.get("mergeConflictWarning")
-    .replace("[username]", author).replace("[repoOwner]", repoOwner)
-    .replace("[repoName]", repoName);
+    .replace(new RegExp("{username}", "g"), author)
+    .replace(new RegExp("{repoOwner}", "g"), repoOwner)
+    .replace(new RegExp("{repoName}", "g"), repoName);
 
   const comments = await client.issues.getComments({
     owner: repoOwner, repo: repoName, number: number, per_page: 100

@@ -13,7 +13,7 @@ exports.run = async function(client, pullRequest, repository, opened) {
 
   if (!refIssues.length && exports.findKeywords(pullRequest.body)) {
     const comment = client.templates.get("fixCommitMessage")
-      .replace("[author]", author);
+      .replace(new RegExp("{author}", "g"), author);
     return client.newComment(pullRequest, repository, comment);
   }
 
@@ -48,10 +48,10 @@ exports.referenceIssue = async function(client, refIssue, pullRequest, repo) {
   const labelSize = issueLabels.length === 1 ? "label" : "labels";
 
   const comment = client.templates.get("areaLabelNotification")
-    .replace("[teams]", uniqueTeams)
-    .replace("[payload]", "pull request")
-    .replace("[refs]", `"${areaLabels}"`)
-    .replace("[labels]", labelSize);
+    .replace(new RegExp("{teams}", "g"), uniqueTeams)
+    .replace(new RegExp("{payload}", "g"), "pull request")
+    .replace(new RegExp("{refs}", "g"), `"${areaLabels}"`)
+    .replace(new RegExp("{labels}", "g"), labelSize);
 
   client.newComment(pullRequest, repo, comment);
 };

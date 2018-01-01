@@ -27,8 +27,9 @@ exports.run = async function(client, comment, issue, repository) {
     }
 
     const newComment = client.templates.get("newContributor")
-      .replace("[commenter]", commenter)
-      .replace("[repoName]", repoName).replace("[repoOwner]", repoOwner);
+      .replace(new RegExp("{commenter}", "g"), commenter)
+      .replace(new RegExp("{repoName}", "g"), repoName)
+      .replace(new RegExp("{repoOwner}", "g"), repoOwner);
 
     client.newComment(issue, repository, newComment);
 

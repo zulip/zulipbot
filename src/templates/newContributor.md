@@ -1,4 +1,4 @@
-Welcome to Zulip, @[commenter]! We just sent you an invite to collaborate on this repository at https://github.com/[repoOwner]/[repoName]/invitations. Please accept this invite in order to claim this issue and begin a fun, rewarding experience contributing to Zulip!
+Welcome to Zulip, @{commenter}! We just sent you an invite to collaborate on this repository at https://github.com/{repoOwner}/{repoName}/invitations. Please accept this invite in order to claim this issue and begin a fun, rewarding experience contributing to Zulip!
 
 Here's some tips to get you off to a good start:
 * Join me on the [Zulip developers' server](https://chat.zulip.org), to get help, chat about this issue, and meet the other developers.

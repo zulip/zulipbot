@@ -23,8 +23,10 @@ exports.run = async function(client, issue, repository, label) {
   const labelSize = labelTeams.length === 1 ? "label" : "labels";
 
   const comment = client.templates.get("areaLabelNotification")
-    .replace("[teams]", areaTeams).replace("[payload]", payload)
-    .replace("[refs]", `**${references}**`).replace("[labels]", labelSize);
+    .replace(new RegExp("{teams}", "g"), areaTeams)
+    .replace(new RegExp("{payload}", "g"), payload)
+    .replace(new RegExp("{refs}", "g"), `**${references}**`)
+    .replace(new RegExp("{labels}", "g"), labelSize);
 
   const issueComments = await client.issues.getComments({
     owner: repoOwner, repo: repoName, number: issueNumber, per_page: 100

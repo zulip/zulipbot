@@ -21,11 +21,12 @@ exports.run = async function(client, payload) {
   let comment = "(unknown state)";
 
   if (state === "passed") {
-    comment = client.templates.get("travisPassed").replace("[url]", buildURL);
+    comment = client.templates.get("travisPassed")
+      .replace(new RegExp("{url}", "g"), buildURL);
   } else if (state === "failed" || state === "errored") {
     comment = client.templates.get("travisFailed")
-      .replace("[state]", state)
-      .replace("[build logs]", buildURL || "build logs");
+      .replace(new RegExp("{state}", "g"), state)
+      .replace(new RegExp("{build logs}", "g"), buildURL || "build logs");
   }
 
   client.newComment({number: number}, repository, comment);

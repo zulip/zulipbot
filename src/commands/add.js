@@ -24,24 +24,25 @@ exports.run = async function(client, body, issue, repository) {
   const payloadType = issue.pull_request;
 
   if (rejected.length) {
-    const singular = rejected.length === 1;
+    const one = rejected.length === 1;
     const rejectedLabelError = client.templates.get("labelError")
-      .replace("[labels]", `Label${singular ? "" : "s"}`)
-      .replace("[labelList]", `"${rejected.join("\", \"")}"`)
-      .replace("[existState]", `do${singular ? "es" : ""} not exist`)
-      .replace("[beState]", `w${singular ? "as" : "ere"}`)
-      .replace("[action]", "added to");
+      .replace(new RegExp("{labels}", "g"), `Label${one ? "" : "s"}`)
+      .replace(new RegExp("{labelList}", "g"), `"${rejected.join("\", \"")}"`)
+      .replace(new RegExp("{existState}", "g"), `do${one ? "es" : ""}`)
+      .replace(new RegExp("{beState}", "g"), `w${one ? "as" : "ere"}`)
+      .replace(new RegExp("{action}", "g"), "added to");
     client.newComment(issue, repository, rejectedLabelError, payloadType);
   }
 
   if (alreadyAdded.length) {
-    const singular = alreadyAdded.length === 1;
+    const one = alreadyAdded.length === 1;
+    const labelList = alreadyAdded.join("\", \"");
     const alreadyAddedError = client.templates.get("labelError")
-      .replace("[labels]", `Label${singular ? "" : "s"}`)
-      .replace("[labelList]", `"${alreadyAdded.join("\", \"")}"`)
-      .replace("[existState]", `already ${singular ? "s" : ""}`)
-      .replace("[beState]", `w${singular ? "as" : "ere"}`)
-      .replace("[action]", "added to");
+      .replace(new RegExp("{labels}", "g"), `Label${one ? "" : "s"}`)
+      .replace(new RegExp("{labelList}", "g"), `"${labelList}"`)
+      .replace(new RegExp("{existState}", "g"), `already ${one ? "s" : ""}`)
+      .replace(new RegExp("{beState}", "g"), `w${one ? "as" : "ere"}`)
+      .replace(new RegExp("{action}", "g"), "added to");
     client.newComment(issue, repository, alreadyAddedError, payloadType);
   }
 };

@@ -79,8 +79,8 @@ async function checkInactivePullRequest(client, pullRequest) {
   if (inactiveLabel || !reviewedLabel) return;
 
   const comment = client.templates.get("updateWarning")
-    .replace("[author]", author)
-    .replace("[days]", client.cfg.activity.check.reminder);
+    .replace(new RegExp("{author}", "g"), author)
+    .replace(new RegExp("{days}", "g"), client.cfg.activity.check.reminder);
 
   const comments = await client.issues.getComments({
     owner: repoOwner, repo: repoName, number: number, per_page: 100
@@ -128,10 +128,10 @@ async function scrapeInactiveIssues(client, references, issues) {
     }
 
     const c = client.templates.get("inactiveWarning")
-      .replace("[assignee]", aString)
-      .replace("[inactive]", client.cfg.activity.check.reminder)
-      .replace("[abandon]", client.cfg.activity.check.limit)
-      .replace("[username]", client.cfg.auth.username);
+      .replace(new RegExp("{assignee}", "g"), aString)
+      .replace(new RegExp("{remind}", "g"), client.cfg.activity.check.reminder)
+      .replace(new RegExp("{abandon}", "g"), client.cfg.activity.check.limit)
+      .replace(new RegExp("{username}", "g"), client.cfg.auth.username);
 
     const issueComments = await client.issues.getComments({
       owner: repoOwner, repo: repoName, number: issueNumber, per_page: 100
@@ -152,9 +152,9 @@ async function scrapeInactiveIssues(client, references, issues) {
       });
 
       const warning = client.templates.get("abandonWarning")
-        .replace("[assignee]", aString)
-        .replace("[total]", (ms + ims) / 86400000)
-        .replace("[username]", client.cfg.auth.username);
+        .replace(new RegExp("{assignee}", "g"), aString)
+        .replace(new RegExp("{total}", "g"), (ms + ims) / 86400000)
+        .replace(new RegExp("{username}", "g"), client.cfg.auth.username);
 
       client.issues.editComment({
         owner: repoOwner, repo: repoName, id: com.id, body: warning
