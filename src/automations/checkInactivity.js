@@ -26,13 +26,27 @@ async function scrapePullRequests(pullRequests) {
   const iterator = pullRequests[Symbol.iterator]();
 
   for (let pullRequest of iterator) {
-    const time = Date.parse(pullRequest.updated_at);
+    let time = Date.parse(pullRequest.updated_at);
     const body = pullRequest.body;
     const number = pullRequest.number;
     const repoName = pullRequest.base.repo.name;
     const repoOwner = pullRequest.base.repo.owner.login;
 
-    if (time + ims <= Date.now()) {
+    const response = await this.issues.getIssueLabels({
+      owner: repoOwner, repo: repoName, number: number
+    });
+
+    const labels = response.data.map(label => label.name);
+
+    const inactive = labels.find(label => label === this.cfg.activity.inactive);
+    const reviewed = labels.find(l => {
+      return l === this.cfg.activity.pullRequests.reviewed.label;
+    });
+    const needsReview = labels.find(l => {
+      return l === this.cfg.activity.pullRequests.needsReview.label;
+    });
+
+    if (time + ims <= Date.now() && !inactive && reviewed) {
       checkInactivePullRequest.call(this, pullRequest);
     }
 
@@ -47,6 +61,7 @@ async function scrapePullRequests(pullRequests) {
     if (bodRef || refIssues.length) {
       const com = refIssues[0];
       const ref = com ? com.match(/#([0-9]+)/)[1] : body.match(/#([0-9]+)/)[1];
+      if (needsReview) time = Date.now();
       references.set(`${repoName}/${ref}`, time);
     }
   }
@@ -66,18 +81,6 @@ async function checkInactivePullRequest(pullRequest) {
   const repoOwner = pullRequest.base.repo.owner.login;
   const number = pullRequest.number;
 
-  const labels = await this.issues.getIssueLabels({
-    owner: repoOwner, repo: repoName, number: number
-  });
-  const inactiveLabel = labels.data.find(l => {
-    return l.name === this.cfg.activity.inactive;
-  });
-  const reviewedLabel = labels.data.find(l => {
-    return l.name === this.cfg.activity.pullRequests.reviewed.label;
-  });
-
-  if (inactiveLabel || !reviewedLabel) return;
-
   const comment = this.templates.get("updateWarning")
     .replace(new RegExp("{author}", "g"), author)
     .replace(new RegExp("{days}", "g"), this.cfg.activity.check.reminder);
@@ -88,10 +91,10 @@ async function checkInactivePullRequest(pullRequest) {
   const com = comments.data.slice(-1).pop();
 
   // Use end of line comments to check if comment is from template
-  const lastComment = com ? com.body.endsWith("<!-- updateWarning -->") : null;
-  const fromClient = com ? com.user.login === this.cfg.auth.username : null;
+  const lastComment = com && com.body.endsWith("<!-- updateWarning -->");
+  const fromClient = com && com.user.login === this.cfg.auth.username;
 
-  if (reviewedLabel && !(lastComment && fromClient)) {
+  if (!lastComment || !fromClient) {
     this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: comment
     });
