@@ -97,6 +97,7 @@ exports.activity = {
     clearClosed: true
   },
   pullRequests: {
+    autoUpdate: false,
     reviewed: {
       label: "reviewed"
     },
