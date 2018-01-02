@@ -31,13 +31,15 @@ async function scrapePullRequests(pullRequests) {
     const number = pullRequest.number;
     const repoName = pullRequest.base.repo.name;
     const repoOwner = pullRequest.base.repo.owner.login;
-    const reviewedLabel = pullRequest.reviewed.label;
 
     if (time + ims <= Date.now()) {
       checkInactivePullRequest.call(this, pullRequest);
     }
 
-    const commits = await this.pullRequests.getCommits({
+    const labels = await extractPRLabels(client, repoOwner, repoName, number);
+    const reviewedLabel = labels.reviewedLabel;
+
+    const commits = await client.pullRequests.getCommits({
       owner: repoOwner, repo: repoName, number: number
     });
     const refIssues = commits.data.filter(c => {
@@ -71,15 +73,9 @@ async function checkInactivePullRequest(pullRequest) {
   const repoOwner = pullRequest.base.repo.owner.login;
   const number = pullRequest.number;
 
-  const labels = await this.issues.getIssueLabels({
-    owner: repoOwner, repo: repoName, number: number
-  });
-  const inactiveLabel = labels.data.find(l => {
-    return l.name === this.cfg.activity.inactive;
-  });
-  const reviewedLabel = labels.data.find(l => {
-    return l.name === this.cfg.activity.pullRequests.reviewed.label;
-  });
+  const labels = await extractPRLabels(client, repoOwner, repoName, number);
+  const inactiveLabel = labels.inactiveLabel;
+  const reviewedLabel = labels.reviewedLabel;
 
   if (inactiveLabel || !reviewedLabel) return;
 
@@ -103,9 +99,26 @@ async function checkInactivePullRequest(pullRequest) {
   }
 }
 
-async function scrapeInactiveIssues(references, issues) {
-  const ms = this.cfg.activity.check.limit * 86400000;
-  const ims = this.cfg.activity.check.reminder * 86400000;
+async function extractPRLabels(client, repoOwner, repoName, number) {
+  const labels = await client.issues.getIssueLabels({
+    owner: repoOwner, repo: repoName, number: number
+  });
+  const inactiveLabel = labels.data.find(l => {
+    return l.name === client.cfg.activity.inactive;
+  });
+  const reviewedLabel = labels.data.find(l => {
+    return l.name === client.cfg.activity.pullRequests.reviewed.label;
+  });
+
+  return {
+    inactiveLabel: inactiveLabel,
+    reviewedLabel: reviewedLabel
+  };
+}
+
+async function scrapeInactiveIssues(client, references, issues) {
+  const ms = client.cfg.activity.check.limit * 86400000;
+  const ims = client.cfg.activity.check.reminder * 86400000;
   const iterator = issues[Symbol.iterator]();
 
   for (let issue of iterator) {
