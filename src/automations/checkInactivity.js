@@ -36,10 +36,10 @@ async function scrapePullRequests(pullRequests) {
       checkInactivePullRequest.call(this, pullRequest);
     }
 
-    const labels = await extractPRLabels(client, repoOwner, repoName, number);
-    const reviewedLabel = labels.reviewedLabel;
+    const label = await extractPRLabels.call(this, repoOwner, repoName, number);
+    const reviewedLabel = label.reviewedLabel;
 
-    const commits = await client.pullRequests.getCommits({
+    const commits = await this.pullRequests.getCommits({
       owner: repoOwner, repo: repoName, number: number
     });
     const refIssues = commits.data.filter(c => {
@@ -73,7 +73,7 @@ async function checkInactivePullRequest(pullRequest) {
   const repoOwner = pullRequest.base.repo.owner.login;
   const number = pullRequest.number;
 
-  const labels = await extractPRLabels(client, repoOwner, repoName, number);
+  const labels = await extractPRLabels.call(this, repoOwner, repoName, number);
   const inactiveLabel = labels.inactiveLabel;
   const reviewedLabel = labels.reviewedLabel;
 
@@ -99,15 +99,15 @@ async function checkInactivePullRequest(pullRequest) {
   }
 }
 
-async function extractPRLabels(client, repoOwner, repoName, number) {
-  const labels = await client.issues.getIssueLabels({
+async function extractPRLabels(repoOwner, repoName, number) {
+  const labels = await this.issues.getIssueLabels({
     owner: repoOwner, repo: repoName, number: number
   });
   const inactiveLabel = labels.data.find(l => {
-    return l.name === client.cfg.activity.inactive;
+    return l.name === this.cfg.activity.inactive;
   });
   const reviewedLabel = labels.data.find(l => {
-    return l.name === client.cfg.activity.pullRequests.reviewed.label;
+    return l.name === this.cfg.activity.pullRequests.reviewed.label;
   });
 
   return {
@@ -116,9 +116,9 @@ async function extractPRLabels(client, repoOwner, repoName, number) {
   };
 }
 
-async function scrapeInactiveIssues(client, references, issues) {
-  const ms = client.cfg.activity.check.limit * 86400000;
-  const ims = client.cfg.activity.check.reminder * 86400000;
+async function scrapeInactiveIssues(references, issues) {
+  const ms = this.cfg.activity.check.limit * 86400000;
+  const ims = this.cfg.activity.check.reminder * 86400000;
   const iterator = issues[Symbol.iterator]();
 
   for (let issue of iterator) {
