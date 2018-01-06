@@ -72,7 +72,8 @@ exports.pullRequests = {
     }
   },
   references: {
-    required: false
+    required: false,
+    labels: false
   },
   ci: {
     travis: null

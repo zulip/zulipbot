@@ -89,7 +89,10 @@ exports.pullRequests = {
     }
   },
   references: {
-    required: true
+    required: true,
+    labels: {
+      exclude: ["good first issue", "good sprint project", "help wanted"]
+    }
   },
   ci: {
     travis: "travis updates"

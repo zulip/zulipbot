@@ -19,14 +19,20 @@ exports.run = async function(pullRequest, repository, opened) {
     });
   }
 
-  if (!opened || !this.cfg.issues.area.references) return;
+  if (!opened) return;
 
   Array.from(new Set(refIssues)).forEach(issue => {
-    reference.apply(this, [issue, number, repository]);
+    if (this.cfg.issues.area.references) {
+      areaReference.apply(this, [issue, number, repository]);
+    }
+
+    if (this.cfg.pullRequests.references.labels) {
+      labelReference.apply(this, [issue, number, repository]);
+    }
   });
 };
 
-async function reference(refIssue, number, repo) {
+async function areaReference(refIssue, number, repo) {
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
 
@@ -57,5 +63,42 @@ async function reference(refIssue, number, repo) {
 
   this.issues.createComment({
     owner: repoOwner, repo: repoName, number: number, body: comment
+  });
+}
+
+async function labelReference(refIssue, number, repo) {
+  const repoName = repo.name;
+  const repoOwner = repo.owner.login;
+  const labelCfg = this.cfg.pullRequests.references.labels;
+
+  const response = await this.issues.getIssueLabels({
+    owner: repoOwner, repo: repoName, number: refIssue
+  });
+
+  let labels = response.data.map(label => label.name);
+
+  if (typeof labelCfg === "object") {
+    const cfgCheck = [labelCfg.include, labelCfg.exclude];
+
+    const defined = arr => Array.isArray(arr) && arr.length;
+
+    if (cfgCheck.filter(defined).length !== 1) {
+      const error = "**ERROR:** Invalid `references.labels` configuration.";
+      return this.issues.createComment({
+        owner: repoOwner, repo: repoName, number: number, body: error
+      });
+    }
+
+    if (defined(labelCfg.include)) {
+      labels = labels.filter(label => labelCfg.include.includes(label));
+    }
+
+    if (defined(labelCfg.exclude)) {
+      labels = labels.filter(label => !labelCfg.exclude.includes(label));
+    }
+  }
+
+  this.issues.addLabels({
+    owner: repoOwner, repo: repoName, number: number, labels: labels
   });
 }
