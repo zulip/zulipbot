@@ -2,7 +2,7 @@ let referencedIssues = [];
 
 exports.run = async function(client, issue, repository, label) {
   const areaLabel = label.name;
-  const issueNumber = issue.number;
+  const number = issue.number;
   const repoName = repository.name;
   const repoOwner = repository.owner.login;
   const issueLabels = issue.labels.map(l => l.name);
@@ -29,7 +29,7 @@ exports.run = async function(client, issue, repository, label) {
     .replace(new RegExp("{labels}", "g"), labelSize);
 
   const issueComments = await client.issues.getComments({
-    owner: repoOwner, repo: repoName, number: issueNumber, per_page: 100
+    owner: repoOwner, repo: repoName, number: number, per_page: 100
   });
   const labelComment = issueComments.data.find(com => {
     // Use end of line comments to check if comment is from template
@@ -42,13 +42,13 @@ exports.run = async function(client, issue, repository, label) {
     client.issues.editComment({
       owner: repoOwner, repo: repoName, id: labelComment.id, body: comment
     });
-  } else if (!referencedIssues.includes(issueNumber)) {
+  } else if (!referencedIssues.includes(number)) {
     client.newComment(issue, repository, comment);
 
     // Ignore labels added in bulk
-    referencedIssues.push(issueNumber);
+    referencedIssues.push(number);
     setTimeout(() => {
-      referencedIssues.splice(referencedIssues.indexOf(issueNumber), 1);
+      referencedIssues.splice(referencedIssues.indexOf(number), 1);
     }, 1000);
   }
 };

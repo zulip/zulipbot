@@ -1,7 +1,7 @@
 exports.run = async function(client, body, issue, repository) {
   const repoName = repository.name;
   const repoOwner = repository.owner.login;
-  const issueNumber = issue.number;
+  const number = issue.number;
   const issueLabels = issue.labels.map(label => label.name);
 
   const labels = body.match(/".*?"/g).map(string => string.replace(/"/g, ""));
@@ -9,7 +9,7 @@ exports.run = async function(client, body, issue, repository) {
   const rejected = labels.filter(label => !issueLabels.includes(label));
 
   await client.issues.replaceAllLabels({
-    owner: repoOwner, repo: repoName, number: issueNumber, labels: removeLabels
+    owner: repoOwner, repo: repoName, number: number, labels: removeLabels
   });
 
   if (!rejected.length) return;

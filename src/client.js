@@ -45,7 +45,7 @@ client.authenticate({
 });
 
 client.newComment = (issue, repository, body, replacePR) => {
-  const issueNumber = issue.number;
+  const number = issue.number;
   const repoName = repository.name;
   const repoOwner = repository.owner.login;
 
@@ -57,7 +57,7 @@ client.newComment = (issue, repository, body, replacePR) => {
   }
 
   client.issues.createComment({
-    owner: repoOwner, repo: repoName, number: issueNumber, body: body
+    owner: repoOwner, repo: repoName, number: number, body: body
   });
 };
 

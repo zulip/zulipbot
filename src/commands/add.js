@@ -1,7 +1,7 @@
 exports.run = async function(client, body, issue, repository) {
   const repoName = repository.name;
   const repoOwner = repository.owner.login;
-  const issueNumber = issue.number;
+  const number = issue.number;
   const issueLabels = issue.labels.map(label => label.name);
 
   const repoLabelArray = await client.issues.getLabels({
@@ -18,7 +18,7 @@ exports.run = async function(client, body, issue, repository) {
   });
 
   await client.issues.addLabels({
-    owner: repoOwner, repo: repoName, number: issueNumber, labels: addLabels
+    owner: repoOwner, repo: repoName, number: number, labels: addLabels
   });
 
   const payloadType = issue.pull_request;

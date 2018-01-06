@@ -108,10 +108,10 @@ async function scrapeInactiveIssues(client, references, issues) {
     if (inactiveLabel) continue;
 
     let time = Date.parse(issue.updated_at);
-    const issueNumber = issue.number;
+    const number = issue.number;
     const repoName = issue.repository.name;
     const repoOwner = issue.repository.owner.login;
-    const issueTag = `${repoName}/${issueNumber}`;
+    const issueTag = `${repoName}/${number}`;
     const repoTag = issue.repository.full_name;
 
     if (time < references.get(issueTag)) time = references.get(issueTag);
@@ -134,7 +134,7 @@ async function scrapeInactiveIssues(client, references, issues) {
       .replace(new RegExp("{username}", "g"), client.cfg.auth.username);
 
     const issueComments = await client.issues.getComments({
-      owner: repoOwner, repo: repoName, number: issueNumber, per_page: 100
+      owner: repoOwner, repo: repoName, number: number, per_page: 100
     });
     const com = issueComments.data.slice(-1).pop();
 
@@ -148,7 +148,7 @@ async function scrapeInactiveIssues(client, references, issues) {
       });
 
       client.issues.removeAssigneesFromIssue({
-        owner: repoOwner, repo: repoName, number: issueNumber, body: assignees
+        owner: repoOwner, repo: repoName, number: number, body: assignees
       });
 
       const warning = client.templates.get("abandonWarning")
