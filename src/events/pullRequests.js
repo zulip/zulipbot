@@ -9,7 +9,7 @@ exports.run = async function(payload) {
   const size = this.cfg.pullRequests.status.size;
 
   if (check && (autoUpdate || size)) {
-    this.automations.get("pullRequestState").label(payload);
+    await this.automations.get("pullRequestState").label(payload);
   }
 
   if (action === "submitted" && assignee) {

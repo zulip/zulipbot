@@ -23,9 +23,11 @@ exports.label = async function(payload) {
     labels = await size.apply(this, [sizeLabels, labels, number, repository]);
   }
 
-  this.issues.replaceAllLabels({
+  const newLabels = await this.issues.replaceAllLabels({
     owner: repoOwner, repo: repoName, number: number, labels: labels
   });
+
+  return new Promise(resolve => resolve(newLabels));
 };
 
 function review(labels, action, author, reviewer) {
