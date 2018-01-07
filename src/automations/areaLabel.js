@@ -43,7 +43,9 @@ exports.run = async function(client, issue, repository, label) {
       owner: repoOwner, repo: repoName, id: labelComment.id, body: comment
     });
   } else if (!referencedIssues.includes(number)) {
-    client.newComment(issue, repository, comment);
+    client.issues.createComment({
+      owner: repoOwner, repo: repoName, number: number, body: comment
+    });
 
     // Ignore labels added in bulk
     referencedIssues.push(number);

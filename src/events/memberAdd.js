@@ -24,7 +24,9 @@ exports.run = async function(client, payload) {
   if (response.data.assignees.length) return;
 
   const error = "**ERROR:** Issue claiming failed (no assignee was added).";
-  client.newComment({number: number}, repo, error);
+  client.issues.createComment({
+    owner: repoOwner, repo: repoName, number: number, body: error
+  });
 };
 
 exports.events = ["member"];

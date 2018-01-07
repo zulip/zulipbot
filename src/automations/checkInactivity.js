@@ -92,7 +92,9 @@ async function checkInactivePullRequest(client, pullRequest) {
   const fromClient = com ? com.user.login === client.cfg.auth.username : null;
 
   if (reviewedLabel && !(lastComment && fromClient)) {
-    client.newComment(pullRequest, pullRequest.base.repo, comment);
+    client.issues.createComment({
+      owner: repoOwner, repo: repoName, number: number, body: comment
+    });
   }
 }
 
@@ -124,7 +126,9 @@ async function scrapeInactiveIssues(client, references, issues) {
 
     if (!aString) {
       const comment = "**ERROR:** This active issue has no assignee.";
-      return client.newComment(issue, issue.repository, comment);
+      return client.issues.createComment({
+        owner: repoOwner, repo: repoName, number: number, body: comment
+      });
     }
 
     const c = client.templates.get("inactiveWarning")
@@ -160,7 +164,9 @@ async function scrapeInactiveIssues(client, references, issues) {
         owner: repoOwner, repo: repoName, id: com.id, body: warning
       });
     } else if (!(warning && fromClient) && time + ims <= Date.now()) {
-      client.newComment(issue, issue.repository, c);
+      client.issues.createComment({
+        owner: repoOwner, repo: repoName, number: number, body: c
+      });
     }
   }
 }

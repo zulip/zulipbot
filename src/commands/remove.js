@@ -15,14 +15,18 @@ exports.run = async function(client, body, issue, repository) {
   if (!rejected.length) return;
 
   const one = rejected.length === 1;
-  const rejectedLabelError = client.templates.get("labelError")
+  const payload = issue.pull_request ? "pull request" : "issue";
+  const error = client.templates.get("labelError")
     .replace(new RegExp("{labels}", "g"), `Label${one ? "" : "s"}`)
     .replace(new RegExp("{labelList}", "g"), `"${rejected.join("\", \"")}"`)
     .replace(new RegExp("{existState}", "g"), `do${one ? "es" : ""} not exist`)
+    .replace(new RegExp("{payload}", "g"), payload)
     .replace(new RegExp("{beState}", "g"), `w${one ? "as" : "ere"}`)
     .replace(new RegExp("{action}", "g"), "removed from");
 
-  client.newComment(issue, repository, rejectedLabelError, issue.pull_request);
+  client.issues.createComment({
+    owner: repoOwner, repo: repoName, number: number, body: error
+  });
 };
 
 const cfg = require("../../config/default.js");

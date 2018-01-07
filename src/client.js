@@ -44,23 +44,6 @@ client.authenticate({
   password: client.cfg.auth.password
 });
 
-client.newComment = (issue, repository, body, replacePR) => {
-  const number = issue.number;
-  const repoName = repository.name;
-  const repoOwner = repository.owner.login;
-
-  // Check if comment is being posted on a pull request
-  if (replacePR) {
-    body = body.replace(/\[payload\]/g, "pull request");
-  } else {
-    body = body.replace(/\[payload\]/g, "issue");
-  }
-
-  client.issues.createComment({
-    owner: repoOwner, repo: repoName, number: number, body: body
-  });
-};
-
 client.getAll = async function(client, responses, func) {
   let response = await func;
   responses = responses.concat(response.data);

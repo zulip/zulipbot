@@ -14,17 +14,19 @@ exports.run = async function(client, pullRequest, repository, opened) {
   if (!refIssues.length && exports.findKeywords(pullRequest.body)) {
     const comment = client.templates.get("fixCommitMessage")
       .replace(new RegExp("{author}", "g"), author);
-    return client.newComment(pullRequest, repository, comment);
+    return client.issues.createComment({
+      owner: repoOwner, repo: repoName, number: number, body: comment
+    });
   }
 
   if (!opened) return;
 
   Array.from(new Set(refIssues)).forEach(referencedIssue => {
-    exports.referenceIssue(client, referencedIssue, pullRequest, repository);
+    exports.referenceIssue(client, referencedIssue, number, repository);
   });
 };
 
-exports.referenceIssue = async function(client, refIssue, pullRequest, repo) {
+exports.referenceIssue = async function(client, refIssue, number, repo) {
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
 
@@ -53,7 +55,9 @@ exports.referenceIssue = async function(client, refIssue, pullRequest, repo) {
     .replace(new RegExp("{refs}", "g"), `"${areaLabels}"`)
     .replace(new RegExp("{labels}", "g"), labelSize);
 
-  client.newComment(pullRequest, repo, comment);
+  client.issues.createComment({
+    owner: repoOwner, repo: repoName, number: number, body: comment
+  });
 };
 
 /*

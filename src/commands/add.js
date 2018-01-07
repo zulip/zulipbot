@@ -21,29 +21,37 @@ exports.run = async function(client, body, issue, repository) {
     owner: repoOwner, repo: repoName, number: number, labels: addLabels
   });
 
-  const payloadType = issue.pull_request;
+  const payload = issue.pull_request ? "pull request" : "issue";
 
   if (rejected.length) {
     const one = rejected.length === 1;
-    const rejectedLabelError = client.templates.get("labelError")
+    const error = client.templates.get("labelError")
       .replace(new RegExp("{labels}", "g"), `Label${one ? "" : "s"}`)
       .replace(new RegExp("{labelList}", "g"), `"${rejected.join("\", \"")}"`)
       .replace(new RegExp("{existState}", "g"), `do${one ? "es" : ""}`)
+      .replace(new RegExp("{payload}", "g"), payload)
       .replace(new RegExp("{beState}", "g"), `w${one ? "as" : "ere"}`)
       .replace(new RegExp("{action}", "g"), "added to");
-    client.newComment(issue, repository, rejectedLabelError, payloadType);
+
+    client.issues.createComment({
+      owner: repoOwner, repo: repoName, number: number, body: error
+    });
   }
 
   if (alreadyAdded.length) {
     const one = alreadyAdded.length === 1;
-    const labelList = alreadyAdded.join("\", \"");
-    const alreadyAddedError = client.templates.get("labelError")
+    const labels = alreadyAdded.join("\", \"");
+    const error = client.templates.get("labelError")
       .replace(new RegExp("{labels}", "g"), `Label${one ? "" : "s"}`)
-      .replace(new RegExp("{labelList}", "g"), `"${labelList}"`)
+      .replace(new RegExp("{labelList}", "g"), `"${labels}"`)
       .replace(new RegExp("{existState}", "g"), `already ${one ? "s" : ""}`)
+      .replace(new RegExp("{payload}", "g"), payload)
       .replace(new RegExp("{beState}", "g"), `w${one ? "as" : "ere"}`)
       .replace(new RegExp("{action}", "g"), "added to");
-    client.newComment(issue, repository, alreadyAddedError, payloadType);
+
+    client.issues.createComment({
+      owner: repoOwner, repo: repoName, number: number, body: error
+    });
   }
 };
 

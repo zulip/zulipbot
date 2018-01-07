@@ -15,7 +15,6 @@ exports.run = async function(client, payload) {
 
   if (!labelCheck) return;
 
-  const repository = {name: repoName, owner: {login: repoOwner}};
   const state = payload.state;
   const buildURL = payload.build_url;
   let comment = "(unknown state)";
@@ -29,7 +28,9 @@ exports.run = async function(client, payload) {
       .replace(new RegExp("{build logs}", "g"), buildURL || "build logs");
   }
 
-  client.newComment({number: number}, repository, comment);
+  client.issues.createComment({
+    owner: repoOwner, repo: repoName, number: number, body: comment
+  });
 };
 
 exports.events = ["travis"];

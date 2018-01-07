@@ -57,7 +57,9 @@ exports.check = async function(client, number, repoName, repoOwner) {
     });
 
     if (!labelComment && !inactive) {
-      client.newComment(pull.data, pull.data.base.repo, comment);
+      client.issues.createComment({
+        owner: repoOwner, repo: repoName, number: number, body: comment
+      });
     }
   } else if (mergeable && warnings.length) {
     warnings.forEach(c => {
