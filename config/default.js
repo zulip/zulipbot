@@ -5,14 +5,27 @@
   * explanations on each option.
   */
 
-const secrets = require("./secrets.json");
-
 // Authentication
 exports.auth = {
-  username: process.env.USERNAME || secrets.username,
-  password: process.env.PASSWORD || secrets.password,
-  webhookSecret: process.env.WEBHOOK_SECRET || secrets.webhookSecret
+  username: process.env.USERNAME,
+  password: process.env.PASSWORD,
+  webhookSecret: process.env.WEBHOOK_SECRET
 };
+
+try {
+  const secrets = require("./secrets.json");
+
+  exports.auth = {
+    username: secrets.username,
+    password: secrets.password,
+    webhookSecret: secrets.webhookSecret
+  };
+
+  console.log("Authenticating with `./config/secrets.json`...");
+} catch (e) {
+  console.log("`./config/secrets.json` was not found.",
+    "Authenticating with environment variables...");
+}
 
 /**
   * Issue triage
