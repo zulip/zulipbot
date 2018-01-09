@@ -1,15 +1,16 @@
 exports.run = async function(client) {
   // Create array with PRs from all active repositories
-  const array = await Promise.all(
-    client.cfg.activity.check.repositories.reduce((all, repo) => {
-      const repoOwner = repo.split("/")[0];
-      const repoName = repo.split("/")[1];
-      const func = client.pullRequests.getAll({
-        owner: repoOwner, repo: repoName, per_page: 100
-      });
-      return all.concat(client.getAll(client, [], func));
-    }, [])
-  );
+  const repos = client.cfg.activity.check.repositories;
+  const pages = repos.map(async repo => {
+    const repoOwner = repo.split("/")[0];
+    const repoName = repo.split("/")[1];
+    const firstPage = await client.pullRequests.getAll({
+      owner: repoOwner, repo: repoName, per_page: 100
+    });
+    return client.getAll(firstPage);
+  });
+
+  const array = await Promise.all(pages);
 
   // Flatten arrays of arrays with PR data
   const pullRequests = array.reduce((a, element) => {
@@ -51,11 +52,11 @@ async function scrapePullRequests(client, pullRequests) {
     }
   }
 
-  const func = client.issues.getAll({
+  const firstPage = await client.issues.getAll({
     filter: "all", per_page: 100,
     labels: client.cfg.activity.issues.inProgress
   });
-  const issues = await client.getAll(client, [], func);
+  const issues = await client.getAll(firstPage);
 
   await scrapeInactiveIssues(client, references, issues);
 }

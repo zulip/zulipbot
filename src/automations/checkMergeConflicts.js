@@ -2,10 +2,10 @@ exports.run = async function(client, repository) {
   const repoName = repository.name;
   const repoOwner = repository.owner.login;
 
-  const func = client.pullRequests.getAll({
+  const firstPage = await client.pullRequests.getAll({
     owner: repoOwner, repo: repoName, per_page: 100
   });
-  const pullRequests = await client.getAll(client, [], func);
+  const pullRequests = await client.getAll(firstPage);
 
   pullRequests.forEach(async(p, index) => {
     setTimeout(() => {

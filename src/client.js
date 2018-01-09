@@ -44,14 +44,14 @@ client.authenticate({
   password: client.cfg.auth.password
 });
 
-client.getAll = async function(client, responses, func) {
-  let response = await func;
-  responses = responses.concat(response.data);
-  while (client.hasNextPage(response)) {
-    response = await client.getNextPage(response);
+client.getAll = async function(page) {
+  let response = page;
+  let responses = response.data;
+  while (this.hasNextPage(response)) {
+    response = await this.getNextPage(response);
     responses = responses.concat(response.data);
   }
-  return responses;
+  return new Promise(resolve => resolve(responses));
 };
 
 module.exports = client;

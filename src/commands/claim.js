@@ -16,10 +16,10 @@ exports.run = async function(client, comment, issue, repository) {
       owner: repoOwner, repo: repoName, username: commenter
     });
 
-    const func = client.repos.getContributors({
+    const firstPage = await client.repos.getContributors({
       owner: repoOwner, repo: repoName
     });
-    const contributors = await client.getAll(client, [], func);
+    const contributors = await client.getAll(firstPage);
 
     if (contributors.find(c => c.login === commenter)) {
       exports.claimIssue(client, commenter, issue, repository);
@@ -63,11 +63,11 @@ exports.run = async function(client, comment, issue, repository) {
 };
 
 exports.checkValid = async function(client, commenter, issue, repository) {
-  const func = client.issues.getAll({
+  const firstPage = await client.issues.getAll({
     filter: "all", per_page: 100,
     labels: client.cfg.activity.issues.inProgress
   });
-  const issues = await client.getAll(client, [], func);
+  const issues = await client.getAll(firstPage);
 
   const limit = client.cfg.issues.commands.assign.newContributors.restricted;
   const assigned = issues.filter(issue => {
