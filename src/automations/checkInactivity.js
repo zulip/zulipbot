@@ -61,7 +61,8 @@ async function scrapePullRequests(pullRequests) {
     if (bodRef || refIssues.length) {
       const com = refIssues[0];
       const ref = com ? com.match(/#([0-9]+)/)[1] : body.match(/#([0-9]+)/)[1];
-      if (needsReview) time = Date.now();
+      const ignore = this.cfg.activity.pullRequests.needsReview.ignore;
+      if (needsReview && ignore) time = Date.now();
       references.set(`${repoName}/${ref}`, time);
     }
   }

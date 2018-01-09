@@ -122,7 +122,8 @@ exports.activity = {
       label: "reviewed"
     },
     needsReview: {
-      label: "needs review"
+      label: "needs review",
+      ignore: true
     }
   }
 };

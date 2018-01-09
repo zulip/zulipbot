@@ -106,7 +106,8 @@ exports.activity = {
       assignee: null
     },
     needsReview: {
-      label: null
+      label: null,
+      ignore: false
     }
   }
 };
