@@ -8,10 +8,10 @@ exports.run = async function(client, pullRequest, repository, opened) {
     owner: repoOwner, repo: repoName, number: number
   });
   const refIssues = response.data.filter(c => {
-    return exports.findKeywords(c.commit.message);
+    return client.findKeywords(c.commit.message);
   }).map(c => c.commit.message.match(/#([0-9]+)/)[1]);
 
-  if (!refIssues.length && exports.findKeywords(pullRequest.body)) {
+  if (!refIssues.length && client.findKeywords(pullRequest.body)) {
     const comment = client.templates.get("fixCommitMessage")
       .replace(new RegExp("{author}", "g"), author);
     return client.issues.createComment({
@@ -57,28 +57,5 @@ exports.referenceIssue = async function(client, refIssue, number, repo) {
 
   client.issues.createComment({
     owner: repoOwner, repo: repoName, number: number, body: comment
-  });
-};
-
-/*
-  Keywords from https://help.github.com/articles/closing-issues-using-keywords/
-  Referenced issues are only closed when pull requests are merged;
-  not necessarily when commits are merged
-*/
-exports.findKeywords = string => {
-  const keywords = ["close", "fix", "resolve"];
-
-  return keywords.some(word => {
-    const current = word;
-    const past = word.endsWith("e") ? `${word}d` : `${word}ed`;
-    const present = word.endsWith("e") ? `${word}s` : `${word}es`;
-    const tenses = [current, past, present];
-
-    const matched = tenses.some(t => {
-      const regex = new RegExp(`${t} #([0-9]+)`, "i");
-      return string.match(regex);
-    });
-
-    return matched;
   });
 };

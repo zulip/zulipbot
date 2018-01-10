@@ -40,10 +40,9 @@ async function scrapePullRequests(client, pullRequests) {
       owner: repoOwner, repo: repoName, number: number
     });
     const refIssues = commits.data.filter(c => {
-      const message = c.commit.message;
-      return client.automations.get("issueReferenced").findKeywords(message);
+      return client.findKeywords(c.commit.message);
     }).map(c => c.commit.message);
-    const bodRef = client.automations.get("issueReferenced").findKeywords(body);
+    const bodRef = client.findKeywords(body);
 
     if (bodRef || refIssues.length) {
       const com = refIssues[0];
