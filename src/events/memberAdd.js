@@ -1,10 +1,10 @@
-exports.run = async function(client, payload) {
-  const claimEnabled = client.cfg.issues.commands.assign.claim.aliases.length;
+exports.run = async function(payload) {
+  const claimEnabled = this.cfg.issues.commands.assign.claim.aliases.length;
 
   if (payload.action !== "added" || !claimEnabled) return;
 
   const newMember = payload.member.login;
-  const invite = client.invites.get(newMember);
+  const invite = this.invites.get(newMember);
 
   if (!invite) return;
 
@@ -17,14 +17,14 @@ exports.run = async function(client, payload) {
   const repoOwner = repoFullName.split("/")[0];
   const repoName = repoFullName.split("/")[1];
 
-  const response = await client.issues.addAssigneesToIssue({
+  const response = await this.issues.addAssigneesToIssue({
     owner: repoOwner, repo: repoName, number: number, assignees: [newMember]
   });
 
   if (response.data.assignees.length) return;
 
   const error = "**ERROR:** Issue claiming failed (no assignee was added).";
-  client.issues.createComment({
+  this.issues.createComment({
     owner: repoOwner, repo: repoName, number: number, body: error
   });
 };

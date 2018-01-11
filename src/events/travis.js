@@ -1,16 +1,16 @@
-exports.run = async function(client, payload) {
-  if (!payload.pull_request || !client.cfg.pullRequests.travis) return;
+exports.run = async function(payload) {
+  if (!payload.pull_request || !this.cfg.pullRequests.travis) return;
 
   const repoOwner = payload.repository.owner_name;
   const repoName = payload.repository.name;
   const number = payload.pull_request_number;
 
-  const labels = await client.issues.getIssueLabels({
+  const labels = await this.issues.getIssueLabels({
     owner: repoOwner, repo: repoName, number: number
   });
 
   const labelCheck = labels.data.find(label => {
-    return label.name === client.cfg.pullRequests.travis;
+    return label.name === this.cfg.pullRequests.travis;
   });
 
   if (!labelCheck) return;
@@ -20,15 +20,15 @@ exports.run = async function(client, payload) {
   let comment = "(unknown state)";
 
   if (state === "passed") {
-    comment = client.templates.get("travisPassed")
+    comment = this.templates.get("travisPassed")
       .replace(new RegExp("{url}", "g"), buildURL);
   } else if (state === "failed" || state === "errored") {
-    comment = client.templates.get("travisFailed")
+    comment = this.templates.get("travisFailed")
       .replace(new RegExp("{state}", "g"), state)
       .replace(new RegExp("{build logs}", "g"), buildURL || "build logs");
   }
 
-  client.issues.createComment({
+  this.issues.createComment({
     owner: repoOwner, repo: repoName, number: number, body: comment
   });
 };

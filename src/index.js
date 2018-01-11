@@ -27,7 +27,7 @@ app.post("/github", jsonParser, async(req, res) => {
 
     if (signature === `sha1=${hmac}`) {
       const validEvent = client.events.get(req.get("X-GitHub-Event"));
-      if (validEvent) validEvent.run(client, req.body);
+      if (validEvent) validEvent(req.body);
       return res.status(200).send("Valid request");
     }
   }
@@ -44,7 +44,7 @@ app.post("/travis", urlencodedParser, async(req, res) => {
     const valid = key.verify(payload, signature, "base64", "base64");
 
     if (valid) {
-      client.events.get("travis").run(client, payload);
+      client.events.get("travis")(payload);
       return res.status(200).send("Valid request");
     }
   }

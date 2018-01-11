@@ -1,33 +1,33 @@
-exports.run = async function(client, payload) {
+exports.run = async function(payload) {
   const action = payload.action;
   const pull = payload.pull_request;
   const repo = payload.repository;
-  const pullCfg = client.cfg.activity.pullRequests;
-  const ref = client.cfg.issues.area.commitReferences;
-  const wip = client.cfg.pullRequests.wip;
-  const check = client.cfg.activity.check.repositories.includes(repo.full_name);
+  const pullCfg = this.cfg.activity.pullRequests;
+  const ref = this.cfg.issues.area.commitReferences;
+  const wip = this.cfg.pullRequests.wip;
+  const check = this.cfg.activity.check.repositories.includes(repo.full_name);
   const update = pullCfg.autoUpdate;
 
   if (pullCfg.reviewed.label && pullCfg.needsReview.label && check && update) {
-    client.automations.get("pullRequestState").review(client, payload);
+    this.automations.get("pullRequestState").review(this, payload);
   }
 
   if (action === "submitted" && pullCfg.reviewed.assignee) {
-    client.automations.get("pullRequestState").assign(client, payload);
-  } else if (action === "labeled" && client.cfg.issues.area.labels) {
+    this.automations.get("pullRequestState").assign(this, payload);
+  } else if (action === "labeled" && this.cfg.issues.area.labels) {
     const l = payload.label;
-    const issue = await client.issues.get({
+    const issue = await this.issues.get({
       owner: repo.owner.login, repo: repo.name, number: pull.number
     });
-    client.automations.get("areaLabel").run(client, issue.data, repo, l);
+    this.automations.get("areaLabel").run(this, issue.data, repo, l);
   }
 
   if (!ref || pull.title.includes(wip)) return;
 
   if (action === "opened") {
-    client.automations.get("issueReferenced").run(client, pull, repo, true);
+    this.automations.get("issueReferenced").run(this, pull, repo, true);
   } else if (action === "synchronize") {
-    client.automations.get("issueReferenced").run(client, pull, repo, false);
+    this.automations.get("issueReferenced").run(this, pull, repo, false);
   }
 };
 

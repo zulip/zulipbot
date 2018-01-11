@@ -28,7 +28,7 @@ const events = fs.readdirSync("./src/events");
 for (const event of events) {
   const data = require(`./events/${event}`);
   for (let i = data.events.length; i--;) {
-    client.events.set(data.events[i], data);
+    client.events.set(data.events[i], data.run.bind(client));
   }
 }
 
