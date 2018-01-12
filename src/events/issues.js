@@ -20,9 +20,9 @@ exports.run = function(payload) {
   }
 };
 
-function parseCommands(payloadBody, issue, repository) {
-  const c = payloadBody.user.login;
-  const body = payloadBody.body;
+function parseCommands(payload, issue, repository) {
+  const c = payload.user.login;
+  const body = payload.body;
   const issueCreator = issue.user.login;
 
   if (c === this.cfg.auth.username || !body) return;
@@ -41,7 +41,7 @@ function parseCommands(payloadBody, issue, repository) {
     let cmdFile = this.commands.get(keyword);
 
     if (cmdFile && !cmdFile.args) {
-      return cmdFile.run(this, payloadBody, issue, repository);
+      return cmdFile.run.apply(this, [payload, issue, repository]);
     } else if (!cmdFile || !body.match(/".*?"/g)) {
       return;
     }
@@ -52,10 +52,10 @@ function parseCommands(payloadBody, issue, repository) {
 
     const splitBody = body.split(`@${this.cfg.auth.username}`).filter(str => {
       return str.match(new RegExp(`\\s+${keyword}\\s+"`));
-    }).join(" ");
+    }).join(" ").replace(/\s+/, " ");
 
-    cmdFile.run(this, splitBody.replace(/\s+/, " "), issue, repository);
+    cmdFile.run.apply(this, [splitBody, issue, repository]);
   });
-};
+}
 
 exports.events = ["issues", "issue_comment"];

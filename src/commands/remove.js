@@ -1,4 +1,4 @@
-exports.run = async function(client, body, issue, repository) {
+exports.run = async function(body, issue, repository) {
   const repoName = repository.name;
   const repoOwner = repository.owner.login;
   const number = issue.number;
@@ -8,7 +8,7 @@ exports.run = async function(client, body, issue, repository) {
   const removeLabels = issueLabels.filter(label => !labels.includes(label));
   const rejected = labels.filter(label => !issueLabels.includes(label));
 
-  await client.issues.replaceAllLabels({
+  await this.issues.replaceAllLabels({
     owner: repoOwner, repo: repoName, number: number, labels: removeLabels
   });
 
@@ -16,7 +16,7 @@ exports.run = async function(client, body, issue, repository) {
 
   const one = rejected.length === 1;
   const payload = issue.pull_request ? "pull request" : "issue";
-  const error = client.templates.get("labelError")
+  const error = this.templates.get("labelError")
     .replace(new RegExp("{labels}", "g"), `Label${one ? "" : "s"}`)
     .replace(new RegExp("{labelList}", "g"), `"${rejected.join("\", \"")}"`)
     .replace(new RegExp("{existState}", "g"), `do${one ? "es" : ""} not exist`)
@@ -24,7 +24,7 @@ exports.run = async function(client, body, issue, repository) {
     .replace(new RegExp("{beState}", "g"), `w${one ? "as" : "ere"}`)
     .replace(new RegExp("{action}", "g"), "removed from");
 
-  client.issues.createComment({
+  this.issues.createComment({
     owner: repoOwner, repo: repoName, number: number, body: error
   });
 };

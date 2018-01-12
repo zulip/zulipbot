@@ -1,4 +1,4 @@
-exports.run = async function(client, comment, issue, repository) {
+exports.run = async function(comment, issue, repository) {
   const commenter = comment.user.login;
   const repoName = repository.name;
   const repoOwner = repository.owner.login;
@@ -6,101 +6,100 @@ exports.run = async function(client, comment, issue, repository) {
 
   if (issue.assignees.find(assignee => assignee.login === commenter)) {
     const error = "**ERROR:** You have already claimed this issue.";
-    return client.issues.createComment({
+    return this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: error
     });
   }
 
   try {
-    await client.repos.checkCollaborator({
+    await this.repos.checkCollaborator({
       owner: repoOwner, repo: repoName, username: commenter
     });
 
-    const firstPage = await client.repos.getContributors({
+    const firstPage = await this.repos.getContributors({
       owner: repoOwner, repo: repoName
     });
-    const contributors = await client.getAll(firstPage);
+    const contributors = await this.getAll(firstPage);
 
     if (contributors.find(c => c.login === commenter)) {
-      exports.claimIssue(client, commenter, issue, repository);
+      claim.apply(this, [commenter, number, repoOwner, repoName]);
     } else {
-      exports.checkValid(client, commenter, issue, repository);
+      validate.apply(this, [commenter, number, repoOwner, repoName]);
     }
   } catch (response) {
     if (response.code !== 404) {
       const error = "**ERROR:** Unexpected response from GitHub API.";
-      return client.issues.createComment({
+      return this.issues.createComment({
         owner: repoOwner, repo: repoName, number: number, body: error
       });
     }
 
-    const perm = client.cfg.issues.commands.assign.newContributors.permission;
+    const perm = this.cfg.issues.commands.assign.newContributors.permission;
 
     if (!perm) {
       const error = "**ERROR:** `addCollabPermission` wasn't configured.";
-      return client.issues.createComment({
+      return this.issues.createComment({
         owner: repoOwner, repo: repoName, number: number, body: error
       });
     }
 
-    const comment = client.templates.get("newContributor")
+    const comment = this.templates.get("newContributor")
       .replace(new RegExp("{commenter}", "g"), commenter)
       .replace(new RegExp("{repoName}", "g"), repoName)
       .replace(new RegExp("{repoOwner}", "g"), repoOwner);
 
-    client.issues.createComment({
+    this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: comment
     });
 
-    if (client.invites.get(commenter)) return;
+    if (this.invites.get(commenter)) return;
 
-    client.repos.addCollaborator({
+    this.repos.addCollaborator({
       owner: repoOwner, repo: repoName, username: commenter, permission: perm
     });
 
-    client.invites.set(commenter, `${repoOwner}/${repoName}#${number}`);
+    this.invites.set(commenter, `${repoOwner}/${repoName}#${number}`);
   }
 };
 
-exports.checkValid = async function(client, commenter, issue, repository) {
-  const firstPage = await client.issues.getAll({
+async function validate(commenter, number, repoOwner, repoName) {
+  const firstPage = await this.issues.getAll({
     filter: "all", per_page: 100,
-    labels: client.cfg.activity.issues.inProgress
+    labels: this.cfg.activity.issues.inProgress
   });
-  const issues = await client.getAll(firstPage);
+  const issues = await this.getAll(firstPage);
 
-  const limit = client.cfg.issues.commands.assign.newContributors.restricted;
+  const limit = this.cfg.issues.commands.assign.newContributors.restricted;
   const assigned = issues.filter(issue => {
     return issue.assignees.find(assignee => assignee.login === commenter);
   });
 
   if (assigned.length >= limit) {
-    const newComment = client.templates.get("claimRestricted")
+    const comment = this.templates.get("claimRestricted")
       .replace(new RegExp("{commenter}", "g"), commenter)
       .replace(new RegExp("{limit}", "g"), limit)
       .replace(new RegExp("{issue}", "g"), `issue${limit === 1 ? "" : "s"}`);
 
-    return client.newComment(issue, repository, newComment);
+    this.issues.createComment({
+      owner: repoOwner, repo: repoName, number: number, body: comment
+    });
   }
 
-  exports.claimIssue(client, commenter, issue, repository);
-};
+  claim.apply(this, [commenter, number, repoOwner, repoName]);
+}
 
-exports.claimIssue = async function(client, commenter, number, repository) {
-  const repoName = repository.name;
-  const repoOwner = repository.owner.login;
-
-  const response = await client.issues.addAssigneesToIssue({
+async function claim(commenter, number, repoOwner, repoName) {
+  const response = await this.issues.addAssigneesToIssue({
     owner: repoOwner, repo: repoName, number: number, assignees: [commenter]
   });
 
   if (response.data.assignees.length) return;
 
   const error = "**ERROR:** Issue claiming failed (no assignee was added).";
-  client.issues.createComment({
+  this.issues.createComment({
     owner: repoOwner, repo: repoName, number: number, body: error
   });
-};
+}
 
 const cfg = require("../../config/default.js");
 exports.aliases = cfg.issues.commands.assign.claim;

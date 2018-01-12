@@ -1,10 +1,10 @@
-exports.run = async function(client, body, issue, repository) {
+exports.run = async function(body, issue, repository) {
   const repoName = repository.name;
   const repoOwner = repository.owner.login;
   const number = issue.number;
   const issueLabels = issue.labels.map(label => label.name);
 
-  const repoLabelArray = await client.issues.getLabels({
+  const repoLabelArray = await this.issues.getLabels({
     owner: repoOwner, repo: repoName, per_page: 100
   });
 
@@ -17,7 +17,7 @@ exports.run = async function(client, body, issue, repository) {
     return repoLabels.includes(label) && !issueLabels.includes(label);
   });
 
-  await client.issues.addLabels({
+  await this.issues.addLabels({
     owner: repoOwner, repo: repoName, number: number, labels: addLabels
   });
 
@@ -25,7 +25,7 @@ exports.run = async function(client, body, issue, repository) {
 
   if (rejected.length) {
     const one = rejected.length === 1;
-    const error = client.templates.get("labelError")
+    const error = this.templates.get("labelError")
       .replace(new RegExp("{labels}", "g"), `Label${one ? "" : "s"}`)
       .replace(new RegExp("{labelList}", "g"), `"${rejected.join("\", \"")}"`)
       .replace(new RegExp("{existState}", "g"), `do${one ? "es" : ""}`)
@@ -33,7 +33,7 @@ exports.run = async function(client, body, issue, repository) {
       .replace(new RegExp("{beState}", "g"), `w${one ? "as" : "ere"}`)
       .replace(new RegExp("{action}", "g"), "added to");
 
-    client.issues.createComment({
+    this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: error
     });
   }
@@ -41,7 +41,7 @@ exports.run = async function(client, body, issue, repository) {
   if (alreadyAdded.length) {
     const one = alreadyAdded.length === 1;
     const labels = alreadyAdded.join("\", \"");
-    const error = client.templates.get("labelError")
+    const error = this.templates.get("labelError")
       .replace(new RegExp("{labels}", "g"), `Label${one ? "" : "s"}`)
       .replace(new RegExp("{labelList}", "g"), `"${labels}"`)
       .replace(new RegExp("{existState}", "g"), `already ${one ? "s" : ""}`)
@@ -49,7 +49,7 @@ exports.run = async function(client, body, issue, repository) {
       .replace(new RegExp("{beState}", "g"), `w${one ? "as" : "ere"}`)
       .replace(new RegExp("{action}", "g"), "added to");
 
-    client.issues.createComment({
+    this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: error
     });
   }

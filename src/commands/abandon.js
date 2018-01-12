@@ -1,4 +1,4 @@
-exports.run = (client, comment, issue, repository) => {
+exports.run = function(comment, issue, repository) {
   const repoOwner = repository.owner.login;
   const repoName = repository.name;
   const number = issue.number;
@@ -7,7 +7,7 @@ exports.run = (client, comment, issue, repository) => {
 
   if (!assignees.includes(commenter)) {
     const error = "**ERROR:** You have not claimed this issue to work on yet.";
-    return client.issues.createComment({
+    return this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: error
     });
   }
@@ -16,7 +16,7 @@ exports.run = (client, comment, issue, repository) => {
     assignees: commenter
   });
 
-  client.issues.removeAssigneesFromIssue({
+  this.issues.removeAssigneesFromIssue({
     owner: repoOwner, repo: repoName, number: number, body: assignee
   });
 };
