@@ -1,9 +1,8 @@
-exports.run = function(comment, issue, repository) {
-  const repoOwner = repository.owner.login;
-  const repoName = repository.name;
-  const number = issue.number;
-  const commenter = comment.user.login;
-  const assignees = issue.assignees.map(assignee => assignee.login);
+exports.run = function(payload, commenter) {
+  const repoOwner = payload.repository.owner.login;
+  const repoName = payload.repository.name;
+  const number = payload.issue.number;
+  const assignees = payload.issue.assignees.map(assignee => assignee.login);
 
   if (!assignees.includes(commenter)) {
     const error = "**ERROR:** You have not claimed this issue to work on yet.";
@@ -23,4 +22,3 @@ exports.run = function(comment, issue, repository) {
 
 const cfg = require("../../config/default.js");
 exports.aliases = cfg.issues.commands.assign.abandon;
-exports.args = false;

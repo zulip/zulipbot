@@ -1,10 +1,9 @@
-exports.run = async function(comment, issue, repository) {
-  const commenter = comment.user.login;
-  const repoName = repository.name;
-  const repoOwner = repository.owner.login;
-  const number = issue.number;
+exports.run = async function(payload, commenter) {
+  const repoName = payload.repository.name;
+  const repoOwner = payload.repository.owner.login;
+  const number = payload.issue.number;
 
-  if (issue.assignees.find(assignee => assignee.login === commenter)) {
+  if (payload.issue.assignees.find(assignee => assignee.login === commenter)) {
     const error = "**ERROR:** You have already claimed this issue.";
     return this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: error
@@ -103,4 +102,3 @@ async function claim(commenter, number, repoOwner, repoName) {
 
 const cfg = require("../../config/default.js");
 exports.aliases = cfg.issues.commands.assign.claim;
-exports.args = false;

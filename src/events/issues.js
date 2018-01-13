@@ -2,7 +2,6 @@ exports.run = function(payload) {
   const action = payload.action;
   const issue = payload.issue;
   const repository = payload.repository;
-  const payloadBody = payload.comment || issue;
   const label = payload.label;
 
   if (this.cfg.activity.issues.inProgress) {
@@ -16,45 +15,32 @@ exports.run = function(payload) {
   } else if (action === "reopened") {
     this.automations.get("issueState").reopen(issue);
   } else if (action === "opened" || action === "created") {
-    parseCommands.apply(this, [payloadBody, issue, repository]);
+    parse.call(this, payload);
   }
 };
 
-function parseCommands(payload, issue, repository) {
-  const c = payload.user.login;
-  const body = payload.body;
-  const issueCreator = issue.user.login;
+function parse(payload) {
+  const data = payload.comment || payload.issue;
+  const commenter = data.user.login;
+  const body = data.body;
+  const username = this.cfg.auth.username;
 
-  if (c === this.cfg.auth.username || !body) return;
+  if (commenter === username || !body) return;
 
-  const prefix = new RegExp(`@${this.cfg.auth.username}\\s+(\\w+)`, "g");
-  const parsedCommands = body.match(prefix);
+  const prefix = RegExp(`@${username}[ ]+(\\w+)([ ]+(--\\w+|"[^"]+"))*`, "g");
+  const parsed = body.match(prefix);
+  if (!parsed) return;
 
-  if (!parsedCommands) return;
-
-  parsedCommands.forEach(command => {
+  parsed.forEach(command => {
     const codeBlocks = [`\`\`\`\r\n${command}\r\n\`\`\``, `\`${command}\``];
-
-    if (codeBlocks.some(b => body.includes(b))) return;
-
+    if (codeBlocks.some(block => body.includes(block))) return;
     const keyword = command.replace(/\s+/, " ").split(" ")[1];
-    let cmdFile = this.commands.get(keyword);
+    const args = command.replace(/\s+/, " ").split(" ").slice(2).join(" ");
+    const file = this.commands.get(keyword);
 
-    if (cmdFile && !cmdFile.args) {
-      return cmdFile.run.apply(this, [payload, issue, repository]);
-    } else if (!cmdFile || !body.match(/".*?"/g)) {
-      return;
+    if (file) {
+      file.run.apply(this, [payload, commenter, args]);
     }
-
-    const labelCfg = this.cfg.issues.commands.label.self;
-    const op = labelCfg.users ? labelCfg.users.includes(c) : labelCfg;
-    if (op && c !== issueCreator) return;
-
-    const splitBody = body.split(`@${this.cfg.auth.username}`).filter(str => {
-      return str.match(new RegExp(`\\s+${keyword}\\s+"`));
-    }).join(" ").replace(/\s+/, " ");
-
-    cmdFile.run.apply(this, [splitBody, issue, repository]);
   });
 }
 

@@ -1,10 +1,16 @@
-exports.run = async function(body, issue, repository) {
-  const repoName = repository.name;
-  const repoOwner = repository.owner.login;
-  const number = issue.number;
-  const issueLabels = issue.labels.map(label => label.name);
+exports.run = async function(payload, commenter, args) {
+  const creator = payload.issue.user.login;
+  const self = this.cfg.issues.commands.label.self;
+  const selfLabel = self.users ? !self.users.includes(commenter) : self;
+  const forbidden = selfLabel && creator !== commenter;
+  if (forbidden || !args.match(/".*?"/)) return;
 
-  const labels = body.match(/".*?"/g).map(string => string.replace(/"/g, ""));
+  const repoName = payload.repository.name;
+  const repoOwner = payload.repository.owner.login;
+  const number = payload.issue.number;
+  const issueLabels = payload.issue.labels.map(label => label.name);
+
+  const labels = args.match(/".*?"/g).map(string => string.replace(/"/g, ""));
   const removeLabels = issueLabels.filter(label => !labels.includes(label));
   const rejected = labels.filter(label => !issueLabels.includes(label));
 
@@ -15,12 +21,12 @@ exports.run = async function(body, issue, repository) {
   if (!rejected.length) return;
 
   const one = rejected.length === 1;
-  const payload = issue.pull_request ? "pull request" : "issue";
+  const type = payload.issue.pull_request ? "pull request" : "issue";
   const error = this.templates.get("labelError")
     .replace(new RegExp("{labels}", "g"), `Label${one ? "" : "s"}`)
     .replace(new RegExp("{labelList}", "g"), `"${rejected.join("\", \"")}"`)
     .replace(new RegExp("{existState}", "g"), `do${one ? "es" : ""} not exist`)
-    .replace(new RegExp("{payload}", "g"), payload)
+    .replace(new RegExp("{type}", "g"), type)
     .replace(new RegExp("{beState}", "g"), `w${one ? "as" : "ere"}`)
     .replace(new RegExp("{action}", "g"), "removed from");
 
@@ -31,4 +37,3 @@ exports.run = async function(body, issue, repository) {
 
 const cfg = require("../../config/default.js");
 exports.aliases = cfg.issues.commands.label.remove;
-exports.args = true;
