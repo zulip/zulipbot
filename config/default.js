@@ -45,7 +45,11 @@ exports.issues = {
       abandon: [],
       newContributors: {
         permission: null,
-        restricted: Infinity
+        restricted: Infinity,
+        warn: {
+          labels: [],
+          presence: false
+        }
       }
     },
     label: {
