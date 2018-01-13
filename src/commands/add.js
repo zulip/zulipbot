@@ -28,7 +28,7 @@ exports.run = async function(body, issue, repository) {
     const error = this.templates.get("labelError")
       .replace(new RegExp("{labels}", "g"), `Label${one ? "" : "s"}`)
       .replace(new RegExp("{labelList}", "g"), `"${rejected.join("\", \"")}"`)
-      .replace(new RegExp("{existState}", "g"), `do${one ? "es" : ""}`)
+      .replace(new RegExp("{exist}", "g"), `do${one ? "es" : ""} not exist`)
       .replace(new RegExp("{payload}", "g"), payload)
       .replace(new RegExp("{beState}", "g"), `w${one ? "as" : "ere"}`)
       .replace(new RegExp("{action}", "g"), "added to");
@@ -44,7 +44,7 @@ exports.run = async function(body, issue, repository) {
     const error = this.templates.get("labelError")
       .replace(new RegExp("{labels}", "g"), `Label${one ? "" : "s"}`)
       .replace(new RegExp("{labelList}", "g"), `"${labels}"`)
-      .replace(new RegExp("{existState}", "g"), `already ${one ? "s" : ""}`)
+      .replace(new RegExp("{exist}", "g"), `already exist${one ? "s" : ""}`)
       .replace(new RegExp("{payload}", "g"), payload)
       .replace(new RegExp("{beState}", "g"), `w${one ? "as" : "ere"}`)
       .replace(new RegExp("{action}", "g"), "added to");
