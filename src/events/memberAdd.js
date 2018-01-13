@@ -1,5 +1,5 @@
 exports.run = async function(payload) {
-  const claimEnabled = this.cfg.issues.commands.assign.claim.aliases.length;
+  const claimEnabled = this.cfg.issues.commands.assign.claim.length;
 
   if (payload.action !== "added" || !claimEnabled) return;
 
