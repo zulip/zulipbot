@@ -12,20 +12,25 @@ exports.auth = {
   webhookSecret: process.env.WEBHOOK_SECRET
 };
 
-try {
-  const secrets = require("./secrets.json");
+Object.entries(exports.auth).forEach(pair => {
+  const key = pair[0];
+  const value = pair[1];
 
-  exports.auth = {
-    username: secrets.username,
-    password: secrets.password,
-    webhookSecret: secrets.webhookSecret
-  };
+  if (typeof value === "string") {
+    console.log(`Using environment variable value for \`${key}\`...`);
+    return;
+  }
 
-  console.log("Authenticating with `./config/secrets.json`...");
-} catch (e) {
-  console.log("`./config/secrets.json` was not found.",
-    "Authenticating with environment variables...");
-}
+  try {
+    console.log(`Using value from \`./config/secrets.json\` for \`${key}\`...`);
+    const secrets = require("./secrets.json");
+    if (typeof secrets[key] !== "string") throw new Error();
+    exports.auth[key] = secrets[key];
+  } catch (e) {
+    console.log(`\`${key}\` value was not set. Please fix your configuration.`);
+    process.exit(1);
+  }
+});
 
 /**
   * Issue triage
