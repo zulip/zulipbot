@@ -6,15 +6,14 @@ exports.run = async function(client, repository) {
     owner: repoOwner, repo: repoName, per_page: 100
   });
   const pullRequests = await client.getAll(firstPage);
+  const iterator = pullRequests[Symbol.iterator]();
 
-  pullRequests.forEach(async(p, index) => {
-    setTimeout(() => {
-      exports.check(client, p.number, repoName, repoOwner);
-    }, index * 500);
-  });
+  for (let pullRequest of iterator) {
+    await check(client, pullRequest.number, repoName, repoOwner);
+  }
 };
 
-exports.check = async function(client, number, repoName, repoOwner) {
+async function check(client, number, repoName, repoOwner) {
   const pull = await client.pullRequests.get({
     owner: repoOwner, repo: repoName, number: number
   });
@@ -68,4 +67,6 @@ exports.check = async function(client, number, repoName, repoOwner) {
       });
     });
   }
-};
+
+  return new Promise(resolve => resolve());
+}
