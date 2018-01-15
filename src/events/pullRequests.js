@@ -9,25 +9,25 @@ exports.run = async function(payload) {
   const update = pullCfg.autoUpdate;
 
   if (pullCfg.reviewed.label && pullCfg.needsReview.label && check && update) {
-    this.automations.get("pullRequestState").review(this, payload);
+    this.automations.get("pullRequestState").review(payload);
   }
 
   if (action === "submitted" && pullCfg.reviewed.assignee) {
-    this.automations.get("pullRequestState").assign(this, payload);
+    this.automations.get("pullRequestState").assign(payload);
   } else if (action === "labeled" && this.cfg.issues.area.labels) {
     const l = payload.label;
     const issue = await this.issues.get({
       owner: repo.owner.login, repo: repo.name, number: pull.number
     });
-    this.automations.get("areaLabel").run(this, issue.data, repo, l);
+    this.automations.get("areaLabel").run(issue.data, repo, l);
   }
 
   if (!ref || pull.title.includes(wip)) return;
 
   if (action === "opened") {
-    this.automations.get("issueReferenced").run(this, pull, repo, true);
+    this.automations.get("issueReferenced").run(pull, repo, true);
   } else if (action === "synchronize") {
-    this.automations.get("issueReferenced").run(this, pull, repo, false);
+    this.automations.get("issueReferenced").run(pull, repo, false);
   }
 };
 

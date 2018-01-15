@@ -1,18 +1,18 @@
 const recentlyClosed = new Map();
 
-exports.close = (client, issue, repository) => {
+exports.close = function(issue, repository) {
   recentlyClosed.set(issue.id, issue);
 
   setTimeout(() => {
-    exports.clearClosed(client, issue, repository);
-  }, client.cfg.eventsDelay * 60 * 1000);
+    clearClosed.apply(this, [issue, repository]);
+  }, this.cfg.eventsDelay * 60 * 1000);
 };
 
-exports.reopen = issue => {
+exports.reopen = function(issue) {
   if (recentlyClosed.has(issue.id)) recentlyClosed.delete(issue.id);
 };
 
-exports.clearClosed = async function(client, issue, repository) {
+async function clearClosed(issue, repository) {
   const repoOwner = repository.owner.login;
   const repoName = repository.name;
 
@@ -24,30 +24,30 @@ exports.clearClosed = async function(client, issue, repository) {
     assignees: issue.assignees.map(a => a.login)
   });
 
-  await client.issues.removeAssigneesFromIssue({
+  await this.issues.removeAssigneesFromIssue({
     owner: repoOwner, repo: repoName, number: issue.number, body: assignees
   });
 
   recentlyClosed.delete(issue.id);
-};
+}
 
-exports.progress = (client, payload, repository) => {
+exports.progress = function(payload) {
   const action = payload.action;
   const number = payload.issue.number;
-  const repoOwner = repository.owner.login;
-  const repoName = repository.name;
-  const label = client.cfg.activity.issues.inProgress;
+  const repoOwner = payload.repository.owner.login;
+  const repoName = payload.repository.name;
+  const label = this.cfg.activity.issues.inProgress;
   const assignees = payload.issue.assignees.length;
   const labeled = payload.issue.labels.find(l => {
     return l.name === label;
   });
 
   if (action === "assigned" && !labeled) {
-    client.issues.addLabels({
+    this.issues.addLabels({
       owner: repoOwner, repo: repoName, number: number, labels: [label]
     });
   } else if (action === "unassigned" && !assignees && labeled) {
-    client.issues.removeLabel({
+    this.issues.removeLabel({
       owner: repoOwner, repo: repoName, number: number, name: label
     });
   }

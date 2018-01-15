@@ -3,16 +3,16 @@ exports.run = function(payload) {
   const issue = payload.issue;
   const repository = payload.repository;
   const payloadBody = payload.comment || issue;
-  const l = payload.label;
+  const label = payload.label;
 
   if (this.cfg.activity.issues.inProgress) {
-    this.automations.get("issueState").progress(this, payload, repository);
+    this.automations.get("issueState").progress(payload);
   }
 
   if (action === "labeled") {
-    this.automations.get("areaLabel").run(this, issue, repository, l);
+    this.automations.get("areaLabel").run(issue, repository, label);
   } else if (action === "closed" && this.cfg.activity.issues.clearClosed) {
-    this.automations.get("issueState").close(this, issue, repository);
+    this.automations.get("issueState").close(issue, repository);
   } else if (action === "reopened") {
     this.automations.get("issueState").reopen(issue);
   } else if (action === "opened" || action === "created") {

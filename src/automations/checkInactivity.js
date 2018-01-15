@@ -1,13 +1,13 @@
-exports.run = async function(client) {
+exports.run = async function() {
   // Create array with PRs from all active repositories
-  const repos = client.cfg.activity.check.repositories;
+  const repos = this.cfg.activity.check.repositories;
   const pages = repos.map(async repo => {
     const repoOwner = repo.split("/")[0];
     const repoName = repo.split("/")[1];
-    const firstPage = await client.pullRequests.getAll({
+    const firstPage = await this.pullRequests.getAll({
       owner: repoOwner, repo: repoName, per_page: 100
     });
-    return client.getAll(firstPage);
+    return this.getAll(firstPage);
   });
 
   const array = await Promise.all(pages);
@@ -17,12 +17,12 @@ exports.run = async function(client) {
     return a.concat(element);
   }, []);
 
-  await scrapePullRequests(client, pullRequests);
+  await scrapePullRequests.call(this, pullRequests);
 };
 
-async function scrapePullRequests(client, pullRequests) {
+async function scrapePullRequests(pullRequests) {
   const references = new Map();
-  const ims = client.cfg.activity.check.reminder * 86400000;
+  const ims = this.cfg.activity.check.reminder * 86400000;
   const iterator = pullRequests[Symbol.iterator]();
 
   for (let pullRequest of iterator) {
@@ -33,16 +33,16 @@ async function scrapePullRequests(client, pullRequests) {
     const repoOwner = pullRequest.base.repo.owner.login;
 
     if (time + ims <= Date.now()) {
-      checkInactivePullRequest(client, pullRequest);
+      checkInactivePullRequest.call(this, pullRequest);
     }
 
-    const commits = await client.pullRequests.getCommits({
+    const commits = await this.pullRequests.getCommits({
       owner: repoOwner, repo: repoName, number: number
     });
     const refIssues = commits.data.filter(c => {
-      return client.findKeywords(c.commit.message);
+      return this.findKeywords(c.commit.message);
     }).map(c => c.commit.message);
-    const bodRef = client.findKeywords(body);
+    const bodRef = this.findKeywords(body);
 
     if (bodRef || refIssues.length) {
       const com = refIssues[0];
@@ -51,61 +51,61 @@ async function scrapePullRequests(client, pullRequests) {
     }
   }
 
-  const firstPage = await client.issues.getAll({
+  const firstPage = await this.issues.getAll({
     filter: "all", per_page: 100,
-    labels: client.cfg.activity.issues.inProgress
+    labels: this.cfg.activity.issues.inProgress
   });
-  const issues = await client.getAll(firstPage);
+  const issues = await this.getAll(firstPage);
 
-  await scrapeInactiveIssues(client, references, issues);
+  await scrapeInactiveIssues.apply(this, [references, issues]);
 }
 
-async function checkInactivePullRequest(client, pullRequest) {
+async function checkInactivePullRequest(pullRequest) {
   const author = pullRequest.user.login;
   const repoName = pullRequest.base.repo.name;
   const repoOwner = pullRequest.base.repo.owner.login;
   const number = pullRequest.number;
 
-  const labels = await client.issues.getIssueLabels({
+  const labels = await this.issues.getIssueLabels({
     owner: repoOwner, repo: repoName, number: number
   });
   const inactiveLabel = labels.data.find(l => {
-    return l.name === client.cfg.activity.inactive;
+    return l.name === this.cfg.activity.inactive;
   });
   const reviewedLabel = labels.data.find(l => {
-    return l.name === client.cfg.activity.pullRequests.reviewed.label;
+    return l.name === this.cfg.activity.pullRequests.reviewed.label;
   });
 
   if (inactiveLabel || !reviewedLabel) return;
 
-  const comment = client.templates.get("updateWarning")
+  const comment = this.templates.get("updateWarning")
     .replace(new RegExp("{author}", "g"), author)
-    .replace(new RegExp("{days}", "g"), client.cfg.activity.check.reminder);
+    .replace(new RegExp("{days}", "g"), this.cfg.activity.check.reminder);
 
-  const comments = await client.issues.getComments({
+  const comments = await this.issues.getComments({
     owner: repoOwner, repo: repoName, number: number, per_page: 100
   });
   const com = comments.data.slice(-1).pop();
 
   // Use end of line comments to check if comment is from template
   const lastComment = com ? com.body.endsWith("<!-- updateWarning -->") : null;
-  const fromClient = com ? com.user.login === client.cfg.auth.username : null;
+  const fromClient = com ? com.user.login === this.cfg.auth.username : null;
 
   if (reviewedLabel && !(lastComment && fromClient)) {
-    client.issues.createComment({
+    this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: comment
     });
   }
 }
 
-async function scrapeInactiveIssues(client, references, issues) {
-  const ms = client.cfg.activity.check.limit * 86400000;
-  const ims = client.cfg.activity.check.reminder * 86400000;
+async function scrapeInactiveIssues(references, issues) {
+  const ms = this.cfg.activity.check.limit * 86400000;
+  const ims = this.cfg.activity.check.reminder * 86400000;
   const iterator = issues[Symbol.iterator]();
 
   for (let issue of iterator) {
     const inactiveLabel = issue.labels.find(label => {
-      return label.name === client.cfg.activity.inactive;
+      return label.name === this.cfg.activity.inactive;
     });
     if (inactiveLabel) continue;
 
@@ -118,7 +118,7 @@ async function scrapeInactiveIssues(client, references, issues) {
 
     if (time < references.get(issueTag)) time = references.get(issueTag);
 
-    const active = client.cfg.activity.check.repositories.includes(repoTag);
+    const active = this.cfg.activity.check.repositories.includes(repoTag);
 
     if (time + ms >= Date.now() || !active) continue;
 
@@ -126,45 +126,45 @@ async function scrapeInactiveIssues(client, references, issues) {
 
     if (!aString) {
       const comment = "**ERROR:** This active issue has no assignee.";
-      return client.issues.createComment({
+      return this.issues.createComment({
         owner: repoOwner, repo: repoName, number: number, body: comment
       });
     }
 
-    const c = client.templates.get("inactiveWarning")
+    const c = this.templates.get("inactiveWarning")
       .replace(new RegExp("{assignee}", "g"), aString)
-      .replace(new RegExp("{remind}", "g"), client.cfg.activity.check.reminder)
-      .replace(new RegExp("{abandon}", "g"), client.cfg.activity.check.limit)
-      .replace(new RegExp("{username}", "g"), client.cfg.auth.username);
+      .replace(new RegExp("{remind}", "g"), this.cfg.activity.check.reminder)
+      .replace(new RegExp("{abandon}", "g"), this.cfg.activity.check.limit)
+      .replace(new RegExp("{username}", "g"), this.cfg.auth.username);
 
-    const issueComments = await client.issues.getComments({
+    const issueComments = await this.issues.getComments({
       owner: repoOwner, repo: repoName, number: number, per_page: 100
     });
     const com = issueComments.data.slice(-1).pop();
 
     // Use end of line comments to check if comment is from template
     const warning = com ? com.body.endsWith("<!-- inactiveWarning -->") : null;
-    const fromClient = com ? com.user.login === client.cfg.auth.username : null;
+    const fromClient = com ? com.user.login === this.cfg.auth.username : null;
 
     if (warning && fromClient) {
       const assignees = JSON.stringify({
         assignees: aString.split(", @")
       });
 
-      client.issues.removeAssigneesFromIssue({
+      this.issues.removeAssigneesFromIssue({
         owner: repoOwner, repo: repoName, number: number, body: assignees
       });
 
-      const warning = client.templates.get("abandonWarning")
+      const warning = this.templates.get("abandonWarning")
         .replace(new RegExp("{assignee}", "g"), aString)
         .replace(new RegExp("{total}", "g"), (ms + ims) / 86400000)
-        .replace(new RegExp("{username}", "g"), client.cfg.auth.username);
+        .replace(new RegExp("{username}", "g"), this.cfg.auth.username);
 
-      client.issues.editComment({
+      this.issues.editComment({
         owner: repoOwner, repo: repoName, id: com.id, body: warning
       });
     } else if (!(warning && fromClient) && time + ims <= Date.now()) {
-      client.issues.createComment({
+      this.issues.createComment({
         owner: repoOwner, repo: repoName, number: number, body: c
       });
     }

@@ -1,45 +1,45 @@
-exports.run = async function(client, repository) {
+exports.run = async function(repository) {
   const repoName = repository.name;
   const repoOwner = repository.owner.login;
 
-  const firstPage = await client.pullRequests.getAll({
+  const firstPage = await this.pullRequests.getAll({
     owner: repoOwner, repo: repoName, per_page: 100
   });
-  const pullRequests = await client.getAll(firstPage);
+  const pullRequests = await this.getAll(firstPage);
   const iterator = pullRequests[Symbol.iterator]();
 
   for (let pullRequest of iterator) {
-    await check(client, pullRequest.number, repoName, repoOwner);
+    await check.apply(this, [pullRequest.number, repoName, repoOwner]);
   }
 };
 
-async function check(client, number, repoName, repoOwner) {
-  const pull = await client.pullRequests.get({
+async function check(number, repoName, repoOwner) {
+  const pull = await this.pullRequests.get({
     owner: repoOwner, repo: repoName, number: number
   });
 
   const mergeable = pull.data.mergeable;
   const author = pull.data.user.login;
 
-  const comment = client.templates.get("mergeConflictWarning")
+  const comment = this.templates.get("mergeConflictWarning")
     .replace(new RegExp("{username}", "g"), author)
     .replace(new RegExp("{repoOwner}", "g"), repoOwner)
     .replace(new RegExp("{repoName}", "g"), repoName);
 
-  const comments = await client.issues.getComments({
+  const comments = await this.issues.getComments({
     owner: repoOwner, repo: repoName, number: number, per_page: 100
   });
 
   const warnings = comments.data.filter(com => {
     // Use end of line comments to check if comment is from template
     const warn = com.body.endsWith("<!-- mergeConflictWarning -->");
-    const fromClient = com.user.login === client.cfg.auth.username;
+    const fromClient = com.user.login === this.cfg.auth.username;
     return warn && fromClient;
   });
 
   // Use a strict false check; unknown merge conflict statuses return undefined
   if (mergeable === false) {
-    const commits = await client.pullRequests.getCommits({
+    const commits = await this.pullRequests.getCommits({
       owner: repoOwner, repo: repoName, number: number, per_page: 100
     });
     const lastCommitTime = commits.data.slice(-1).pop().commit.committer.date;
@@ -48,21 +48,21 @@ async function check(client, number, repoName, repoOwner) {
       return Date.parse(lastCommitTime) < Date.parse(c.created_at);
     });
 
-    const labels = await client.issues.getIssueLabels({
+    const labels = await this.issues.getIssueLabels({
       owner: repoOwner, repo: repoName, number: number
     });
     const inactive = labels.data.find(l => {
-      return l.name === client.cfg.activity.inactive;
+      return l.name === this.cfg.activity.inactive;
     });
 
     if (!labelComment && !inactive) {
-      client.issues.createComment({
+      this.issues.createComment({
         owner: repoOwner, repo: repoName, number: number, body: comment
       });
     }
   } else if (mergeable && warnings.length) {
     warnings.forEach(c => {
-      client.issues.deleteComment({
+      this.issues.deleteComment({
         owner: repoOwner, repo: repoName, id: c.id
       });
     });

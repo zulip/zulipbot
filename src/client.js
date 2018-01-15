@@ -34,7 +34,10 @@ for (const event of events) {
 
 const automations = fs.readdirSync("./src/automations");
 for (const file of automations) {
-  const data = require(`./automations/${file}`);
+  let data = require(`./automations/${file}`);
+  for (let method of Object.keys(data)) {
+    data[method] = data[method].bind(client);
+  }
   client.automations.set(file.slice(0, -3), data);
 }
 

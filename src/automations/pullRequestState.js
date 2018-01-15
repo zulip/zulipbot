@@ -1,25 +1,26 @@
-exports.review = async function(client, payload) {
+exports.review = async function(payload) {
   const review = payload.review;
   const action = payload.action;
-  const repoName = payload.repository.repo.name;
-  const repoOwner = payload.repository.repo.owner.login;
+  const repoName = payload.repository.name;
+  const repoOwner = payload.repository.owner.login;
   const pull = payload.pull_request;
   const number = pull.number;
 
-  const response = await client.issues.getIssueLabels({
+  const response = await this.issues.getIssueLabels({
     owner: repoOwner, repo: repoName, number: number
   });
 
   let labels = response.data.map(label => label.name);
-  const needsReviewLabel = client.cfg.activity.pullRequests.needsReview.label;
-  const reviewedLabel = client.cfg.activity.pullRequests.reviewed.label;
+  const needsReviewLabel = this.cfg.activity.pullRequests.needsReview.label;
+  const reviewedLabel = this.cfg.activity.pullRequests.reviewed.label;
   const needsReview = labels.includes(needsReviewLabel);
   const reviewed = labels.includes(reviewedLabel);
-  const a = pull.user.login;
+  const author = pull.user.login;
+  const reviewer = review.user.login;
 
   if (action === "opened" || action === "reopened") {
     labels.push(needsReviewLabel);
-  } else if (action === "submitted" && needsReview && review.user.login !== a) {
+  } else if (action === "submitted" && needsReview && reviewer !== author) {
     labels[labels.indexOf(needsReviewLabel)] = reviewedLabel;
   } else if (action === "synchronize" && reviewed) {
     labels[labels.indexOf(reviewedLabel)] = needsReviewLabel;
@@ -31,18 +32,18 @@ exports.review = async function(client, payload) {
     return;
   }
 
-  client.issues.replaceAllLabels({
+  this.issues.replaceAllLabels({
     owner: repoOwner, repo: repoName, number: number, labels: labels
   });
 };
 
-exports.assign = (client, payload) => {
+exports.assign = function(payload) {
   const repoName = payload.repository.repo.name;
   const repoOwner = payload.repository.repo.owner.login;
   const reviewer = payload.reviewer.user.login;
   const number = payload.pull_request.number;
 
-  client.issues.addAssigneesToIssue({
+  this.issues.addAssigneesToIssue({
     owner: repoOwner, repo: repoName, number: number, assignees: [reviewer]
   });
 };
