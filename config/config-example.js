@@ -75,6 +75,7 @@ exports.issues = {
 
 exports.pullRequests = {
   mergeConflicts: true,
+  requireReferences: true,
   wip: "WIP",
   travis: "travis updates"
 };
