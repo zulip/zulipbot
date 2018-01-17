@@ -69,15 +69,21 @@ exports.issues = {
       ["area: uploads", "server-misc"],
       ["area: webpack", "server-development"]
     ]),
-    commitReferences: true
+    references: true
   }
 };
 
 exports.pullRequests = {
-  mergeConflicts: true,
-  requireReferences: true,
-  wip: "WIP",
-  travis: "travis updates"
+  status: {
+    mergeConflicts: true,
+    wip: "[WIP]"
+  },
+  references: {
+    required: true
+  },
+  ci: {
+    travis: "travis updates"
+  }
 };
 
 exports.activity = {

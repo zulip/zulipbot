@@ -19,7 +19,7 @@ exports.run = async function(pullRequest, repository, opened) {
     });
   }
 
-  if (!opened || !this.cfg.issues.area.commitReferences) return;
+  if (!opened || !this.cfg.issues.area.references) return;
 
   Array.from(new Set(refIssues)).forEach(issue => {
     reference.apply(this, [issue, number, repository]);

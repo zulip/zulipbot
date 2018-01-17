@@ -31,7 +31,6 @@ try {
   * Issue triage
   * - Commands (assigning users, labelling issues)
   * - Area label system
-  * - Priority issues (CLI tool)
   */
 
 exports.issues = {
@@ -52,22 +51,28 @@ exports.issues = {
   },
   area: {
     labels: null,
-    commitReferences: false
+    references: false
   }
 };
 
 /**
-  * Pull request status updates
-  * - Merge conflicts
-  * - Work-in-progress status
-  * - Travis build results
+  * Pull requests
+  * - Monitor status (merge conflicts, WIP status)
+  * - Track commit references
+  * - Continuous integration build updates
   */
 
 exports.pullRequests = {
-  mergeConflicts: null,
-  requireReferences: false,
-  wip: null,
-  travis: null
+  status: {
+    mergeConflicts: null,
+    wip: null
+  },
+  references: {
+    required: false
+  },
+  ci: {
+    travis: null
+  }
 };
 
 /**

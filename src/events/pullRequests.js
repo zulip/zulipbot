@@ -3,8 +3,8 @@ exports.run = async function(payload) {
   const pull = payload.pull_request;
   const repo = payload.repository;
   const pullCfg = this.cfg.activity.pullRequests;
-  const ref = this.cfg.pullRequests.requireReferences;
-  const wip = this.cfg.pullRequests.wip;
+  const ref = this.cfg.pullRequests.references.required;
+  const wip = this.cfg.pullRequests.status.wip;
   const check = this.cfg.activity.check.repositories.includes(repo.full_name);
   const update = pullCfg.autoUpdate;
 
