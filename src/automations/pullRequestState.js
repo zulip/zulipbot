@@ -38,8 +38,8 @@ exports.review = async function(payload) {
 };
 
 exports.assign = function(payload) {
-  const repoName = payload.repository.repo.name;
-  const repoOwner = payload.repository.repo.owner.login;
+  const repoName = payload.repository.name;
+  const repoOwner = payload.repository.owner.login;
   const reviewer = payload.reviewer.user.login;
   const number = payload.pull_request.number;
 
