@@ -8,7 +8,7 @@ exports.run = async function(issue, repository, label) {
   const issueLabels = issue.labels.map(l => l.name);
   const areaLabels = this.cfg.issues.area.labels;
 
-  if (!areaLabels.has(areaLabel)) return;
+  if (areaLabels && !areaLabels.has(areaLabel)) return;
 
   const issueAreaLabels = issueLabels.filter(l => areaLabels.has(l));
   const labelTeams = issueAreaLabels.map(l => areaLabels.get(l));
