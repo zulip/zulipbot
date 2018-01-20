@@ -1,22 +1,31 @@
-exports.review = async function(payload) {
-  const review = payload.review;
-  const action = payload.action;
+exports.label = async function(payload) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
-  const pull = payload.pull_request;
-  const number = pull.number;
+  const number = payload.pull_request.number;
 
   const response = await this.issues.getIssueLabels({
     owner: repoOwner, repo: repoName, number: number
   });
 
   let labels = response.data.map(label => label.name);
+  const autoUpdate = this.cfg.activity.pullRequests.autoUpdate;
+
+  if (autoUpdate) {
+    const author = payload.pull_request.user.login;
+    const reviewer = payload.review ? payload.review.user.login : null;
+    labels = review.apply(this, [labels, payload.action, author, reviewer]);
+  }
+
+  this.issues.replaceAllLabels({
+    owner: repoOwner, repo: repoName, number: number, labels: labels
+  });
+};
+
+function review(labels, action, author, reviewer) {
   const needsReviewLabel = this.cfg.activity.pullRequests.needsReview.label;
   const reviewedLabel = this.cfg.activity.pullRequests.reviewed.label;
   const needsReview = labels.includes(needsReviewLabel);
   const reviewed = labels.includes(reviewedLabel);
-  const author = pull.user.login;
-  const reviewer = review.user.login;
 
   if (action === "opened" || action === "reopened") {
     labels.push(needsReviewLabel);
@@ -28,14 +37,10 @@ exports.review = async function(payload) {
     labels.splice(labels.indexOf(reviewedLabel), 1);
   } else if (action === "closed" && needsReview) {
     labels.splice(labels.indexOf(needsReviewLabel), 1);
-  } else {
-    return;
   }
 
-  this.issues.replaceAllLabels({
-    owner: repoOwner, repo: repoName, number: number, labels: labels
-  });
-};
+  return labels;
+}
 
 exports.assign = function(payload) {
   const repoName = payload.repository.name;

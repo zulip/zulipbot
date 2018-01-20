@@ -2,17 +2,16 @@ exports.run = async function(payload) {
   const action = payload.action;
   const pull = payload.pull_request;
   const repo = payload.repository;
-  const pullCfg = this.cfg.activity.pullRequests;
+  const assignee = this.cfg.activity.pullRequests.reviewed.assignee;
   const ref = this.cfg.pullRequests.references.required;
-  const wip = this.cfg.pullRequests.status.wip;
   const check = this.cfg.activity.check.repositories.includes(repo.full_name);
-  const update = pullCfg.autoUpdate;
+  const autoUpdate = this.cfg.activity.pullRequests.autoUpdate;
 
-  if (pullCfg.reviewed.label && pullCfg.needsReview.label && check && update) {
-    this.automations.get("pullRequestState").review(payload);
+  if (check && autoUpdate) {
+    this.automations.get("pullRequestState").label(payload);
   }
 
-  if (action === "submitted" && pullCfg.reviewed.assignee) {
+  if (action === "submitted" && assignee) {
     this.automations.get("pullRequestState").assign(payload);
   } else if (action === "labeled" && this.cfg.issues.area.labels) {
     const l = payload.label;
@@ -22,7 +21,7 @@ exports.run = async function(payload) {
     this.automations.get("areaLabel").run(issue.data, repo, l);
   }
 
-  if (!ref || pull.title.includes(wip)) return;
+  if (!ref || pull.title.includes(this.cfg.pullRequests.status.wip)) return;
 
   if (action === "opened") {
     this.automations.get("issueReferenced").run(pull, repo, true);
