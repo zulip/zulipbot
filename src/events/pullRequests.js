@@ -6,8 +6,9 @@ exports.run = async function(payload) {
   const ref = this.cfg.pullRequests.references.required;
   const check = this.cfg.activity.check.repositories.includes(repo.full_name);
   const autoUpdate = this.cfg.activity.pullRequests.autoUpdate;
+  const size = this.cfg.pullRequests.status.size;
 
-  if (check && autoUpdate) {
+  if (check && (autoUpdate || size)) {
     this.automations.get("pullRequestState").label(payload);
   }
 

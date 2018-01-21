@@ -76,7 +76,17 @@ exports.issues = {
 exports.pullRequests = {
   status: {
     mergeConflicts: true,
-    wip: "[WIP]"
+    wip: "[WIP]",
+    size: {
+      labels: new Map([
+        ["size: XS", 0],
+        ["size: S", 5],
+        ["size: M", 25],
+        ["size: L", 50],
+        ["size: XL", 100]
+      ]),
+      exclude: ["frontend_tests/", "zerver/tests/"]
+    }
   },
   references: {
     required: true

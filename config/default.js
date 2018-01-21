@@ -65,7 +65,11 @@ exports.issues = {
 exports.pullRequests = {
   status: {
     mergeConflicts: null,
-    wip: null
+    wip: null,
+    size: {
+      labels: null,
+      exclude: []
+    }
   },
   references: {
     required: false
