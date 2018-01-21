@@ -72,7 +72,7 @@ client.findKeywords = string => {
     const tenses = [current, past, present];
 
     const matched = tenses.some(t => {
-      const regex = new RegExp(`${t} #([0-9]+)`, "i");
+      const regex = new RegExp(`${t}:? #([0-9]+)`, "i");
       return string.match(regex);
     });
 
