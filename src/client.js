@@ -1,5 +1,4 @@
-const GitHub = require("github");
-const client = new GitHub();
+const client = require("@octokit/rest")();
 const fs = require("fs");
 
 client.cfg = require("../config/default.js");
