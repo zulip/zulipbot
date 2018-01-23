@@ -95,7 +95,12 @@ exports.pullRequests = {
   references: {
     required: true,
     labels: {
-      exclude: ["good first issue", "good sprint project", "help wanted"]
+      exclude: [
+        "in progress",
+        "good first issue",
+        "good sprint project",
+        "help wanted"
+      ]
     }
   },
   ci: {
