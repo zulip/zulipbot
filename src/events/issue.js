@@ -8,7 +8,7 @@ exports.run = function(payload) {
     this.automations.get("issueState").progress(payload);
   }
 
-  if (action === "labeled") {
+  if (["labeled", "unlabeled"].includes(action)) {
     this.automations.get("areaLabel").run(issue, repo, label);
   } else if (action === "closed" && this.cfg.activity.issues.clearClosed) {
     this.automations.get("issueState").close(issue, repo);
