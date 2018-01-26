@@ -16,22 +16,17 @@
     "snekfetch": "^3.6.4"
   },
   "devDependencies": {
-    "chai": "^4.0.0",
     "eslint": "^4.19.0",
     "eslint-config-xo-space": "^0.18.0",
-    "gulp": "^3.9.1",
-    "gulp-eslint": "^4.0.2",
-    "gulp-exclude-gitignore": "^1.1.1",
-    "gulp-nsp": "^3.0.1",
     "inquirer": "^5.1.0",
-    "mocha": "^5.0.4",
     "mz": "^2.6.0",
+    "nsp": "^3.2.1",
     "simple-git": "^1.92.0"
   },
   "scripts": {
     "start": "node ./src/index.js",
-    "prepublish": "gulp prepublish",
-    "test": "gulp"
+    "prepublish": "nsp check",
+    "test": "eslint ."
   },
   "repository": {
     "type": "git",
