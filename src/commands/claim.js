@@ -78,8 +78,22 @@ exports.run = async function(payload, commenter, args) {
 
     if (this.invites.get(inviteKey)) return;
 
-    await this.repos.addCollaborator({
+    const invite = await this.repos.addCollaborator({
       owner: repoOwner, repo: repoName, username: commenter, permission: perm
+    });
+
+    // 02-18-2018: GitHub API doesn't resolve invite permissions properly
+    // workaround: manually update invitation permissions
+    const id = invite.data.id;
+    const invitePerms = new Map([
+      ["pull", "read"],
+      ["push", "write"],
+      ["admin", "admin"]
+    ]);
+    const perm2 = invitePerms.get(perm);
+
+    await this.repos.updateInvite({
+      owner: repoOwner, repo: repoName, invitation_id: id, permissions: perm2
     });
 
     this.invites.set(inviteKey, number);
