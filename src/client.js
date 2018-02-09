@@ -9,7 +9,7 @@ client.events = new Map();
 client.invites = new Map();
 client.templates = new Map();
 
-const commands = fs.readdirSync("./src/commands");
+const commands = fs.readdirSync(`${__dirname}/commands`);
 for (const file of commands) {
   const data = require(`./commands/${file}`);
   for (let i = data.aliases.length; i--;) {
@@ -17,13 +17,13 @@ for (const file of commands) {
   }
 }
 
-const templates = fs.readdirSync("./src/templates");
+const templates = fs.readdirSync(`${__dirname}/templates`);
 for (const file of templates) {
-  const text = fs.readFileSync(`./src/templates/${file}`, "utf8");
+  const text = fs.readFileSync(`${__dirname}/templates/${file}`, "utf8");
   client.templates.set(file.slice(0, -3), text);
 }
 
-const events = fs.readdirSync("./src/events");
+const events = fs.readdirSync(`${__dirname}/events`);
 for (const event of events) {
   const data = require(`./events/${event}`);
   for (let i = data.events.length; i--;) {
@@ -31,7 +31,7 @@ for (const event of events) {
   }
 }
 
-const automations = fs.readdirSync("./src/automations");
+const automations = fs.readdirSync(`${__dirname}/automations`);
 for (const file of automations) {
   let data = require(`./automations/${file}`);
   for (let method of Object.keys(data)) {
