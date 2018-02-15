@@ -3,11 +3,7 @@
 ## Getting started
 Before you get started, make sure you have:
 
-  * [installed](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-  and [configured](https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup)
-  Git on your local machine
-
-  * registered a [GitHub account](https://github.com/signup/free)
+  * [installed](https://github.com/zulip/zulipbot/wiki/Installation) a local copy of **zulipbot**
 
   * registered an account on the [Zulip development
   server](https://chat.zulip.org) and joined us on the [zulipbot
@@ -55,7 +51,7 @@ assign you to the issue so you can begin working on it.
 4. Install the necessary node packages and dependencies.
 
   ```sh
-  $ npm install
+  $ yarn install
   ```
 
 4. Run `tools/setup` to setup your local environment for **@zulipbot** development.
@@ -67,7 +63,7 @@ assign you to the issue so you can begin working on it.
 5. Run the bot to ensure that your environment was configured correctly.
 
   ```sh
-  $ npm start
+  $ yarn start
   ```
 
 If you encounter any problems during installation, let us know on the [zulipbot
@@ -84,7 +80,7 @@ practice](https://zulip.readthedocs.io/en/latest/contributing/version-control.ht
 3. Check if your changes and commits pass all tests:
 
   ```sh
-  $ npm test
+  $ yarn test
   ```
 
   Modify your commits accordingly if your changes don't pass all tests.
@@ -125,7 +121,8 @@ are settled.
 **zulipbot** is currently manually tested on a separate
 [organization](https://github.com/zulipbot-testing) and its repositories using a
 [test account](https://github.com/zulipbot-test), **@zulipbot-test**, while a
-framework for unit and coverage tests is being established.
+framework for unit and coverage tests is being established. Webhook payloads can
+be delivered to a locally running application using [Smee](https://smee.io/).
 
 Our current test framework consists of [Travis](https://travis-ci.org/) for
 continuous integration and [Gulp](https://gulpjs.com) (`./gulpfile.js`) for
