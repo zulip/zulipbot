@@ -74,13 +74,15 @@ exports.run = async function(payload, commenter, args) {
       owner: repoOwner, repo: repoName, number: number, body: comment
     });
 
-    if (this.invites.get(commenter)) return;
+    const inviteKey = `${commenter}@${repoOwner}/${repoName}`;
 
-    this.repos.addCollaborator({
+    if (this.invites.get(inviteKey)) return;
+
+    await this.repos.addCollaborator({
       owner: repoOwner, repo: repoName, username: commenter, permission: perm
     });
 
-    this.invites.set(commenter, `${repoOwner}/${repoName}#${number}`);
+    this.invites.set(inviteKey, number);
   }
 };
 
