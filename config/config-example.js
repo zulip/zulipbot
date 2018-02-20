@@ -10,6 +10,7 @@ exports.issues = {
     assign: {
       claim: ["claim"],
       abandon: ["abandon", "unclaim", "abort"],
+      limit: 1,
       newContributors: {
         permission: "pull",
         restricted: 1,
@@ -17,8 +18,7 @@ exports.issues = {
           labels: ["help wanted"],
           presence: false
         }
-      },
-      multiple: false
+      }
     },
     label: {
       add: ["label", "add"],

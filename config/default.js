@@ -43,6 +43,7 @@ exports.issues = {
     assign: {
       claim: [],
       abandon: [],
+      limit: Infinity,
       newContributors: {
         permission: null,
         restricted: Infinity,
@@ -50,8 +51,7 @@ exports.issues = {
           labels: [],
           presence: false
         }
-      },
-      multiple: false
+      }
     },
     label: {
       add: [],
