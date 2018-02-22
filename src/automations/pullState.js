@@ -19,8 +19,8 @@ exports.label = async function(payload) {
   }
 
   if (sizeLabels && ["opened", "synchronize"].includes(action)) {
-    const repository = payload.repository;
-    labels = await size.apply(this, [sizeLabels, labels, number, repository]);
+    const repo = payload.repository;
+    labels = await size.apply(this, [sizeLabels, labels, number, repo]);
   }
 
   const newLabels = await this.issues.replaceAllLabels({
@@ -51,9 +51,9 @@ function review(labels, action, author, reviewer) {
   return labels;
 }
 
-async function size(sizeLabels, labels, number, repository) {
-  const repoName = repository.name;
-  const repoOwner = repository.owner.login;
+async function size(sizeLabels, labels, number, repo) {
+  const repoName = repo.name;
+  const repoOwner = repo.owner.login;
   let pullLabels = labels.filter(label => !sizeLabels.has(label));
 
   const files = await this.pullRequests.getFiles({

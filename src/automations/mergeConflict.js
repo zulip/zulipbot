@@ -1,6 +1,6 @@
-exports.run = async function(repository) {
-  const repoName = repository.name;
-  const repoOwner = repository.owner.login;
+exports.run = async function(repo) {
+  const repoName = repo.name;
+  const repoOwner = repo.owner.login;
 
   const firstPage = await this.pullRequests.getAll({
     owner: repoOwner, repo: repoName, per_page: 100

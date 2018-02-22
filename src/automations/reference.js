@@ -1,8 +1,8 @@
-exports.run = async function(pull, repository, opened) {
+exports.run = async function(pull, repo, opened) {
   const author = pull.user.login;
   const number = pull.number;
-  const repoName = repository.name;
-  const repoOwner = repository.owner.login;
+  const repoName = repo.name;
+  const repoOwner = repo.owner.login;
 
   const refIssues = await this.getReferences(number, repoOwner, repoName);
 
@@ -18,7 +18,7 @@ exports.run = async function(pull, repository, opened) {
 
   Array.from(new Set(refIssues)).forEach(issue => {
     if (this.cfg.pulls.references.labels) {
-      labelReference.apply(this, [issue, number, repository]);
+      labelReference.apply(this, [issue, number, repo]);
     }
   });
 };

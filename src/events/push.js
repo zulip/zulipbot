@@ -1,5 +1,5 @@
 exports.run = function(payload) {
-  const repository = payload.repository;
+  const repo = payload.repository;
   const masterPush = payload.ref === "refs/heads/master";
 
   if (!masterPush || !this.cfg.pulls.status.mergeConflicts) {
@@ -7,7 +7,7 @@ exports.run = function(payload) {
   }
 
   setTimeout(() => {
-    this.automations.get("mergeConflict").run(repository);
+    this.automations.get("mergeConflict").run(repo);
   }, this.cfg.eventsDelay * 60 * 1000);
 };
 

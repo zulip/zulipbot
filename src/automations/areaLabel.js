@@ -1,10 +1,10 @@
 let referenced = [];
 
-exports.run = async function(issue, repository, label) {
+exports.run = async function(issue, repo, label) {
   const areaLabel = label.name;
   const number = issue.number;
-  const repoName = repository.name;
-  const repoOwner = repository.owner.login;
+  const repoName = repo.name;
+  const repoOwner = repo.owner.login;
   const issueLabels = issue.labels.map(l => l.name);
   const areaLabels = this.cfg.issues.area.labels;
 

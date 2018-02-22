@@ -1,7 +1,7 @@
 exports.run = function(payload) {
   const action = payload.action;
   const issue = payload.issue;
-  const repository = payload.repository;
+  const repo = payload.repository;
   const label = payload.label;
 
   if (this.cfg.activity.issues.inProgress) {
@@ -9,9 +9,9 @@ exports.run = function(payload) {
   }
 
   if (action === "labeled") {
-    this.automations.get("areaLabel").run(issue, repository, label);
+    this.automations.get("areaLabel").run(issue, repo, label);
   } else if (action === "closed" && this.cfg.activity.issues.clearClosed) {
-    this.automations.get("issueState").close(issue, repository);
+    this.automations.get("issueState").close(issue, repo);
   } else if (action === "reopened") {
     this.automations.get("issueState").reopen(issue);
   } else if (action === "opened" || action === "created") {

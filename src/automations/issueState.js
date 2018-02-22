@@ -1,10 +1,10 @@
 const recentlyClosed = new Map();
 
-exports.close = function(issue, repository) {
+exports.close = function(issue, repo) {
   recentlyClosed.set(issue.id, issue);
 
   setTimeout(() => {
-    clearClosed.apply(this, [issue, repository]);
+    clearClosed.apply(this, [issue, repo]);
   }, this.cfg.eventsDelay * 60 * 1000);
 };
 
@@ -12,9 +12,9 @@ exports.reopen = function(issue) {
   if (recentlyClosed.has(issue.id)) recentlyClosed.delete(issue.id);
 };
 
-async function clearClosed(issue, repository) {
-  const repoOwner = repository.owner.login;
-  const repoName = repository.name;
+async function clearClosed(issue, repo) {
+  const repoOwner = repo.owner.login;
+  const repoName = repo.name;
 
   if (!recentlyClosed.has(issue.id) || !issue.assignees.length) {
     return;
