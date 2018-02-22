@@ -4,12 +4,7 @@ exports.run = async function(pullRequest, repository, opened) {
   const repoName = repository.name;
   const repoOwner = repository.owner.login;
 
-  const response = await this.pullRequests.getCommits({
-    owner: repoOwner, repo: repoName, number: number
-  });
-  const refIssues = response.data.filter(c => {
-    return this.findKeywords(c.commit.message);
-  }).map(c => c.commit.message.match(/#([0-9]+)/)[1]);
+  const refIssues = await this.getReferences(number, repoOwner, repoName);
 
   if (!refIssues.length && this.findKeywords(pullRequest.body)) {
     const comment = this.templates.get("fixCommitMessage")

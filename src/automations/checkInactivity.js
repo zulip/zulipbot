@@ -50,12 +50,7 @@ async function scrapePullRequests(pullRequests) {
       checkInactivePullRequest.call(this, pullRequest);
     }
 
-    const commits = await this.pullRequests.getCommits({
-      owner: repoOwner, repo: repoName, number: number
-    });
-    const refIssues = commits.data.filter(c => {
-      return this.findKeywords(c.commit.message);
-    }).map(c => c.commit.message);
+    const refIssues = await this.getReferences(number, repoOwner, repoName);
     const bodRef = this.findKeywords(body);
 
     if (bodRef || refIssues.length) {

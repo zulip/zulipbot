@@ -79,4 +79,16 @@ client.findKeywords = string => {
   });
 };
 
+client.getReferences = async function(number, repoOwner, repoName) {
+  const response = await this.pullRequests.getCommits({
+    owner: repoOwner, repo: repoName, number: number
+  });
+
+  const refIssues = response.data.filter(c => {
+    return client.findKeywords(c.commit.message);
+  }).map(c => c.commit.message.match(/#([0-9]+)/)[1]);
+
+  return new Promise(resolve => resolve(Array.from(new Set(refIssues))));
+};
+
 module.exports = client;
