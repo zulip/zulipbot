@@ -1,4 +1,4 @@
-let referencedIssues = [];
+let referenced = [];
 
 exports.run = async function(issue, repository, label) {
   const areaLabel = label.name;
@@ -38,19 +38,21 @@ exports.run = async function(issue, repository, label) {
     return comment && fromClient;
   });
 
+  const tag = `${repoOwner}/${repoName}#${number}`;
+
   if (labelComment) {
     this.issues.editComment({
       owner: repoOwner, repo: repoName, id: labelComment.id, body: comment
     });
-  } else if (!referencedIssues.includes(number)) {
+  } else if (!referenced.includes(tag)) {
     this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: comment
     });
 
     // Ignore labels added in bulk
-    referencedIssues.push(number);
+    referenced.push(tag);
     setTimeout(() => {
-      referencedIssues.splice(referencedIssues.indexOf(number), 1);
+      referenced.splice(referenced.indexOf(tag), 1);
     }, 1000);
   }
 };
