@@ -25,9 +25,9 @@ exports.run = async function(payload) {
   if (!ref || pull.title.includes(this.cfg.pulls.status.wip)) return;
 
   if (action === "opened") {
-    this.automations.get("issueReferenced").run(pull, repo, true);
+    this.automations.get("reference").run(pull, repo, true);
   } else if (action === "synchronize") {
-    this.automations.get("issueReferenced").run(pull, repo, false);
+    this.automations.get("reference").run(pull, repo, false);
   }
 };
 
