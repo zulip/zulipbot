@@ -11,12 +11,8 @@ exports.run = function(payload, commenter) {
     });
   }
 
-  const assignee = JSON.stringify({
-    assignees: commenter
-  });
-
   this.issues.removeAssigneesFromIssue({
-    owner: repoOwner, repo: repoName, number: number, body: assignee
+    owner: repoOwner, repo: repoName, number: number, assignees: [commenter]
   });
 };
 
