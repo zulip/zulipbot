@@ -2,7 +2,7 @@ exports.run = function(payload) {
   const repository = payload.repository;
   const masterPush = payload.ref === "refs/heads/master";
 
-  if (!masterPush || !this.cfg.pullRequests.status.mergeConflicts) {
+  if (!masterPush || !this.cfg.pulls.status.mergeConflicts) {
     return;
   }
 

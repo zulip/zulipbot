@@ -9,8 +9,8 @@ exports.label = async function(payload) {
   });
 
   let labels = response.data.map(label => label.name);
-  const autoUpdate = this.cfg.activity.pullRequests.autoUpdate;
-  const sizeLabels = this.cfg.pullRequests.status.size.labels;
+  const autoUpdate = this.cfg.activity.pulls.autoUpdate;
+  const sizeLabels = this.cfg.pulls.status.size.labels;
 
   if (autoUpdate) {
     const author = payload.pull_request.user.login;
@@ -31,8 +31,8 @@ exports.label = async function(payload) {
 };
 
 function review(labels, action, author, reviewer) {
-  const needsReviewLabel = this.cfg.activity.pullRequests.needsReview.label;
-  const reviewedLabel = this.cfg.activity.pullRequests.reviewed.label;
+  const needsReviewLabel = this.cfg.activity.pulls.needsReview.label;
+  const reviewedLabel = this.cfg.activity.pulls.reviewed.label;
   const needsReview = labels.includes(needsReviewLabel);
   const reviewed = labels.includes(reviewedLabel);
 
@@ -61,7 +61,7 @@ async function size(sizeLabels, labels, number, repository) {
   });
 
   const changes = files.data.filter(file => {
-    return !this.cfg.pullRequests.status.size.exclude.includes(file.filename);
+    return !this.cfg.pulls.status.size.exclude.includes(file.filename);
   }).reduce((sum, file) => sum + file.changes, 0);
 
   let label = sizeLabels.keys().next().value;

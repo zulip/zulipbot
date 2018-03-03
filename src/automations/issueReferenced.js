@@ -1,12 +1,12 @@
-exports.run = async function(pullRequest, repository, opened) {
-  const author = pullRequest.user.login;
-  const number = pullRequest.number;
+exports.run = async function(pull, repository, opened) {
+  const author = pull.user.login;
+  const number = pull.number;
   const repoName = repository.name;
   const repoOwner = repository.owner.login;
 
   const refIssues = await this.getReferences(number, repoOwner, repoName);
 
-  if (!refIssues.length && this.findKeywords(pullRequest.body)) {
+  if (!refIssues.length && this.findKeywords(pull.body)) {
     const comment = this.templates.get("fixCommitMessage")
       .replace(new RegExp("{author}", "g"), author);
     return this.issues.createComment({
@@ -17,7 +17,7 @@ exports.run = async function(pullRequest, repository, opened) {
   if (!opened) return;
 
   Array.from(new Set(refIssues)).forEach(issue => {
-    if (this.cfg.pullRequests.references.labels) {
+    if (this.cfg.pulls.references.labels) {
       labelReference.apply(this, [issue, number, repository]);
     }
   });
@@ -26,7 +26,7 @@ exports.run = async function(pullRequest, repository, opened) {
 async function labelReference(refIssue, number, repo) {
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
-  const labelCfg = this.cfg.pullRequests.references.labels;
+  const labelCfg = this.cfg.pulls.references.labels;
 
   const response = await this.issues.getIssueLabels({
     owner: repoOwner, repo: repoName, number: refIssue

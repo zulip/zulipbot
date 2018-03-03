@@ -78,7 +78,7 @@ exports.issues = {
   }
 };
 
-exports.pullRequests = {
+exports.pulls = {
   status: {
     mergeConflicts: true,
     wip: "[WIP]",
@@ -126,7 +126,7 @@ exports.activity = {
     inProgress: "in progress",
     clearClosed: true
   },
-  pullRequests: {
+  pulls: {
     autoUpdate: false,
     reviewed: {
       label: "reviewed"

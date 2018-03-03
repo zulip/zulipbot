@@ -13,24 +13,24 @@ exports.run = async function() {
   const array = await Promise.all(pages);
 
   // Flatten arrays of arrays with PR data
-  const pullRequests = array.reduce((a, element) => {
+  const pulls = array.reduce((a, element) => {
     return a.concat(element);
   }, []);
 
-  await scrapePullRequests.call(this, pullRequests);
+  await scrapePulls.call(this, pulls);
 };
 
-async function scrapePullRequests(pullRequests) {
+async function scrapePulls(pulls) {
   const references = new Map();
   const ims = this.cfg.activity.check.reminder * 86400000;
-  const iterator = pullRequests[Symbol.iterator]();
+  const iterator = pulls[Symbol.iterator]();
 
-  for (let pullRequest of iterator) {
-    let time = Date.parse(pullRequest.updated_at);
-    const body = pullRequest.body;
-    const number = pullRequest.number;
-    const repoName = pullRequest.base.repo.name;
-    const repoOwner = pullRequest.base.repo.owner.login;
+  for (let pull of iterator) {
+    let time = Date.parse(pull.updated_at);
+    const body = pull.body;
+    const number = pull.number;
+    const repoName = pull.base.repo.name;
+    const repoOwner = pull.base.repo.owner.login;
 
     const response = await this.issues.getIssueLabels({
       owner: repoOwner, repo: repoName, number: number
@@ -40,14 +40,14 @@ async function scrapePullRequests(pullRequests) {
 
     const inactive = labels.find(label => label === this.cfg.activity.inactive);
     const reviewed = labels.find(l => {
-      return l === this.cfg.activity.pullRequests.reviewed.label;
+      return l === this.cfg.activity.pulls.reviewed.label;
     });
     const needsReview = labels.find(l => {
-      return l === this.cfg.activity.pullRequests.needsReview.label;
+      return l === this.cfg.activity.pulls.needsReview.label;
     });
 
     if (time + ims <= Date.now() && !inactive && reviewed) {
-      checkInactivePullRequest.call(this, pullRequest);
+      checkInactivePull.call(this, pull);
     }
 
     const refIssues = await this.getReferences(number, repoOwner, repoName);
@@ -56,7 +56,7 @@ async function scrapePullRequests(pullRequests) {
     if (bodRef || refIssues.length) {
       const com = refIssues[0];
       const ref = com ? com.match(/#([0-9]+)/)[1] : body.match(/#([0-9]+)/)[1];
-      const ignore = this.cfg.activity.pullRequests.needsReview.ignore;
+      const ignore = this.cfg.activity.pulls.needsReview.ignore;
       if (needsReview && ignore) time = Date.now();
       references.set(`${repoName}/${ref}`, time);
     }
@@ -71,11 +71,11 @@ async function scrapePullRequests(pullRequests) {
   await scrapeInactiveIssues.apply(this, [references, issues]);
 }
 
-async function checkInactivePullRequest(pullRequest) {
-  const author = pullRequest.user.login;
-  const repoName = pullRequest.base.repo.name;
-  const repoOwner = pullRequest.base.repo.owner.login;
-  const number = pullRequest.number;
+async function checkInactivePull(pull) {
+  const author = pull.user.login;
+  const repoName = pull.base.repo.name;
+  const repoOwner = pull.base.repo.owner.login;
+  const number = pull.number;
 
   const comment = this.templates.get("updateWarning")
     .replace(new RegExp("{author}", "g"), author)
