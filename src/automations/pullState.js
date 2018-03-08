@@ -1,3 +1,5 @@
+const _ = require("../../node_modules/lodash");
+
 exports.label = async function(payload) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
@@ -24,7 +26,7 @@ exports.label = async function(payload) {
     labels = await size.apply(this, [sizeLabels, labels, number, repo]);
   }
 
-  if (oldLabels !== labels) {
+  if (!_.isEqual(oldLabels.sort(), labels.sort())) {
     await this.issues.replaceAllLabels({
       owner: repoOwner, repo: repoName, number: number, labels: labels
     });
