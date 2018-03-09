@@ -15,7 +15,7 @@ app.get("/", (req, res) => {
   res.redirect("https://github.com/zulip/zulipbot");
 });
 
-const jsonParser = express.json();
+const jsonParser = express.json({limit: "50mb"});
 const urlencodedParser = express.urlencoded({extended: true});
 
 app.post("/github", jsonParser, async(req, res) => {
