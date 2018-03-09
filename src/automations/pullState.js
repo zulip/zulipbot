@@ -9,6 +9,7 @@ exports.label = async function(payload) {
   });
 
   let labels = response.data.map(label => label.name);
+  const oldLabels = labels;
   const autoUpdate = this.cfg.activity.pulls.autoUpdate;
   const sizeLabels = this.cfg.pulls.status.size.labels;
 
@@ -23,11 +24,13 @@ exports.label = async function(payload) {
     labels = await size.apply(this, [sizeLabels, labels, number, repo]);
   }
 
-  const newLabels = await this.issues.replaceAllLabels({
-    owner: repoOwner, repo: repoName, number: number, labels: labels
-  });
+  if (oldLabels !== labels) {
+    await this.issues.replaceAllLabels({
+      owner: repoOwner, repo: repoName, number: number, labels: labels
+    });
+  }
 
-  return new Promise(resolve => resolve(newLabels));
+  return new Promise(resolve => resolve());
 };
 
 function review(labels, action, author, reviewer) {
@@ -72,9 +75,11 @@ async function size(sizeLabels, labels, number, repo) {
 
   pullLabels.push(label);
 
-  if (pullLabels.sort() === labels.sort()) return labels;
+  if (pullLabels.sort() === labels.sort()) {
+    return new Promise(resolve => resolve(labels));
+  }
 
-  return pullLabels;
+  return new Promise(resolve => resolve(pullLabels));
 }
 
 exports.assign = function(payload) {
