@@ -43,67 +43,74 @@ exports.run = async function(payload, commenter, args) {
       });
     }
 
-    const labels = payload.issue.labels.map(label => label.name);
+    invite.apply(this, [payload, commenter, args]);
+  }
+};
 
-    const warn = this.cfg.issues.commands.assign.newContributors.warn;
-    const present = warn.labels.some(label => labels.includes(label));
-    const absent = warn.labels.every(label => !labels.includes(label));
-    const alert = warn.presence ? present : absent;
+async function invite(payload, commenter, args) {
+  const labels = payload.issue.labels.map(label => label.name);
+  const repoName = payload.repository.name;
+  const repoOwner = payload.repository.owner.login;
+  const number = payload.issue.number;
 
-    if (!args.includes("--force") && alert) {
-      const one = warn.labels.length === 1;
-      const comment = this.templates.get("claimWarning")
-        .replace(new RegExp("{username}", "g"), this.cfg.auth.username)
-        .replace(new RegExp("{commenter}", "g"), commenter)
-        .replace(new RegExp("{state}", "g"), warn.presence ? "with" : "without")
-        .replace(new RegExp("{labelGrammar}", "g"), `label${one ? "" : "s"}`)
-        .replace(new RegExp("{repoName}", "g"), repoName)
-        .replace(new RegExp("{repoOwner}", "g"), repoOwner)
-        .replace(new RegExp("{list}", "g"), `"${warn.labels.join("\", \"")}"`);
+  const warn = this.cfg.issues.commands.assign.newContributors.warn;
+  const present = warn.labels.some(label => labels.includes(label));
+  const absent = warn.labels.every(label => !labels.includes(label));
+  const alert = warn.presence ? present : absent;
 
-      return this.issues.createComment({
-        owner: repoOwner, repo: repoName, number: number, body: comment
-      });
-    }
+  if (!args.includes("--force") && alert) {
+    const one = warn.labels.length === 1;
+    const comment = this.templates.get("claimWarning")
+      .replace(new RegExp("{username}", "g"), this.cfg.auth.username)
+      .replace(new RegExp("{commenter}", "g"), commenter)
+      .replace(new RegExp("{state}", "g"), warn.presence ? "with" : "without")
+      .replace(new RegExp("{labelGrammar}", "g"), `label${one ? "" : "s"}`)
+      .replace(new RegExp("{repoName}", "g"), repoName)
+      .replace(new RegExp("{repoOwner}", "g"), repoOwner)
+      .replace(new RegExp("{list}", "g"), `"${warn.labels.join("\", \"")}"`);
 
-    const perm = this.cfg.issues.commands.assign.newContributors.permission;
+    return this.issues.createComment({
+      owner: repoOwner, repo: repoName, number: number, body: comment
+    });
+  }
 
-    if (!perm) {
-      const error = "**ERROR:** `addCollabPermission` wasn't configured.";
-      return this.issues.createComment({
-        owner: repoOwner, repo: repoName, number: number, body: error
-      });
-    }
+  const perm = this.cfg.issues.commands.assign.newContributors.permission;
 
-    const comment = this.templates.get("newContributor")
+  if (!perm) {
+    const error = "**ERROR:** `addCollabPermission` wasn't configured.";
+    return this.issues.createComment({
+      owner: repoOwner, repo: repoName, number: number, body: error
+    });
+  }
+
+  const comment = this.templates.get("newContributor")
+    .replace(new RegExp("{commenter}", "g"), commenter)
+    .replace(new RegExp("{repoName}", "g"), repoName)
+    .replace(new RegExp("{repoOwner}", "g"), repoOwner);
+
+  this.issues.createComment({
+    owner: repoOwner, repo: repoName, number: number, body: comment
+  });
+
+  const inviteKey = `${commenter}@${repoOwner}/${repoName}`;
+
+  if (this.invites.get(inviteKey)) {
+    const error = this.templates.get("inviteError")
       .replace(new RegExp("{commenter}", "g"), commenter)
       .replace(new RegExp("{repoName}", "g"), repoName)
       .replace(new RegExp("{repoOwner}", "g"), repoOwner);
 
-    this.issues.createComment({
-      owner: repoOwner, repo: repoName, number: number, body: comment
+    return this.issues.createComment({
+      owner: repoOwner, repo: repoName, number: number, body: error
     });
-
-    const inviteKey = `${commenter}@${repoOwner}/${repoName}`;
-
-    if (this.invites.get(inviteKey)) {
-      const error = this.templates.get("inviteError")
-        .replace(new RegExp("{commenter}", "g"), commenter)
-        .replace(new RegExp("{repoName}", "g"), repoName)
-        .replace(new RegExp("{repoOwner}", "g"), repoOwner);
-
-      return this.issues.createComment({
-        owner: repoOwner, repo: repoName, number: number, body: error
-      });
-    }
-
-    await this.repos.addCollaborator({
-      owner: repoOwner, repo: repoName, username: commenter, permission: perm
-    });
-
-    this.invites.set(inviteKey, number);
   }
-};
+
+  await this.repos.addCollaborator({
+    owner: repoOwner, repo: repoName, username: commenter, permission: perm
+  });
+
+  this.invites.set(inviteKey, number);
+}
 
 async function validate(commenter, number, repoOwner, repoName) {
   const firstPage = await this.issues.getAll({
