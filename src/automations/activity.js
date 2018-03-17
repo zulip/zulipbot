@@ -51,11 +51,10 @@ async function scrapePulls(pulls) {
     }
 
     const refIssues = await this.getReferences(number, repoOwner, repoName);
-    const bodRef = this.findKeywords(body);
+    const bodyReference = this.findKeywords(body);
 
-    if (bodRef || refIssues.length) {
-      const com = refIssues[0];
-      const ref = com ? com.match(/#([0-9]+)/)[1] : body.match(/#([0-9]+)/)[1];
+    if (bodyReference || refIssues.length) {
+      const ref = refIssues[0] || body.match(/#([0-9]+)/)[1];
       const ignore = this.cfg.activity.pulls.needsReview.ignore;
       if (needsReview && ignore) time = Date.now();
       references.set(`${repoName}/${ref}`, time);
