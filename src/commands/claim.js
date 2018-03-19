@@ -86,7 +86,16 @@ exports.run = async function(payload, commenter, args) {
 
     const inviteKey = `${commenter}@${repoOwner}/${repoName}`;
 
-    if (this.invites.get(inviteKey)) return;
+    if (this.invites.get(inviteKey)) {
+      const error = this.templates.get("inviteError")
+        .replace(new RegExp("{commenter}", "g"), commenter)
+        .replace(new RegExp("{repoName}", "g"), repoName)
+        .replace(new RegExp("{repoOwner}", "g"), repoOwner);
+
+      return this.issues.createComment({
+        owner: repoOwner, repo: repoName, number: number, body: error
+      });
+    }
 
     await this.repos.addCollaborator({
       owner: repoOwner, repo: repoName, username: commenter, permission: perm
