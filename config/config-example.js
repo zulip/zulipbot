@@ -16,7 +16,7 @@ exports.issues = {
         restricted: 1,
         warn: {
           labels: ["help wanted"],
-          presence: false
+          force: false
         }
       }
     },

@@ -48,19 +48,20 @@ exports.run = async function(payload, commenter, args) {
 };
 
 async function invite(payload, commenter, args) {
-  const labels = payload.issue.labels.map(label => label.name);
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const number = payload.issue.number;
 
+  const labels = payload.issue.labels.map(label => label.name);
   const warn = this.cfg.issues.commands.assign.newContributors.warn;
   const present = warn.labels.some(label => labels.includes(label));
   const absent = warn.labels.every(label => !labels.includes(label));
   const alert = warn.presence ? present : absent;
 
-  if (!args.includes("--force") && alert) {
+  if (alert && (!warn.force || (warn.force && !args.includes("--force")))) {
     const one = warn.labels.length === 1;
-    const comment = this.templates.get("claimWarning")
+    const type = warn.force ? "claimWarning" : "claimBlocked";
+    const comment = this.templates.get(type)
       .replace(new RegExp("{username}", "g"), this.cfg.auth.username)
       .replace(new RegExp("{commenter}", "g"), commenter)
       .replace(new RegExp("{state}", "g"), warn.presence ? "with" : "without")

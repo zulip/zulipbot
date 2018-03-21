@@ -49,7 +49,8 @@ exports.issues = {
         restricted: Infinity,
         warn: {
           labels: [],
-          presence: false
+          presence: false,
+          force: true
         }
       }
     },
