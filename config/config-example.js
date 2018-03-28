@@ -15,7 +15,7 @@ exports.issues = {
         permission: "pull",
         restricted: 1,
         warn: {
-          labels: ["help wanted"],
+          labels: ["help wanted", "good first issue"],
           force: false
         }
       }
