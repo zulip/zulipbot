@@ -42,7 +42,7 @@ exports.issues = {
       ["area: documentation (user)", "server-user-docs"],
       ["area: emails", "server-development"],
       ["area: emoji", "server-emoji"],
-      ["area: export", "server-misc"],
+      ["area: export/import", "server-misc"],
       ["area: hotkeys", "server-hotkeys"],
       ["area: i18n", "server-i18n"],
       ["area: in", "server-in"],
