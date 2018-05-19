@@ -37,16 +37,20 @@ exports.progress = function(payload) {
   const repoOwner = payload.repository.owner.login;
   const repoName = payload.repository.name;
   const label = this.cfg.activity.issues.inProgress;
-  const assignees = payload.issue.assignees.length;
   const labeled = payload.issue.labels.find(l => {
     return l.name === label;
   });
+
+  const assignees = payload.issue.assignees;
+  let assigned = assignees.length;
+  // GitHub API bug sometimes doesn't remove unassigned user from array
+  if (assigned === 1) assigned = payload.assignee.id !== assignees[0].id;
 
   if (action === "assigned" && !labeled) {
     this.issues.addLabels({
       owner: repoOwner, repo: repoName, number: number, labels: [label]
     });
-  } else if (action === "unassigned" && !assignees && labeled) {
+  } else if (action === "unassigned" && !assigned && labeled) {
     this.issues.removeLabel({
       owner: repoOwner, repo: repoName, number: number, name: label
     });
