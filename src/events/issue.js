@@ -7,7 +7,7 @@ exports.run = function(payload) {
 
   if (!check) return;
 
-  if (this.cfg.activity.issues.inProgress) {
+  if (payload.assignee && this.cfg.activity.issues.inProgress) {
     this.automations.get("issueState").progress(payload);
   }
 
