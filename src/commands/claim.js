@@ -28,7 +28,7 @@ exports.run = async function(payload, commenter, args) {
     const firstPage = await this.repos.getContributors({
       owner: repoOwner, repo: repoName
     });
-    const contributors = await this.getAll(firstPage);
+    const contributors = await this.util.getAll(firstPage);
 
     if (contributors.find(c => c.login === commenter)) {
       claim.apply(this, [commenter, number, repoOwner, repoName]);
@@ -118,7 +118,7 @@ async function validate(commenter, number, repoOwner, repoName) {
     filter: "all", per_page: 100,
     labels: this.cfg.activity.issues.inProgress
   });
-  const issues = await this.getAll(firstPage);
+  const issues = await this.util.getAll(firstPage);
 
   const limit = this.cfg.issues.commands.assign.newContributors.restricted;
   const assigned = issues.filter(issue => {

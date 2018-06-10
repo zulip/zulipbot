@@ -4,9 +4,9 @@ exports.run = async function(pull, repo, opened) {
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
 
-  const refIssues = await this.getReferences(number, repoOwner, repoName);
+  const refIssues = await this.util.getReferences(number, repoOwner, repoName);
 
-  if (!refIssues.length && this.findKeywords(pull.body)) {
+  if (!refIssues.length && this.util.findKeywords(pull.body)) {
     const comment = this.templates.get("fixCommitMessage")
       .replace(new RegExp("{author}", "g"), author);
     return this.issues.createComment({

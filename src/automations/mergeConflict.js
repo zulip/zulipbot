@@ -5,7 +5,7 @@ exports.run = async function(repo) {
   const firstPage = await this.pullRequests.getAll({
     owner: repoOwner, repo: repoName, per_page: 100
   });
-  const pulls = await this.getAll(firstPage);
+  const pulls = await this.util.getAll(firstPage);
   const iterator = pulls[Symbol.iterator]();
 
   for (let pull of iterator) {

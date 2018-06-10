@@ -7,7 +7,7 @@ exports.run = async function() {
     const firstPage = await this.pullRequests.getAll({
       owner: repoOwner, repo: repoName, per_page: 100
     });
-    return this.getAll(firstPage);
+    return this.util.getAll(firstPage);
   });
 
   const array = await Promise.all(pages);
@@ -50,11 +50,11 @@ async function scrapePulls(pulls) {
       checkInactivePull.call(this, pull);
     }
 
-    const refIssues = await this.getReferences(number, repoOwner, repoName);
-    const bodyReference = this.findKeywords(body);
+    const refs = await this.util.getReferences(number, repoOwner, repoName);
+    const bodyReference = this.util.findKeywords(body);
 
-    if (bodyReference || refIssues.length) {
-      const ref = refIssues[0] || body.match(/#([0-9]+)/)[1];
+    if (bodyReference || refs.length) {
+      const ref = refs[0] || body.match(/#([0-9]+)/)[1];
       const ignore = this.cfg.activity.pulls.needsReview.ignore;
       if (needsReview && ignore) time = Date.now();
       references.set(`${repoName}/${ref}`, time);
@@ -65,7 +65,7 @@ async function scrapePulls(pulls) {
     filter: "all", per_page: 100,
     labels: this.cfg.activity.issues.inProgress
   });
-  const issues = await this.getAll(firstPage);
+  const issues = await this.util.getAll(firstPage);
 
   await scrapeInactiveIssues.apply(this, [references, issues]);
 }
