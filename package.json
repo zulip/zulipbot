@@ -7,19 +7,17 @@
   },
   "scripts": {
     "start": "node ./src/index.js",
-    "prepublish": "nsp check",
     "test": "eslint ."
   },
   "dependencies": {
     "express": "~4.16.3",
     "github": "^13.1.0",
-    "node-rsa": "^0.4.2",
-    "snekfetch": "^3.6.4"
+    "node-rsa": "^1.0.0",
+    "snekfetch": "^4.0.4"
   },
   "devDependencies": {
-    "eslint": "^4.19.0",
-    "eslint-config-xo-space": "^0.18.0",
-    "nsp": "^3.2.1",
+    "eslint": "^5.0.1",
+    "eslint-config-xo-space": "^0.19.0",
     "smee": "^0.2.0"
   },
   "repository": {

@@ -14,11 +14,15 @@ exports.getAll = async function(page) {
   return new Promise(resolve => resolve(responses));
 };
 
+/* eslint-disable array-element-newline */
+
 const keywords = [
   "close", "closes", "closed",
   "fix", "fixes", "fixed",
   "resolve", "resolves", "resolved"
 ];
+
+/* eslint-enable array-element-newline */
 
 /**
  * Finds all open referenced issues from a given string
