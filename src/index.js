@@ -37,12 +37,13 @@ app.post("/github", jsonParser, async(req, res) => {
     return res.status(400).send("X-GitHub-Event header was null");
   }
 
-  const validEvent = client.events.get(eventType);
-  if (validEvent) {
-    validEvent(req.body);
-    return res.status(202).send("Request is being processed");
-  }
-  res.status(204).end();
+  const repo = req.body.repository.full_name;
+  const check = client.cfg.activity.check.repositories.includes(repo);
+  const eventHandler = client.events.get(eventType);
+  if (!check || !eventHandler) return res.status(204).end();
+
+  eventHandler(req.body);
+  res.status(202).send("Request is being processed");
 });
 
 async function generateTravisKey() {

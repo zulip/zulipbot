@@ -3,9 +3,6 @@ exports.run = function(payload) {
   const issue = payload.issue;
   const repo = payload.repository;
   const label = payload.label;
-  const check = this.cfg.activity.check.repositories.includes(repo.full_name);
-
-  if (!check) return;
 
   if (payload.assignee && this.cfg.activity.issues.inProgress) {
     this.automations.get("issueState").progress(payload);

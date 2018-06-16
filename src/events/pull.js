@@ -4,11 +4,10 @@ exports.run = async function(payload) {
   const repo = payload.repository;
   const assignee = this.cfg.activity.pulls.reviewed.assignee;
   const ref = this.cfg.pulls.references.required;
-  const check = this.cfg.activity.check.repositories.includes(repo.full_name);
   const autoUpdate = this.cfg.activity.pulls.autoUpdate;
   const size = this.cfg.pulls.status.size;
 
-  if (check && (autoUpdate || size)) {
+  if (autoUpdate || size) {
     await this.automations.get("pullState").label(payload);
   }
 
