@@ -1,8 +1,7 @@
 const client = require("./client.js");
 const crypto = require("crypto");
 const express = require("express");
-const NodeRSA = require("node-rsa");
-const snekfetch = require("snekfetch");
+const fetch = require("node-fetch");
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -46,24 +45,28 @@ app.post("/github", jsonParser, async(req, res) => {
   res.status(202).send("Request is being processed");
 });
 
-async function generateTravisKey() {
-  const r = await snekfetch.get("https://api.travis-ci.org/config");
-  const pubKey = JSON.parse(r.text).config.notifications.webhook.public_key;
-  const key = new NodeRSA(pubKey, {signingScheme: "sha1"});
-  return key;
-}
-
-const travisKey = generateTravisKey();
-
 app.post("/travis", urlencodedParser, async(req, res) => {
-  const signature = req.get("Signature");
-  const payload = JSON.parse(req.body.payload);
-  const valid = travisKey.verify(payload, signature, "base64", "base64");
+  const response = await fetch("https://api.travis-ci.org/config");
+  const json = await response.json();
+  const publicKey = json.config.notifications.webhook.public_key;
+  const verifier = crypto.createVerify("sha1");
+  const signature = Buffer.from(req.headers.signature, "base64");
+  verifier.update(req.body.payload);
+  const valid = verifier.verify(publicKey, signature);
 
   if (!valid) {
     return res.status(401).send("Signature doesn't match computed hash");
   }
 
+  const repo = req.get("Travis-Repo-Slug");
+  if (!repo) {
+    return res.status(400).send("Travis-Repo-Slug header was null");
+  }
+
+  const check = client.cfg.activity.check.repositories.includes(repo);
+  if (!check) return res.status(204).end();
+
+  const payload = JSON.parse(req.body.payload);
   client.events.get("travis")(payload);
   res.status(202).send("Request is being processed");
 });
