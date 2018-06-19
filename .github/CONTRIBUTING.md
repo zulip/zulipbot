@@ -3,16 +3,17 @@
 ## Getting started
 Before you get started, make sure you have:
 
-  * [installed](https://github.com/zulip/zulipbot/wiki/Installation) a local copy of **zulipbot**
+  * [installed](https://github.com/zulip/zulipbot/wiki/Installation) a local
+    copy of **zulipbot**
 
   * registered an account on the [Zulip development
-  server](https://chat.zulip.org) and joined us on the [zulipbot
-  stream](https://chat.zulip.org/#narrow/stream/zulipbot) on the Zulip
-  development server, where most discussion concerning **zulipbot** takes place
+    server](https://chat.zulip.org) and joined us on the [zulipbot
+    stream](https://chat.zulip.org/#narrow/stream/zulipbot) on the Zulip
+    development server, where most discussion concerning **zulipbot** takes
+    place
 
-  * read and followed our [Code of Conduct](CODE_OF_CONDUCT.md)
-  as a contributor to create a more collaborative and welcoming environment
-  for development
+  * read and followed our [Code of Conduct](CODE_OF_CONDUCT.md) as a contributor
+    to create a more collaborative and welcoming environment for development
 
 ### Opening an issue
 Are you trying to report a bug that you found in **zulipbot**? Do you have
@@ -24,8 +25,9 @@ information and details as you can in your issue so we can address your issue
 properly.
 
   * If you're trying to report a bug, please describe the problem in depth with
-  any accompanying screenshots or links to where the bug occurred; the more
-  information that is given, the better we can diagnose the problem and fix it.
+    any accompanying screenshots or links to where the bug occurred; the more
+    information that is given, the better we can diagnose the problem and fix
+    it.
 
 ### Claiming an issue
 If you see an issue in our issue tracker that you'd like to work on, please
@@ -54,13 +56,25 @@ assign you to the issue so you can begin working on it.
   $ yarn install
   ```
 
-4. Run `tools/setup` to setup your local environment for **@zulipbot** development.
+5. Use the [smee.io](https://smee.io/) CLI to redirect GitHub webhook payloads
+   to your locally running application.
 
   ```sh
-  $ tools/setup
+  $ smee -u https://smee.io/yourcustomurl -P /github -p 8080
   ```
 
-5. Run the bot to ensure that your environment was configured correctly.
+6. Create a [GitHub user
+   account](https://help.github.com/articles/signing-up-for-a-new-github-account/)
+   and a [GitHub
+   App](https://developer.github.com/apps/building-github-apps/creating-a-github-app/)
+   to test with.
+  * See
+    [here](https://github.com/zulip/zulipbot/wiki/Configuration#authentication)
+    to check how to authenticate your user account.
+  * The **Webhook URL** in your GitHub App settings should be
+    `https://smee.io/yourcustomurl`.
+
+7. Run the bot to ensure that your environment was configured correctly.
 
   ```sh
   $ yarn start
@@ -72,10 +86,10 @@ chat](https://chat.zulip.org/#narrow/stream/zulipbot) and we can help you out!
 ## Making changes
 
 1. Create a separate feature branch from the `master` branch for the changes you
-plan to make.
+   plan to make.
 
 2. Commit your changes, following Zulip's [commit discipline
-practice](https://zulip.readthedocs.io/en/latest/contributing/version-control.html#commit-discipline).
+   practice](https://zulip.readthedocs.io/en/latest/contributing/version-control.html#commit-discipline).
 
 3. Check if your changes and commits pass all tests:
 
@@ -102,8 +116,9 @@ practice](https://zulip.readthedocs.io/en/latest/contributing/version-control.ht
   You may need to append `+` before your feature branch name if you failed to
   push some refs.
 
-6. Create a [pull request](https://zulip.readthedocs.io/en/latest/git/pull-requests.html#create-a-pull-request)
-for the changes you made.
+6. Create a [pull
+   request](https://zulip.readthedocs.io/en/latest/git/pull-requests.html#create-a-pull-request)
+   for the changes you made.
 
   * The **base fork** should be `zulip/zulipbot`.
 
@@ -113,24 +128,24 @@ for the changes you made.
 
   * The **compare** branch should be the name of your feature branch.
 
-7. One of the project maintainers will review your pull request and merge it once
-the pull request's Travis builds pass and any concerns about your pull request
-are settled.
+7. One of the project maintainers will review your pull request and merge it
+   once the pull request's Travis builds pass and any concerns about your pull
+   request are settled.
 
 ### Testing
-**zulipbot** is currently manually tested on a separate
-[organization](https://github.com/zulipbot-testing) and its repositories using a
-[test account](https://github.com/zulipbot-test), **@zulipbot-test**, while a
-framework for unit and coverage tests is being established. Webhook payloads can
-be delivered to a locally running application using [Smee](https://smee.io/).
+**zulipbot** is currently manually tested on private repositories and user
+accounts while a test suite is being established. Webhook payloads can be
+delivered to a locally running application using [Smee](https://smee.io/).
 
-Our current test framework consists of [Travis](https://travis-ci.org/) for
-continuous integration and [Gulp](https://gulpjs.com) (`./gulpfile.js`) for
-running automated tests, such as reviewing code quality and consistency with
-linters like [Eslint](https://eslint.org).
+Our current test suite consists of [Travis](https://travis-ci.org/) for
+continuous integration, and we review code quality and consistency with the
+[Eslint](https://eslint.org) linter.
 
 ## Additional resources
 
-* [Zulip contributing guidelines](https://zulip.readthedocs.io/en/latest/overview/contributing.html)
-* [Zulip Git guide](https://zulip.readthedocs.io/en/latest/contributing/git-guide.html)
-* [Zulip version control guide](https://zulip.readthedocs.io/en/latest/contributing/version-control.html)
+* [Zulip contributing
+  guidelines](https://zulip.readthedocs.io/en/latest/overview/contributing.html)
+* [Zulip Git
+  guide](https://zulip.readthedocs.io/en/latest/contributing/git-guide.html)
+* [Zulip version control
+  guide](https://zulip.readthedocs.io/en/latest/contributing/version-control.html)
