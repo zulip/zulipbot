@@ -1,3 +1,9 @@
+/**
+ * Retrieves all pages of data from a node-github method.
+ * @param {Object} page First page of data from the method.
+ * @return {Array} Array of all data entries.
+ */
+
 exports.getAll = async function(page) {
   let response = page;
   let responses = response.data;
