@@ -19,10 +19,8 @@
   "devDependencies": {
     "eslint": "^4.19.0",
     "eslint-config-xo-space": "^0.18.0",
-    "inquirer": "^5.1.0",
-    "mz": "^2.6.0",
     "nsp": "^3.2.1",
-    "simple-git": "^1.92.0"
+    "smee": "^0.2.0"
   },
   "repository": {
     "type": "git",
