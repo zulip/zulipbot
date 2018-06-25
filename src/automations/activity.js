@@ -50,11 +50,15 @@ async function scrapePulls(pulls) {
       checkInactivePull.call(this, pull);
     }
 
-    const refs = await this.util.getReferences(number, repoOwner, repoName);
-    const bodyReference = this.util.findKeywords(body);
+    const commits = await this.pullRequests.getCommits({
+      owner: repoOwner, repo: repoName, number: number
+    });
+    const msgs = commits.data.map(c => c.commit.message);
+    const commitRefs = await this.util.getReferences(msgs, repoOwner, repoName);
+    const bodyRef = await this.util.getReferences([body], repoOwner, repoName);
 
-    if (bodyReference || refs.length) {
-      const ref = refs[0] || body.match(/#([0-9]+)/)[1];
+    if (bodyRef.length || commitRefs.length) {
+      const ref = commitRefs[0] || bodyRef[0];
       const ignore = this.cfg.activity.pulls.needsReview.ignore;
       if (needsReview && ignore) time = Date.now();
       references.set(`${repoName}/${ref}`, time);

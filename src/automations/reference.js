@@ -1,12 +1,20 @@
 exports.run = async function(pull, repo, opened) {
+  const body = pull.body;
   const author = pull.user.login;
   const number = pull.number;
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
 
-  const refIssues = await this.util.getReferences(number, repoOwner, repoName);
+  const commits = await this.pullRequests.getCommits({
+    owner: repoOwner, repo: repoName, number: number
+  });
 
-  if (!refIssues.length && this.util.findKeywords(pull.body)) {
+  const msgs = commits.data.map(c => c.commit.message);
+  const commitRefs = await this.util.getReferences(msgs, repoOwner, repoName);
+  const bodyRef = await this.util.getReferences([body], repoOwner, repoName);
+  console.log(commitRefs, bodyRef);
+
+  if (!bodyRef.some(r => commitRefs.includes(r))) {
     const comment = this.templates.get("fixCommitMessage")
       .replace(new RegExp("{author}", "g"), author);
     return this.issues.createComment({
@@ -16,7 +24,7 @@ exports.run = async function(pull, repo, opened) {
 
   if (!opened) return;
 
-  Array.from(new Set(refIssues)).forEach(issue => {
+  commitRefs.forEach(issue => {
     if (this.cfg.pulls.references.labels) {
       labelReference.apply(this, [issue, number, repo]);
     }

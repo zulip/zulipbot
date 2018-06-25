@@ -14,39 +14,53 @@ exports.getAll = async function(page) {
   return new Promise(resolve => resolve(responses));
 };
 
-/*
-  Keywords from https://help.github.com/articles/closing-issues-using-keywords/
-  Referenced issues are only closed when pull requests are merged;
-  not necessarily when commits are merged
-*/
-exports.findKeywords = string => {
-  const keywords = ["close", "fix", "resolve"];
+const keywords = [
+  "close", "closes", "closed",
+  "fix", "fixes", "fixed",
+  "resolve", "resolves", "resolved"
+];
 
-  return keywords.some(word => {
-    const current = word;
-    const past = word.endsWith("e") ? `${word}d` : `${word}ed`;
-    const present = word.endsWith("e") ? `${word}s` : `${word}es`;
-    const tenses = [current, past, present];
+/**
+ * Finds all open referenced issues from a given string
+ * by identifying keywords specified above.
+ *
+ * Keywords are sourced from
+ * https://help.github.com/articles/closing-issues-using-keywords/
+ *
+ * Referenced issues are only closed when pull requests are merged,
+ * not necessarily when commits are merged.
+ *
+ * @param {Array} strings First page of data from the method.
+ * @param {String} repoOwner Owner of the repository to search references for.
+ * @param {String} repoName Name of the repository to search references for.
+ * @return {Array} Sorted array of all referenced issues.
+ */
 
-    const matched = tenses.some(t => {
-      const regex = new RegExp(`${t}:? #([0-9]+)`, "i");
-      return string.match(regex);
+exports.getReferences = async function(strings, repoOwner, repoName) {
+  let matches = [];
+  strings.forEach(string => {
+    const wordMatches = keywords.map(tense => {
+      const regex = new RegExp(`${tense}:? #([0-9]+)`, "i");
+      const match = string.match(regex);
+      return match ? match[1] : match;
     });
-
-    return matched;
+    matches = matches.concat(wordMatches);
   });
-};
-
-exports.getReferences = async function(number, repoOwner, repoName) {
-  const response = await this.pullRequests.getCommits({
-    owner: repoOwner,
-    repo: repoName,
-    number: number
+  // check matches for valid issue references
+  const statusCheck = matches.map(async number => {
+    if (!number) return false;
+    const issue = await this.issues.get({
+      owner: repoOwner, repo: repoName, number: number
+    });
+    // valid references are open issues
+    const valid = !issue.data.pull_request && issue.data.state === "open";
+    return valid ? number : false;
   });
-
-  const refIssues = response.data.filter(c => {
-    return exports.findKeywords(c.commit.message);
-  }).map(c => c.commit.message.match(/#([0-9]+)/)[1]);
-
-  return new Promise(resolve => resolve(Array.from(new Set(refIssues))));
+  // statusCheck is an array of promises, so use Promise.all
+  const matchStatuses = await Promise.all(statusCheck);
+  // remove strings that didn't contain any references
+  const filteredMatches = matchStatuses.filter(e => e);
+  // sort and remove duplicate references
+  const references = Array.from(new Set(filteredMatches)).sort();
+  return new Promise(resolve => resolve(references));
 };
