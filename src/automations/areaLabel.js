@@ -14,7 +14,7 @@ exports.run = async function(issue, repo, label) {
   const labelTeams = issueAreaLabels.map(l => areaLabels.get(l));
 
   // Create unique array of teams (labels can point to same team)
-  const uniqueTeams = Array.from(new Set(labelTeams));
+  const uniqueTeams = this.util.deduplicate(labelTeams);
 
   const areaTeams = `@${repoOwner}/` + uniqueTeams.join(`, @${repoOwner}/`);
   const references = issueAreaLabels.join("\", \"");

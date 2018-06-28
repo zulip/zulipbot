@@ -61,6 +61,17 @@ exports.getReferences = async function(strings, repoOwner, repoName) {
   // remove strings that didn't contain any references
   const filteredMatches = matchStatuses.filter(e => e);
   // sort and remove duplicate references
-  const references = Array.from(new Set(filteredMatches)).sort();
+  const references = this.util.deduplicate(filteredMatches);
   return new Promise(resolve => resolve(references));
+};
+
+/**
+ * Sorts and removes duplicate elements from a given array.
+ *
+ * @param {Array} array Array to remove duplicates from.
+ * @return {Array} Sorted array containing only unique entries.
+ */
+
+exports.deduplicate = function(array) {
+  return Array.from(new Set(array)).sort();
 };
