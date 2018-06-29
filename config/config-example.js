@@ -1,9 +1,9 @@
 /**
-  * EXAMPLE CUSTOM ZULIPBOT CONFIGURATION — Zulip
-  *
-  * See https://github.com/zulip/zulipbot/wiki/configuration for detailed
-  * explanations on each option.
-  */
+ * EXAMPLE CUSTOM ZULIPBOT CONFIGURATION — Zulip
+ *
+ * See https://github.com/zulip/zulipbot/wiki/configuration for detailed
+ * explanations on each option.
+ */
 
 exports.issues = {
   commands: {
