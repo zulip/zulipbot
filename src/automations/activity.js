@@ -58,10 +58,12 @@ async function scrapePulls(pulls) {
     const bodyRef = await this.util.getReferences([body], repoOwner, repoName);
 
     if (bodyRef.length || commitRefs.length) {
-      const ref = commitRefs[0] || bodyRef[0];
-      const ignore = this.cfg.activity.pulls.needsReview.ignore;
-      if (needsReview && ignore) time = Date.now();
-      references.set(`${repoName}/${ref}`, time);
+      const refs = commitRefs.concat(bodyRef);
+      refs.forEach(ref => {
+        const ignore = this.cfg.activity.pulls.needsReview.ignore;
+        if (needsReview && ignore) time = Date.now();
+        references.set(`${repoName}/${ref}`, time);
+      });
     }
   }
 
