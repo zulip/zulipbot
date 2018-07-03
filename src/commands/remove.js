@@ -25,7 +25,7 @@ exports.run = async function(payload, commenter, args) {
   const error = this.templates.get("labelError")
     .replace(new RegExp("{labels}", "g"), `Label${one ? "" : "s"}`)
     .replace(new RegExp("{labelList}", "g"), `"${rejected.join("\", \"")}"`)
-    .replace(new RegExp("{existState}", "g"), `do${one ? "es" : ""} not exist`)
+    .replace(new RegExp("{exist}", "g"), `do${one ? "es" : ""} not exist`)
     .replace(new RegExp("{type}", "g"), type)
     .replace(new RegExp("{beState}", "g"), `w${one ? "as" : "ere"}`)
     .replace(new RegExp("{action}", "g"), "removed from");
