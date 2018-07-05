@@ -10,9 +10,3 @@ notifications:
     - https://zulip.org/zulipbot/travis
     on_success: always
     on_failure: always
-before_install:
-- openssl aes-256-cbc -K $encrypted_f2e5f4eee8af_key -iv $encrypted_f2e5f4eee8af_iv
-  -in secret.tar.enc -out config/secret.tar -d
-- openssl aes-256-cbc -K $encrypted_f2e5f4eee8af_key -iv $encrypted_f2e5f4eee8af_iv
-  -in secret.tar.enc -out src/secret.tar -d
-- tar xvf src/secret.tar
