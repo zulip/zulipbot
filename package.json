@@ -2,13 +2,14 @@
   "name": "zulipbot",
   "version": "1.0.0",
   "description": "GitHub workflow-optimizing bot",
-  "main": "src/index.js",
   "engines": {
-    "node": "7.6.0 - 8"
+    "node": "8 - 10"
   },
-  "files": [
-    "src"
-  ],
+  "scripts": {
+    "start": "node ./src/index.js",
+    "prepublish": "nsp check",
+    "test": "eslint ."
+  },
   "dependencies": {
     "express": "~4.16.3",
     "github": "^13.1.0",
@@ -23,11 +24,6 @@
     "nsp": "^3.2.1",
     "simple-git": "^1.92.0"
   },
-  "scripts": {
-    "start": "node ./src/index.js",
-    "prepublish": "nsp check",
-    "test": "eslint ."
-  },
   "repository": {
     "type": "git",
     "url": "git://github.com/zulip/zulipbot.git"
@@ -41,7 +37,7 @@
     "zulipbot",
     "synicalsyntax"
   ],
-  "author": "Cynthia Lin <cynthialin1004@gmail.com> (https://synicalsyntax.me)",
+  "author": "Cynthia Lin <cynthialin1004@gmail.com> (https://synicalsyntax.com)",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/zulip/zulipbot/issues"
