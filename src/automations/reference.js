@@ -11,10 +11,20 @@ exports.run = async function(pull, repo, opened) {
 
   const msgs = commits.data.map(c => c.commit.message);
   const commitRefs = await this.util.getReferences(msgs, repoOwner, repoName);
-  const bodyRef = await this.util.getReferences([body], repoOwner, repoName);
-  console.log(commitRefs, bodyRef);
+  const bodyRefs = await this.util.getReferences([body], repoOwner, repoName);
 
-  if (!bodyRef.some(r => commitRefs.includes(r))) {
+  const comments = await this.issues.getComments({
+    owner: repoOwner, repo: repoName, number: number, per_page: 100
+  });
+
+  const warnings = comments.data.filter(com => {
+    // Use end of line comments to check if comment is from template
+    const warn = com.body.endsWith("<!-- fixCommitMessage -->");
+    const fromClient = com.user.login === this.cfg.auth.username;
+    return warn && fromClient;
+  });
+
+  if (!warnings.length && !bodyRefs.some(r => commitRefs.includes(r))) {
     const comment = this.templates.get("fixCommitMessage")
       .replace(new RegExp("{author}", "g"), author);
     return this.issues.createComment({
@@ -22,12 +32,10 @@ exports.run = async function(pull, repo, opened) {
     });
   }
 
-  if (!opened) return;
+  if (!opened || !this.cfg.pulls.references.labels) return;
 
   commitRefs.forEach(issue => {
-    if (this.cfg.pulls.references.labels) {
-      labelReference.apply(this, [issue, number, repo]);
-    }
+    labelReference.apply(this, [issue, number, repo]);
   });
 };
 
