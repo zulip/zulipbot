@@ -126,9 +126,9 @@ async function scrapeInactiveIssues(references, issues) {
 
     if (time + ms >= Date.now() || !active) continue;
 
-    const aString = issue.assignees.map(assignee => assignee.login).join(", @");
+    const logins = issue.assignees.map(assignee => assignee.login);
 
-    if (!aString) {
+    if (!issue.assignees.length) {
       const comment = "**ERROR:** This active issue has no assignee.";
       return this.issues.createComment({
         owner: repoOwner, repo: repoName, number: number, body: comment
@@ -136,7 +136,7 @@ async function scrapeInactiveIssues(references, issues) {
     }
 
     const c = this.templates.get("inactiveWarning")
-      .replace(new RegExp("{assignee}", "g"), aString)
+      .replace(new RegExp("{assignee}", "g"), logins.join(", @"))
       .replace(new RegExp("{remind}", "g"), this.cfg.activity.check.reminder)
       .replace(new RegExp("{abandon}", "g"), this.cfg.activity.check.limit)
       .replace(new RegExp("{username}", "g"), this.cfg.auth.username);
@@ -151,23 +151,19 @@ async function scrapeInactiveIssues(references, issues) {
     const fromClient = com ? com.user.login === this.cfg.auth.username : null;
 
     if (warning && fromClient) {
-      const assignees = JSON.stringify({
-        assignees: aString.split(", @")
-      });
-
       this.issues.removeAssigneesFromIssue({
-        owner: repoOwner, repo: repoName, number: number, body: assignees
+        owner: repoOwner, repo: repoName, number: number, assignees: logins
       });
 
       const warning = this.templates.get("abandonWarning")
-        .replace(new RegExp("{assignee}", "g"), aString)
+        .replace(new RegExp("{assignee}", "g"), logins.join(", @"))
         .replace(new RegExp("{total}", "g"), (ms + ims) / 86400000)
         .replace(new RegExp("{username}", "g"), this.cfg.auth.username);
 
       this.issues.editComment({
         owner: repoOwner, repo: repoName, id: com.id, body: warning
       });
-    } else if (!(warning && fromClient) && time + ims <= Date.now()) {
+    } else if (time + ims <= Date.now()) {
       this.issues.createComment({
         owner: repoOwner, repo: repoName, number: number, body: c
       });
