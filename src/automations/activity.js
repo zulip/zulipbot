@@ -4,10 +4,9 @@ exports.run = async function() {
   const pages = repos.map(async repo => {
     const repoOwner = repo.split("/")[0];
     const repoName = repo.split("/")[1];
-    const firstPage = await this.pullRequests.getAll({
-      owner: repoOwner, repo: repoName, per_page: 100
+    return this.util.getAllPages("pullRequests.getAll", {
+      owner: repoOwner, repo: repoName
     });
-    return this.util.getAll(firstPage);
   });
 
   const array = await Promise.all(pages);
@@ -67,11 +66,9 @@ async function scrapePulls(pulls) {
     }
   }
 
-  const firstPage = await this.issues.getAll({
-    filter: "all", per_page: 100,
-    labels: this.cfg.activity.issues.inProgress
+  const issues = await this.util.getAllPages("issues.getAll", {
+    filter: "all", labels: this.cfg.activity.issues.inProgress
   });
-  const issues = await this.util.getAll(firstPage);
 
   await scrapeInactiveIssues.apply(this, [references, issues]);
 }

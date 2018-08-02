@@ -2,10 +2,9 @@ exports.run = async function(repo) {
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
 
-  const firstPage = await this.pullRequests.getAll({
-    owner: repoOwner, repo: repoName, per_page: 100
+  const pulls = await this.util.getAllPages("pullRequests.getAll", {
+    owner: repoOwner, repo: repoName
   });
-  const pulls = await this.util.getAll(firstPage);
   const iterator = pulls[Symbol.iterator]();
 
   for (let pull of iterator) {

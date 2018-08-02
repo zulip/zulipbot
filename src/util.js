@@ -1,17 +1,24 @@
 /**
  * Retrieves all pages of data from a node-github method.
- * @param {Object} page First page of data from the method.
+ * @param {String} path Path of the method in the format "api.method".
+ * @param {Object} parameters Parameters to pass to the method.
  * @return {Array} Array of all data entries.
  */
 
-exports.getAll = async function(page) {
-  let response = page;
+exports.getAllPages = async function(path, parameters) {
+  const api = path.split(".")[0];
+  const method = path.split(".")[1];
+  parameters.per_page = 100;
+
+  let response = await this[api][method](parameters);
   let responses = response.data;
+
   while (this.hasNextPage(response)) {
     response = await this.getNextPage(response);
     responses = responses.concat(response.data);
   }
-  return new Promise(resolve => resolve(responses));
+
+  return responses;
 };
 
 /* eslint-disable array-element-newline */
