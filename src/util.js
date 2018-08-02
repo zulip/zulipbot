@@ -42,12 +42,13 @@ const keywords = [
  * not necessarily when commits are merged.
  *
  * @param {Array} strings First page of data from the method.
- * @param {String} repoOwner Owner of the repository to search references for.
- * @param {String} repoName Name of the repository to search references for.
+ * @param {Object} repo Repository to search issues for.
  * @return {Array} Sorted array of all referenced issues.
  */
 
-exports.getReferences = async function(strings, repoOwner, repoName) {
+exports.getReferences = async function(strings, repo) {
+  const repoName = repo.name;
+  const repoOwner = repo.owner.login;
   let matches = [];
   strings.forEach(string => {
     const wordMatches = keywords.map(tense => {
@@ -73,7 +74,7 @@ exports.getReferences = async function(strings, repoOwner, repoName) {
   const filteredMatches = matchStatuses.filter(e => e);
   // sort and remove duplicate references
   const references = this.util.deduplicate(filteredMatches);
-  return new Promise(resolve => resolve(references));
+  return references;
 };
 
 /**

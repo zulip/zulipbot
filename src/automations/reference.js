@@ -10,8 +10,8 @@ exports.run = async function(pull, repo, opened) {
   });
 
   const msgs = commits.data.map(c => c.commit.message);
-  const commitRefs = await this.util.getReferences(msgs, repoOwner, repoName);
-  const bodyRefs = await this.util.getReferences([body], repoOwner, repoName);
+  const commitRefs = await this.util.getReferences(msgs, repo);
+  const bodyRefs = await this.util.getReferences([body], repo);
 
   const comments = await this.issues.getComments({
     owner: repoOwner, repo: repoName, number: number, per_page: 100

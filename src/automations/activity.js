@@ -53,8 +53,8 @@ async function scrapePulls(pulls) {
       owner: repoOwner, repo: repoName, number: number
     });
     const msgs = commits.data.map(c => c.commit.message);
-    const commitRefs = await this.util.getReferences(msgs, repoOwner, repoName);
-    const bodyRef = await this.util.getReferences([body], repoOwner, repoName);
+    const commitRefs = await this.util.getReferences(msgs, pull.base.repo);
+    const bodyRef = await this.util.getReferences([body], pull.base.repo);
 
     if (bodyRef.length || commitRefs.length) {
       const refs = commitRefs.concat(bodyRef);
