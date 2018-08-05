@@ -25,7 +25,7 @@ app.post("/github", jsonParser, async(req, res) => {
   const signature = Buffer.from(req.get("X-Hub-Signature"));
 
   // compare buffer length first to prevent timingSafeEqual() errors
-  const equalLength = hash.length !== signature.length;
+  const equalLength = hash.length === signature.length;
   const equal = equalLength ? crypto.timingSafeEqual(hash, signature) : false;
   if (!equal) {
     return res.status(401).send("Signature doesn't match computed hash");
