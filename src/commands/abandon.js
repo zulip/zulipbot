@@ -11,7 +11,7 @@ exports.run = function(payload, commenter) {
     });
   }
 
-  this.issues.removeAssigneesFromIssue({
+  return this.issues.removeAssigneesFromIssue({
     owner: repoOwner, repo: repoName, number: number, assignees: [commenter]
   });
 };
