@@ -61,11 +61,11 @@ async function size(sizeLabels, labels, number, repo) {
   const repoOwner = repo.owner.login;
   let pullLabels = labels.filter(label => !sizeLabels.has(label));
 
-  const files = await this.pullRequests.getFiles({
-    owner: repoOwner, repo: repoName, number: number, per_page: 100
+  const files = await this.util.getAllPages("pullRequests.getFiles", {
+    owner: repoOwner, repo: repoName, number: number
   });
 
-  const changes = files.data.filter(file => {
+  const changes = files.filter(file => {
     return !this.cfg.pulls.status.size.exclude.includes(file.filename);
   }).reduce((sum, file) => sum + file.changes, 0);
 

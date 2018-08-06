@@ -38,10 +38,10 @@ async function check(number, repoName, repoOwner) {
 
   // Use a strict false check; unknown merge conflict statuses return undefined
   if (mergeable === false) {
-    const commits = await this.pullRequests.getCommits({
-      owner: repoOwner, repo: repoName, number: number, per_page: 100
+    const commits = await this.util.getAllPages("pullRequests.getCommits", {
+      owner: repoOwner, repo: repoName, number: number
     });
-    const lastCommitTime = commits.data.slice(-1).pop().commit.committer.date;
+    const lastCommitTime = commits.slice(-1).pop().commit.committer.date;
 
     const labelComment = warnings.find(c => {
       return Date.parse(lastCommitTime) < Date.parse(c.created_at);
