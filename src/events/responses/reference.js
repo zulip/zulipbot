@@ -18,7 +18,7 @@ exports.run = async function(pull, repo, opened) {
     number: number, owner: repoOwner, repo: repoName
   });
 
-  if (!comments.length && !bodyRefs.some(r => commitRefs.includes(r))) {
+  if (!comments.length && !bodyRefs.every(r => commitRefs.includes(r))) {
     const comment = template.format({author});
     return this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: comment
