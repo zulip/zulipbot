@@ -80,7 +80,10 @@ exports.issues = {
 
 exports.pulls = {
   status: {
-    mergeConflicts: true,
+    mergeConflicts: {
+      label: "has conflicts",
+      comment: true
+    },
     wip: "[WIP]",
     size: {
       labels: new Map([

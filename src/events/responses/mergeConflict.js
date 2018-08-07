@@ -23,7 +23,7 @@ async function check(number, repo) {
   const mergeable = pull.data.mergeable;
 
   const template = this.templates.get("mergeConflictWarning");
-  const comment = template.format({
+  const warning = template.format({
     username: pull.data.user.login, repoOwner: repoOwner, repoName: repoName
   });
 
@@ -31,14 +31,14 @@ async function check(number, repo) {
     owner: repoOwner, repo: repoName, number: number
   });
 
-  // Use a strict false check; unknown merge conflict statuses return undefined
+  // Use a strict false check; unknown merge conflict statuses return null
   if (mergeable === false) {
     const commits = await this.util.getAllPages("pullRequests.getCommits", {
       owner: repoOwner, repo: repoName, number: number
     });
     const lastCommitTime = commits.slice(-1).pop().commit.committer.date;
 
-    const labelComment = warnings.find(c => {
+    const warnComment = warnings.find(c => {
       return Date.parse(lastCommitTime) < Date.parse(c.created_at);
     });
 
@@ -49,9 +49,19 @@ async function check(number, repo) {
       return l.name === this.cfg.activity.inactive;
     });
 
-    if (!labelComment && !inactive) {
+    if (inactive) return;
+
+    const {label, comment} = this.cfg.pulls.status.mergeConflicts;
+
+    if (!warnComment && comment) {
       this.issues.createComment({
-        owner: repoOwner, repo: repoName, number: number, body: comment
+        owner: repoOwner, repo: repoName, number: number, body: warning
+      });
+    }
+
+    if (label) {
+      await this.issues.addLabels({
+        owner: repoOwner, repo: repoName, number: number, labels: [label]
       });
     }
   }
