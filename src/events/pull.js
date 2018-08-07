@@ -13,7 +13,7 @@ exports.run = async function(payload) {
 
   if (action === "submitted" && assignee) {
     this.responses.get("pullState").assign(payload);
-  } else if (action === "labeled" && this.cfg.issues.area.labels) {
+  } else if (["labeled", "unlabeled"].includes(action)) {
     const l = payload.label;
     const issue = await this.issues.get({
       owner: repo.owner.login, repo: repo.name, number: pull.number
