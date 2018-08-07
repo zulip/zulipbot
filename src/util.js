@@ -87,3 +87,24 @@ exports.getReferences = async function(strings, repo) {
 exports.deduplicate = function(array) {
   return Array.from(new Set(array)).sort();
 };
+
+/**
+ * Finds comments generated from templates on a issue/pull request.
+ *
+ * @param {string} identifier String identifying a template comment.
+ * @param {Object} parameters Parameters specifying the issue/PR to search.
+ * @return {Array} Sorted array containing only unique entries.
+ */
+
+exports.getTemplates = async function(identifier, parameters) {
+  const comments = await exports.getAllPages("issues.getComments", parameters);
+
+  const templateComments = comments.filter(comment => {
+    // Use end of template comments to check if comment is from template
+    const matched = comment.body.endsWith(`<!-- ${identifier} -->`);
+    const fromClient = comment.user.login === this.cfg.auth.username;
+    return matched && fromClient;
+  });
+
+  return templateComments;
+};

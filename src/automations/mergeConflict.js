@@ -8,11 +8,14 @@ exports.run = async function(repo) {
   const iterator = pulls[Symbol.iterator]();
 
   for (let pull of iterator) {
-    await check.apply(this, [pull.number, repoName, repoOwner]);
+    await check.apply(this, [pull.number, repo]);
   }
 };
 
-async function check(number, repoName, repoOwner) {
+async function check(number, repo) {
+  const repoName = repo.name;
+  const repoOwner = repo.owner.login;
+
   const pull = await this.pullRequests.get({
     owner: repoOwner, repo: repoName, number: number
   });
@@ -25,15 +28,8 @@ async function check(number, repoName, repoOwner) {
     .replace(new RegExp("{repoOwner}", "g"), repoOwner)
     .replace(new RegExp("{repoName}", "g"), repoName);
 
-  const comments = await this.issues.getComments({
-    owner: repoOwner, repo: repoName, number: number, per_page: 100
-  });
-
-  const warnings = comments.data.filter(com => {
-    // Use end of line comments to check if comment is from template
-    const warn = com.body.endsWith("<!-- mergeConflictWarning -->");
-    const fromClient = com.user.login === this.cfg.auth.username;
-    return warn && fromClient;
+  const warnings = await this.util.getTemplates("mergeConflictWarning", {
+    owner: repoOwner, repo: repoName, number: number
   });
 
   // Use a strict false check; unknown merge conflict statuses return undefined

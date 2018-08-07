@@ -83,16 +83,11 @@ async function checkInactivePull(pull) {
     .replace(new RegExp("{author}", "g"), author)
     .replace(new RegExp("{days}", "g"), this.cfg.activity.check.reminder);
 
-  const comments = await this.issues.getComments({
-    owner: repoOwner, repo: repoName, number: number, per_page: 100
+  const comments = await this.util.getTemplates("updateWarning", {
+    owner: repoOwner, repo: repoName, number: number
   });
-  const com = comments.data.slice(-1).pop();
 
-  // Use end of line comments to check if comment is from template
-  const lastComment = com && com.body.endsWith("<!-- updateWarning -->");
-  const fromClient = com && com.user.login === this.cfg.auth.username;
-
-  if (!lastComment || !fromClient) {
+  if (!comments.length) {
     this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: comment
     });
@@ -138,16 +133,11 @@ async function scrapeInactiveIssues(references, issues) {
       .replace(new RegExp("{abandon}", "g"), this.cfg.activity.check.limit)
       .replace(new RegExp("{username}", "g"), this.cfg.auth.username);
 
-    const issueComments = await this.issues.getComments({
-      owner: repoOwner, repo: repoName, number: number, per_page: 100
+    const comments = await this.util.getTemplates("inactiveWarning", {
+      owner: repoOwner, repo: repoName, number: number
     });
-    const com = issueComments.data.slice(-1).pop();
 
-    // Use end of line comments to check if comment is from template
-    const warning = com ? com.body.endsWith("<!-- inactiveWarning -->") : null;
-    const fromClient = com ? com.user.login === this.cfg.auth.username : null;
-
-    if (warning && fromClient) {
+    if (comments.length) {
       this.issues.removeAssigneesFromIssue({
         owner: repoOwner, repo: repoName, number: number, assignees: logins
       });
@@ -158,7 +148,7 @@ async function scrapeInactiveIssues(references, issues) {
         .replace(new RegExp("{username}", "g"), this.cfg.auth.username);
 
       this.issues.editComment({
-        owner: repoOwner, repo: repoName, id: com.id, body: warning
+        owner: repoOwner, repo: repoName, id: comments[0].id, body: warning
       });
     } else if (time + ims <= Date.now()) {
       this.issues.createComment({

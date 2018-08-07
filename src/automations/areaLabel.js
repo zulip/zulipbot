@@ -28,26 +28,20 @@ exports.run = async function(issue, repo, label) {
     .replace(new RegExp("{refs}", "g"), `"${references}"`)
     .replace(new RegExp("{labels}", "g"), labelSize);
 
-  const issueComments = await this.issues.getComments({
-    owner: repoOwner, repo: repoName, number: number, per_page: 100
-  });
-  const labelComment = issueComments.data.find(com => {
-    // Use end of line comments to check if comment is from template
-    const comment = com.body.endsWith("<!-- areaLabelNotification -->");
-    const fromClient = com.user.login === this.cfg.auth.username;
-    return comment && fromClient;
+  const comments = await this.util.getTemplates("areaLabelNotification", {
+    owner: repoOwner, repo: repoName, number: number
   });
 
   const tag = `${repoOwner}/${repoName}#${number}`;
 
-  if (labelComment) {
+  if (comments.length) {
     if (issueAreaLabels.length) {
       this.issues.editComment({
-        owner: repoOwner, repo: repoName, id: labelComment.id, body: comment
+        owner: repoOwner, repo: repoName, id: comments[0].id, body: comment
       });
     } else {
       this.issues.deleteComment({
-        owner: repoOwner, repo: repoName, id: labelComment.id
+        owner: repoOwner, repo: repoName, id: comments[0].id
       });
     }
   } else if (!referenced.includes(tag) && issueAreaLabels.length) {

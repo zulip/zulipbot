@@ -13,18 +13,11 @@ exports.run = async function(pull, repo, opened) {
   const commitRefs = await this.util.getReferences(msgs, repo);
   const bodyRefs = await this.util.getReferences([body], repo);
 
-  const comments = await this.issues.getComments({
-    owner: repoOwner, repo: repoName, number: number, per_page: 100
+  const comments = await this.util.getTemplates("fixCommitMessage", {
+    number: number, owner: repoOwner, repo: repoName
   });
 
-  const warnings = comments.data.filter(com => {
-    // Use end of line comments to check if comment is from template
-    const warn = com.body.endsWith("<!-- fixCommitMessage -->");
-    const fromClient = com.user.login === this.cfg.auth.username;
-    return warn && fromClient;
-  });
-
-  if (!warnings.length && !bodyRefs.some(r => commitRefs.includes(r))) {
+  if (!comments.length && !bodyRefs.some(r => commitRefs.includes(r))) {
     const comment = this.templates.get("fixCommitMessage")
       .replace(new RegExp("{author}", "g"), author);
     return this.issues.createComment({
