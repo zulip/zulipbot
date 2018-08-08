@@ -1,3 +1,5 @@
+const Search = require(`${__dirname}/../../structures/ReferenceSearch.js`);
+
 exports.run = async function() {
   // Create array with PRs from all active repositories
   const repos = this.cfg.activity.check.repositories;
@@ -25,7 +27,6 @@ async function scrapePulls(pulls) {
 
   for (const pull of iterator) {
     let time = Date.parse(pull.updated_at);
-    const body = pull.body;
     const number = pull.number;
     const repoName = pull.base.repo.name;
     const repoOwner = pull.base.repo.owner.login;
@@ -48,15 +49,12 @@ async function scrapePulls(pulls) {
       checkInactivePull.call(this, pull);
     }
 
-    const commits = await this.pullRequests.getCommits({
-      owner: repoOwner, repo: repoName, number: number
-    });
-    const msgs = commits.data.map(c => c.commit.message);
-    const commitRefs = await this.util.getReferences(msgs, pull.base.repo);
-    const bodyRef = await this.util.getReferences([body], pull.base.repo);
+    const references = new Search(this, pull, pull.base.repo);
+    const bodyRefs = await references.getBody();
+    const commitRefs = await references.getCommits();
 
-    if (bodyRef.length || commitRefs.length) {
-      const refs = commitRefs.concat(bodyRef);
+    if (bodyRefs.length || commitRefs.length) {
+      const refs = commitRefs.concat(bodyRefs);
       refs.forEach(ref => {
         const ignore = this.cfg.activity.pulls.needsReview.ignore;
         if (needsReview && ignore) time = Date.now();

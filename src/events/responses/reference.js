@@ -1,24 +1,23 @@
+const Search = require(`${__dirname}/../../structures/ReferenceSearch.js`);
+
 exports.run = async function(pull, repo, opened) {
-  const body = pull.body;
   const author = pull.user.login;
   const number = pull.number;
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
 
-  const commits = await this.pullRequests.getCommits({
-    owner: repoOwner, repo: repoName, number: number
-  });
+  const references = new Search(this, pull, repo);
+  const bodyRefs = await references.getBody();
+  const commitRefs = await references.getCommits();
 
-  const msgs = commits.data.map(c => c.commit.message);
-  const commitRefs = await this.util.getReferences(msgs, repo);
-  const bodyRefs = await this.util.getReferences([body], repo);
+  const missingRefs = !bodyRefs.every(r => commitRefs.includes(r));
 
   const template = this.templates.get("fixCommitWarning");
   const comments = await template.getComments({
     number: number, owner: repoOwner, repo: repoName
   });
 
-  if (!comments.length && !bodyRefs.every(r => commitRefs.includes(r))) {
+  if (!comments.length && missingRefs) {
     const comment = template.format({author});
     return this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: comment
