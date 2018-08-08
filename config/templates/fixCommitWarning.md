@@ -15,4 +15,4 @@ Date:   Sat Mar 18 13:42:40 2017 -0700
 
 Thank you for your contributions to Zulip!
 
-<!-- fixCommitMessage -->
+<!-- fixCommitWarning -->

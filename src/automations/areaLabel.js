@@ -22,13 +22,13 @@ exports.run = async function(issue, repo, label) {
   const payload = issue.pull_request ? "pull request" : "issue";
   const labelSize = labelTeams.length === 1 ? "label" : "labels";
 
-  const comment = this.templates.get("areaLabelNotification")
+  const comment = this.templates.get("areaLabelAdded")
     .replace(new RegExp("{teams}", "g"), areaTeams)
     .replace(new RegExp("{payload}", "g"), payload)
     .replace(new RegExp("{refs}", "g"), `"${references}"`)
     .replace(new RegExp("{labels}", "g"), labelSize);
 
-  const comments = await this.util.getTemplates("areaLabelNotification", {
+  const comments = await this.util.getTemplates("areaLabelAdded", {
     owner: repoOwner, repo: repoName, number: number
   });
 

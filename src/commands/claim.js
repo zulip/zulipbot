@@ -96,7 +96,7 @@ async function invite(payload, commenter, args) {
     });
   }
 
-  const comment = this.templates.get("newContributor")
+  const comment = this.templates.get("contributorAdded")
     .replace(new RegExp("{commenter}", "g"), commenter)
     .replace(new RegExp("{repoName}", "g"), repoName)
     .replace(new RegExp("{repoOwner}", "g"), repoOwner);
