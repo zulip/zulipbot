@@ -10,15 +10,19 @@ exports.run = async function(pull, repo, opened) {
   const bodyRefs = await references.getBody();
   const commitRefs = await references.getCommits();
 
-  const missingRefs = !bodyRefs.every(r => commitRefs.includes(r));
+  const missingRefs = bodyRefs.filter(r => !commitRefs.includes(r));
 
   const template = this.templates.get("fixCommitWarning");
   const comments = await template.getComments({
     number: number, owner: repoOwner, repo: repoName
   });
 
-  if (!comments.length && missingRefs) {
-    const comment = template.format({author});
+  if (!comments.length && missingRefs.length) {
+    const comment = template.format({
+      author: author, issues: missingRefs.join(", #"),
+      fixIssues: missingRefs.join(", fixes #"),
+      issuePronoun: missingRefs.length ? "them" : "it"
+    });
     return this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: comment
     });
