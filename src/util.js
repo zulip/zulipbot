@@ -1,4 +1,33 @@
 /**
+ * Sorts and removes duplicate elements from a given array.
+ *
+ * @param {Array} array Array to remove duplicates from.
+ * @return {Array} Sorted array containing only unique entries.
+ */
+
+exports.deduplicate = function(array) {
+  return Array.from(new Set(array)).sort();
+};
+
+/**
+ * Formats a template with given values from a given context.
+ *
+ * @param {String} name Name of the template to format.
+ * @param {Object} context Context with names and values of variables to format
+ * @return {String} String containing the formatted template.
+ */
+
+exports.formatTemplate = function(name, context) {
+  let template = this.templates.get(name);
+  for (let variable of Object.entries(context)) {
+    const expressions = new RegExp(`{${variable[0]}}`, "g");
+    const value = variable[1];
+    template = template.replace(expressions, value);
+  }
+  return template;
+};
+
+/**
  * Retrieves all pages of data from a node-github method.
  * @param {String} path Path of the method in the format "api.method".
  * @param {Object} parameters Parameters to pass to the method.
@@ -75,17 +104,6 @@ exports.getReferences = async function(strings, repo) {
   // sort and remove duplicate references
   const references = this.util.deduplicate(filteredMatches);
   return references;
-};
-
-/**
- * Sorts and removes duplicate elements from a given array.
- *
- * @param {Array} array Array to remove duplicates from.
- * @return {Array} Sorted array containing only unique entries.
- */
-
-exports.deduplicate = function(array) {
-  return Array.from(new Set(array)).sort();
 };
 
 /**

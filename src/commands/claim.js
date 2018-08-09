@@ -12,11 +12,9 @@ exports.run = async function(payload, commenter, args) {
   }
 
   if (payload.issue.assignees.length >= limit) {
-    const comment = this.templates.get("multipleClaimWarning")
-      .replace(new RegExp("{commenter}", "g"), commenter);
-
+    const warn = this.util.formatTemplate("multipleClaimWarning", {commenter});
     return this.issues.createComment({
-      owner: repoOwner, repo: repoName, number: number, body: comment
+      owner: repoOwner, repo: repoName, number: number, body: warn
     });
   }
 
@@ -54,10 +52,9 @@ async function invite(payload, commenter, args) {
   const inviteKey = `${commenter}@${repoOwner}/${repoName}`;
 
   if (this.invites.get(inviteKey)) {
-    const error = this.templates.get("inviteError")
-      .replace(new RegExp("{commenter}", "g"), commenter)
-      .replace(new RegExp("{repoName}", "g"), repoName)
-      .replace(new RegExp("{repoOwner}", "g"), repoOwner);
+    const error = this.util.formatTemplate("inviteError", {
+      commenter: commenter, repoName: repoName, repoOwner: repoOwner
+    });
 
     return this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: error
@@ -73,14 +70,15 @@ async function invite(payload, commenter, args) {
   if (alert && (!warn.force || (warn.force && !args.includes("--force")))) {
     const one = warn.labels.length === 1;
     const type = warn.force ? "claimWarning" : "claimBlocked";
-    const comment = this.templates.get(type)
-      .replace(new RegExp("{username}", "g"), this.cfg.auth.username)
-      .replace(new RegExp("{commenter}", "g"), commenter)
-      .replace(new RegExp("{state}", "g"), warn.presence ? "with" : "without")
-      .replace(new RegExp("{labelGrammar}", "g"), `label${one ? "" : "s"}`)
-      .replace(new RegExp("{repoName}", "g"), repoName)
-      .replace(new RegExp("{repoOwner}", "g"), repoOwner)
-      .replace(new RegExp("{list}", "g"), `"${warn.labels.join("\", \"")}"`);
+    const comment = this.util.formatTemplate(type, {
+      username: this.cfg.auth.username,
+      state: warn.presence ? "with" : "without",
+      labelGrammar: `label${one ? "" : "s"}`,
+      list: `"${warn.labels.join("\", \"")}"`,
+      commenter: commenter,
+      repoName: repoName,
+      repoOwner: repoOwner
+    });
 
     return this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: comment
@@ -96,10 +94,9 @@ async function invite(payload, commenter, args) {
     });
   }
 
-  const comment = this.templates.get("contributorAdded")
-    .replace(new RegExp("{commenter}", "g"), commenter)
-    .replace(new RegExp("{repoName}", "g"), repoName)
-    .replace(new RegExp("{repoOwner}", "g"), repoOwner);
+  const comment = this.util.formatTemplate("contibutorAdded", {
+    commenter: commenter, repoName: repoName, repoOwner: repoOwner
+  });
 
   this.issues.createComment({
     owner: repoOwner, repo: repoName, number: number, body: comment
@@ -123,10 +120,11 @@ async function validate(commenter, number, repoOwner, repoName) {
   });
 
   if (assigned.length >= limit) {
-    const comment = this.templates.get("claimRestricted")
-      .replace(new RegExp("{commenter}", "g"), commenter)
-      .replace(new RegExp("{limit}", "g"), limit)
-      .replace(new RegExp("{issue}", "g"), `issue${limit === 1 ? "" : "s"}`);
+    const comment = this.util.formatTemplate("claimRestricted", {
+      issue: `issue${limit === 1 ? "" : "s"}`,
+      limit: limit,
+      commenter: commenter
+    });
 
     return this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: comment

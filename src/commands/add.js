@@ -31,13 +31,14 @@ exports.run = async function(payload, commenter, args) {
 
   if (rejected.length) {
     const one = rejected.length === 1;
-    const error = this.templates.get("labelError")
-      .replace(new RegExp("{labels}", "g"), `Label${one ? "" : "s"}`)
-      .replace(new RegExp("{labelList}", "g"), `"${rejected.join("\", \"")}"`)
-      .replace(new RegExp("{exist}", "g"), `do${one ? "es" : ""} not exist`)
-      .replace(new RegExp("{type}", "g"), type)
-      .replace(new RegExp("{beState}", "g"), `w${one ? "as" : "ere"}`)
-      .replace(new RegExp("{action}", "g"), "added to");
+    const error = this.util.formatTemplate("labelError", {
+      labels: `Label${one ? "" : "s"}`,
+      labelList: `"${rejected.join("\", \"")}"`,
+      exist: `do${one ? "es" : ""} not exist`,
+      type: type,
+      beState: `w${one ? "as" : "ere"}`,
+      action: "added to"
+    });
 
     this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: error
@@ -47,13 +48,14 @@ exports.run = async function(payload, commenter, args) {
   if (alreadyAdded.length) {
     const one = alreadyAdded.length === 1;
     const labels = alreadyAdded.join("\", \"");
-    const error = this.templates.get("labelError")
-      .replace(new RegExp("{labels}", "g"), `Label${one ? "" : "s"}`)
-      .replace(new RegExp("{labelList}", "g"), `"${labels}"`)
-      .replace(new RegExp("{exist}", "g"), `already exist${one ? "s" : ""}`)
-      .replace(new RegExp("{type}", "g"), type)
-      .replace(new RegExp("{beState}", "g"), `w${one ? "as" : "ere"}`)
-      .replace(new RegExp("{action}", "g"), "added to");
+    const error = this.util.formatTemplate("labelError", {
+      labels: `Label${one ? "" : "s"}`,
+      labelList: `"${labels}"`,
+      exist: `already exist${one ? "s" : ""}`,
+      beState: `w${one ? "as" : "ere"}`,
+      action: "added to",
+      type: type
+    });
 
     this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: error

@@ -79,9 +79,9 @@ async function checkInactivePull(pull) {
   const repoOwner = pull.base.repo.owner.login;
   const number = pull.number;
 
-  const comment = this.templates.get("updateWarning")
-    .replace(new RegExp("{author}", "g"), author)
-    .replace(new RegExp("{days}", "g"), this.cfg.activity.check.reminder);
+  const comment = this.util.formatTemplate("updateWarning", {
+    author: author, days: this.cfg.activity.check.reminder
+  });
 
   const comments = await this.util.getTemplates("updateWarning", {
     owner: repoOwner, repo: repoName, number: number
@@ -127,11 +127,12 @@ async function scrapeInactiveIssues(references, issues) {
       });
     }
 
-    const c = this.templates.get("inactiveWarning")
-      .replace(new RegExp("{assignee}", "g"), logins.join(", @"))
-      .replace(new RegExp("{remind}", "g"), this.cfg.activity.check.reminder)
-      .replace(new RegExp("{abandon}", "g"), this.cfg.activity.check.limit)
-      .replace(new RegExp("{username}", "g"), this.cfg.auth.username);
+    const c = this.util.formatTemplate("inactiveWarning", {
+      assignee: logins.join(", @"),
+      remind: this.cfg.activity.check.reminder,
+      abandon: this.cfg.activity.check.limit,
+      username: this.cfg.auth.username
+    });
 
     const comments = await this.util.getTemplates("inactiveWarning", {
       owner: repoOwner, repo: repoName, number: number
@@ -142,10 +143,11 @@ async function scrapeInactiveIssues(references, issues) {
         owner: repoOwner, repo: repoName, number: number, assignees: logins
       });
 
-      const warning = this.templates.get("abandonWarning")
-        .replace(new RegExp("{assignee}", "g"), logins.join(", @"))
-        .replace(new RegExp("{total}", "g"), (ms + ims) / 86400000)
-        .replace(new RegExp("{username}", "g"), this.cfg.auth.username);
+      const warning = this.util.formatTemplate("abandonWarning", {
+        assignee: logins.join(", @"),
+        total: (ms + ims) / 86400000,
+        username: this.cfg.auth.username
+      });
 
       this.issues.editComment({
         owner: repoOwner, repo: repoName, id: comments[0].id, body: warning

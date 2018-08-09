@@ -16,16 +16,15 @@ exports.run = async function(payload) {
   if (!labelCheck) return;
 
   const state = payload.state;
-  const buildURL = payload.build_url;
+  const url = payload.build_url;
   let comment = "(unknown state)";
 
   if (state === "passed") {
-    comment = this.templates.get("travisPassed")
-      .replace(new RegExp("{url}", "g"), buildURL);
+    comment = this.util.formatTemplate("travisPassed", {url});
   } else if (state === "failed" || state === "errored") {
-    comment = this.templates.get("travisFailed")
-      .replace(new RegExp("{state}", "g"), state)
-      .replace(new RegExp("{build logs}", "g"), buildURL || "build logs");
+    comment = this.util.formatTemplate("travisFailed", {
+      state: state, buildLogs: url || "build logs"
+    });
   }
 
   this.issues.createComment({

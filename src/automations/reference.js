@@ -18,8 +18,7 @@ exports.run = async function(pull, repo, opened) {
   });
 
   if (!comments.length && !bodyRefs.some(r => commitRefs.includes(r))) {
-    const comment = this.templates.get("fixCommitWarning")
-      .replace(new RegExp("{author}", "g"), author);
+    const comment = this.util.formatTemplate("fixCommitWarning", {author});
     return this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: comment
     });

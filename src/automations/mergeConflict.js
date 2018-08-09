@@ -21,12 +21,10 @@ async function check(number, repo) {
   });
 
   const mergeable = pull.data.mergeable;
-  const author = pull.data.user.login;
 
-  const comment = this.templates.get("mergeConflictWarning")
-    .replace(new RegExp("{username}", "g"), author)
-    .replace(new RegExp("{repoOwner}", "g"), repoOwner)
-    .replace(new RegExp("{repoName}", "g"), repoName);
+  const comment = this.util.formatTemplate("mergeConflictWarning", {
+    username: pull.data.user.login, repoOwner: repoOwner, repoName: repoName
+  });
 
   const warnings = await this.util.getTemplates("mergeConflictWarning", {
     owner: repoOwner, repo: repoName, number: number

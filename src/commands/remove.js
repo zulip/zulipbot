@@ -22,13 +22,15 @@ exports.run = async function(payload, commenter, args) {
 
   const one = rejected.length === 1;
   const type = payload.issue.pull_request ? "pull request" : "issue";
-  const error = this.templates.get("labelError")
-    .replace(new RegExp("{labels}", "g"), `Label${one ? "" : "s"}`)
-    .replace(new RegExp("{labelList}", "g"), `"${rejected.join("\", \"")}"`)
-    .replace(new RegExp("{exist}", "g"), `do${one ? "es" : ""} not exist`)
-    .replace(new RegExp("{type}", "g"), type)
-    .replace(new RegExp("{beState}", "g"), `w${one ? "as" : "ere"}`)
-    .replace(new RegExp("{action}", "g"), "removed from");
+
+  const error = this.util.formatTemplate("labelError", {
+    labels: `Label${one ? "" : "s"}`,
+    labelList: `"${rejected.join("\", \"")}"`,
+    exist: `do${one ? "es" : ""} not exist`,
+    type: type,
+    beState: `w${one ? "as" : "ere"}`,
+    action: "removed from"
+  });
 
   this.issues.createComment({
     owner: repoOwner, repo: repoName, number: number, body: error

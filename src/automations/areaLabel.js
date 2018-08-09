@@ -22,11 +22,12 @@ exports.run = async function(issue, repo, label) {
   const payload = issue.pull_request ? "pull request" : "issue";
   const labelSize = labelTeams.length === 1 ? "label" : "labels";
 
-  const comment = this.templates.get("areaLabelAdded")
-    .replace(new RegExp("{teams}", "g"), areaTeams)
-    .replace(new RegExp("{payload}", "g"), payload)
-    .replace(new RegExp("{refs}", "g"), `"${references}"`)
-    .replace(new RegExp("{labels}", "g"), labelSize);
+  const comment = this.util.formatTemplate("areaLabelAdded", {
+    teams: areaTeams,
+    refs: `"${references}"`,
+    labels: labelSize,
+    payload: payload
+  });
 
   const comments = await this.util.getTemplates("areaLabelAdded", {
     owner: repoOwner, repo: repoName, number: number
