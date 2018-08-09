@@ -54,12 +54,6 @@ async function check(number, repo) {
         owner: repoOwner, repo: repoName, number: number, body: comment
       });
     }
-  } else if (mergeable && warnings.length) {
-    warnings.forEach(c => {
-      this.issues.deleteComment({
-        owner: repoOwner, repo: repoName, comment_id: c.id
-      });
-    });
   }
 
   return new Promise(resolve => resolve());

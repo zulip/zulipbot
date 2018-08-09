@@ -1,4 +1,5 @@
 const _ = require("lodash");
+const Search = require(`${__dirname}/../../structures/ReferenceSearch.js`);
 
 exports.label = async function(payload) {
   const repoName = payload.repository.name;
@@ -93,4 +94,40 @@ exports.assign = function(payload) {
   this.issues.addAssigneesToIssue({
     owner: repoOwner, repo: repoName, number: number, assignees: [reviewer]
   });
+};
+
+exports.update = async function(pull, repo) {
+  const number = pull.number;
+  const repoName = repo.name;
+  const repoOwner = repo.owner.login;
+
+  const warnings = new Map([
+    ["mergeConflictWarning", pull => {
+      return new Promise(resolve => resolve(pull.mergeable));
+    }],
+    ["fixCommitWarning", async(pull, repo) => {
+      const references = new Search(this, pull, repo);
+      const bodyRefs = await references.getBody();
+      const commitRefs = await references.getCommits();
+      return bodyRefs.every(r => commitRefs.includes(r));
+    }]
+  ]);
+
+  for (const [name, check] of warnings) {
+    const template = this.templates.get(name);
+    const deletable = await check(pull, repo);
+    if (!deletable) continue;
+
+    const comments = await template.getComments({
+      number: number, owner: repoOwner, repo: repoName
+    });
+
+    if (!comments.length) continue;
+
+    comments.forEach(comment => {
+      this.issues.deleteComment({
+        owner: repoOwner, repo: repoName, comment_id: comment.id
+      });
+    });
+  }
 };

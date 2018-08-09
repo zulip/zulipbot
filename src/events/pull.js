@@ -27,6 +27,7 @@ exports.run = async function(payload) {
     this.responses.get("reference").run(pull, repo, true);
   } else if (action === "synchronize") {
     this.responses.get("reference").run(pull, repo, false);
+    this.responses.get("pullState").update(pull, repo);
   }
 };
 
