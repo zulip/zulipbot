@@ -56,7 +56,7 @@ async function check(number, repo) {
   } else if (mergeable && warnings.length) {
     warnings.forEach(c => {
       this.issues.deleteComment({
-        owner: repoOwner, repo: repoName, id: c.id
+        owner: repoOwner, repo: repoName, comment_id: c.id
       });
     });
   }

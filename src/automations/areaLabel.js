@@ -36,13 +36,14 @@ exports.run = async function(issue, repo, label) {
   const tag = `${repoOwner}/${repoName}#${number}`;
 
   if (comments.length) {
+    const id = comments[0].id;
     if (issueAreaLabels.length) {
       this.issues.editComment({
-        owner: repoOwner, repo: repoName, id: comments[0].id, body: comment
+        owner: repoOwner, repo: repoName, comment_id: id, body: comment
       });
     } else {
       this.issues.deleteComment({
-        owner: repoOwner, repo: repoName, id: comments[0].id
+        owner: repoOwner, repo: repoName, comment_id: id
       });
     }
   } else if (!referenced.includes(tag) && issueAreaLabels.length) {

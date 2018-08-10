@@ -149,8 +149,9 @@ async function scrapeInactiveIssues(references, issues) {
         username: this.cfg.auth.username
       });
 
+      const id = comments[0].id;
       this.issues.editComment({
-        owner: repoOwner, repo: repoName, id: comments[0].id, body: warning
+        owner: repoOwner, repo: repoName, comment_id: id, body: warning
       });
     } else if (time + ims <= Date.now()) {
       this.issues.createComment({
