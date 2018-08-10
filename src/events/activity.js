@@ -1,4 +1,4 @@
-const Search = require(`${__dirname}/../../structures/ReferenceSearch.js`);
+const Search = require(`${__dirname}/../structures/ReferenceSearch.js`);
 
 exports.run = async function() {
   // Create array with PRs from all active repositories
@@ -158,3 +158,5 @@ async function scrapeInactiveIssues(references, issues) {
     }
   }
 }
+
+exports.events = ["activity"];
