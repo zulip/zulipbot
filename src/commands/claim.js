@@ -69,7 +69,7 @@ async function invite(payload, commenter, args) {
 
   if (alert && (!warn.force || (warn.force && !args.includes("--force")))) {
     const one = warn.labels.length === 1;
-    const type = warn.force ? "claimWarning" : "claimBlocked";
+    const type = warn.force ? "claimWarning" : "claimBlock";
     const comment = this.templates.get(type).format({
       username: this.cfg.auth.username,
       state: warn.presence ? "with" : "without",
@@ -94,7 +94,7 @@ async function invite(payload, commenter, args) {
     });
   }
 
-  const comment = this.templates.get("contibutorAdded").format({
+  const comment = this.templates.get("contributorAddition").format({
     commenter, repoName, repoOwner
   });
 
@@ -120,7 +120,7 @@ async function validate(commenter, number, repoOwner, repoName) {
   });
 
   if (assigned.length >= limit) {
-    const comment = this.templates.get("claimRestricted").format({
+    const comment = this.templates.get("claimRestriction").format({
       issue: `issue${limit === 1 ? "" : "s"}`,
       limit: limit,
       commenter: commenter

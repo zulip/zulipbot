@@ -21,7 +21,7 @@ exports.run = async function(issue, repo, label) {
 
   const payload = issue.pull_request ? "pull request" : "issue";
   const labelSize = labelTeams.length === 1 ? "label" : "labels";
-  const template = this.templates.get("areaLabelAdded");
+  const template = this.templates.get("areaLabelAddition");
 
   const comment = template.format({
     teams: areaTeams, refs: `"${references}"`, labels: labelSize,
