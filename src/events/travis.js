@@ -1,5 +1,7 @@
 exports.run = async function(payload) {
-  if (!payload.pull_request || !this.cfg.pulls.ci.travis) return;
+  if (!payload.pull_request || !this.cfg.pulls.ci.travis) {
+    return this.util.respond(false);
+  }
 
   const repoOwner = payload.repository.owner_name;
   const repoName = payload.repository.name;
@@ -13,21 +15,21 @@ exports.run = async function(payload) {
     return label.name === this.cfg.pulls.ci.travis;
   });
 
-  if (!labelCheck) return;
+  if (!labelCheck) return this.util.respond(false);
 
   const state = payload.state;
   const url = payload.build_url;
-  let comment = "(unknown state)";
+  let comment;
 
   if (state === "passed") {
     comment = this.templates.get("travisPass").format({url});
-  } else if (state === "failed" || state === "errored") {
+  } else {
     comment = this.templates.get("travisFail").format({
-      buildLogs: url || "build logs", state: state
+      buildLogs: `[build logs](${url})`, state: state
     });
   }
 
-  this.issues.createComment({
+  return this.issues.createComment({
     owner: repoOwner, repo: repoName, number: number, body: comment
   });
 };
