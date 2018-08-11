@@ -21,7 +21,7 @@ exports.run = async function() {
 };
 
 async function scrapePulls(pulls) {
-  const references = new Map();
+  const referenceList = new Map();
   const ims = this.cfg.activity.check.reminder * 86400000;
   const iterator = pulls[Symbol.iterator]();
 
@@ -58,7 +58,7 @@ async function scrapePulls(pulls) {
       refs.forEach(ref => {
         const ignore = this.cfg.activity.pulls.needsReview.ignore;
         if (needsReview && ignore) time = Date.now();
-        references.set(`${repoName}/${ref}`, time);
+        referenceList.set(`${repoName}/${ref}`, time);
       });
     }
   }
@@ -67,7 +67,7 @@ async function scrapePulls(pulls) {
     filter: "all", labels: this.cfg.activity.issues.inProgress
   });
 
-  await scrapeInactiveIssues.apply(this, [references, issues]);
+  await scrapeInactiveIssues.apply(this, [referenceList, issues]);
 }
 
 async function checkInactivePull(pull) {
