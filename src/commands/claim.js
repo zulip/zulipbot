@@ -12,7 +12,7 @@ exports.run = async function(payload, commenter, args) {
   }
 
   if (payload.issue.assignees.length >= limit) {
-    const warn = this.util.formatTemplate("multipleClaimWarning", {commenter});
+    const warn = this.templates.get("multipleClaimWarning").format({commenter});
     return this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: warn
     });
@@ -52,8 +52,8 @@ async function invite(payload, commenter, args) {
   const inviteKey = `${commenter}@${repoOwner}/${repoName}`;
 
   if (this.invites.get(inviteKey)) {
-    const error = this.util.formatTemplate("inviteError", {
-      commenter: commenter, repoName: repoName, repoOwner: repoOwner
+    const error = this.templates.get("inviteError").format({
+      commenter, repoName, repoOwner
     });
 
     return this.issues.createComment({
@@ -70,7 +70,7 @@ async function invite(payload, commenter, args) {
   if (alert && (!warn.force || (warn.force && !args.includes("--force")))) {
     const one = warn.labels.length === 1;
     const type = warn.force ? "claimWarning" : "claimBlocked";
-    const comment = this.util.formatTemplate(type, {
+    const comment = this.templates.get(type).format({
       username: this.cfg.auth.username,
       state: warn.presence ? "with" : "without",
       labelGrammar: `label${one ? "" : "s"}`,
@@ -94,8 +94,8 @@ async function invite(payload, commenter, args) {
     });
   }
 
-  const comment = this.util.formatTemplate("contibutorAdded", {
-    commenter: commenter, repoName: repoName, repoOwner: repoOwner
+  const comment = this.templates.get("contibutorAdded").format({
+    commenter, repoName, repoOwner
   });
 
   this.issues.createComment({
@@ -120,7 +120,7 @@ async function validate(commenter, number, repoOwner, repoName) {
   });
 
   if (assigned.length >= limit) {
-    const comment = this.util.formatTemplate("claimRestricted", {
+    const comment = this.templates.get("claimRestricted").format({
       issue: `issue${limit === 1 ? "" : "s"}`,
       limit: limit,
       commenter: commenter

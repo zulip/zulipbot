@@ -13,12 +13,13 @@ exports.run = async function(pull, repo, opened) {
   const commitRefs = await this.util.getReferences(msgs, repo);
   const bodyRefs = await this.util.getReferences([body], repo);
 
-  const comments = await this.util.getTemplates("fixCommitWarning", {
+  const template = this.templates.get("fixCommitWarning");
+  const comments = await template.getComments({
     number: number, owner: repoOwner, repo: repoName
   });
 
   if (!comments.length && !bodyRefs.some(r => commitRefs.includes(r))) {
-    const comment = this.util.formatTemplate("fixCommitWarning", {author});
+    const comment = template.format({author});
     return this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: comment
     });

@@ -20,10 +20,10 @@ exports.run = async function(payload) {
   let comment = "(unknown state)";
 
   if (state === "passed") {
-    comment = this.util.formatTemplate("travisPassed", {url});
+    comment = this.templates.get("travisPassed").format({url});
   } else if (state === "failed" || state === "errored") {
-    comment = this.util.formatTemplate("travisFailed", {
-      state: state, buildLogs: url || "build logs"
+    comment = this.templates.get("travisFailed").format({
+      buildLogs: url || "build logs", state: state
     });
   }
 

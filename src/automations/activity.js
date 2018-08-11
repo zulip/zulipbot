@@ -79,11 +79,13 @@ async function checkInactivePull(pull) {
   const repoOwner = pull.base.repo.owner.login;
   const number = pull.number;
 
-  const comment = this.util.formatTemplate("updateWarning", {
-    author: author, days: this.cfg.activity.check.reminder
+  const template = this.templates.get("updateWarning");
+
+  const comment = template.format({
+    days: this.cfg.activity.check.reminder, author: author
   });
 
-  const comments = await this.util.getTemplates("updateWarning", {
+  const comments = await template.getComments({
     owner: repoOwner, repo: repoName, number: number
   });
 
@@ -127,14 +129,14 @@ async function scrapeInactiveIssues(references, issues) {
       });
     }
 
-    const c = this.util.formatTemplate("inactiveWarning", {
-      assignee: logins.join(", @"),
-      remind: this.cfg.activity.check.reminder,
-      abandon: this.cfg.activity.check.limit,
-      username: this.cfg.auth.username
+    const template = this.templates.get("inactiveWarning");
+
+    const comment = template.format({
+      assignee: logins.join(", @"), remind: this.cfg.activity.check.reminder,
+      abandon: this.cfg.activity.check.limit, username: this.cfg.auth.username
     });
 
-    const comments = await this.util.getTemplates("inactiveWarning", {
+    const comments = await template.getComments({
       owner: repoOwner, repo: repoName, number: number
     });
 
@@ -143,9 +145,8 @@ async function scrapeInactiveIssues(references, issues) {
         owner: repoOwner, repo: repoName, number: number, assignees: logins
       });
 
-      const warning = this.util.formatTemplate("abandonWarning", {
-        assignee: logins.join(", @"),
-        total: (ms + ims) / 86400000,
+      const warning = this.templates.get("abandonWarning").format({
+        assignee: logins.join(", @"), total: (ms + ims) / 86400000,
         username: this.cfg.auth.username
       });
 
@@ -155,7 +156,7 @@ async function scrapeInactiveIssues(references, issues) {
       });
     } else if (time + ims <= Date.now()) {
       this.issues.createComment({
-        owner: repoOwner, repo: repoName, number: number, body: c
+        owner: repoOwner, repo: repoName, number: number, body: comment
       });
     }
   }

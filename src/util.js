@@ -10,24 +10,6 @@ exports.deduplicate = function(array) {
 };
 
 /**
- * Formats a template with given values from a given context.
- *
- * @param {String} name Name of the template to format.
- * @param {Object} context Context with names and values of variables to format
- * @return {String} String containing the formatted template.
- */
-
-exports.formatTemplate = function(name, context) {
-  let template = this.templates.get(name);
-  for (let variable of Object.entries(context)) {
-    const expressions = new RegExp(`{${variable[0]}}`, "g");
-    const value = variable[1];
-    template = template.replace(expressions, value);
-  }
-  return template;
-};
-
-/**
  * Retrieves all pages of data from a node-github method.
  * @param {String} path Path of the method in the format "api.method".
  * @param {Object} parameters Parameters to pass to the method.
@@ -104,25 +86,4 @@ exports.getReferences = async function(strings, repo) {
   // sort and remove duplicate references
   const references = this.util.deduplicate(filteredMatches);
   return references;
-};
-
-/**
- * Finds comments generated from templates on a issue/pull request.
- *
- * @param {string} identifier String identifying a template comment.
- * @param {Object} parameters Parameters specifying the issue/PR to search.
- * @return {Array} Sorted array containing only unique entries.
- */
-
-exports.getTemplates = async function(identifier, parameters) {
-  const comments = await exports.getAllPages("issues.getComments", parameters);
-
-  const templateComments = comments.filter(comment => {
-    // Use end of template comments to check if comment is from template
-    const matched = comment.body.endsWith(`<!-- ${identifier} -->`);
-    const fromClient = comment.user.login === this.cfg.auth.username;
-    return matched && fromClient;
-  });
-
-  return templateComments;
 };

@@ -23,13 +23,11 @@ exports.run = async function(payload, commenter, args) {
   const one = rejected.length === 1;
   const type = payload.issue.pull_request ? "pull request" : "issue";
 
-  const error = this.util.formatTemplate("labelError", {
-    labels: `Label${one ? "" : "s"}`,
+  const error = this.templates.get("labelError").format({
+    labels: `Label${one ? "" : "s"}`, type: type,
     labelList: `"${rejected.join("\", \"")}"`,
     exist: `do${one ? "es" : ""} not exist`,
-    type: type,
-    beState: `w${one ? "as" : "ere"}`,
-    action: "removed from"
+    beState: `w${one ? "as" : "ere"}`, action: "removed from"
   });
 
   this.issues.createComment({

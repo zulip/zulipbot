@@ -22,11 +22,12 @@ async function check(number, repo) {
 
   const mergeable = pull.data.mergeable;
 
-  const comment = this.util.formatTemplate("mergeConflictWarning", {
+  const template = this.templates.get("mergeConflictWarning");
+  const comment = template.format({
     username: pull.data.user.login, repoOwner: repoOwner, repoName: repoName
   });
 
-  const warnings = await this.util.getTemplates("mergeConflictWarning", {
+  const warnings = await template.getComments({
     owner: repoOwner, repo: repoName, number: number
   });
 

@@ -1,7 +1,8 @@
 const client = require("@octokit/rest")();
 const fs = require("fs");
 
-client.cfg = require("../config/default.js");
+const configPath = `${__dirname}/../config`;
+client.cfg = require(`${configPath}/default.js`);
 client.util = require("./util.js");
 for (let method of Object.keys(client.util)) {
   client.util[method] = client.util[method].bind(client);
@@ -38,11 +39,13 @@ for (const event of events) {
   }
 }
 
-const configPath = `${__dirname}/../config`;
+const Template = require("./structures/Template.js");
 const templates = fs.readdirSync(`${configPath}/templates`);
 for (const file of templates) {
-  const text = fs.readFileSync(`${configPath}/templates/${file}`, "utf8");
-  client.templates.set(file.slice(0, -3), text);
+  const name = file.split(".md")[0];
+  const content = fs.readFileSync(`${configPath}/templates/${file}`, "utf8");
+  const template = new Template(client, name, content);
+  client.templates.set(name, template);
 }
 
 client.authenticate({

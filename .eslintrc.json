@@ -14,6 +14,7 @@
     "max-len": ["error", 80],
     "max-params": ["error", 5],
     "no-await-in-loop": "off",
+    "object-shorthand": ["error", "consistent-as-needed"],
     "quotes": ["error", "double"],
     "space-before-function-paren": ["error", "never"]
   }
