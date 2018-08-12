@@ -1,4 +1,4 @@
-const _ = require("../../node_modules/lodash");
+const _ = require("lodash");
 
 exports.label = async function(payload) {
   const repoName = payload.repository.name;

@@ -5,15 +5,15 @@ exports.run = function(payload) {
   const label = payload.label;
 
   if (payload.assignee && this.cfg.activity.issues.inProgress) {
-    this.automations.get("issueState").progress(payload);
+    this.responses.get("issueState").progress(payload);
   }
 
   if (["labeled", "unlabeled"].includes(action)) {
-    this.automations.get("areaLabel").run(issue, repo, label);
+    this.responses.get("areaLabel").run(issue, repo, label);
   } else if (action === "closed" && this.cfg.activity.issues.clearClosed) {
-    this.automations.get("issueState").close(issue, repo);
+    this.responses.get("issueState").close(issue, repo);
   } else if (action === "reopened") {
-    this.automations.get("issueState").reopen(issue);
+    this.responses.get("issueState").reopen(issue);
   } else if (action === "opened" || action === "created") {
     parse.call(this, payload);
   }

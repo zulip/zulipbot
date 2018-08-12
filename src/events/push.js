@@ -7,7 +7,7 @@ exports.run = function(payload) {
   }
 
   setTimeout(() => {
-    this.automations.get("mergeConflict").run(repo);
+    this.responses.get("mergeConflict").run(repo);
   }, this.cfg.eventsDelay * 60 * 1000);
 };
 

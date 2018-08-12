@@ -77,6 +77,6 @@ process.on("unhandledRejection", error => {
 
 if (client.cfg.activity.check.interval) {
   setInterval(() => {
-    client.automations.get("activity").run();
+    client.responses.get("activity").run();
   }, client.cfg.activity.check.interval * 3600000);
 }

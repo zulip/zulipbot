@@ -8,20 +8,11 @@ for (let method of Object.keys(client.util)) {
   client.util[method] = client.util[method].bind(client);
 }
 
-client.automations = new Map();
 client.commands = new Map();
 client.events = new Map();
 client.invites = new Map();
+client.responses = new Map();
 client.templates = new Map();
-
-const automations = fs.readdirSync(`${__dirname}/automations`);
-for (const file of automations) {
-  let data = require(`./automations/${file}`);
-  for (let method of Object.keys(data)) {
-    data[method] = data[method].bind(client);
-  }
-  client.automations.set(file.slice(0, -3), data);
-}
 
 const commands = fs.readdirSync(`${__dirname}/commands`);
 for (const file of commands) {
@@ -33,10 +24,20 @@ for (const file of commands) {
 
 const events = fs.readdirSync(`${__dirname}/events`);
 for (const event of events) {
+  if (!event.includes(".")) continue;
   const data = require(`./events/${event}`);
   for (let i = data.events.length; i--;) {
     client.events.set(data.events[i], data.run.bind(client));
   }
+}
+
+const responses = fs.readdirSync(`${__dirname}/events/responses`);
+for (const file of responses) {
+  let data = require(`./events/responses/${file}`);
+  for (let method of Object.keys(data)) {
+    data[method] = data[method].bind(client);
+  }
+  client.responses.set(file.slice(0, -3), data);
 }
 
 const Template = require("./structures/Template.js");
