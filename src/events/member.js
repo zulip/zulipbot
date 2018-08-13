@@ -9,8 +9,7 @@ exports.run = async function(payload) {
 
   if (!invite) return;
 
-  const repoOwner = repoFullName.split("/")[0];
-  const repoName = repoFullName.split("/")[1];
+  const [repoOwner, repoName] = repoFullName.split("/");
 
   const response = await this.issues.addAssigneesToIssue({
     owner: repoOwner, repo: repoName, number: invite, assignees: [member]

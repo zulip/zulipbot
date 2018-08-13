@@ -17,8 +17,7 @@ exports.deduplicate = function(array) {
  */
 
 exports.getAllPages = async function(path, parameters) {
-  const api = path.split(".")[0];
-  const method = path.split(".")[1];
+  const [api, method] = path.split(".");
   parameters.per_page = 100;
 
   let response = await this[api][method](parameters);

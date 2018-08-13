@@ -2,8 +2,7 @@ exports.run = async function() {
   // Create array with PRs from all active repositories
   const repos = this.cfg.activity.check.repositories;
   const pages = repos.map(async repo => {
-    const repoOwner = repo.split("/")[0];
-    const repoName = repo.split("/")[1];
+    const [repoOwner, repoName] = repo.split("/");
     return this.util.getAllPages("pullRequests.getAll", {
       owner: repoOwner, repo: repoName
     });
@@ -24,7 +23,7 @@ async function scrapePulls(pulls) {
   const ims = this.cfg.activity.check.reminder * 86400000;
   const iterator = pulls[Symbol.iterator]();
 
-  for (let pull of iterator) {
+  for (const pull of iterator) {
     let time = Date.parse(pull.updated_at);
     const body = pull.body;
     const number = pull.number;
@@ -101,7 +100,7 @@ async function scrapeInactiveIssues(references, issues) {
   const ims = this.cfg.activity.check.reminder * 86400000;
   const iterator = issues[Symbol.iterator]();
 
-  for (let issue of iterator) {
+  for (const issue of iterator) {
     const inactiveLabel = issue.labels.find(label => {
       return label.name === this.cfg.activity.inactive;
     });

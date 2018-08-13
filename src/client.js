@@ -4,7 +4,7 @@ const fs = require("fs");
 const configPath = `${__dirname}/../config`;
 client.cfg = require(`${configPath}/default.js`);
 client.util = require("./util.js");
-for (let method of Object.keys(client.util)) {
+for (const method of Object.keys(client.util)) {
   client.util[method] = client.util[method].bind(client);
 }
 
@@ -33,8 +33,8 @@ for (const event of events) {
 
 const responses = fs.readdirSync(`${__dirname}/events/responses`);
 for (const file of responses) {
-  let data = require(`./events/responses/${file}`);
-  for (let method of Object.keys(data)) {
+  const data = require(`./events/responses/${file}`);
+  for (const method of Object.keys(data)) {
     data[method] = data[method].bind(client);
   }
   client.responses.set(file.slice(0, -3), data);
@@ -43,7 +43,7 @@ for (const file of responses) {
 const Template = require("./structures/Template.js");
 const templates = fs.readdirSync(`${configPath}/templates`);
 for (const file of templates) {
-  const name = file.split(".md")[0];
+  const [name] = file.split(".md");
   const content = fs.readFileSync(`${configPath}/templates/${file}`, "utf8");
   const template = new Template(client, name, content);
   client.templates.set(name, template);

@@ -7,7 +7,7 @@ const app = express();
 const port = process.env.PORT || 8080;
 
 app.listen(port, () => {
-  console.log("Website is running on http://localhost:" + port);
+  console.log(`Website is running on http://localhost:${port}`);
 });
 
 app.get("/", (req, res) => {
@@ -82,8 +82,7 @@ if (client.cfg.activity.check.interval) {
 }
 
 Object.entries(client.cfg.auth).forEach(pair => {
-  const key = pair[0];
-  const value = pair[1];
+  const [key, value] = pair;
 
   if (typeof value === "string") {
     return console.log(`Using environment variable value for \`${key}\`...`);

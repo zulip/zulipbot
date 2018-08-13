@@ -34,7 +34,7 @@ function parse(payload) {
   parsed.forEach(command => {
     const codeBlocks = [`\`\`\`\r\n${command}\r\n\`\`\``, `\`${command}\``];
     if (codeBlocks.some(block => body.includes(block))) return;
-    const keyword = command.replace(/\s+/, " ").split(" ")[1];
+    const [, keyword] = command.replace(/\s+/, " ").split(" ");
     const args = command.replace(/\s+/, " ").split(" ").slice(2).join(" ");
     const file = this.commands.get(keyword);
 

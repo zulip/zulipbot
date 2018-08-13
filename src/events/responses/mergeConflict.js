@@ -7,7 +7,7 @@ exports.run = async function(repo) {
   });
   const iterator = pulls[Symbol.iterator]();
 
-  for (let pull of iterator) {
+  for (const pull of iterator) {
     await check.apply(this, [pull.number, repo]);
   }
 };

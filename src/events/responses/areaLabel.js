@@ -1,4 +1,4 @@
-let referenced = [];
+const referenced = [];
 
 exports.run = async function(issue, repo, label) {
   const areaLabel = label.name;
@@ -16,7 +16,7 @@ exports.run = async function(issue, repo, label) {
   // Create unique array of teams (labels can point to same team)
   const uniqueTeams = this.util.deduplicate(labelTeams);
 
-  const areaTeams = `@${repoOwner}/` + uniqueTeams.join(`, @${repoOwner}/`);
+  const areaTeams = `@${repoOwner}/${uniqueTeams.join(`, @${repoOwner}/`)}`;
   const references = issueAreaLabels.join("\", \"");
 
   const payload = issue.pull_request ? "pull request" : "issue";

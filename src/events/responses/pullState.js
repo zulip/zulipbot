@@ -59,7 +59,7 @@ function review(labels, action, author, reviewer) {
 async function size(sizeLabels, labels, number, repo) {
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
-  let pullLabels = labels.filter(label => !sizeLabels.has(label));
+  const pullLabels = labels.filter(label => !sizeLabels.has(label));
 
   const files = await this.util.getAllPages("pullRequests.getFiles", {
     owner: repoOwner, repo: repoName, number: number

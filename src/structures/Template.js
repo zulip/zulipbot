@@ -49,10 +49,9 @@ class Template {
 
   format(context) {
     let content = this.content;
-    for (let variable of Object.entries(context)) {
-      const expressions = new RegExp(`{${variable[0]}}`, "g");
-      const value = variable[1];
-      content = content.replace(expressions, value);
+    for (const variable of Object.entries(context)) {
+      const [expression, value] = variable;
+      content = content.replace(new RegExp(`{${expression}}`, "g"), value);
     }
     return content;
   }
