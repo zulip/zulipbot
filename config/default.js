@@ -5,32 +5,12 @@
  * explanations on each option.
  */
 
-// Authentication
+// Default authentication specified by environment variables
 exports.auth = {
   username: process.env.USERNAME,
   password: process.env.PASSWORD,
   webhookSecret: process.env.WEBHOOK_SECRET
 };
-
-Object.entries(exports.auth).forEach(pair => {
-  const key = pair[0];
-  const value = pair[1];
-
-  if (typeof value === "string") {
-    console.log(`Using environment variable value for \`${key}\`...`);
-    return;
-  }
-
-  try {
-    console.log(`Using value from \`./config/secrets.json\` for \`${key}\`...`);
-    const secrets = require("./secrets.json");
-    if (typeof secrets[key] !== "string") throw new Error();
-    exports.auth[key] = secrets[key];
-  } catch (e) {
-    console.log(`\`${key}\` value was not set. Please fix your configuration.`);
-    process.exit(1);
-  }
-});
 
 /**
  * Issue triage

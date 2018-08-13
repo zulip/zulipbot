@@ -80,3 +80,29 @@ if (client.cfg.activity.check.interval) {
     client.responses.get("activity").run();
   }, client.cfg.activity.check.interval * 3600000);
 }
+
+Object.entries(client.cfg.auth).forEach(pair => {
+  const key = pair[0];
+  const value = pair[1];
+
+  if (typeof value === "string") {
+    return console.log(`Using environment variable value for \`${key}\`...`);
+  }
+
+  try {
+    const secretsPath = `${__dirname}/../config/secrets.json`;
+    console.log(`Using value from \`${secretsPath}\` for \`${key}\`...`);
+    const secrets = require(secretsPath);
+    if (typeof secrets[key] !== "string") throw new Error();
+    client.cfg.auth[key] = secrets[key];
+  } catch (e) {
+    console.log(`\`${key}\` value was not set. Please fix your configuration.`);
+    process.exit(1);
+  }
+});
+
+client.authenticate({
+  type: "basic",
+  username: client.cfg.auth.username,
+  password: client.cfg.auth.password
+});

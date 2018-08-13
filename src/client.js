@@ -49,10 +49,4 @@ for (const file of templates) {
   client.templates.set(name, template);
 }
 
-client.authenticate({
-  type: "basic",
-  username: client.cfg.auth.username,
-  password: client.cfg.auth.password
-});
-
 module.exports = client;
