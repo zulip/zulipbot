@@ -13,7 +13,7 @@ const payload = {
     name: "zulipbot"
   },
   issue: {
-    pull_request: false,
+    pull_request: true,
     number: 69,
     labels: [
       {name: "bug"},
@@ -24,6 +24,10 @@ const payload = {
     }
   }
 };
+
+const template = client.templates.get("labelError");
+template.content = "{labels} {labelList} {exist} {beState} {action} {type}.";
+client.templates.set("labelError", template);
 
 test("Reject if self-labelling enabled with different commenter", async t => {
   client.cfg.issues.commands.label.self = true;
@@ -85,16 +89,15 @@ test("Remove appropriate labels", async t => {
 });
 
 test("Remove appropriate labels with single rejection message", async t => {
-  payload.issue.pull_request = false;
   const commenter = "octocat";
-  const args = "\"help wanted\" \"enhancement\"";
+  const args = "\"help wanted\" \"test\"";
 
   const request = simple.mock(client.issues, "replaceAllLabels")
     .resolveWith({
       code: 200
     });
 
-  const error = "**ERROR:** Label \"enhancement\" does not exist and was thus not removed from this issue.";
+  const error = "Label \"test\" does not exist was removed from pull request.";
 
   const request2 = simple.mock(client.issues, "createComment")
     .resolveWith({
@@ -120,17 +123,16 @@ test("Remove appropriate labels with single rejection message", async t => {
 });
 
 test("Remove appropriate labels with multiple rejection message", async t => {
-  payload.issue.pull_request = true;
-  client.cfg.issues.commands.label.self = false;
+  payload.issue.pull_request = false;
   const commenter = "octocat";
-  const args = "\"help wanted\" \"enhancement\" \"duplicate\"";
+  const args = "\"help wanted\" \"a\" \"b\"";
 
   const request = simple.mock(client.issues, "replaceAllLabels")
     .resolveWith({
       code: 200
     });
 
-  const error = "**ERROR:** Labels \"enhancement\", \"duplicate\" do not exist and were thus not removed from this pull request.";
+  const error = "Labels \"a\", \"b\" do not exist were removed from issue.";
 
   const request2 = simple.mock(client.issues, "createComment")
     .resolveWith({

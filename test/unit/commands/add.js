@@ -16,8 +16,8 @@ const payload = {
     pull_request: false,
     number: 69,
     labels: [
-      {name: "enhancement"},
-      {name: "help wanted"}
+      {name: "test"},
+      {name: "test2"}
     ],
     user: {
       login: "octocat"
@@ -26,10 +26,14 @@ const payload = {
 };
 
 const repoLabels = [
-  {name: "enhancement"},
-  {name: "help wanted"},
+  {name: "test"},
+  {name: "test2"},
   {name: "bug"}
 ];
+
+const template = client.templates.get("labelError");
+template.content = "{labels} {labelList} {exist} {beState} {action} {type}.";
+client.templates.set("labelError", template);
 
 test("Reject if self-labelling enabled with different commenter", async t => {
   client.cfg.issues.commands.label.self = true;
@@ -109,7 +113,7 @@ test("Add appropriate label and reject label not in repository", async t => {
       code: 200
     });
 
-  const error = "**ERROR:** Label \"invalid\" does not exist and was thus not added to this pull request.";
+  const error = "Label \"invalid\" does not exist was added to pull request.";
 
   const request3 = simple.mock(client.issues, "createComment")
     .resolveWith({
@@ -137,7 +141,7 @@ test("Add appropriate label and reject label not in repository", async t => {
 test("Add appropriate labels and reject labels not in repository", async t => {
   payload.issue.pull_request = false;
   const commenter = "octocat";
-  const args = "\"bug\" \"invalid\" \"unknown\"";
+  const args = "\"bug\" \"a\" \"b\"";
 
   const request1 = simple.mock(client.util, "getAllPages")
     .resolveWith(repoLabels);
@@ -147,7 +151,7 @@ test("Add appropriate labels and reject labels not in repository", async t => {
       code: 200
     });
 
-  const error = "**ERROR:** Labels \"invalid\", \"unknown\" do not exist and were thus not added to this issue.";
+  const error = "Labels \"a\", \"b\" do not exist were added to issue.";
 
   const request3 = simple.mock(client.issues, "createComment")
     .resolveWith({
@@ -175,7 +179,7 @@ test("Add appropriate labels and reject labels not in repository", async t => {
 test("Add appropriate labels and reject already added label", async t => {
   payload.issue.pull_request = true;
   const commenter = "octocat";
-  const args = "\"bug\" \"help wanted\"";
+  const args = "\"bug\" \"test\"";
 
   const request1 = simple.mock(client.util, "getAllPages")
     .resolveWith(repoLabels);
@@ -185,7 +189,7 @@ test("Add appropriate labels and reject already added label", async t => {
       code: 200
     });
 
-  const error = "**ERROR:** Label \"help wanted\" already exists and was thus not added to this pull request.";
+  const error = "Label \"test\" already exists was added to pull request.";
 
   const request3 = simple.mock(client.issues, "createComment")
     .resolveWith({
@@ -213,7 +217,7 @@ test("Add appropriate labels and reject already added label", async t => {
 test("Add appropriate labels and reject already added labels", async t => {
   payload.issue.pull_request = false;
   const commenter = "octocat";
-  const args = "\"help wanted\" \"enhancement\"";
+  const args = "\"test\" \"test2\"";
 
   const request1 = simple.mock(client.util, "getAllPages")
     .resolveWith(repoLabels);
@@ -223,7 +227,7 @@ test("Add appropriate labels and reject already added labels", async t => {
       code: 200
     });
 
-  const error = "**ERROR:** Labels \"help wanted\", \"enhancement\" already exist and were thus not added to this issue.";
+  const error = "Labels \"test\", \"test2\" already exist were added to issue.";
 
   const request3 = simple.mock(client.issues, "createComment")
     .resolveWith({

@@ -9,12 +9,23 @@ const payload = {
   state: "passed",
   pull_request: false,
   pull_request_number: 69,
-  build_url: "https://travis-ci.org/zulip/zulipbot/builds/1103742069",
+  build_url: "https://travis-ci.org",
   repository: {
     owner_name: "zulip",
     name: "zulipbot"
   }
 };
+
+const templates = new Map([
+  ["travisPass", "[tests]({url})"],
+  ["travisFail", "{state} {buildLogs}"]
+]);
+
+templates.forEach((value, key) => {
+  const template = client.templates.get(key);
+  template.content = value;
+  client.templates.set(key, template);
+});
 
 test("Ignore if build result isn't for a pull request", async t => {
   const response = await travis.run.call(client, payload);
@@ -57,7 +68,7 @@ test("Alert about passing build", async t => {
     data: [{name: "travis"}]
   });
 
-  const message = "Congratulations, the Travis [builds](https://travis-ci.org/zulip/zulipbot/builds/1103742069) for this pull request **passed**!";
+  const message = "[tests](https://travis-ci.org)";
   const request2 = simple.mock(client.issues, "createComment").resolveWith({
     data: {
       body: message
@@ -84,7 +95,7 @@ test("Alert about failing build", async t => {
     data: [{name: "travis"}]
   });
 
-  const error = "Oh no, something went wrong: the Travis builds for this pull request **failed**! Review the [build logs](https://travis-ci.org/zulip/zulipbot/builds/1103742069) for more details.";
+  const error = "failed [build logs](https://travis-ci.org)";
   const request2 = simple.mock(client.issues, "createComment").resolveWith({
     data: {
       body: error
