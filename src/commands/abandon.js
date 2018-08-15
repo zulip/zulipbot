@@ -16,5 +16,4 @@ exports.run = function(payload, commenter) {
   });
 };
 
-const cfg = require("../../config/default.js");
-exports.aliases = cfg.issues.commands.assign.abandon;
+exports.aliasPath = "assign.abandon";

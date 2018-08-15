@@ -147,5 +147,4 @@ async function claim(commenter, number, repoOwner, repoName) {
   });
 }
 
-const cfg = require("../../config/default.js");
-exports.aliases = cfg.issues.commands.assign.claim;
+exports.aliasPath = "assign.claim";

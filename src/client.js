@@ -17,8 +17,10 @@ client.templates = new Map();
 const commands = fs.readdirSync(`${__dirname}/commands`);
 for (const file of commands) {
   const data = require(`./commands/${file}`);
-  for (let i = data.aliases.length; i--;) {
-    client.commands.set(data.aliases[i], data);
+  const [category, name] = data.aliasPath.split(".");
+  const aliases = client.cfg.issues.commands[category][name];
+  for (let i = aliases.length; i--;) {
+    client.commands.set(aliases[i], data);
   }
 }
 

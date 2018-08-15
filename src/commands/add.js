@@ -60,5 +60,4 @@ exports.run = async function(payload, commenter, args) {
   }
 };
 
-const cfg = require("../../config/default.js");
-exports.aliases = cfg.issues.commands.label.add;
+exports.aliasPath = "label.add";
