@@ -29,10 +29,11 @@ test("Reject if self-labelling enabled with different commenter", async t => {
   client.cfg.issues.commands.label.self = true;
   const commenter = "octokitten";
   const args = "\"bug\"";
+
   const response = await remove.run.call(client, payload, commenter, args);
+
   t.is(response, false);
 
-  simple.restore();
   t.end();
 });
 
@@ -42,20 +43,22 @@ test("Reject if self-labelling users excludes commenter", async t => {
   };
   const commenter = "octokitten";
   const args = "\"bug\"";
+
   const response = await remove.run.call(client, payload, commenter, args);
+
   t.is(response, false);
 
-  simple.restore();
   t.end();
 });
 
 test("Reject if invalid arguments were provided", async t => {
   const commenter = "octocat";
   const args = "no arguments";
+
   const response = await remove.run.call(client, payload, commenter, args);
+
   t.is(response, false);
 
-  simple.restore();
   t.end();
 });
 
@@ -74,7 +77,7 @@ test("Remove appropriate labels", async t => {
   t.equals(request.lastCall.arg.owner, "zulip");
   t.equals(request.lastCall.arg.repo, "zulipbot");
   t.equals(request.lastCall.arg.number, 69);
-  t.same(request.lastCall.arg.labels, ["help wanted"]);
+  t.strictSame(request.lastCall.arg.labels, ["help wanted"]);
   t.equals(response, true);
 
   simple.restore();
@@ -105,7 +108,7 @@ test("Remove appropriate labels with single rejection message", async t => {
   t.equals(request.lastCall.arg.owner, "zulip");
   t.equals(request.lastCall.arg.repo, "zulipbot");
   t.equals(request.lastCall.arg.number, 69);
-  t.same(request.lastCall.arg.labels, ["bug"]);
+  t.strictSame(request.lastCall.arg.labels, ["bug"]);
   t.equals(request2.lastCall.arg.owner, "zulip");
   t.equals(request2.lastCall.arg.repo, "zulipbot");
   t.equals(request2.lastCall.arg.number, 69);
@@ -141,7 +144,7 @@ test("Remove appropriate labels with multiple rejection message", async t => {
   t.equals(request.lastCall.arg.owner, "zulip");
   t.equals(request.lastCall.arg.repo, "zulipbot");
   t.equals(request.lastCall.arg.number, 69);
-  t.same(request.lastCall.arg.labels, ["bug"]);
+  t.strictSame(request.lastCall.arg.labels, ["bug"]);
   t.equals(request2.lastCall.arg.owner, "zulip");
   t.equals(request2.lastCall.arg.repo, "zulipbot");
   t.equals(request2.lastCall.arg.number, 69);

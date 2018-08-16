@@ -57,8 +57,8 @@ test("Remove if commenter is assigned", async t => {
   t.equals(request.lastCall.arg.owner, "zulip");
   t.equals(request.lastCall.arg.repo, "zulipbot");
   t.equals(request.lastCall.arg.number, 69);
-  t.same(request.lastCall.arg.assignees, ["octocat"]);
-  t.same(response.data.assignees, []);
+  t.strictSame(request.lastCall.arg.assignees, ["octocat"]);
+  t.strictSame(response.data.assignees, []);
 
   simple.restore();
   t.end();
