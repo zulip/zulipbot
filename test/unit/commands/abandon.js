@@ -1,8 +1,9 @@
 const simple = require("simple-mock");
 const test = require("tap").test;
 
-const client = require(`${__dirname}/../../src/client.js`);
-const abandon = require(`${__dirname}/../../src/commands/abandon.js`);
+const homePath = `${__dirname}/../../../src`;
+const client = require(`${homePath}/client.js`);
+const abandon = require(`${homePath}/commands/abandon.js`);
 
 const payload = {
   repository: {
