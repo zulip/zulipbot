@@ -102,8 +102,11 @@ exports.update = async function(pull, repo) {
   const repoOwner = repo.owner.login;
 
   const warnings = new Map([
-    ["mergeConflictWarning", pull => {
-      return new Promise(resolve => resolve(pull.mergeable));
+    ["mergeConflictWarning", async() => {
+      const pullInfo = await this.pullRequests.get({
+        owner: repoOwner, repo: repoName, number: number
+      });
+      return new Promise(resolve => resolve(pullInfo.data.mergeable));
     }],
     ["fixCommitWarning", async(pull, repo) => {
       const references = new Search(this, pull, repo);
