@@ -30,3 +30,11 @@ exports.getAllPages = async function(path, parameters) {
 
   return responses;
 };
+
+/**
+ * Returns a valid promise with a specified value (used for unit testing).
+ * @param {String} value Value to return in the promise.
+ * @return {Array} Promise containing the specified value.
+ */
+
+exports.respond = value => new Promise(resolve => resolve(value));
