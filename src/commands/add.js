@@ -3,7 +3,7 @@ exports.run = async function(payload, commenter, args) {
   const self = this.cfg.issues.commands.label.self;
   const selfLabel = self.users ? !self.users.includes(commenter) : self;
   const forbidden = selfLabel && creator !== commenter;
-  if (forbidden || !args.match(/".*?"/)) return;
+  if (forbidden || !args.match(/".*?"/)) return this.util.respond(false);
 
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
@@ -23,7 +23,7 @@ exports.run = async function(payload, commenter, args) {
     return repoLabels.includes(label) && !issueLabels.includes(label);
   });
 
-  await this.issues.addLabels({
+  const response = await this.issues.addLabels({
     owner: repoOwner, repo: repoName, number: number, labels: addLabels
   });
 
@@ -58,6 +58,8 @@ exports.run = async function(payload, commenter, args) {
       owner: repoOwner, repo: repoName, number: number, body: error
     });
   }
+
+  return response;
 };
 
 exports.aliasPath = "label.add";
