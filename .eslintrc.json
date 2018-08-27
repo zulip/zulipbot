@@ -11,7 +11,7 @@
     "curly": ["error", "multi-line", "consistent"],
     "indent": ["error", 2],
     "max-nested-callbacks": ["error", 3],
-    "max-len": ["error", 80],
+    "max-len": ["warn", 80],
     "max-params": ["error", 5],
     "no-await-in-loop": "off",
     "no-useless-constructor": "error",

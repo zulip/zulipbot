@@ -1,9 +1,11 @@
+const respond = value => new Promise(resolve => resolve(value));
+
 exports.run = async function(payload, commenter, args) {
   const creator = payload.issue.user.login;
   const self = this.cfg.issues.commands.label.self;
   const selfLabel = self.users ? !self.users.includes(commenter) : self;
   const forbidden = selfLabel && creator !== commenter;
-  if (forbidden || !args.match(/".*?"/)) return;
+  if (forbidden || !args.match(/".*?"/)) return respond(false);
 
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
@@ -18,7 +20,7 @@ exports.run = async function(payload, commenter, args) {
     owner: repoOwner, repo: repoName, number: number, labels: removeLabels
   });
 
-  if (!rejected.length) return;
+  if (!rejected.length) return respond(true);
 
   const one = rejected.length === 1;
   const type = payload.issue.pull_request ? "pull request" : "issue";
@@ -30,7 +32,7 @@ exports.run = async function(payload, commenter, args) {
     beState: `w${one ? "as" : "ere"}`, action: "removed from"
   });
 
-  this.issues.createComment({
+  return this.issues.createComment({
     owner: repoOwner, repo: repoName, number: number, body: error
   });
 };
