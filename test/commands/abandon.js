@@ -1,6 +1,7 @@
 const simple = require("simple-mock");
 const test = require("tap").test;
 
+const client = require(`${__dirname}/../../src/client.js`);
 const abandon = require(`${__dirname}/../../src/commands/abandon.js`);
 
 const payload = {
@@ -11,17 +12,10 @@ const payload = {
     name: "zulipbot"
   },
   issue: {
-    number: "69",
+    number: 69,
     assignees: [{
       login: "octocat"
     }]
-  }
-};
-
-const client = {
-  issues: {
-    createComment: () => {},
-    removeAssigneesFromIssue: () => {}
   }
 };
 
@@ -35,11 +29,12 @@ test("Reject if commenter isn't an assignee", async t => {
     }
   });
 
-  const response = await abandon.run.apply(client, [payload, commenter]);
+  const response = await abandon.run.call(client, payload, commenter);
 
   t.equals(request.lastCall.arg.owner, "zulip");
   t.equals(request.lastCall.arg.repo, "zulipbot");
-  t.equals(request.lastCall.arg.number, "69");
+  t.equals(request.lastCall.arg.number, 69);
+  t.equals(request.lastCall.arg.body, error);
   t.equals(response.data.body, error);
 
   simple.restore();
@@ -56,13 +51,11 @@ test("Remove if commenter is assigned", async t => {
       }
     });
 
-  const response = await abandon.run.apply(client, [payload, commenter]);
-
-  abandon.run.apply(client, [payload, commenter]);
+  const response = await abandon.run.call(client, payload, commenter);
 
   t.equals(request.lastCall.arg.owner, "zulip");
   t.equals(request.lastCall.arg.repo, "zulipbot");
-  t.equals(request.lastCall.arg.number, "69");
+  t.equals(request.lastCall.arg.number, 69);
   t.same(request.lastCall.arg.assignees, ["octocat"]);
   t.same(response.data.assignees, []);
 
