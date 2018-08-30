@@ -36,12 +36,13 @@ app.post("/github", jsonParser, async(req, res) => {
     return res.status(400).send("X-GitHub-Event header was null");
   }
 
-  const repo = req.body.repository.full_name;
+  const payload = req.body;
+  const repo = payload.repository ? payload.repository.full_name : null;
   const check = client.cfg.activity.check.repositories.includes(repo);
   const eventHandler = client.events.get(eventType);
   if (!check || !eventHandler) return res.status(204).end();
 
-  eventHandler(req.body);
+  eventHandler(payload);
   res.status(202).send("Request is being processed");
 });
 
