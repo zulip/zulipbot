@@ -9,7 +9,7 @@
     "start": "node ./src/index.js",
     "pretest": "eslint .",
     "test": "tap --coverage 'test/**/*.js'",
-    "posttest": "tap --coverage-report=text-lcov | codecov"
+    "posttest": "mkdir ./coverage && tap --coverage-report=text-lcov > ./coverage/coverage.lcov | codecov"
   },
   "dependencies": {
     "@octokit/rest": "^15.9.4",
