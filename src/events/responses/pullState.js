@@ -118,6 +118,19 @@ exports.update = async function(pull, repo) {
     const deletable = await check(pull, repo);
     if (!deletable) continue;
 
+    const {label} = this.cfg.pulls.status.mergeConflicts;
+
+    if (label) {
+      try {
+        await this.issues.removeLabel({
+          owner: repoOwner, repo: repoName, number: number, name: label
+        });
+      } catch (e) {
+        // although we could attempt to fetch labels of the pull request,
+        // it's an extra API call, so we silently ignore the error instead.
+      }
+    }
+
     const comments = await template.getComments({
       number: number, owner: repoOwner, repo: repoName
     });
