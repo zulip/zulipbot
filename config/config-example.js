@@ -119,6 +119,7 @@ exports.activity = {
       "zulip/zulip",
       "zulip/python-zulip-api",
       "zulip/zulip-electron",
+      "zulip/zulip-terminal",
       "zulip/zulipbot"
     ],
     interval: 6,
