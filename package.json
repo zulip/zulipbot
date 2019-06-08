@@ -8,8 +8,8 @@
   "scripts": {
     "start": "node ./src/index.js",
     "pretest": "eslint .",
-    "test": "tap --coverage 'test/**/*.js'",
-    "posttest": "mkdir ./coverage && tap --coverage-report=text-lcov > ./coverage/coverage.lcov | codecov"
+    "test": "tap",
+    "posttest": "rm -rf coverage && mkdir coverage && tap --coverage-report=text-lcov > ./coverage/coverage.lcov | codecov"
   },
   "dependencies": {
     "@octokit/rest": "^15.9.4",
@@ -22,7 +22,7 @@
     "eslint-config-xo-space": "^0.21.0",
     "simple-mock": "^0.8.0",
     "smee": "^0.2.0",
-    "tap": "^12.0.1"
+    "tap": "^14.2.2"
   },
   "repository": {
     "type": "git",
