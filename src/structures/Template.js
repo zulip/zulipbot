@@ -53,6 +53,7 @@ class Template {
       const [expression, value] = variable;
       content = content.replace(new RegExp(`{${expression}}`, "g"), value);
     }
+
     return content;
   }
 }

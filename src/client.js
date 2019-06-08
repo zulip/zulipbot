@@ -39,6 +39,7 @@ for (const file of responses) {
   for (const method of Object.keys(data)) {
     data[method] = data[method].bind(client);
   }
+
   client.responses.set(file.slice(0, -3), data);
 }
 
