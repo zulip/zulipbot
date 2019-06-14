@@ -17,7 +17,7 @@ const payload = {
 test("Ignore if non-master branch was pushed", async t => {
   const response = await push.run.call(client, payload);
 
-  t.equals(response, false);
+  t.notOk(response);
 
   t.end();
 });
@@ -28,7 +28,7 @@ test("Ignore if there was no merge conflict configuration", async t => {
   payload.ref = "refs/heads/master";
   const response = await push.run.call(client, payload);
 
-  t.equals(response, false);
+  t.notOk(response);
 
   t.end();
 });

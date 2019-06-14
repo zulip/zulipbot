@@ -32,11 +32,8 @@ test("Reject if commenter isn't an assignee", async t => {
 
   const response = await abandon.run.call(client, payload, commenter);
 
-  t.equals(request.lastCall.arg.owner, "zulip");
-  t.equals(request.lastCall.arg.repo, "zulipbot");
-  t.equals(request.lastCall.arg.number, 69);
-  t.equals(request.lastCall.arg.body, error);
-  t.equals(response.data.body, error);
+  t.ok(request.called);
+  t.is(response.data.body, error);
 
   simple.restore();
   t.end();
@@ -54,11 +51,8 @@ test("Remove if commenter is assigned", async t => {
 
   const response = await abandon.run.call(client, payload, commenter);
 
-  t.equals(request.lastCall.arg.owner, "zulip");
-  t.equals(request.lastCall.arg.repo, "zulipbot");
-  t.equals(request.lastCall.arg.number, 69);
-  t.strictSame(request.lastCall.arg.assignees, ["octocat"]);
-  t.strictSame(response.data.assignees, []);
+  t.ok(request.called);
+  t.deepIs(response.data.assignees, []);
 
   simple.restore();
   t.end();

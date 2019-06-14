@@ -30,7 +30,7 @@ templates.forEach((value, key) => {
 test("Ignore if build result isn't for a pull request", async t => {
   const response = await travis.run.call(client, payload);
 
-  t.equals(response, false);
+  t.notOk(response);
 
   t.end();
 });
@@ -41,7 +41,7 @@ test("Ignore if no there is no Travis configuration", async t => {
 
   const response = await travis.run.call(client, payload);
 
-  t.equals(response, false);
+  t.notOk(response);
 
   t.end();
 });
@@ -55,10 +55,8 @@ test("Ignore if pull request has no configured Travis label", async t => {
 
   const response = await travis.run.call(client, payload);
 
-  t.equals(request.lastCall.arg.owner, "zulip");
-  t.equals(request.lastCall.arg.repo, "zulipbot");
-  t.equals(request.lastCall.arg.number, 69);
-  t.equals(response, false);
+  t.ok(request.called);
+  t.notOk(response);
 
   t.end();
 });
@@ -75,16 +73,11 @@ test("Alert about passing build", async t => {
     }
   });
 
-  const response = await travis.run.call(client, payload);
+  await travis.run.call(client, payload);
 
-  t.equals(request.lastCall.arg.owner, "zulip");
-  t.equals(request.lastCall.arg.repo, "zulipbot");
-  t.equals(request.lastCall.arg.number, 69);
-  t.equals(request2.lastCall.arg.owner, "zulip");
-  t.equals(request2.lastCall.arg.repo, "zulipbot");
-  t.equals(request2.lastCall.arg.number, 69);
-  t.equals(request2.lastCall.arg.body, message);
-  t.equals(response.data.body, message);
+  t.ok(request.called);
+  t.ok(request2.called);
+  t.is(request2.lastCall.arg.body, message);
 
   t.end();
 });
@@ -102,16 +95,10 @@ test("Alert about failing build", async t => {
     }
   });
 
-  const response = await travis.run.call(client, payload);
+  await travis.run.call(client, payload);
 
-  t.equals(request.lastCall.arg.owner, "zulip");
-  t.equals(request.lastCall.arg.repo, "zulipbot");
-  t.equals(request.lastCall.arg.number, 69);
-  t.equals(request2.lastCall.arg.owner, "zulip");
-  t.equals(request2.lastCall.arg.repo, "zulipbot");
-  t.equals(request2.lastCall.arg.number, 69);
-  t.equals(request2.lastCall.arg.body, error);
-  t.equals(response.data.body, error);
+  t.ok(request.called);
+  t.is(request2.lastCall.arg.body, error);
 
   t.end();
 });

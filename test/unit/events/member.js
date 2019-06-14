@@ -18,7 +18,7 @@ const payload = {
 test("Ignore if payload action isn't added", async t => {
   const response = await member.run.call(client, payload);
 
-  t.strictSame(response, false);
+  t.notOk(response);
 
   t.end();
 });
@@ -28,7 +28,7 @@ test("Ignore if there aren't any claim command aliases", async t => {
   client.cfg.issues.commands.assign.claim = [];
   const response = await member.run.call(client, payload);
 
-  t.strictSame(response, false);
+  t.notOk(response);
 
   t.end();
 });
@@ -37,7 +37,7 @@ test("Ignore if there aren't any recorded invites", async t => {
   client.cfg.issues.commands.assign.claim = ["claim"];
   const response = await member.run.call(client, payload);
 
-  t.strictSame(response, false);
+  t.notOk(response);
 
   t.end();
 });
@@ -54,13 +54,11 @@ test("Assign successfully if invite was found", async t => {
 
   const response = await member.run.call(client, payload);
 
-  t.equals(client.invites.has("octokitten@zulip/zulipbot"), false);
-  t.equals(request.lastCall.arg.owner, "zulip");
-  t.equals(request.lastCall.arg.repo, "zulipbot");
-  t.equals(request.lastCall.arg.number, 69);
-  t.strictSame(request.lastCall.arg.assignees, ["octokitten"]);
-  t.equals(response, true);
+  t.notOk(client.invites.has("octokitten@zulip/zulipbot"));
+  t.deepIs(request.lastCall.arg.assignees, ["octokitten"]);
+  t.ok(response);
 
+  simple.restore();
   t.end();
 });
 
@@ -81,19 +79,13 @@ test("Warn if issue assignment failed", async t => {
     }
   });
 
-  const response = await member.run.call(client, payload);
+  await member.run.call(client, payload);
 
-  t.equals(client.invites.has("octokitten@zulip/zulipbot"), false);
-  t.equals(request.lastCall.arg.owner, "zulip");
-  t.equals(request.lastCall.arg.repo, "zulipbot");
-  t.equals(request.lastCall.arg.number, 69);
-  t.strictSame(request.lastCall.arg.assignees, ["octokitten"]);
-  t.equals(request2.lastCall.arg.owner, "zulip");
-  t.equals(request2.lastCall.arg.repo, "zulipbot");
-  t.equals(request2.lastCall.arg.number, 69);
-  t.equals(request2.lastCall.arg.body, error);
-  t.equals(response.data.body, error);
+  t.notOk(client.invites.has("octokitten@zulip/zulipbot"));
+  t.deepIs(request.lastCall.arg.assignees, ["octokitten"]);
+  t.is(request2.lastCall.arg.body, error);
 
+  simple.restore();
   t.end();
 });
 

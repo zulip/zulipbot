@@ -1,7 +1,5 @@
 exports.run = async function(payload) {
-  if (!payload.pull_request || !this.cfg.pulls.ci.travis) {
-    return this.util.respond(false);
-  }
+  if (!payload.pull_request || !this.cfg.pulls.ci.travis) return;
 
   const repoOwner = payload.repository.owner_name;
   const repoName = payload.repository.name;
@@ -15,7 +13,7 @@ exports.run = async function(payload) {
     return label.name === this.cfg.pulls.ci.travis;
   });
 
-  if (!labelCheck) return this.util.respond(false);
+  if (!labelCheck) return;
 
   const state = payload.state;
   const url = payload.build_url;

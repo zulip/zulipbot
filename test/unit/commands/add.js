@@ -42,7 +42,7 @@ test("Reject if self-labelling enabled with different commenter", async t => {
 
   const response = await add.run.call(client, payload, commenter, args);
 
-  t.is(response, false);
+  t.notOk(response);
 
   t.end();
 });
@@ -56,7 +56,7 @@ test("Reject if self-labelling users excludes commenter", async t => {
 
   const response = await add.run.call(client, payload, commenter, args);
 
-  t.is(response, false);
+  t.notOk(response);
 
   t.end();
 });
@@ -67,7 +67,7 @@ test("Reject if invalid arguments were provided", async t => {
 
   const response = await add.run.call(client, payload, commenter, args);
 
-  t.is(response, false);
+  t.notOk(response);
 
   t.end();
 });
@@ -80,21 +80,12 @@ test("Add appropriate labels", async t => {
   const request1 = simple.mock(client.util, "getAllPages")
     .resolveWith(repoLabels);
 
-  const request2 = simple.mock(client.issues, "addLabels")
-    .resolveWith({
-      code: 200
-    });
+  const request2 = simple.mock(client.issues, "addLabels").resolveWith();
 
-  const response = await add.run.call(client, payload, commenter, args);
+  await add.run.call(client, payload, commenter, args);
 
-  t.equals(request1.lastCall.args[0], "issues.getLabels");
-  t.equals(request1.lastCall.args[1].owner, "zulip");
-  t.equals(request1.lastCall.args[1].repo, "zulipbot");
-  t.equals(request2.lastCall.arg.owner, "zulip");
-  t.equals(request2.lastCall.arg.repo, "zulipbot");
-  t.equals(request2.lastCall.arg.number, 69);
-  t.strictSame(request2.lastCall.arg.labels, ["bug"]);
-  t.equals(response.code, 200);
+  t.ok(request1.called);
+  t.deepIs(request2.lastCall.arg.labels, ["bug"]);
 
   simple.restore();
   t.end();
@@ -108,10 +99,7 @@ test("Add appropriate label and reject label not in repository", async t => {
   const request1 = simple.mock(client.util, "getAllPages")
     .resolveWith(repoLabels);
 
-  const request2 = simple.mock(client.issues, "addLabels")
-    .resolveWith({
-      code: 200
-    });
+  const request2 = simple.mock(client.issues, "addLabels").resolveWith();
 
   const error = "Label \"invalid\" does not exist was added to pull request.";
 
@@ -122,17 +110,11 @@ test("Add appropriate label and reject label not in repository", async t => {
       }
     });
 
-  const response = await add.run.call(client, payload, commenter, args);
+  await add.run.call(client, payload, commenter, args);
 
-  t.equals(request1.lastCall.args[0], "issues.getLabels");
-  t.equals(request1.lastCall.args[1].owner, "zulip");
-  t.equals(request1.lastCall.args[1].repo, "zulipbot");
-  t.equals(request2.lastCall.arg.owner, "zulip");
-  t.equals(request2.lastCall.arg.repo, "zulipbot");
-  t.equals(request2.lastCall.arg.number, 69);
-  t.strictSame(request2.lastCall.arg.labels, ["bug"]);
-  t.equals(request3.lastCall.arg.body, error);
-  t.equals(response.code, 200);
+  t.ok(request1.called);
+  t.deepIs(request2.lastCall.arg.labels, ["bug"]);
+  t.is(request3.lastCall.arg.body, error);
 
   simple.restore();
   t.end();
@@ -146,10 +128,7 @@ test("Add appropriate labels and reject labels not in repository", async t => {
   const request1 = simple.mock(client.util, "getAllPages")
     .resolveWith(repoLabels);
 
-  const request2 = simple.mock(client.issues, "addLabels")
-    .resolveWith({
-      code: 200
-    });
+  const request2 = simple.mock(client.issues, "addLabels").resolveWith();
 
   const error = "Labels \"a\", \"b\" do not exist were added to issue.";
 
@@ -160,17 +139,11 @@ test("Add appropriate labels and reject labels not in repository", async t => {
       }
     });
 
-  const response = await add.run.call(client, payload, commenter, args);
+  await add.run.call(client, payload, commenter, args);
 
-  t.equals(request1.lastCall.args[0], "issues.getLabels");
-  t.equals(request1.lastCall.args[1].owner, "zulip");
-  t.equals(request1.lastCall.args[1].repo, "zulipbot");
-  t.equals(request2.lastCall.arg.owner, "zulip");
-  t.equals(request2.lastCall.arg.repo, "zulipbot");
-  t.equals(request2.lastCall.arg.number, 69);
-  t.strictSame(request2.lastCall.arg.labels, ["bug"]);
-  t.equals(request3.lastCall.arg.body, error);
-  t.equals(response.code, 200);
+  t.ok(request1.called);
+  t.deepIs(request2.lastCall.arg.labels, ["bug"]);
+  t.is(request3.lastCall.arg.body, error);
 
   simple.restore();
   t.end();
@@ -184,10 +157,7 @@ test("Add appropriate labels and reject already added label", async t => {
   const request1 = simple.mock(client.util, "getAllPages")
     .resolveWith(repoLabels);
 
-  const request2 = simple.mock(client.issues, "addLabels")
-    .resolveWith({
-      code: 200
-    });
+  const request2 = simple.mock(client.issues, "addLabels").resolveWith();
 
   const error = "Label \"test\" already exists was added to pull request.";
 
@@ -198,17 +168,11 @@ test("Add appropriate labels and reject already added label", async t => {
       }
     });
 
-  const response = await add.run.call(client, payload, commenter, args);
+  await add.run.call(client, payload, commenter, args);
 
-  t.equals(request1.lastCall.args[0], "issues.getLabels");
-  t.equals(request1.lastCall.args[1].owner, "zulip");
-  t.equals(request1.lastCall.args[1].repo, "zulipbot");
-  t.equals(request2.lastCall.arg.owner, "zulip");
-  t.equals(request2.lastCall.arg.repo, "zulipbot");
-  t.equals(request2.lastCall.arg.number, 69);
-  t.strictSame(request2.lastCall.arg.labels, ["bug"]);
-  t.equals(request3.lastCall.arg.body, error);
-  t.equals(response.code, 200);
+  t.ok(request1.called);
+  t.deepIs(request2.lastCall.arg.labels, ["bug"]);
+  t.is(request3.lastCall.arg.body, error);
 
   simple.restore();
   t.end();
@@ -222,10 +186,7 @@ test("Add appropriate labels and reject already added labels", async t => {
   const request1 = simple.mock(client.util, "getAllPages")
     .resolveWith(repoLabels);
 
-  const request2 = simple.mock(client.issues, "addLabels")
-    .resolveWith({
-      code: 200
-    });
+  const request2 = simple.mock(client.issues, "addLabels").resolveWith();
 
   const error = "Labels \"test\", \"test2\" already exist were added to issue.";
 
@@ -236,17 +197,11 @@ test("Add appropriate labels and reject already added labels", async t => {
       }
     });
 
-  const response = await add.run.call(client, payload, commenter, args);
+  await add.run.call(client, payload, commenter, args);
 
-  t.equals(request1.lastCall.args[0], "issues.getLabels");
-  t.equals(request1.lastCall.args[1].owner, "zulip");
-  t.equals(request1.lastCall.args[1].repo, "zulipbot");
-  t.equals(request2.lastCall.arg.owner, "zulip");
-  t.equals(request2.lastCall.arg.repo, "zulipbot");
-  t.equals(request2.lastCall.arg.number, 69);
-  t.strictSame(request2.lastCall.arg.labels, []);
-  t.equals(request3.lastCall.arg.body, error);
-  t.equals(response.code, 200);
+  t.ok(request1.called);
+  t.deepIs(request2.lastCall.arg.labels, []);
+  t.is(request3.lastCall.arg.body, error);
 
   simple.restore();
   t.end();

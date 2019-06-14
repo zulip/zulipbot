@@ -28,10 +28,10 @@ exports.run = async function(payload, commenter, args) {
     });
 
     if (contributors.find(c => c.login === commenter)) {
-      claim.apply(this, [commenter, number, repoOwner, repoName]);
-    } else {
-      validate.apply(this, [commenter, number, repoOwner, repoName]);
+      return claim.apply(this, [commenter, number, repoOwner, repoName]);
     }
+
+    return validate.apply(this, [commenter, number, repoOwner, repoName]);
   } catch (response) {
     if (response.code !== 404) {
       const error = "**ERROR:** Unexpected response from GitHub API.";
@@ -40,7 +40,7 @@ exports.run = async function(payload, commenter, args) {
       });
     }
 
-    invite.apply(this, [payload, commenter, args]);
+    return invite.apply(this, [payload, commenter, args]);
   }
 };
 
@@ -51,7 +51,7 @@ async function invite(payload, commenter, args) {
 
   const inviteKey = `${commenter}@${repoOwner}/${repoName}`;
 
-  if (this.invites.get(inviteKey)) {
+  if (this.invites.has(inviteKey)) {
     const error = this.templates.get("inviteError").format({
       commenter, repoName, repoOwner
     });
@@ -88,7 +88,7 @@ async function invite(payload, commenter, args) {
   const perm = this.cfg.issues.commands.assign.newContributors.permission;
 
   if (!perm) {
-    const error = "**ERROR:** `addCollabPermission` wasn't configured.";
+    const error = "**ERROR:** `newContributors.permission` wasn't configured.";
     return this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: error
     });
@@ -102,11 +102,11 @@ async function invite(payload, commenter, args) {
     owner: repoOwner, repo: repoName, number: number, body: comment
   });
 
-  await this.repos.addCollaborator({
+  this.invites.set(inviteKey, number);
+
+  return this.repos.addCollaborator({
     owner: repoOwner, repo: repoName, username: commenter, permission: perm
   });
-
-  this.invites.set(inviteKey, number);
 }
 
 async function validate(commenter, number, repoOwner, repoName) {
@@ -131,7 +131,7 @@ async function validate(commenter, number, repoOwner, repoName) {
     });
   }
 
-  claim.apply(this, [commenter, number, repoOwner, repoName]);
+  return claim.apply(this, [commenter, number, repoOwner, repoName]);
 }
 
 async function claim(commenter, number, repoOwner, repoName) {
@@ -142,7 +142,8 @@ async function claim(commenter, number, repoOwner, repoName) {
   if (response.data.assignees.length) return;
 
   const error = "**ERROR:** Issue claiming failed (no assignee was added).";
-  this.issues.createComment({
+
+  return this.issues.createComment({
     owner: repoOwner, repo: repoName, number: number, body: error
   });
 }

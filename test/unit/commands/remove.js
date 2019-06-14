@@ -36,7 +36,7 @@ test("Reject if self-labelling enabled with different commenter", async t => {
 
   const response = await remove.run.call(client, payload, commenter, args);
 
-  t.is(response, false);
+  t.notOk(response);
 
   t.end();
 });
@@ -50,7 +50,7 @@ test("Reject if self-labelling users excludes commenter", async t => {
 
   const response = await remove.run.call(client, payload, commenter, args);
 
-  t.is(response, false);
+  t.notOk(response);
 
   t.end();
 });
@@ -61,7 +61,7 @@ test("Reject if invalid arguments were provided", async t => {
 
   const response = await remove.run.call(client, payload, commenter, args);
 
-  t.is(response, false);
+  t.notOk(response);
 
   t.end();
 });
@@ -71,18 +71,11 @@ test("Remove appropriate labels", async t => {
   const commenter = "octocat";
   const args = "\"bug\"";
 
-  const request = simple.mock(client.issues, "replaceAllLabels")
-    .resolveWith({
-      code: 200
-    });
+  const request = simple.mock(client.issues, "replaceAllLabels").resolveWith();
 
-  const response = await remove.run.call(client, payload, commenter, args);
+  await remove.run.call(client, payload, commenter, args);
 
-  t.equals(request.lastCall.arg.owner, "zulip");
-  t.equals(request.lastCall.arg.repo, "zulipbot");
-  t.equals(request.lastCall.arg.number, 69);
-  t.strictSame(request.lastCall.arg.labels, ["help wanted"]);
-  t.equals(response, true);
+  t.deepIs(request.lastCall.arg.labels, ["help wanted"]);
 
   simple.restore();
   t.end();
@@ -92,10 +85,7 @@ test("Remove appropriate labels with single rejection message", async t => {
   const commenter = "octocat";
   const args = "\"help wanted\" \"test\"";
 
-  const request = simple.mock(client.issues, "replaceAllLabels")
-    .resolveWith({
-      code: 200
-    });
+  const request = simple.mock(client.issues, "replaceAllLabels").resolveWith();
 
   const error = "Label \"test\" does not exist was removed from pull request.";
 
@@ -106,17 +96,10 @@ test("Remove appropriate labels with single rejection message", async t => {
       }
     });
 
-  const response = await remove.run.call(client, payload, commenter, args);
+  await remove.run.call(client, payload, commenter, args);
 
-  t.equals(request.lastCall.arg.owner, "zulip");
-  t.equals(request.lastCall.arg.repo, "zulipbot");
-  t.equals(request.lastCall.arg.number, 69);
-  t.strictSame(request.lastCall.arg.labels, ["bug"]);
-  t.equals(request2.lastCall.arg.owner, "zulip");
-  t.equals(request2.lastCall.arg.repo, "zulipbot");
-  t.equals(request2.lastCall.arg.number, 69);
-  t.equals(request2.lastCall.arg.body, error);
-  t.equals(response.data.body, error);
+  t.deepIs(request.lastCall.arg.labels, ["bug"]);
+  t.is(request2.lastCall.arg.body, error);
 
   simple.restore();
   t.end();
@@ -127,10 +110,7 @@ test("Remove appropriate labels with multiple rejection message", async t => {
   const commenter = "octocat";
   const args = "\"help wanted\" \"a\" \"b\"";
 
-  const request = simple.mock(client.issues, "replaceAllLabels")
-    .resolveWith({
-      code: 200
-    });
+  const request = simple.mock(client.issues, "replaceAllLabels").resolveWith();
 
   const error = "Labels \"a\", \"b\" do not exist were removed from issue.";
 
@@ -141,17 +121,10 @@ test("Remove appropriate labels with multiple rejection message", async t => {
       }
     });
 
-  const response = await remove.run.call(client, payload, commenter, args);
+  await remove.run.call(client, payload, commenter, args);
 
-  t.equals(request.lastCall.arg.owner, "zulip");
-  t.equals(request.lastCall.arg.repo, "zulipbot");
-  t.equals(request.lastCall.arg.number, 69);
-  t.strictSame(request.lastCall.arg.labels, ["bug"]);
-  t.equals(request2.lastCall.arg.owner, "zulip");
-  t.equals(request2.lastCall.arg.repo, "zulipbot");
-  t.equals(request2.lastCall.arg.number, 69);
-  t.equals(request2.lastCall.arg.body, error);
-  t.equals(response.data.body, error);
+  t.deepIs(request.lastCall.arg.labels, ["bug"]);
+  t.is(request2.lastCall.arg.body, error);
 
   simple.restore();
   t.end();

@@ -3,7 +3,7 @@ exports.run = async function(payload, commenter, args) {
   const self = this.cfg.issues.commands.label.self;
   const selfLabel = self.users ? !self.users.includes(commenter) : self;
   const forbidden = selfLabel && creator !== commenter;
-  if (forbidden || !args.match(/".*?"/)) return this.util.respond(false);
+  if (forbidden || !args.match(/".*?"/)) return;
 
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
@@ -18,7 +18,7 @@ exports.run = async function(payload, commenter, args) {
     owner: repoOwner, repo: repoName, number: number, labels: removeLabels
   });
 
-  if (!rejected.length) return this.util.respond(true);
+  if (!rejected.length) return true;
 
   const one = rejected.length === 1;
   const type = payload.issue.pull_request ? "pull request" : "issue";
