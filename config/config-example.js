@@ -118,7 +118,7 @@ exports.activity = {
     repositories: [
       "zulip/zulip",
       "zulip/python-zulip-api",
-      "zulip/zulip-electron",
+      "zulip/zulip-desktop",
       "zulip/zulip-terminal",
       "zulip/zulipbot"
     ],
