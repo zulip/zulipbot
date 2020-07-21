@@ -17,7 +17,7 @@
     "node-fetch": "^2.1.2"
   },
   "devDependencies": {
-    "codecov": "^3.0.4",
+    "codecov": "^3.7.1",
     "eslint": "^5.0.1",
     "eslint-config-xo-space": "^0.21.0",
     "simple-mock": "^0.8.0",
