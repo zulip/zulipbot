@@ -91,7 +91,7 @@ class ReferenceSearch {
   }
 
   async getCommits() {
-    const commits = await this.client.pullRequests.getCommits({
+    const commits = await this.client.pulls.listCommits({
       owner: this.repoOwner, repo: this.repoName, number: this.number
     });
 

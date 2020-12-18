@@ -23,9 +23,10 @@ exports.run = async function(payload, commenter, args) {
       owner: repoOwner, repo: repoName, username: commenter
     });
 
-    const contributors = await this.util.getAllPages("repos.getContributors", {
-      owner: repoOwner, repo: repoName
-    });
+    const contributors = await this.util
+      .getAllPages("repos.listContributors", {
+        owner: repoOwner, repo: repoName
+      });
 
     if (contributors.find(c => c.login === commenter)) {
       return claim.apply(this, [commenter, number, repoOwner, repoName]);
@@ -110,7 +111,7 @@ async function invite(payload, commenter, args) {
 }
 
 async function validate(commenter, number, repoOwner, repoName) {
-  const issues = await this.util.getAllPages("issues.getAll", {
+  const issues = await this.util.getAllPages("issues.list", {
     filter: "all", labels: this.cfg.activity.issues.inProgress
   });
 
@@ -135,7 +136,7 @@ async function validate(commenter, number, repoOwner, repoName) {
 }
 
 async function claim(commenter, number, repoOwner, repoName) {
-  const response = await this.issues.addAssigneesToIssue({
+  const response = await this.issues.addAssignees({
     owner: repoOwner, repo: repoName, number: number, assignees: [commenter]
   });
 

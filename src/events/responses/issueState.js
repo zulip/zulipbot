@@ -24,7 +24,7 @@ async function clearClosed(issue, repo) {
     assignees: issue.assignees.map(a => a.login)
   });
 
-  await this.issues.removeAssigneesFromIssue({
+  await this.issues.removeAssignees({
     owner: repoOwner, repo: repoName, number: issue.number, body: assignees
   });
 

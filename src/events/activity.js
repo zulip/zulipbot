@@ -5,7 +5,7 @@ exports.run = async function() {
   const repos = this.cfg.activity.check.repositories;
   const pages = repos.map(async repo => {
     const [repoOwner, repoName] = repo.split("/");
-    return this.util.getAllPages("pullRequests.getAll", {
+    return this.util.getAllPages("pulls.list", {
       owner: repoOwner, repo: repoName
     });
   });
@@ -31,7 +31,7 @@ async function scrapePulls(pulls) {
     const repoName = pull.base.repo.name;
     const repoOwner = pull.base.repo.owner.login;
 
-    const response = await this.issues.getIssueLabels({
+    const response = await this.issues.listLabelsOnIssue({
       owner: repoOwner, repo: repoName, number: number
     });
 
@@ -63,7 +63,7 @@ async function scrapePulls(pulls) {
     }
   }
 
-  const issues = await this.util.getAllPages("issues.getAll", {
+  const issues = await this.util.getAllPages("issues.list", {
     filter: "all", labels: this.cfg.activity.issues.inProgress
   });
 
@@ -138,7 +138,7 @@ async function scrapeInactiveIssues(references, issues) {
     });
 
     if (comments.length) {
-      this.issues.removeAssigneesFromIssue({
+      this.issues.removeAssignees({
         owner: repoOwner, repo: repoName, number: number, assignees: logins
       });
 

@@ -45,7 +45,7 @@ test("Ignore if there aren't any recorded invites", async t => {
 test("Assign successfully if invite was found", async t => {
   client.invites.set("octokitten@zulip/zulipbot", 69);
 
-  const request = simple.mock(client.issues, "addAssigneesToIssue")
+  const request = simple.mock(client.issues, "addAssignees")
     .resolveWith({
       data: {
         assignees: ["octokitten"]
@@ -65,7 +65,7 @@ test("Assign successfully if invite was found", async t => {
 test("Warn if issue assignment failed", async t => {
   client.invites.set("octokitten@zulip/zulipbot", 69);
 
-  const request = simple.mock(client.issues, "addAssigneesToIssue")
+  const request = simple.mock(client.issues, "addAssignees")
     .resolveWith({
       data: {
         assignees: []

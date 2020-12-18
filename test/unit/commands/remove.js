@@ -71,7 +71,7 @@ test("Remove appropriate labels", async t => {
   const commenter = "octocat";
   const args = "\"bug\"";
 
-  const request = simple.mock(client.issues, "replaceAllLabels").resolveWith();
+  const request = simple.mock(client.issues, "replaceLabels").resolveWith();
 
   await remove.run.call(client, payload, commenter, args);
 
@@ -85,7 +85,7 @@ test("Remove appropriate labels with single rejection message", async t => {
   const commenter = "octocat";
   const args = "\"help wanted\" \"test\"";
 
-  const request = simple.mock(client.issues, "replaceAllLabels").resolveWith();
+  const request = simple.mock(client.issues, "replaceLabels").resolveWith();
 
   const error = "Label \"test\" does not exist was removed from pull request.";
 
@@ -110,7 +110,7 @@ test("Remove appropriate labels with multiple rejection message", async t => {
   const commenter = "octocat";
   const args = "\"help wanted\" \"a\" \"b\"";
 
-  const request = simple.mock(client.issues, "replaceAllLabels").resolveWith();
+  const request = simple.mock(client.issues, "replaceLabels").resolveWith();
 
   const error = "Labels \"a\", \"b\" do not exist were removed from issue.";
 

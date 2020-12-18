@@ -5,7 +5,7 @@ exports.run = async function(payload) {
   const repoName = payload.repository.name;
   const number = payload.pull_request_number;
 
-  const labels = await this.issues.getIssueLabels({
+  const labels = await this.issues.listLabelsOnIssue({
     owner: repoOwner, repo: repoName, number: number
   });
 
