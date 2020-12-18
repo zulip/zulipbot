@@ -101,8 +101,6 @@ Object.entries(client.cfg.auth).forEach(pair => {
   }
 });
 
-client.authenticate({
-  type: "basic",
-  username: client.cfg.auth.username,
-  password: client.cfg.auth.password
+client.users.getAuthenticated().then(response => {
+  client.cfg.auth.username = response.data.login;
 });
