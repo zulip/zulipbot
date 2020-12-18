@@ -42,7 +42,7 @@ test("Reject if commenter isn't an assignee", async t => {
 test("Remove if commenter is assigned", async t => {
   const commenter = "octocat";
 
-  const request = simple.mock(client.issues, "removeAssigneesFromIssue")
+  const request = simple.mock(client.issues, "removeAssignees")
     .resolveWith({
       data: {
         assignees: []

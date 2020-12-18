@@ -27,7 +27,7 @@ class Template {
    */
 
   async getComments(parameters) {
-    const method = "issues.getComments";
+    const method = "issues.listComments";
     const comments = await this.client.util.getAllPages(method, parameters);
 
     const templateComments = comments.filter(comment => {

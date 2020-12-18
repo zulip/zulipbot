@@ -7,7 +7,7 @@ exports.label = async function(payload) {
   const number = payload.pull_request.number;
   const action = payload.action;
 
-  const response = await this.issues.getIssueLabels({
+  const response = await this.issues.listLabelsOnIssue({
     owner: repoOwner, repo: repoName, number: number
   });
 
@@ -28,7 +28,7 @@ exports.label = async function(payload) {
   }
 
   if (!_.isEqual(oldLabels.sort(), labels.sort())) {
-    await this.issues.replaceAllLabels({
+    await this.issues.replaceLabels({
       owner: repoOwner, repo: repoName, number: number, labels: labels
     });
   }
@@ -62,7 +62,7 @@ async function size(sizeLabels, labels, number, repo) {
   const repoOwner = repo.owner.login;
   const pullLabels = labels.filter(label => !sizeLabels.has(label));
 
-  const files = await this.util.getAllPages("pullRequests.getFiles", {
+  const files = await this.util.getAllPages("pulls.listFiles", {
     owner: repoOwner, repo: repoName, number: number
   });
 
@@ -91,7 +91,7 @@ exports.assign = function(payload) {
   const reviewer = payload.reviewer.user.login;
   const number = payload.pull_request.number;
 
-  this.issues.addAssigneesToIssue({
+  this.issues.addAssignees({
     owner: repoOwner, repo: repoName, number: number, assignees: [reviewer]
   });
 };
@@ -103,7 +103,7 @@ exports.update = async function(pull, repo) {
 
   const warnings = new Map([
     ["mergeConflictWarning", async() => {
-      const pullInfo = await this.pullRequests.get({
+      const pullInfo = await this.pulls.get({
         owner: repoOwner, repo: repoName, number: number
       });
       return new Promise(resolve => resolve(pullInfo.data.mergeable));

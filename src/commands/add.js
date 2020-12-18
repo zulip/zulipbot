@@ -10,9 +10,10 @@ exports.run = async function(payload, commenter, args) {
   const number = payload.issue.number;
   const issueLabels = payload.issue.labels.map(label => label.name);
 
-  const repoLabelArray = await this.util.getAllPages("issues.getLabels", {
-    owner: repoOwner, repo: repoName
-  });
+  const repoLabelArray = await this.util
+    .getAllPages("issues.listLabelsForRepo", {
+      owner: repoOwner, repo: repoName
+    });
 
   const repoLabels = repoLabelArray.map(label => label.name);
   const labels = args.match(/".*?"/g).map(string => string.replace(/"/g, ""));

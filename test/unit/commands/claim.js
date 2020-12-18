@@ -202,7 +202,7 @@ test("Always assign if commenter is contributor", async t => {
     {login: "octocat"}
   ]);
 
-  const request3 = simple.mock(client.issues, "addAssigneesToIssue")
+  const request3 = simple.mock(client.issues, "addAssignees")
     .resolveWith({
       data: {
         assignees: ["octocat"]
@@ -228,7 +228,7 @@ test("Always assign if commenter is contributor", async t => {
     {login: "octocat"}
   ]);
 
-  const request3 = simple.mock(client.issues, "addAssigneesToIssue")
+  const request3 = simple.mock(client.issues, "addAssignees")
     .resolveWith({
       data: {
         assignees: ["octocat"]
@@ -254,7 +254,7 @@ test("Error if no assignees were added", async t => {
     {login: "octocat"}
   ]);
 
-  const request3 = simple.mock(client.issues, "addAssigneesToIssue")
+  const request3 = simple.mock(client.issues, "addAssignees")
     .resolveWith({
       data: {
         assignees: []
@@ -282,7 +282,7 @@ test("Assign if claim limit validation passed", async t => {
 
   const request2 = simple.mock(client.util, "getAllPages").resolveWith([]);
 
-  const request3 = simple.mock(client.issues, "addAssigneesToIssue")
+  const request3 = simple.mock(client.issues, "addAssignees")
     .resolveWith({
       data: {
         assignees: ["octocat"]

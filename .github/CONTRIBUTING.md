@@ -53,7 +53,7 @@ assign you to the issue so you can begin working on it.
 4. Install the necessary node packages and dependencies.
 
   ```sh
-  $ yarn install
+  $ npm install
   ```
 
 5. Use the [smee.io](https://smee.io/) CLI to redirect GitHub webhook payloads
@@ -77,7 +77,7 @@ assign you to the issue so you can begin working on it.
 7. Run the bot to ensure that your environment was configured correctly.
 
   ```sh
-  $ yarn start
+  $ npm start
   ```
 
 If you encounter any problems during installation, let us know on the [zulipbot
@@ -94,7 +94,7 @@ chat](https://chat.zulip.org/#narrow/stream/zulipbot) and we can help you out!
 3. Check if your changes and commits pass all tests:
 
   ```sh
-  $ yarn test
+  $ npm test
   ```
 
   Modify your commits accordingly if your changes don't pass all tests.

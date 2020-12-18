@@ -49,7 +49,7 @@ test("Ignore if no there is no Travis configuration", async t => {
 test("Ignore if pull request has no configured Travis label", async t => {
   client.cfg.pulls.ci.travis = "travis";
 
-  const request = simple.mock(client.issues, "getIssueLabels").resolveWith({
+  const request = simple.mock(client.issues, "listLabelsOnIssue").resolveWith({
     data: []
   });
 
@@ -62,7 +62,7 @@ test("Ignore if pull request has no configured Travis label", async t => {
 });
 
 test("Alert about passing build", async t => {
-  const request = simple.mock(client.issues, "getIssueLabels").resolveWith({
+  const request = simple.mock(client.issues, "listLabelsOnIssue").resolveWith({
     data: [{name: "travis"}]
   });
 
@@ -84,7 +84,7 @@ test("Alert about passing build", async t => {
 
 test("Alert about failing build", async t => {
   payload.state = "failed";
-  const request = simple.mock(client.issues, "getIssueLabels").resolveWith({
+  const request = simple.mock(client.issues, "listLabelsOnIssue").resolveWith({
     data: [{name: "travis"}]
   });
 

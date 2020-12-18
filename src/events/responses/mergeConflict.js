@@ -2,7 +2,7 @@ exports.run = async function(repo) {
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
 
-  const pulls = await this.util.getAllPages("pullRequests.getAll", {
+  const pulls = await this.util.getAllPages("pulls.list", {
     owner: repoOwner, repo: repoName
   });
   const iterator = pulls[Symbol.iterator]();
@@ -16,7 +16,7 @@ async function check(number, repo) {
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
 
-  const pull = await this.pullRequests.get({
+  const pull = await this.pulls.get({
     owner: repoOwner, repo: repoName, number: number
   });
 
@@ -33,7 +33,7 @@ async function check(number, repo) {
 
   // Use a strict false check; unknown merge conflict statuses return null
   if (mergeable === false) {
-    const commits = await this.util.getAllPages("pullRequests.getCommits", {
+    const commits = await this.util.getAllPages("pulls.listCommits", {
       owner: repoOwner, repo: repoName, number: number
     });
     const lastCommitTime = commits.slice(-1).pop().commit.committer.date;
@@ -42,7 +42,7 @@ async function check(number, repo) {
       return Date.parse(lastCommitTime) < Date.parse(c.created_at);
     });
 
-    const labels = await this.issues.getIssueLabels({
+    const labels = await this.issues.listLabelsOnIssue({
       owner: repoOwner, repo: repoName, number: number
     });
     const inactive = labels.data.find(l => {

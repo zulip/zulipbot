@@ -18,15 +18,8 @@ exports.deduplicate = function(array) {
 
 exports.getAllPages = async function(path, parameters) {
   const [api, method] = path.split(".");
-  parameters.per_page = 100;
-
-  let response = await this[api][method](parameters);
-  let responses = response.data;
-
-  while (this.hasNextPage(response)) {
-    response = await this.getNextPage(response);
-    responses = responses.concat(response.data);
-  }
+  const options = this[api][method].endpoint.merge(parameters);
+  const responses = await this.paginate(options);
 
   return responses;
 };

@@ -1,4 +1,5 @@
-const client = require("@octokit/rest")();
+const {Octokit} = require("@octokit/rest");
+const client = new Octokit();
 const fs = require("fs");
 
 const configPath = `${__dirname}/../config`;

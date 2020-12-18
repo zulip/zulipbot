@@ -11,7 +11,7 @@ exports.run = async function(payload) {
 
   const [repoOwner, repoName] = repoFullName.split("/");
 
-  const response = await this.issues.addAssigneesToIssue({
+  const response = await this.issues.addAssignees({
     owner: repoOwner, repo: repoName, number: invite, assignees: [member]
   });
 

@@ -40,7 +40,7 @@ async function labelReference(refIssue, number, repo) {
   const repoOwner = repo.owner.login;
   const labelCfg = this.cfg.pulls.references.labels;
 
-  const response = await this.issues.getIssueLabels({
+  const response = await this.issues.listLabelsOnIssue({
     owner: repoOwner, repo: repoName, number: refIssue
   });
 
