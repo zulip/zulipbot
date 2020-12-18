@@ -1,9 +1,12 @@
 const {Octokit} = require("@octokit/rest");
-const client = new Octokit();
 const fs = require("fs");
 
 const configPath = `${__dirname}/../config`;
-client.cfg = require(`${configPath}/default.js`);
+const cfg = require(`${configPath}/default.js`);
+const client = new Octokit({
+  auth: cfg.auth.oAuthToken
+});
+client.cfg = cfg;
 client.util = require("./util.js");
 for (const method of Object.keys(client.util)) {
   client.util[method] = client.util[method].bind(client);

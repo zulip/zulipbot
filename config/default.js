@@ -7,8 +7,7 @@
 
 // Default authentication specified by environment variables
 exports.auth = {
-  username: process.env.USERNAME,
-  password: process.env.PASSWORD,
+  oAuthToken: process.env.OAUTH_TOKEN,
   webhookSecret: process.env.WEBHOOK_SECRET
 };
 
