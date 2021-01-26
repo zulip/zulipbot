@@ -55,6 +55,7 @@ exports.issues = {
 exports.pulls = {
   status: {
     mergeConflicts: {
+      branch: "main",
       label: null,
       comment: false
     },

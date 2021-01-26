@@ -25,7 +25,7 @@ test("Ignore if non-master branch was pushed", async t => {
 test("Ignore if there was no merge conflict configuration", async t => {
   client.cfg.pulls.status.mergeConflicts.comment = false;
   client.cfg.pulls.status.mergeConflicts.label = null;
-  payload.ref = "refs/heads/master";
+  payload.ref = "refs/heads/main";
   const response = await push.run.call(client, payload);
 
   t.notOk(response);

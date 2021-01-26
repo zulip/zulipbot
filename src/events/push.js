@@ -1,7 +1,7 @@
 exports.run = function(payload) {
   const repo = payload.repository;
-  const masterPush = payload.ref === "refs/heads/master";
-  const {label, comment} = this.cfg.pulls.status.mergeConflicts;
+  const {branch, label, comment} = this.cfg.pulls.status.mergeConflicts;
+  const masterPush = payload.ref === `refs/heads/${branch}`;
 
   if (!masterPush || (!label && !comment)) return;
 

@@ -15,16 +15,18 @@ exports.run = async function(repo) {
 async function check(number, repo) {
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
+  const {branch, label, comment} = this.cfg.pulls.status.mergeConflicts;
 
   const pull = await this.pulls.get({
     owner: repoOwner, repo: repoName, number: number
   });
 
   const mergeable = pull.data.mergeable;
+  const username = pull.data.user.login;
 
   const template = this.templates.get("mergeConflictWarning");
   const warning = template.format({
-    username: pull.data.user.login, repoOwner: repoOwner, repoName: repoName
+    username, branch, repoOwner, repoName
   });
 
   const warnings = await template.getComments({
@@ -50,8 +52,6 @@ async function check(number, repo) {
     });
 
     if (inactive) return;
-
-    const {label, comment} = this.cfg.pulls.status.mergeConflicts;
 
     if (!warnComment && comment) {
       this.issues.createComment({
