@@ -24,12 +24,9 @@ exports.run = async function(payload, commenter, args) {
     return repoLabels.includes(label) && !issueLabels.includes(label);
   });
 
-  const response = await this.issues.addLabels({
-    owner: repoOwner, repo: repoName, number: number, labels: addLabels
-  });
-
   const type = payload.issue.pull_request ? "pull request" : "issue";
   const template = this.templates.get("labelError");
+  let response;
 
   if (rejected.length) {
     const one = rejected.length === 1;
@@ -57,6 +54,12 @@ exports.run = async function(payload, commenter, args) {
 
     this.issues.createComment({
       owner: repoOwner, repo: repoName, number: number, body: error
+    });
+  }
+
+  if (addLabels.length) {
+    response = await this.issues.addLabels({
+      owner: repoOwner, repo: repoName, number: number, labels: addLabels
     });
   }
 
