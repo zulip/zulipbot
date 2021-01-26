@@ -200,7 +200,7 @@ test("Add appropriate labels and reject already added labels", async t => {
   await add.run.call(client, payload, commenter, args);
 
   t.ok(request1.called);
-  t.deepIs(request2.lastCall.arg.labels, []);
+  t.notOk(request2.called);
   t.is(request3.lastCall.arg.body, error);
 
   simple.restore();
