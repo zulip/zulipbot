@@ -1,5 +1,3 @@
-const referenced = [];
-
 exports.run = async function(issue, repo, label) {
   const areaLabel = label.name;
   const number = issue.number;
@@ -17,43 +15,20 @@ exports.run = async function(issue, repo, label) {
   const uniqueTeams = this.util.deduplicate(labelTeams);
 
   const areaTeams = `@${repoOwner}/${uniqueTeams.join(`, @${repoOwner}/`)}`;
-  const references = issueAreaLabels.join("\", \"");
 
-  const payload = issue.pull_request ? "pull request" : "issue";
-  const labelSize = labelTeams.length === 1 ? "label" : "labels";
-  const template = this.templates.get("areaLabelAddition");
+  const prefix = "CC by @zulipbot: ";
 
-  const comment = template.format({
-    teams: areaTeams, refs: `"${references}"`, labels: labelSize,
-    payload: payload
-  });
+  const updatedIssue = {
+    owner: repoOwner, repo: repoName, issue_number: number, body: issue.body
+  };
 
-  const comments = await template.getComments({
-    owner: repoOwner, repo: repoName, number: number
-  });
+  const pattern = new RegExp(`${prefix}.+$`, "mg");
 
-  const tag = `${repoOwner}/${repoName}#${number}`;
-
-  if (comments.length) {
-    const id = comments[0].id;
-    if (issueAreaLabels.length) {
-      this.issues.editComment({
-        owner: repoOwner, repo: repoName, comment_id: id, body: comment
-      });
-    } else {
-      this.issues.deleteComment({
-        owner: repoOwner, repo: repoName, comment_id: id
-      });
-    }
-  } else if (!referenced.includes(tag) && issueAreaLabels.length) {
-    this.issues.createComment({
-      owner: repoOwner, repo: repoName, number: number, body: comment
-    });
-
-    // Ignore labels added in bulk
-    referenced.push(tag);
-    setTimeout(() => {
-      referenced.splice(referenced.indexOf(tag), 1);
-    }, 1000);
+  if (issue.description.includes(prefix)) {
+    issue.body = issue.body.replace(pattern, `${prefix}${areaTeams}`);
+  } else {
+    issue.body += `\n\n${prefix}${areaTeams}`;
   }
+
+  this.issues.update(updatedIssue);
 };
