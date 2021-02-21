@@ -57,7 +57,7 @@ test("Throw error if collaborator check code isn't 404", async t => {
   const commenter = "octokitten";
 
   const request1 = simple.mock(client.repos, "checkCollaborator").rejectWith({
-    code: 500
+    status: 500
   });
 
   const error = "**ERROR:** Unexpected response from GitHub API.";
@@ -76,7 +76,7 @@ test("Rejects creation of duplicate invite", async t => {
   const commenter = "octokitten";
 
   const request1 = simple.mock(client.repos, "checkCollaborator").rejectWith({
-    code: 404
+    status: 404
   });
 
   const template = client.templates.get("inviteError");
@@ -103,7 +103,7 @@ test("Blocks claim if labels are missing", async t => {
   client.cfg.issues.commands.assign.newContributors.warn.labels = ["a", "b"];
 
   const request1 = simple.mock(client.repos, "checkCollaborator").rejectWith({
-    code: 404
+    status: 404
   });
 
   const template = client.templates.get("claimBlock");
@@ -129,7 +129,7 @@ test("Warns if labels are present without force flag", async t => {
   };
 
   const request1 = simple.mock(client.repos, "checkCollaborator").rejectWith({
-    code: 404
+    status: 404
   });
 
   const template = client.templates.get("claimWarning");
@@ -151,7 +151,7 @@ test("Invite new contributor", async t => {
   const commenter = "octokitten";
 
   const request1 = simple.mock(client.repos, "checkCollaborator").rejectWith({
-    code: 404
+    status: 404
   });
 
   const template = client.templates.get("contributorAddition");
@@ -178,7 +178,7 @@ test("Throw error if permission is not specified", async t => {
   client.cfg.issues.commands.assign.newContributors.permission = null;
 
   const request1 = simple.mock(client.repos, "checkCollaborator").rejectWith({
-    code: 404
+    status: 404
   });
 
   const error = "**ERROR:** `newContributors.permission` wasn't configured.";
