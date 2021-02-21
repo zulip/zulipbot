@@ -25,7 +25,7 @@ async function clearClosed(issue, repo) {
   });
 
   await this.issues.removeAssignees({
-    owner: repoOwner, repo: repoName, number: issue.number, body: assignees
+    owner: repoOwner, repo: repoName, issue_number: issue.number, body: assignees
   });
 
   recentlyClosed.delete(issue.id);
@@ -48,11 +48,11 @@ exports.progress = function(payload) {
 
   if (action === "assigned" && !labeled) {
     this.issues.addLabels({
-      owner: repoOwner, repo: repoName, number: number, labels: [label]
+      owner: repoOwner, repo: repoName, issue_number: number, labels: [label]
     });
   } else if (action === "unassigned" && !assigned && labeled) {
     this.issues.removeLabel({
-      owner: repoOwner, repo: repoName, number: number, name: label
+      owner: repoOwner, repo: repoName, issue_number: number, name: label
     });
   }
 };

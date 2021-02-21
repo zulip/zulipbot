@@ -12,7 +12,7 @@ exports.run = async function(payload) {
   const [repoOwner, repoName] = repoFullName.split("/");
 
   const response = await this.issues.addAssignees({
-    owner: repoOwner, repo: repoName, number: invite, assignees: [member]
+    owner: repoOwner, repo: repoName, issue_number: invite, assignees: [member]
   });
 
   this.invites.delete(`${member}@${repoFullName}`);
@@ -21,7 +21,7 @@ exports.run = async function(payload) {
 
   const error = "**ERROR:** Issue claiming failed (no assignee was added).";
   return this.issues.createComment({
-    owner: repoOwner, repo: repoName, number: invite, body: error
+    owner: repoOwner, repo: repoName, issue_number: invite, body: error
   });
 };
 

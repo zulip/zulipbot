@@ -38,7 +38,7 @@ exports.run = async function(payload, commenter, args) {
     });
 
     this.issues.createComment({
-      owner: repoOwner, repo: repoName, number: number, body: error
+      owner: repoOwner, repo: repoName, issue_number: number, body: error
     });
   }
 
@@ -53,13 +53,13 @@ exports.run = async function(payload, commenter, args) {
     });
 
     this.issues.createComment({
-      owner: repoOwner, repo: repoName, number: number, body: error
+      owner: repoOwner, repo: repoName, issue_number: number, body: error
     });
   }
 
   if (addLabels.length) {
     response = await this.issues.addLabels({
-      owner: repoOwner, repo: repoName, number: number, labels: addLabels
+      owner: repoOwner, repo: repoName, issue_number: number, labels: addLabels
     });
   }
 

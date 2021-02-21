@@ -32,7 +32,7 @@ async function scrapePulls(pulls) {
     const repoOwner = pull.base.repo.owner.login;
 
     const response = await this.issues.listLabelsOnIssue({
-      owner: repoOwner, repo: repoName, number: number
+      owner: repoOwner, repo: repoName, issue_number: number
     });
 
     const labels = response.data.map(label => label.name);
@@ -83,12 +83,12 @@ async function checkInactivePull(pull) {
   });
 
   const comments = await template.getComments({
-    owner: repoOwner, repo: repoName, number: number
+    owner: repoOwner, repo: repoName, issue_number: number
   });
 
   if (!comments.length) {
     this.issues.createComment({
-      owner: repoOwner, repo: repoName, number: number, body: comment
+      owner: repoOwner, repo: repoName, issue_number: number, body: comment
     });
   }
 }
@@ -122,7 +122,7 @@ async function scrapeInactiveIssues(references, issues) {
     if (!issue.assignees.length) {
       const comment = "**ERROR:** This active issue has no assignee.";
       return this.issues.createComment({
-        owner: repoOwner, repo: repoName, number: number, body: comment
+        owner: repoOwner, repo: repoName, issue_number: number, body: comment
       });
     }
 
@@ -134,12 +134,12 @@ async function scrapeInactiveIssues(references, issues) {
     });
 
     const comments = await template.getComments({
-      owner: repoOwner, repo: repoName, number: number
+      owner: repoOwner, repo: repoName, issue_number: number
     });
 
     if (comments.length) {
       this.issues.removeAssignees({
-        owner: repoOwner, repo: repoName, number: number, assignees: logins
+        owner: repoOwner, repo: repoName, issue_number: number, assignees: logins
       });
 
       const warning = this.templates.get("abandonWarning").format({
@@ -153,7 +153,7 @@ async function scrapeInactiveIssues(references, issues) {
       });
     } else if (time + ims <= Date.now()) {
       this.issues.createComment({
-        owner: repoOwner, repo: repoName, number: number, body: comment
+        owner: repoOwner, repo: repoName, issue_number: number, body: comment
       });
     }
   }

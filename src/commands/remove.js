@@ -15,7 +15,7 @@ exports.run = async function(payload, commenter, args) {
   const rejected = labels.filter(label => !issueLabels.includes(label));
 
   await this.issues.replaceLabels({
-    owner: repoOwner, repo: repoName, number: number, labels: removeLabels
+    owner: repoOwner, repo: repoName, issue_number: number, labels: removeLabels
   });
 
   if (!rejected.length) return true;
@@ -31,7 +31,7 @@ exports.run = async function(payload, commenter, args) {
   });
 
   return this.issues.createComment({
-    owner: repoOwner, repo: repoName, number: number, body: error
+    owner: repoOwner, repo: repoName, issue_number: number, body: error
   });
 };
 

@@ -7,12 +7,12 @@ exports.run = function(payload, commenter) {
   if (!assignees.includes(commenter)) {
     const error = "**ERROR:** You have not claimed this issue to work on yet.";
     return this.issues.createComment({
-      owner: repoOwner, repo: repoName, number: number, body: error
+      owner: repoOwner, repo: repoName, issue_number: number, body: error
     });
   }
 
   return this.issues.removeAssignees({
-    owner: repoOwner, repo: repoName, number: number, assignees: [commenter]
+    owner: repoOwner, repo: repoName, issue_number: number, assignees: [commenter]
   });
 };
 
