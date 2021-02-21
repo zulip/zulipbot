@@ -34,7 +34,7 @@ exports.run = async function(payload, commenter, args) {
 
     return validate.apply(this, [commenter, number, repoOwner, repoName]);
   } catch (response) {
-    if (response.code !== 404) {
+    if (response.status !== 404) {
       const error = "**ERROR:** Unexpected response from GitHub API.";
       return this.issues.createComment({
         owner: repoOwner, repo: repoName, issue_number: number, body: error
