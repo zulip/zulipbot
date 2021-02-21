@@ -8,7 +8,7 @@ exports.label = async function(payload) {
   const action = payload.action;
 
   const response = await this.issues.listLabelsOnIssue({
-    owner: repoOwner, repo: repoName, number: number
+    owner: repoOwner, repo: repoName, issue_number: number
   });
 
   let labels = response.data.map(label => label.name);
@@ -29,7 +29,7 @@ exports.label = async function(payload) {
 
   if (!_.isEqual(oldLabels.sort(), labels.sort())) {
     await this.issues.replaceLabels({
-      owner: repoOwner, repo: repoName, number: number, labels: labels
+      owner: repoOwner, repo: repoName, issue_number: number, labels: labels
     });
   }
 
@@ -63,7 +63,7 @@ async function size(sizeLabels, labels, number, repo) {
   const pullLabels = labels.filter(label => !sizeLabels.has(label));
 
   const files = await this.util.getAllPages("pulls.listFiles", {
-    owner: repoOwner, repo: repoName, number: number
+    owner: repoOwner, repo: repoName, pull_number: number
   });
 
   const changes = files.filter(file => {
@@ -92,7 +92,7 @@ exports.assign = function(payload) {
   const number = payload.pull_request.number;
 
   this.issues.addAssignees({
-    owner: repoOwner, repo: repoName, number: number, assignees: [reviewer]
+    owner: repoOwner, repo: repoName, issue_number: number, assignees: [reviewer]
   });
 };
 
@@ -104,7 +104,7 @@ exports.update = async function(pull, repo) {
   const warnings = new Map([
     ["mergeConflictWarning", async() => {
       const pullInfo = await this.pulls.get({
-        owner: repoOwner, repo: repoName, number: number
+        owner: repoOwner, repo: repoName, pull_number: number
       });
       return new Promise(resolve => resolve(pullInfo.data.mergeable));
     }],
@@ -126,7 +126,7 @@ exports.update = async function(pull, repo) {
     if (label) {
       try {
         await this.issues.removeLabel({
-          owner: repoOwner, repo: repoName, number: number, name: label
+          owner: repoOwner, repo: repoName, issue_number: number, name: label
         });
       } catch (e) {
         // although we could attempt to fetch labels of the pull request,
@@ -135,7 +135,7 @@ exports.update = async function(pull, repo) {
     }
 
     const comments = await template.getComments({
-      number: number, owner: repoOwner, repo: repoName
+      issue_number: number, owner: repoOwner, repo: repoName
     });
 
     if (!comments.length) continue;

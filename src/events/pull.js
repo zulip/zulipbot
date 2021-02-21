@@ -16,7 +16,7 @@ exports.run = async function(payload) {
   } else if (["labeled", "unlabeled"].includes(action)) {
     const l = payload.label;
     const issue = await this.issues.get({
-      owner: repo.owner.login, repo: repo.name, number: pull.number
+      owner: repo.owner.login, repo: repo.name, issue_number: pull.number
     });
     this.responses.get("areaLabel").run(issue.data, repo, l);
   }

@@ -6,7 +6,7 @@ exports.run = async function(payload) {
   const number = payload.pull_request_number;
 
   const labels = await this.issues.listLabelsOnIssue({
-    owner: repoOwner, repo: repoName, number: number
+    owner: repoOwner, repo: repoName, issue_number: number
   });
 
   const labelCheck = labels.data.find(label => {
@@ -28,7 +28,7 @@ exports.run = async function(payload) {
   }
 
   return this.issues.createComment({
-    owner: repoOwner, repo: repoName, number: number, body: comment
+    owner: repoOwner, repo: repoName, issue_number: number, body: comment
   });
 };
 
