@@ -7,14 +7,14 @@ exports.run = async function(payload, commenter, args) {
   if (payload.issue.assignees.find(assignee => assignee.login === commenter)) {
     const error = "**ERROR:** You have already claimed this issue.";
     return this.issues.createComment({
-      owner: repoOwner, repo: repoName, number: number, body: error
+      owner: repoOwner, repo: repoName, issue_number: number, body: error
     });
   }
 
   if (payload.issue.assignees.length >= limit) {
     const warn = this.templates.get("multipleClaimWarning").format({commenter});
     return this.issues.createComment({
-      owner: repoOwner, repo: repoName, number: number, body: warn
+      owner: repoOwner, repo: repoName, issue_number: number, body: warn
     });
   }
 
@@ -37,7 +37,7 @@ exports.run = async function(payload, commenter, args) {
     if (response.code !== 404) {
       const error = "**ERROR:** Unexpected response from GitHub API.";
       return this.issues.createComment({
-        owner: repoOwner, repo: repoName, number: number, body: error
+        owner: repoOwner, repo: repoName, issue_number: number, body: error
       });
     }
 
@@ -58,7 +58,7 @@ async function invite(payload, commenter, args) {
     });
 
     return this.issues.createComment({
-      owner: repoOwner, repo: repoName, number: number, body: error
+      owner: repoOwner, repo: repoName, issue_number: number, body: error
     });
   }
 
@@ -82,7 +82,7 @@ async function invite(payload, commenter, args) {
     });
 
     return this.issues.createComment({
-      owner: repoOwner, repo: repoName, number: number, body: comment
+      owner: repoOwner, repo: repoName, issue_number: number, body: comment
     });
   }
 
@@ -91,7 +91,7 @@ async function invite(payload, commenter, args) {
   if (!perm) {
     const error = "**ERROR:** `newContributors.permission` wasn't configured.";
     return this.issues.createComment({
-      owner: repoOwner, repo: repoName, number: number, body: error
+      owner: repoOwner, repo: repoName, issue_number: number, body: error
     });
   }
 
@@ -100,7 +100,7 @@ async function invite(payload, commenter, args) {
   });
 
   this.issues.createComment({
-    owner: repoOwner, repo: repoName, number: number, body: comment
+    owner: repoOwner, repo: repoName, issue_number: number, body: comment
   });
 
   this.invites.set(inviteKey, number);
@@ -128,7 +128,7 @@ async function validate(commenter, number, repoOwner, repoName) {
     });
 
     return this.issues.createComment({
-      owner: repoOwner, repo: repoName, number: number, body: comment
+      owner: repoOwner, repo: repoName, issue_number: number, body: comment
     });
   }
 
@@ -137,7 +137,7 @@ async function validate(commenter, number, repoOwner, repoName) {
 
 async function claim(commenter, number, repoOwner, repoName) {
   const response = await this.issues.addAssignees({
-    owner: repoOwner, repo: repoName, number: number, assignees: [commenter]
+    owner: repoOwner, repo: repoName, issue_number: number, assignees: [commenter]
   });
 
   if (response.data.assignees.length) return;
@@ -145,7 +145,7 @@ async function claim(commenter, number, repoOwner, repoName) {
   const error = "**ERROR:** Issue claiming failed (no assignee was added).";
 
   return this.issues.createComment({
-    owner: repoOwner, repo: repoName, number: number, body: error
+    owner: repoOwner, repo: repoName, issue_number: number, body: error
   });
 }
 

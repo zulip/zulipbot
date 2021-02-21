@@ -18,7 +18,7 @@ async function check(number, repo) {
   const {branch, label, comment} = this.cfg.pulls.status.mergeConflicts;
 
   const pull = await this.pulls.get({
-    owner: repoOwner, repo: repoName, number: number
+    owner: repoOwner, repo: repoName, pull_number: number
   });
 
   const mergeable = pull.data.mergeable;
@@ -30,13 +30,13 @@ async function check(number, repo) {
   });
 
   const warnings = await template.getComments({
-    owner: repoOwner, repo: repoName, number: number
+    owner: repoOwner, repo: repoName, issue_number: number
   });
 
   // Use a strict false check; unknown merge conflict statuses return null
   if (mergeable === false) {
     const commits = await this.util.getAllPages("pulls.listCommits", {
-      owner: repoOwner, repo: repoName, number: number
+      owner: repoOwner, repo: repoName, pull_number: number
     });
     const lastCommitTime = commits.slice(-1).pop().commit.committer.date;
 
@@ -45,7 +45,7 @@ async function check(number, repo) {
     });
 
     const labels = await this.issues.listLabelsOnIssue({
-      owner: repoOwner, repo: repoName, number: number
+      owner: repoOwner, repo: repoName, issue_number: number
     });
     const inactive = labels.data.find(l => {
       return l.name === this.cfg.activity.inactive;
@@ -55,13 +55,13 @@ async function check(number, repo) {
 
     if (!warnComment && comment) {
       this.issues.createComment({
-        owner: repoOwner, repo: repoName, number: number, body: warning
+        owner: repoOwner, repo: repoName, issue_number: number, body: warning
       });
     }
 
     if (label) {
       await this.issues.addLabels({
-        owner: repoOwner, repo: repoName, number: number, labels: [label]
+        owner: repoOwner, repo: repoName, issue_number: number, labels: [label]
       });
     }
   }

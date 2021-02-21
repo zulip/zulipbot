@@ -70,7 +70,7 @@ class ReferenceSearch {
     const statusCheck = matches.map(async number => {
       if (!number) return false;
       const issue = await this.client.issues.get({
-        owner: this.repoOwner, repo: this.repoName, number: number
+        owner: this.repoOwner, repo: this.repoName, issue_number: number
       });
       // valid references are open issues
       const valid = !issue.data.pull_request && issue.data.state === "open";
@@ -92,7 +92,7 @@ class ReferenceSearch {
 
   async getCommits() {
     const commits = await this.client.pulls.listCommits({
-      owner: this.repoOwner, repo: this.repoName, number: this.number
+      owner: this.repoOwner, repo: this.repoName, pull_number: this.number
     });
 
     const msgs = commits.data.map(c => c.commit.message);

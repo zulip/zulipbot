@@ -29,7 +29,7 @@ exports.run = async function(issue, repo, label) {
   });
 
   const comments = await template.getComments({
-    owner: repoOwner, repo: repoName, number: number
+    owner: repoOwner, repo: repoName, issue_number: number
   });
 
   const tag = `${repoOwner}/${repoName}#${number}`;
@@ -47,7 +47,7 @@ exports.run = async function(issue, repo, label) {
     }
   } else if (!referenced.includes(tag) && issueAreaLabels.length) {
     this.issues.createComment({
-      owner: repoOwner, repo: repoName, number: number, body: comment
+      owner: repoOwner, repo: repoName, issue_number: number, body: comment
     });
 
     // Ignore labels added in bulk
