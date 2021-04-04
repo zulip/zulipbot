@@ -148,7 +148,7 @@ async function scrapeInactiveIssues(references, issues) {
       });
 
       const id = comments[0].id;
-      this.issues.editComment({
+      this.issues.updateComment({
         owner: repoOwner, repo: repoName, comment_id: id, body: warning
       });
     } else if (time + ims <= Date.now()) {
