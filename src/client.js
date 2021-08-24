@@ -19,9 +19,8 @@ client.invites = new Map();
 client.responses = new Map();
 client.templates = new Map();
 
-const commands = fs.readdirSync(`${__dirname}/commands`);
-for (const file of commands) {
-  const data = require(`./commands/${file}`);
+const commands = require("./commands");
+for (const data of commands) {
   const [category, name] = data.aliasPath.split(".");
   const aliases = client.cfg.issues.commands[category][name];
   for (let i = aliases.length; i--; ) {
@@ -29,23 +28,20 @@ for (const file of commands) {
   }
 }
 
-const events = fs.readdirSync(`${__dirname}/events`);
-for (const event of events) {
-  if (!event.includes(".")) continue;
-  const data = require(`./events/${event}`);
+const events = require("./events");
+for (const data of events) {
   for (let i = data.events.length; i--; ) {
     client.events.set(data.events[i], data.run.bind(client));
   }
 }
 
-const responses = fs.readdirSync(`${__dirname}/events/responses`);
-for (const file of responses) {
-  const data = require(`./events/responses/${file}`);
+const responses = require("./events/responses");
+for (const [name, data] of Object.entries(responses)) {
   for (const method of Object.keys(data)) {
     data[method] = data[method].bind(client);
   }
 
-  client.responses.set(file.slice(0, -3), data);
+  client.responses.set(name, data);
 }
 
 const Template = require("./structures/Template.js");
