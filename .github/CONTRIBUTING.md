@@ -40,45 +40,45 @@ assign you to the issue so you can begin working on it.
 
 2. Clone this repository to your local machine.
 
-  ```sh
-  $ git clone https://github.com/zulip/zulipbot.git
-  ```
+   ```sh
+   $ git clone https://github.com/zulip/zulipbot.git
+   ```
 
 3. Switch to the local copy of this repository.
 
-  ```sh
-  $ cd ~/path-to-repo/zulipbot
-  ```
+   ```sh
+   $ cd ~/path-to-repo/zulipbot
+   ```
 
 4. Install the necessary node packages and dependencies.
 
-  ```sh
-  $ npm install
-  ```
+   ```sh
+   $ npm install
+   ```
 
 5. Use the [smee.io](https://smee.io/) CLI to redirect GitHub webhook payloads
    to your locally running application.
 
-  ```sh
-  $ smee -u https://smee.io/yourcustomurl -P /github -p 8080
-  ```
+   ```sh
+   $ smee -u https://smee.io/yourcustomurl -P /github -p 8080
+   ```
 
 6. Create a [GitHub user
    account](https://help.github.com/articles/signing-up-for-a-new-github-account/)
    and a [GitHub
    App](https://developer.github.com/apps/building-github-apps/creating-a-github-app/)
    to test with.
-  * See
-    [here](https://github.com/zulip/zulipbot/wiki/Configuration#authentication)
-    to check how to authenticate your user account.
-  * The **Webhook URL** in your GitHub App settings should be
-    `https://smee.io/yourcustomurl`.
+   * See
+     [here](https://github.com/zulip/zulipbot/wiki/Configuration#authentication)
+     to check how to authenticate your user account.
+   * The **Webhook URL** in your GitHub App settings should be
+     `https://smee.io/yourcustomurl`.
 
 7. Run the bot to ensure that your environment was configured correctly.
 
-  ```sh
-  $ npm start
-  ```
+   ```sh
+   $ npm start
+   ```
 
 If you encounter any problems during installation, let us know on the [zulipbot
 chat](https://chat.zulip.org/#narrow/stream/zulipbot) and we can help you out!
@@ -93,40 +93,40 @@ chat](https://chat.zulip.org/#narrow/stream/zulipbot) and we can help you out!
 
 3. Check if your changes and commits pass all tests:
 
-  ```sh
-  $ npm test
-  ```
+   ```sh
+   $ npm test
+   ```
 
-  Modify your commits accordingly if your changes don't pass all tests.
+   Modify your commits accordingly if your changes don't pass all tests.
 
 4. Fetch and rebase your changes against `upstream`:
 
-  ```sh
-  $ git fetch upstream
-  ```
+   ```sh
+   $ git fetch upstream
+   ```
 
-  Fix merge conflicts if necessary.
+   Fix merge conflicts if necessary.
 
 5. Push your changes to your fork on GitHub.
 
-  ```sh
-  $ git push origin feature-branch-name
-  ```
+   ```sh
+   $ git push origin feature-branch-name
+   ```
 
-  You may need to append `+` before your feature branch name if you failed to
-  push some refs.
+   You may need to append `+` before your feature branch name if you failed to
+   push some refs.
 
 6. Create a [pull
    request](https://zulip.readthedocs.io/en/latest/git/pull-requests.html#create-a-pull-request)
    for the changes you made.
 
-  * The **base fork** should be `zulip/zulipbot`.
+   * The **base fork** should be `zulip/zulipbot`.
 
-  * The **base** should be `master`.
+   * The **base** should be `master`.
 
-  * The **head fork** should be the name of your fork (ex: `octocat/zulipbot`).
+   * The **head fork** should be the name of your fork (ex: `octocat/zulipbot`).
 
-  * The **compare** branch should be the name of your feature branch.
+   * The **compare** branch should be the name of your feature branch.
 
 7. One of the project maintainers will review your pull request and merge it
    once the pull request's CI checks pass and any concerns about your pull
