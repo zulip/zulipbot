@@ -3,9 +3,9 @@
 exports.run = function (payload) {
   const repo = payload.repository;
   const { branch, label, comment } = this.cfg.pulls.status.mergeConflicts;
-  const masterPush = payload.ref === `refs/heads/${branch}`;
+  const mainPush = payload.ref === `refs/heads/${branch}`;
 
-  if (!masterPush || (!label && !comment)) return;
+  if (!mainPush || (!label && !comment)) return;
 
   return setTimeout(() => {
     this.responses.get("mergeConflict").run(repo);

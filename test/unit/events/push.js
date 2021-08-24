@@ -15,7 +15,7 @@ const payload = {
   },
 };
 
-test("Ignore if non-master branch was pushed", async (t) => {
+test("Ignore if non-main branch was pushed", async (t) => {
   const response = await push.run.call(client, payload);
 
   t.notOk(response);
@@ -34,7 +34,7 @@ test("Ignore if there was no merge conflict configuration", async (t) => {
   t.end();
 });
 
-test("Trigger events if master branch was pushed", async (t) => {
+test("Trigger events if main branch was pushed", async (t) => {
   client.cfg.eventsDelay = 0;
   client.cfg.pulls.status.mergeConflicts.comment = true;
   client.responses.set("mergeConflict", {

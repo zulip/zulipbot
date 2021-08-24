@@ -89,7 +89,7 @@ chat](https://chat.zulip.org/#narrow/stream/zulipbot) and we can help you out!
 
 ## Making changes
 
-1. Create a separate feature branch from the `master` branch for the changes you
+1. Create a separate feature branch from the `main` branch for the changes you
    plan to make.
 
 2. Commit your changes, following Zulip's [commit discipline
@@ -126,7 +126,7 @@ chat](https://chat.zulip.org/#narrow/stream/zulipbot) and we can help you out!
 
    - The **base fork** should be `zulip/zulipbot`.
 
-   - The **base** should be `master`.
+   - The **base** should be `main`.
 
    - The **head fork** should be the name of your fork (ex: `octocat/zulipbot`).
 

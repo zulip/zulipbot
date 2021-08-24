@@ -28,8 +28,7 @@ the **zulipbot wiki**.
 
 ## Usage
 
-If you're using the [Zulip project
-configuration](https://github.com/zulip/zulipbot/blob/master/config/config-example.js)
+If you're using the [Zulip project configuration](../config/config-example.js)
 (`./config/config-example.js`), see zulipbot's [usage
 instructions](https://zulip.readthedocs.io/en/latest/contributing/zulipbot-usage.html)
 on the Zulip documentation.
