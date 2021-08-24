@@ -5,12 +5,12 @@
   "scripts": {
     "start": "node ./src/index.js",
     "pretest": "eslint .",
-    "test": "tap",
-    "posttest": "tap --coverage-report=lcovonly"
+    "test": "tap --no-check-coverage",
+    "posttest": "tap --coverage-report=lcovonly --no-check-coverage"
   },
   "dependencies": {
     "@octokit/rest": "^16.43.2",
-    "express": "~4.16.3",
+    "express": "^4.17.1",
     "lodash": "^4.17.21",
     "node-fetch": "^2.1.2"
   },
@@ -19,7 +19,7 @@
     "eslint-config-xo-space": "^0.21.0",
     "simple-mock": "^0.8.0",
     "smee": "^0.2.0",
-    "tap": "^14.2.2"
+    "tap": "^15.0.9"
   },
   "repository": {
     "type": "git",
