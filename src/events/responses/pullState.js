@@ -126,7 +126,7 @@ exports.update = async function(pull, repo) {
         await this.issues.removeLabel({
           owner: repoOwner, repo: repoName, issue_number: number, name: label
         });
-      } catch (e) {
+      } catch {
         // although we could attempt to fetch labels of the pull request,
         // it's an extra API call, so we silently ignore the error instead.
       }

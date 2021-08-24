@@ -95,7 +95,7 @@ Object.entries(client.cfg.auth).forEach(pair => {
     const secrets = require(secretsPath);
     if (typeof secrets[key] !== "string") throw new Error();
     client.cfg.auth[key] = secrets[key];
-  } catch (e) {
+  } catch {
     console.log(`\`${key}\` value was not set. Please fix your configuration.`);
     process.exit(1);
   }
