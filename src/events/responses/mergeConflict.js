@@ -65,6 +65,4 @@ async function check(number, repo) {
       });
     }
   }
-
-  return new Promise(resolve => resolve());
 }

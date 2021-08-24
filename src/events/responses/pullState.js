@@ -32,8 +32,6 @@ exports.label = async function(payload) {
       owner: repoOwner, repo: repoName, issue_number: number, labels: labels
     });
   }
-
-  return new Promise(resolve => resolve());
 };
 
 function review(labels, action, author, reviewer) {
@@ -79,10 +77,10 @@ async function size(sizeLabels, labels, number, repo) {
   pullLabels.push(label);
 
   if (pullLabels.sort() === labels.sort()) {
-    return new Promise(resolve => resolve(labels));
+    return labels;
   }
 
-  return new Promise(resolve => resolve(pullLabels));
+  return pullLabels;
 }
 
 exports.assign = function(payload) {
@@ -106,7 +104,7 @@ exports.update = async function(pull, repo) {
       const pullInfo = await this.pulls.get({
         owner: repoOwner, repo: repoName, pull_number: number
       });
-      return new Promise(resolve => resolve(pullInfo.data.mergeable));
+      return pullInfo.data.mergeable;
     }],
     ["fixCommitWarning", async(pull, repo) => {
       const references = new Search(this, pull, repo);
