@@ -129,7 +129,7 @@ chat](https://chat.zulip.org/#narrow/stream/zulipbot) and we can help you out!
   * The **compare** branch should be the name of your feature branch.
 
 7. One of the project maintainers will review your pull request and merge it
-   once the pull request's Travis builds pass and any concerns about your pull
+   once the pull request's CI checks pass and any concerns about your pull
    request are settled.
 
 ### Testing
@@ -137,7 +137,7 @@ chat](https://chat.zulip.org/#narrow/stream/zulipbot) and we can help you out!
 accounts while a test suite is being established. Webhook payloads can be
 delivered to a locally running application using [Smee](https://smee.io/).
 
-Our current test suite consists of [Travis](https://travis-ci.org/) for
+Our current test suite consists of [GitHub Actions](https://github.com/features/actions) for
 continuous integration, and we review code quality and consistency with the
 [Eslint](https://eslint.org) linter.
 
