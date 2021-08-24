@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * DEFAULT ZULIPBOT CONFIGURATION — DO NOT EDIT
  *

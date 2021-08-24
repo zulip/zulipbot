@@ -1,3 +1,5 @@
+"use strict";
+
 const client = require("./client.js");
 const crypto = require("crypto");
 const express = require("express");

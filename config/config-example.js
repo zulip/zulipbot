@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * EXAMPLE CUSTOM ZULIPBOT CONFIGURATION — Zulip
  *

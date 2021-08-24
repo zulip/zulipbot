@@ -1,3 +1,5 @@
+"use strict";
+
 const Search = require("../structures/ReferenceSearch.js");
 
 exports.run = async function () {

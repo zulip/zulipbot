@@ -1,3 +1,5 @@
+"use strict";
+
 exports.run = async function (payload) {
   const claimEnabled = this.cfg.issues.commands.assign.claim.length;
 

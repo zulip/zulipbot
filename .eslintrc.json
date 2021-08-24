@@ -5,6 +5,9 @@
     "es6": true,
     "mocha": true
   },
+  "parserOptions": {
+    "sourceType": "script"
+  },
   "rules": {
     "camelcase": "off",
     "capitalized-comments": "off",
@@ -18,6 +21,7 @@
     "prefer-arrow-callback": "error",
     "prefer-destructuring": ["error", { "array": true, "object": false }],
     "prefer-const": "error",
-    "prefer-template": "error"
+    "prefer-template": "error",
+    "strict": "error"
   }
 }

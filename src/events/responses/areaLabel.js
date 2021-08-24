@@ -1,3 +1,5 @@
+"use strict";
+
 const referenced = [];
 
 exports.run = async function (issue, repo, label) {

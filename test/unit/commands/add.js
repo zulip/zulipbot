@@ -1,3 +1,5 @@
+"use strict";
+
 const simple = require("simple-mock");
 const test = require("tap").test;
 

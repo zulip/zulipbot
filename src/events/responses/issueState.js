@@ -1,3 +1,5 @@
+"use strict";
+
 const recentlyClosed = new Map();
 
 exports.close = function (issue, repo) {

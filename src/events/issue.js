@@ -1,3 +1,5 @@
+"use strict";
+
 exports.run = function (payload) {
   const action = payload.action;
   const issue = payload.issue;

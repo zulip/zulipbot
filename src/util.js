@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Sorts and removes duplicate elements from a given array.
  *

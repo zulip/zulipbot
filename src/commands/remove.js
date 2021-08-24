@@ -1,3 +1,5 @@
+"use strict";
+
 exports.run = async function (payload, commenter, args) {
   const creator = payload.issue.user.login;
   const self = this.cfg.issues.commands.label.self;

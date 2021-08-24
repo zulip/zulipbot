@@ -1,3 +1,5 @@
+"use strict";
+
 exports.run = function (payload) {
   const repo = payload.repository;
   const { branch, label, comment } = this.cfg.pulls.status.mergeConflicts;

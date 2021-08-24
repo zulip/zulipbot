@@ -1,3 +1,5 @@
+"use strict";
+
 exports.run = async function (payload) {
   const action = payload.action;
   const pull = payload.pull_request;

@@ -1,3 +1,5 @@
+"use strict";
+
 class Template {
   constructor(client, name, content) {
     /**

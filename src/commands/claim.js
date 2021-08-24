@@ -1,3 +1,5 @@
+"use strict";
+
 exports.run = async function (payload, commenter, args) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;

@@ -1,3 +1,5 @@
+"use strict";
+
 exports.run = async function (payload) {
   if (!payload.pull_request || !this.cfg.pulls.ci.travis) return;
 
