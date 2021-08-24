@@ -1,8 +1,7 @@
 const simple = require("simple-mock");
 const test = require("tap").test;
 
-const homePath = `${__dirname}/../../src`;
-const client = require(`${homePath}/client.js`);
+const client = require("../../src/client.js");
 
 test("Deduplicates arrays successfully", async (t) => {
   const array = [1, 2, "2", 3, "3", 3];

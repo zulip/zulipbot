@@ -1,8 +1,7 @@
 const { Octokit } = require("@octokit/rest");
 const fs = require("fs");
 
-const configPath = `${__dirname}/../config`;
-const cfg = require(`${configPath}/default.js`);
+const cfg = require("../config/default.js");
 const client = new Octokit({
   auth: cfg.auth.oAuthToken,
 });
@@ -48,10 +47,13 @@ for (const file of responses) {
 }
 
 const Template = require("./structures/Template.js");
-const templates = fs.readdirSync(`${configPath}/templates`);
+const templates = fs.readdirSync(`${__dirname}/../config/templates`);
 for (const file of templates) {
   const [name] = file.split(".md");
-  const content = fs.readFileSync(`${configPath}/templates/${file}`, "utf8");
+  const content = fs.readFileSync(
+    `${__dirname}/../config/templates/${file}`,
+    "utf8"
+  );
   const template = new Template(client, name, content);
   client.templates.set(name, template);
 }

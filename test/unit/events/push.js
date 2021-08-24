@@ -1,8 +1,7 @@
 const test = require("tap").test;
 
-const homePath = `${__dirname}/../../../src`;
-const client = require(`${homePath}/client.js`);
-const push = require(`${homePath}/events/push.js`);
+const client = require("../../../src/client.js");
+const push = require("../../../src/events/push.js");
 
 const payload = {
   ref: "refs/heads/branch",

@@ -1,5 +1,5 @@
 const _ = require("lodash");
-const Search = require(`${__dirname}/../../structures/ReferenceSearch.js`);
+const Search = require("../../structures/ReferenceSearch.js");
 
 exports.label = async function (payload) {
   const repoName = payload.repository.name;

@@ -1,4 +1,4 @@
-const Search = require(`${__dirname}/../../structures/ReferenceSearch.js`);
+const Search = require("../../structures/ReferenceSearch.js");
 
 exports.run = async function (pull, repo, opened) {
   const author = pull.user.login;

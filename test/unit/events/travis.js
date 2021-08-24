@@ -1,9 +1,8 @@
 const simple = require("simple-mock");
 const test = require("tap").test;
 
-const homePath = `${__dirname}/../../../src`;
-const client = require(`${homePath}/client.js`);
-const travis = require(`${homePath}/events/travis.js`);
+const client = require("../../../src/client.js");
+const travis = require("../../../src/events/travis.js");
 
 const payload = {
   state: "passed",
