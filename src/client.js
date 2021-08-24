@@ -9,7 +9,7 @@ const cfg = require("../config/default.js");
 const commands = require("./commands");
 const events = require("./events");
 const responses = require("./events/responses");
-const Template = require("./structures/Template.js");
+const Template = require("./structures/template.js");
 const util = require("./util.js");
 
 const client = new Octokit({

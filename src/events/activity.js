@@ -1,6 +1,6 @@
 "use strict";
 
-const Search = require("../structures/ReferenceSearch.js");
+const Search = require("../structures/reference-search.js");
 
 exports.run = async function () {
   // Create array with PRs from all active repositories

@@ -2,7 +2,7 @@
 
 const _ = require("lodash");
 
-const Search = require("../../structures/ReferenceSearch.js");
+const Search = require("../../structures/reference-search.js");
 
 exports.label = async function (payload) {
   const repoName = payload.repository.name;
