@@ -28,9 +28,9 @@ class ReferenceSearch {
 
     /**
      * The description of the pull request this search applies to
-     * @type {Number}
+     * @type {String}
      */
-    this.body = pull.body;
+    this.body = pull.body || "";
 
     /**
      * The name of the repository of the pull request this search applies to
