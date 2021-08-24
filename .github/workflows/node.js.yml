@@ -21,3 +21,5 @@ jobs:
       - run: ln -s config-example.js config/config.js
       - run: npm ci
       - run: npm test
+      - uses: codecov/codecov-action@v2
+        if: matrix.node-version == '16.x'
