@@ -2,9 +2,6 @@
   "name": "zulipbot",
   "version": "1.0.0",
   "description": "GitHub workflow-optimizing bot",
-  "engines": {
-    "node": "8 - 10"
-  },
   "scripts": {
     "start": "node ./src/index.js",
     "pretest": "eslint .",
