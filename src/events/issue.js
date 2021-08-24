@@ -1,6 +1,6 @@
 "use strict";
 
-exports.run = function (payload) {
+exports.run = async function (payload) {
   const action = payload.action;
   const issue = payload.issue;
   const repo = payload.repository;
@@ -11,7 +11,7 @@ exports.run = function (payload) {
   }
 
   if (["labeled", "unlabeled"].includes(action)) {
-    this.responses.get("areaLabel").run(issue, repo, label);
+    await this.responses.get("areaLabel").run(issue, repo, label);
   } else if (action === "closed" && this.cfg.activity.issues.clearClosed) {
     this.responses.get("issueState").close(issue, repo);
   } else if (action === "reopened") {

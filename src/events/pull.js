@@ -22,16 +22,16 @@ exports.run = async function (payload) {
       repo: repo.name,
       issue_number: pull.number,
     });
-    this.responses.get("areaLabel").run(issue.data, repo, l);
+    await this.responses.get("areaLabel").run(issue.data, repo, l);
   }
 
   if (!ref || pull.title.includes(this.cfg.pulls.status.wip)) return;
 
   if (action === "opened") {
-    this.responses.get("reference").run(pull, repo, true);
+    await this.responses.get("reference").run(pull, repo, true);
   } else if (action === "synchronize") {
-    this.responses.get("reference").run(pull, repo, false);
-    this.responses.get("pullState").update(pull, repo);
+    await this.responses.get("reference").run(pull, repo, false);
+    await this.responses.get("pullState").update(pull, repo);
   }
 };
 
