@@ -1,5 +1,10 @@
 {
-  "extends": ["xo", "plugin:import/recommended", "plugin:prettier/recommended"],
+  "extends": [
+    "xo",
+    "plugin:import/recommended",
+    "plugin:unicorn/recommended",
+    "plugin:prettier/recommended"
+  ],
   "env": {
     "node": true,
     "es6": true,
@@ -31,6 +36,14 @@
     "prefer-destructuring": ["error", { "array": true, "object": false }],
     "prefer-const": "error",
     "prefer-template": "error",
-    "strict": "error"
+    "strict": "error",
+    "unicorn/no-null": "off",
+    "unicorn/no-process-exit": "off",
+    "unicorn/numeric-separators-style": "off",
+    "unicorn/prefer-module": "off",
+    "unicorn/prevent-abbreviations": [
+      "error",
+      { "replacements": { "args": false } }
+    ]
   }
 }
