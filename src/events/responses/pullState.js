@@ -1,17 +1,19 @@
 const _ = require("lodash");
 const Search = require(`${__dirname}/../../structures/ReferenceSearch.js`);
 
-exports.label = async function(payload) {
+exports.label = async function (payload) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const number = payload.pull_request.number;
   const action = payload.action;
 
   const response = await this.issues.listLabelsOnIssue({
-    owner: repoOwner, repo: repoName, issue_number: number
+    owner: repoOwner,
+    repo: repoName,
+    issue_number: number,
   });
 
-  let labels = response.data.map(label => label.name);
+  let labels = response.data.map((label) => label.name);
   const oldLabels = labels;
   const autoUpdate = this.cfg.activity.pulls.autoUpdate;
   const sizeLabels = this.cfg.pulls.status.size.labels;
@@ -29,7 +31,10 @@ exports.label = async function(payload) {
 
   if (!_.isEqual(oldLabels.sort(), labels.sort())) {
     await this.issues.replaceLabels({
-      owner: repoOwner, repo: repoName, issue_number: number, labels: labels
+      owner: repoOwner,
+      repo: repoName,
+      issue_number: number,
+      labels: labels,
     });
   }
 };
@@ -58,15 +63,19 @@ function review(labels, action, author, reviewer) {
 async function size(sizeLabels, labels, number, repo) {
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
-  const pullLabels = labels.filter(label => !sizeLabels.has(label));
+  const pullLabels = labels.filter((label) => !sizeLabels.has(label));
 
   const files = await this.util.getAllPages("pulls.listFiles", {
-    owner: repoOwner, repo: repoName, pull_number: number
+    owner: repoOwner,
+    repo: repoName,
+    pull_number: number,
   });
 
-  const changes = files.filter(file => {
-    return !this.cfg.pulls.status.size.exclude.includes(file.filename);
-  }).reduce((sum, file) => sum + file.changes, 0);
+  const changes = files
+    .filter((file) => {
+      return !this.cfg.pulls.status.size.exclude.includes(file.filename);
+    })
+    .reduce((sum, file) => sum + file.changes, 0);
 
   let label = sizeLabels.keys().next().value;
 
@@ -83,35 +92,46 @@ async function size(sizeLabels, labels, number, repo) {
   return pullLabels;
 }
 
-exports.assign = function(payload) {
+exports.assign = function (payload) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const reviewer = payload.reviewer.user.login;
   const number = payload.pull_request.number;
 
   this.issues.addAssignees({
-    owner: repoOwner, repo: repoName, issue_number: number, assignees: [reviewer]
+    owner: repoOwner,
+    repo: repoName,
+    issue_number: number,
+    assignees: [reviewer],
   });
 };
 
-exports.update = async function(pull, repo) {
+exports.update = async function (pull, repo) {
   const number = pull.number;
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
 
   const warnings = new Map([
-    ["mergeConflictWarning", async() => {
-      const pullInfo = await this.pulls.get({
-        owner: repoOwner, repo: repoName, pull_number: number
-      });
-      return pullInfo.data.mergeable;
-    }],
-    ["fixCommitWarning", async(pull, repo) => {
-      const references = new Search(this, pull, repo);
-      const bodyRefs = await references.getBody();
-      const commitRefs = await references.getCommits();
-      return bodyRefs.every(r => commitRefs.includes(r));
-    }]
+    [
+      "mergeConflictWarning",
+      async () => {
+        const pullInfo = await this.pulls.get({
+          owner: repoOwner,
+          repo: repoName,
+          pull_number: number,
+        });
+        return pullInfo.data.mergeable;
+      },
+    ],
+    [
+      "fixCommitWarning",
+      async (pull, repo) => {
+        const references = new Search(this, pull, repo);
+        const bodyRefs = await references.getBody();
+        const commitRefs = await references.getCommits();
+        return bodyRefs.every((r) => commitRefs.includes(r));
+      },
+    ],
   ]);
 
   for (const [name, check] of warnings) {
@@ -119,12 +139,15 @@ exports.update = async function(pull, repo) {
     const deletable = await check(pull, repo);
     if (!deletable) continue;
 
-    const {label} = this.cfg.pulls.status.mergeConflicts;
+    const { label } = this.cfg.pulls.status.mergeConflicts;
 
     if (label) {
       try {
         await this.issues.removeLabel({
-          owner: repoOwner, repo: repoName, issue_number: number, name: label
+          owner: repoOwner,
+          repo: repoName,
+          issue_number: number,
+          name: label,
         });
       } catch {
         // although we could attempt to fetch labels of the pull request,
@@ -133,14 +156,18 @@ exports.update = async function(pull, repo) {
     }
 
     const comments = await template.getComments({
-      issue_number: number, owner: repoOwner, repo: repoName
+      issue_number: number,
+      owner: repoOwner,
+      repo: repoName,
     });
 
     if (!comments.length) continue;
 
-    comments.forEach(comment => {
+    comments.forEach((comment) => {
       this.issues.deleteComment({
-        owner: repoOwner, repo: repoName, comment_id: comment.id
+        owner: repoOwner,
+        repo: repoName,
+        comment_id: comment.id,
       });
     });
   }

@@ -16,14 +16,14 @@ exports.issues = {
         restricted: 1,
         warn: {
           labels: ["help wanted", "good first issue"],
-          force: false
-        }
-      }
+          force: false,
+        },
+      },
     },
     label: {
       add: ["label", "add"],
-      remove: ["unlabel", "remove"]
-    }
+      remove: ["unlabel", "remove"],
+    },
   },
   area: {
     labels: new Map([
@@ -72,17 +72,17 @@ exports.issues = {
       ["area: tooling", "server-tooling"],
       ["area: topics", "server-misc"],
       ["area: uploads", "server-misc"],
-      ["area: webpack", "server-development"]
+      ["area: webpack", "server-development"],
     ]),
-    references: true
-  }
+    references: true,
+  },
 };
 
 exports.pulls = {
   status: {
     mergeConflicts: {
       label: "has conflicts",
-      comment: true
+      comment: true,
     },
     wip: "[WIP]",
     size: {
@@ -91,10 +91,10 @@ exports.pulls = {
         ["size: S", 5],
         ["size: M", 25],
         ["size: L", 50],
-        ["size: XL", 100]
+        ["size: XL", 100],
       ]),
-      exclude: ["frontend_tests/", "zerver/tests/"]
-    }
+      exclude: ["frontend_tests/", "zerver/tests/"],
+    },
   },
   references: {
     required: true,
@@ -103,13 +103,13 @@ exports.pulls = {
         "in progress",
         "good first issue",
         "good sprint project",
-        "help wanted"
-      ]
-    }
+        "help wanted",
+      ],
+    },
   },
   ci: {
-    travis: "travis updates"
-  }
+    travis: "travis updates",
+  },
 };
 
 exports.activity = {
@@ -120,26 +120,26 @@ exports.activity = {
       "zulip/python-zulip-api",
       "zulip/zulip-desktop",
       "zulip/zulip-terminal",
-      "zulip/zulipbot"
+      "zulip/zulipbot",
     ],
     interval: 6,
     reminder: 10,
-    limit: 4
+    limit: 4,
   },
   issues: {
     inProgress: "in progress",
-    clearClosed: true
+    clearClosed: true,
   },
   pulls: {
     autoUpdate: false,
     reviewed: {
-      label: "reviewed"
+      label: "reviewed",
     },
     needsReview: {
       label: "needs review",
-      ignore: true
-    }
-  }
+      ignore: true,
+    },
+  },
 };
 
 exports.eventsDelay = 3;

@@ -3,6 +3,7 @@ Hello @{author}, it seems like you have referenced #{issues} in your pull reques
 Please run `git commit --amend` in your command line client to amend your commit message description with `Fixes #{fixIssues}.`.
 
 An example of a correctly-formatted commit:
+
 ```
 commit fabd5e450374c8dde65ec35f02140383940fe146
 Author: zulipbot

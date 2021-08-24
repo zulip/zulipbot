@@ -4,7 +4,7 @@
   "description": "GitHub workflow-optimizing bot",
   "scripts": {
     "start": "node ./src/index.js",
-    "pretest": "eslint .",
+    "pretest": "eslint . && prettier --check . '!**/*.js'",
     "test": "tap --no-check-coverage",
     "posttest": "tap --coverage-report=lcovonly --no-check-coverage"
   },
@@ -15,8 +15,11 @@
     "node-fetch": "^2.1.2"
   },
   "devDependencies": {
-    "eslint": "^5.0.1",
-    "eslint-config-xo-space": "^0.21.0",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-xo": "^0.38.0",
+    "eslint-plugin-prettier": "^3.4.1",
+    "prettier": "^2.3.2",
     "simple-mock": "^0.8.0",
     "smee": "^0.2.0",
     "tap": "^15.0.9"

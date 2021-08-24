@@ -8,7 +8,7 @@
 // Default authentication specified by environment variables
 exports.auth = {
   oAuthToken: process.env.OAUTH_TOKEN,
-  webhookSecret: process.env.WEBHOOK_SECRET
+  webhookSecret: process.env.WEBHOOK_SECRET,
 };
 
 /**
@@ -29,20 +29,20 @@ exports.issues = {
         warn: {
           labels: [],
           presence: false,
-          force: true
-        }
-      }
+          force: true,
+        },
+      },
     },
     label: {
       add: [],
       remove: [],
-      self: false
-    }
+      self: false,
+    },
   },
   area: {
     labels: null,
-    references: false
-  }
+    references: false,
+  },
 };
 
 /**
@@ -57,21 +57,21 @@ exports.pulls = {
     mergeConflicts: {
       branch: "main",
       label: null,
-      comment: false
+      comment: false,
     },
     wip: null,
     size: {
       labels: null,
-      exclude: []
-    }
+      exclude: [],
+    },
   },
   references: {
     required: false,
-    labels: false
+    labels: false,
   },
   ci: {
-    travis: null
-  }
+    travis: null,
+  },
 };
 
 /**
@@ -87,23 +87,23 @@ exports.activity = {
     repositories: [],
     interval: null,
     reminder: null,
-    limit: null
+    limit: null,
   },
   issues: {
     inProgress: null,
-    clearClosed: false
+    clearClosed: false,
   },
   pulls: {
     autoUpdate: true,
     reviewed: {
       label: null,
-      assignee: null
+      assignee: null,
     },
     needsReview: {
       label: null,
-      ignore: false
-    }
-  }
+      ignore: false,
+    },
+  },
 };
 
 // Delay (in seconds) responses to certain events

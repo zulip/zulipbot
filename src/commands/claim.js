@@ -1,34 +1,46 @@
-exports.run = async function(payload, commenter, args) {
+exports.run = async function (payload, commenter, args) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const number = payload.issue.number;
   const limit = this.cfg.issues.commands.assign.limit;
 
-  if (payload.issue.assignees.find(assignee => assignee.login === commenter)) {
+  if (
+    payload.issue.assignees.find((assignee) => assignee.login === commenter)
+  ) {
     const error = "**ERROR:** You have already claimed this issue.";
     return this.issues.createComment({
-      owner: repoOwner, repo: repoName, issue_number: number, body: error
+      owner: repoOwner,
+      repo: repoName,
+      issue_number: number,
+      body: error,
     });
   }
 
   if (payload.issue.assignees.length >= limit) {
-    const warn = this.templates.get("multipleClaimWarning").format({commenter});
+    const warn = this.templates
+      .get("multipleClaimWarning")
+      .format({ commenter });
     return this.issues.createComment({
-      owner: repoOwner, repo: repoName, issue_number: number, body: warn
+      owner: repoOwner,
+      repo: repoName,
+      issue_number: number,
+      body: warn,
     });
   }
 
   try {
     await this.repos.checkCollaborator({
-      owner: repoOwner, repo: repoName, username: commenter
+      owner: repoOwner,
+      repo: repoName,
+      username: commenter,
     });
 
-    const contributors = await this.util
-      .getAllPages("repos.listContributors", {
-        owner: repoOwner, repo: repoName
-      });
+    const contributors = await this.util.getAllPages("repos.listContributors", {
+      owner: repoOwner,
+      repo: repoName,
+    });
 
-    if (contributors.find(c => c.login === commenter)) {
+    if (contributors.find((c) => c.login === commenter)) {
       return claim.apply(this, [commenter, number, repoOwner, repoName]);
     }
 
@@ -37,7 +49,10 @@ exports.run = async function(payload, commenter, args) {
     if (response.status !== 404) {
       const error = "**ERROR:** Unexpected response from GitHub API.";
       return this.issues.createComment({
-        owner: repoOwner, repo: repoName, issue_number: number, body: error
+        owner: repoOwner,
+        repo: repoName,
+        issue_number: number,
+        body: error,
       });
     }
 
@@ -54,18 +69,23 @@ async function invite(payload, commenter, args) {
 
   if (this.invites.has(inviteKey)) {
     const error = this.templates.get("inviteError").format({
-      commenter, repoName, repoOwner
+      commenter,
+      repoName,
+      repoOwner,
     });
 
     return this.issues.createComment({
-      owner: repoOwner, repo: repoName, issue_number: number, body: error
+      owner: repoOwner,
+      repo: repoName,
+      issue_number: number,
+      body: error,
     });
   }
 
-  const labels = payload.issue.labels.map(label => label.name);
+  const labels = payload.issue.labels.map((label) => label.name);
   const warn = this.cfg.issues.commands.assign.newContributors.warn;
-  const present = warn.labels.some(label => labels.includes(label));
-  const absent = warn.labels.every(label => !labels.includes(label));
+  const present = warn.labels.some((label) => labels.includes(label));
+  const absent = warn.labels.every((label) => !labels.includes(label));
   const alert = warn.presence ? present : absent;
 
   if (alert && (!warn.force || (warn.force && !args.includes("--force")))) {
@@ -75,14 +95,17 @@ async function invite(payload, commenter, args) {
       username: this.cfg.auth.username,
       state: warn.presence ? "with" : "without",
       labelGrammar: `label${one ? "" : "s"}`,
-      list: `"${warn.labels.join("\", \"")}"`,
+      list: `"${warn.labels.join('", "')}"`,
       commenter: commenter,
       repoName: repoName,
-      repoOwner: repoOwner
+      repoOwner: repoOwner,
     });
 
     return this.issues.createComment({
-      owner: repoOwner, repo: repoName, issue_number: number, body: comment
+      owner: repoOwner,
+      repo: repoName,
+      issue_number: number,
+      body: comment,
     });
   }
 
@@ -91,44 +114,59 @@ async function invite(payload, commenter, args) {
   if (!perm) {
     const error = "**ERROR:** `newContributors.permission` wasn't configured.";
     return this.issues.createComment({
-      owner: repoOwner, repo: repoName, issue_number: number, body: error
+      owner: repoOwner,
+      repo: repoName,
+      issue_number: number,
+      body: error,
     });
   }
 
   const comment = this.templates.get("contributorAddition").format({
-    commenter, repoName, repoOwner
+    commenter,
+    repoName,
+    repoOwner,
   });
 
   this.issues.createComment({
-    owner: repoOwner, repo: repoName, issue_number: number, body: comment
+    owner: repoOwner,
+    repo: repoName,
+    issue_number: number,
+    body: comment,
   });
 
   this.invites.set(inviteKey, number);
 
   return this.repos.addCollaborator({
-    owner: repoOwner, repo: repoName, username: commenter, permission: perm
+    owner: repoOwner,
+    repo: repoName,
+    username: commenter,
+    permission: perm,
   });
 }
 
 async function validate(commenter, number, repoOwner, repoName) {
   const issues = await this.util.getAllPages("issues.list", {
-    filter: "all", labels: this.cfg.activity.issues.inProgress
+    filter: "all",
+    labels: this.cfg.activity.issues.inProgress,
   });
 
   const limit = this.cfg.issues.commands.assign.newContributors.restricted;
-  const assigned = issues.filter(issue => {
-    return issue.assignees.find(assignee => assignee.login === commenter);
+  const assigned = issues.filter((issue) => {
+    return issue.assignees.find((assignee) => assignee.login === commenter);
   });
 
   if (assigned.length >= limit) {
     const comment = this.templates.get("claimRestriction").format({
       issue: `issue${limit === 1 ? "" : "s"}`,
       limit: limit,
-      commenter: commenter
+      commenter: commenter,
     });
 
     return this.issues.createComment({
-      owner: repoOwner, repo: repoName, issue_number: number, body: comment
+      owner: repoOwner,
+      repo: repoName,
+      issue_number: number,
+      body: comment,
     });
   }
 
@@ -137,7 +175,10 @@ async function validate(commenter, number, repoOwner, repoName) {
 
 async function claim(commenter, number, repoOwner, repoName) {
   const response = await this.issues.addAssignees({
-    owner: repoOwner, repo: repoName, issue_number: number, assignees: [commenter]
+    owner: repoOwner,
+    repo: repoName,
+    issue_number: number,
+    assignees: [commenter],
   });
 
   if (response.data.assignees.length) return;
@@ -145,7 +186,10 @@ async function claim(commenter, number, repoOwner, repoName) {
   const error = "**ERROR:** Issue claiming failed (no assignee was added).";
 
   return this.issues.createComment({
-    owner: repoOwner, repo: repoName, issue_number: number, body: error
+    owner: repoOwner,
+    repo: repoName,
+    issue_number: number,
+    body: error,
   });
 }
 

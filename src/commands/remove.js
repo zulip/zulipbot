@@ -1,4 +1,4 @@
-exports.run = async function(payload, commenter, args) {
+exports.run = async function (payload, commenter, args) {
   const creator = payload.issue.user.login;
   const self = this.cfg.issues.commands.label.self;
   const selfLabel = self.users ? !self.users.includes(commenter) : self;
@@ -8,14 +8,17 @@ exports.run = async function(payload, commenter, args) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const number = payload.issue.number;
-  const issueLabels = payload.issue.labels.map(label => label.name);
+  const issueLabels = payload.issue.labels.map((label) => label.name);
 
-  const labels = args.match(/".*?"/g).map(string => string.replace(/"/g, ""));
-  const removeLabels = issueLabels.filter(label => !labels.includes(label));
-  const rejected = labels.filter(label => !issueLabels.includes(label));
+  const labels = args.match(/".*?"/g).map((string) => string.replace(/"/g, ""));
+  const removeLabels = issueLabels.filter((label) => !labels.includes(label));
+  const rejected = labels.filter((label) => !issueLabels.includes(label));
 
   await this.issues.replaceLabels({
-    owner: repoOwner, repo: repoName, issue_number: number, labels: removeLabels
+    owner: repoOwner,
+    repo: repoName,
+    issue_number: number,
+    labels: removeLabels,
   });
 
   if (!rejected.length) return true;
@@ -24,14 +27,19 @@ exports.run = async function(payload, commenter, args) {
   const type = payload.issue.pull_request ? "pull request" : "issue";
 
   const error = this.templates.get("labelError").format({
-    labels: `Label${one ? "" : "s"}`, type: type,
-    labelList: `"${rejected.join("\", \"")}"`,
+    labels: `Label${one ? "" : "s"}`,
+    type: type,
+    labelList: `"${rejected.join('", "')}"`,
     exist: `do${one ? "es" : ""} not exist`,
-    beState: `w${one ? "as" : "ere"}`, action: "removed from"
+    beState: `w${one ? "as" : "ere"}`,
+    action: "removed from",
   });
 
   return this.issues.createComment({
-    owner: repoOwner, repo: repoName, issue_number: number, body: error
+    owner: repoOwner,
+    repo: repoName,
+    issue_number: number,
+    body: error,
   });
 };
 

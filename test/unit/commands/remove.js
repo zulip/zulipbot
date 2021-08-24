@@ -8,31 +8,28 @@ const remove = require(`${homePath}/commands/remove.js`);
 const payload = {
   repository: {
     owner: {
-      login: "zulip"
+      login: "zulip",
     },
-    name: "zulipbot"
+    name: "zulipbot",
   },
   issue: {
     pull_request: true,
     number: 69,
-    labels: [
-      {name: "bug"},
-      {name: "help wanted"}
-    ],
+    labels: [{ name: "bug" }, { name: "help wanted" }],
     user: {
-      login: "octocat"
-    }
-  }
+      login: "octocat",
+    },
+  },
 };
 
 const template = client.templates.get("labelError");
 template.content = "{labels} {labelList} {exist} {beState} {action} {type}.";
 client.templates.set("labelError", template);
 
-test("Reject if self-labelling enabled with different commenter", async t => {
+test("Reject if self-labelling enabled with different commenter", async (t) => {
   client.cfg.issues.commands.label.self = true;
   const commenter = "octokitten";
-  const args = "\"bug\"";
+  const args = '"bug"';
 
   const response = await remove.run.call(client, payload, commenter, args);
 
@@ -41,12 +38,12 @@ test("Reject if self-labelling enabled with different commenter", async t => {
   t.end();
 });
 
-test("Reject if self-labelling users excludes commenter", async t => {
+test("Reject if self-labelling users excludes commenter", async (t) => {
   client.cfg.issues.commands.label.self = {
-    users: ["octocat"]
+    users: ["octocat"],
   };
   const commenter = "octokitten";
-  const args = "\"bug\"";
+  const args = '"bug"';
 
   const response = await remove.run.call(client, payload, commenter, args);
 
@@ -55,7 +52,7 @@ test("Reject if self-labelling users excludes commenter", async t => {
   t.end();
 });
 
-test("Reject if invalid arguments were provided", async t => {
+test("Reject if invalid arguments were provided", async (t) => {
   const commenter = "octocat";
   const args = "no arguments";
 
@@ -66,10 +63,10 @@ test("Reject if invalid arguments were provided", async t => {
   t.end();
 });
 
-test("Remove appropriate labels", async t => {
+test("Remove appropriate labels", async (t) => {
   client.cfg.issues.commands.label.self = false;
   const commenter = "octocat";
-  const args = "\"bug\"";
+  const args = '"bug"';
 
   const request = simple.mock(client.issues, "replaceLabels").resolveWith();
 
@@ -81,20 +78,19 @@ test("Remove appropriate labels", async t => {
   t.end();
 });
 
-test("Remove appropriate labels with single rejection message", async t => {
+test("Remove appropriate labels with single rejection message", async (t) => {
   const commenter = "octocat";
-  const args = "\"help wanted\" \"test\"";
+  const args = '"help wanted" "test"';
 
   const request = simple.mock(client.issues, "replaceLabels").resolveWith();
 
-  const error = "Label \"test\" does not exist was removed from pull request.";
+  const error = 'Label "test" does not exist was removed from pull request.';
 
-  const request2 = simple.mock(client.issues, "createComment")
-    .resolveWith({
-      data: {
-        body: error
-      }
-    });
+  const request2 = simple.mock(client.issues, "createComment").resolveWith({
+    data: {
+      body: error,
+    },
+  });
 
   await remove.run.call(client, payload, commenter, args);
 
@@ -105,21 +101,20 @@ test("Remove appropriate labels with single rejection message", async t => {
   t.end();
 });
 
-test("Remove appropriate labels with multiple rejection message", async t => {
+test("Remove appropriate labels with multiple rejection message", async (t) => {
   payload.issue.pull_request = false;
   const commenter = "octocat";
-  const args = "\"help wanted\" \"a\" \"b\"";
+  const args = '"help wanted" "a" "b"';
 
   const request = simple.mock(client.issues, "replaceLabels").resolveWith();
 
-  const error = "Labels \"a\", \"b\" do not exist were removed from issue.";
+  const error = 'Labels "a", "b" do not exist were removed from issue.';
 
-  const request2 = simple.mock(client.issues, "createComment")
-    .resolveWith({
-      data: {
-        body: error
-      }
-    });
+  const request2 = simple.mock(client.issues, "createComment").resolveWith({
+    data: {
+      body: error,
+    },
+  });
 
   await remove.run.call(client, payload, commenter, args);
 

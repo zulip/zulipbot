@@ -30,7 +30,7 @@ class Template {
     const method = "issues.listComments";
     const comments = await this.client.util.getAllPages(method, parameters);
 
-    const templateComments = comments.filter(comment => {
+    const templateComments = comments.filter((comment) => {
       // Use end of template comments to check if comment is from template
       const matched = comment.body.endsWith(`<!-- ${this.name} -->`);
       const fromClient = comment.user.login === this.client.cfg.auth.username;

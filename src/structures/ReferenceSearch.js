@@ -1,13 +1,14 @@
-
-/* eslint-disable array-element-newline */
-
 const keywords = [
-  "close", "closes", "closed",
-  "fix", "fixes", "fixed",
-  "resolve", "resolves", "resolved"
+  "close",
+  "closes",
+  "closed",
+  "fix",
+  "fixes",
+  "fixed",
+  "resolve",
+  "resolves",
+  "resolved",
 ];
-
-/* eslint-enable array-element-newline */
 
 class ReferenceSearch {
   constructor(client, pull, repo) {
@@ -58,8 +59,8 @@ class ReferenceSearch {
 
   async find(strings) {
     let matches = [];
-    strings.forEach(string => {
-      const wordMatches = keywords.map(tense => {
+    strings.forEach((string) => {
+      const wordMatches = keywords.map((tense) => {
         const regex = new RegExp(`${tense}:? #([0-9]+)`, "i");
         const match = string.match(regex);
         return match ? match[1] : match;
@@ -67,10 +68,12 @@ class ReferenceSearch {
       matches = matches.concat(wordMatches);
     });
     // check matches for valid issue references
-    const statusCheck = matches.map(async number => {
+    const statusCheck = matches.map(async (number) => {
       if (!number) return false;
       const issue = await this.client.issues.get({
-        owner: this.repoOwner, repo: this.repoName, issue_number: number
+        owner: this.repoOwner,
+        repo: this.repoName,
+        issue_number: number,
       });
       // valid references are open issues
       const valid = !issue.data.pull_request && issue.data.state === "open";
@@ -79,7 +82,7 @@ class ReferenceSearch {
     // statusCheck is an array of promises, so use Promise.all
     const matchStatuses = await Promise.all(statusCheck);
     // remove strings that didn't contain any references
-    const filteredMatches = matchStatuses.filter(e => e);
+    const filteredMatches = matchStatuses.filter((e) => e);
     // sort and remove duplicate references
     const references = this.client.util.deduplicate(filteredMatches);
     return references;
@@ -92,10 +95,12 @@ class ReferenceSearch {
 
   async getCommits() {
     const commits = await this.client.pulls.listCommits({
-      owner: this.repoOwner, repo: this.repoName, pull_number: this.number
+      owner: this.repoOwner,
+      repo: this.repoName,
+      pull_number: this.number,
     });
 
-    const msgs = commits.data.map(c => c.commit.message);
+    const msgs = commits.data.map((c) => c.commit.message);
     const commitRefs = await this.find(msgs);
 
     return commitRefs;

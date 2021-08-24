@@ -8,13 +8,13 @@ const payload = {
   ref: "refs/heads/branch",
   repository: {
     owner: {
-      login: "zulip"
+      login: "zulip",
     },
-    name: "zulipbot"
-  }
+    name: "zulipbot",
+  },
 };
 
-test("Ignore if non-master branch was pushed", async t => {
+test("Ignore if non-master branch was pushed", async (t) => {
   const response = await push.run.call(client, payload);
 
   t.notOk(response);
@@ -22,7 +22,7 @@ test("Ignore if non-master branch was pushed", async t => {
   t.end();
 });
 
-test("Ignore if there was no merge conflict configuration", async t => {
+test("Ignore if there was no merge conflict configuration", async (t) => {
   client.cfg.pulls.status.mergeConflicts.comment = false;
   client.cfg.pulls.status.mergeConflicts.label = null;
   payload.ref = "refs/heads/main";
@@ -33,11 +33,11 @@ test("Ignore if there was no merge conflict configuration", async t => {
   t.end();
 });
 
-test("Trigger events if master branch was pushed", async t => {
+test("Trigger events if master branch was pushed", async (t) => {
   client.cfg.eventsDelay = 0;
   client.cfg.pulls.status.mergeConflicts.comment = true;
   client.responses.set("mergeConflict", {
-    run: () => {}
+    run: () => {},
   });
 
   const response = await push.run.call(client, payload);

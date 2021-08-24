@@ -1,12 +1,13 @@
 const Search = require(`${__dirname}/../structures/ReferenceSearch.js`);
 
-exports.run = async function() {
+exports.run = async function () {
   // Create array with PRs from all active repositories
   const repos = this.cfg.activity.check.repositories;
-  const pages = repos.map(async repo => {
+  const pages = repos.map(async (repo) => {
     const [repoOwner, repoName] = repo.split("/");
     return this.util.getAllPages("pulls.list", {
-      owner: repoOwner, repo: repoName
+      owner: repoOwner,
+      repo: repoName,
     });
   });
 
@@ -32,16 +33,20 @@ async function scrapePulls(pulls) {
     const repoOwner = pull.base.repo.owner.login;
 
     const response = await this.issues.listLabelsOnIssue({
-      owner: repoOwner, repo: repoName, issue_number: number
+      owner: repoOwner,
+      repo: repoName,
+      issue_number: number,
     });
 
-    const labels = response.data.map(label => label.name);
+    const labels = response.data.map((label) => label.name);
 
-    const inactive = labels.find(label => label === this.cfg.activity.inactive);
-    const reviewed = labels.find(l => {
+    const inactive = labels.find(
+      (label) => label === this.cfg.activity.inactive
+    );
+    const reviewed = labels.find((l) => {
       return l === this.cfg.activity.pulls.reviewed.label;
     });
-    const needsReview = labels.find(l => {
+    const needsReview = labels.find((l) => {
       return l === this.cfg.activity.pulls.needsReview.label;
     });
 
@@ -55,7 +60,7 @@ async function scrapePulls(pulls) {
 
     if (bodyRefs.length || commitRefs.length) {
       const refs = commitRefs.concat(bodyRefs);
-      refs.forEach(ref => {
+      refs.forEach((ref) => {
         const ignore = this.cfg.activity.pulls.needsReview.ignore;
         if (needsReview && ignore) time = Date.now();
         referenceList.set(`${repoName}/${ref}`, time);
@@ -64,7 +69,8 @@ async function scrapePulls(pulls) {
   }
 
   const issues = await this.util.getAllPages("issues.list", {
-    filter: "all", labels: this.cfg.activity.issues.inProgress
+    filter: "all",
+    labels: this.cfg.activity.issues.inProgress,
   });
 
   await scrapeInactiveIssues.apply(this, [referenceList, issues]);
@@ -79,16 +85,22 @@ async function checkInactivePull(pull) {
   const template = this.templates.get("updateWarning");
 
   const comment = template.format({
-    days: this.cfg.activity.check.reminder, author: author
+    days: this.cfg.activity.check.reminder,
+    author: author,
   });
 
   const comments = await template.getComments({
-    owner: repoOwner, repo: repoName, issue_number: number
+    owner: repoOwner,
+    repo: repoName,
+    issue_number: number,
   });
 
   if (!comments.length) {
     this.issues.createComment({
-      owner: repoOwner, repo: repoName, issue_number: number, body: comment
+      owner: repoOwner,
+      repo: repoName,
+      issue_number: number,
+      body: comment,
     });
   }
 }
@@ -99,7 +111,7 @@ async function scrapeInactiveIssues(references, issues) {
   const iterator = issues[Symbol.iterator]();
 
   for (const issue of iterator) {
-    const inactiveLabel = issue.labels.find(label => {
+    const inactiveLabel = issue.labels.find((label) => {
       return label.name === this.cfg.activity.inactive;
     });
     if (inactiveLabel) continue;
@@ -117,43 +129,60 @@ async function scrapeInactiveIssues(references, issues) {
 
     if (time + ms >= Date.now() || !active) continue;
 
-    const logins = issue.assignees.map(assignee => assignee.login);
+    const logins = issue.assignees.map((assignee) => assignee.login);
 
     if (!issue.assignees.length) {
       const comment = "**ERROR:** This active issue has no assignee.";
       return this.issues.createComment({
-        owner: repoOwner, repo: repoName, issue_number: number, body: comment
+        owner: repoOwner,
+        repo: repoName,
+        issue_number: number,
+        body: comment,
       });
     }
 
     const template = this.templates.get("inactiveWarning");
 
     const comment = template.format({
-      assignee: logins.join(", @"), remind: this.cfg.activity.check.reminder,
-      abandon: this.cfg.activity.check.limit, username: this.cfg.auth.username
+      assignee: logins.join(", @"),
+      remind: this.cfg.activity.check.reminder,
+      abandon: this.cfg.activity.check.limit,
+      username: this.cfg.auth.username,
     });
 
     const comments = await template.getComments({
-      owner: repoOwner, repo: repoName, issue_number: number
+      owner: repoOwner,
+      repo: repoName,
+      issue_number: number,
     });
 
     if (comments.length) {
       this.issues.removeAssignees({
-        owner: repoOwner, repo: repoName, issue_number: number, assignees: logins
+        owner: repoOwner,
+        repo: repoName,
+        issue_number: number,
+        assignees: logins,
       });
 
       const warning = this.templates.get("abandonWarning").format({
-        assignee: logins.join(", @"), total: (ms + ims) / 86400000,
-        username: this.cfg.auth.username
+        assignee: logins.join(", @"),
+        total: (ms + ims) / 86400000,
+        username: this.cfg.auth.username,
       });
 
       const id = comments[0].id;
       this.issues.editComment({
-        owner: repoOwner, repo: repoName, comment_id: id, body: warning
+        owner: repoOwner,
+        repo: repoName,
+        comment_id: id,
+        body: warning,
       });
     } else if (time + ims <= Date.now()) {
       this.issues.createComment({
-        owner: repoOwner, repo: repoName, issue_number: number, body: comment
+        owner: repoOwner,
+        repo: repoName,
+        issue_number: number,
+        body: comment,
       });
     }
   }

@@ -8,26 +8,28 @@ const abandon = require(`${homePath}/commands/abandon.js`);
 const payload = {
   repository: {
     owner: {
-      login: "zulip"
+      login: "zulip",
     },
-    name: "zulipbot"
+    name: "zulipbot",
   },
   issue: {
     number: 69,
-    assignees: [{
-      login: "octocat"
-    }]
-  }
+    assignees: [
+      {
+        login: "octocat",
+      },
+    ],
+  },
 };
 
-test("Reject if commenter isn't an assignee", async t => {
+test("Reject if commenter isn't an assignee", async (t) => {
   const commenter = "octokitten";
 
   const error = "**ERROR:** You have not claimed this issue to work on yet.";
   const request = simple.mock(client.issues, "createComment").resolveWith({
     data: {
-      body: error
-    }
+      body: error,
+    },
   });
 
   const response = await abandon.run.call(client, payload, commenter);
@@ -39,15 +41,14 @@ test("Reject if commenter isn't an assignee", async t => {
   t.end();
 });
 
-test("Remove if commenter is assigned", async t => {
+test("Remove if commenter is assigned", async (t) => {
   const commenter = "octocat";
 
-  const request = simple.mock(client.issues, "removeAssignees")
-    .resolveWith({
-      data: {
-        assignees: []
-      }
-    });
+  const request = simple.mock(client.issues, "removeAssignees").resolveWith({
+    data: {
+      assignees: [],
+    },
+  });
 
   const response = await abandon.run.call(client, payload, commenter);
 

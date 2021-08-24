@@ -12,13 +12,13 @@ const payload = {
   build_url: "https://travis-ci.org",
   repository: {
     owner_name: "zulip",
-    name: "zulipbot"
-  }
+    name: "zulipbot",
+  },
 };
 
 const templates = new Map([
   ["travisPass", "[tests]({url})"],
-  ["travisFail", "{state} {buildLogs}"]
+  ["travisFail", "{state} {buildLogs}"],
 ]);
 
 templates.forEach((value, key) => {
@@ -27,7 +27,7 @@ templates.forEach((value, key) => {
   client.templates.set(key, template);
 });
 
-test("Ignore if build result isn't for a pull request", async t => {
+test("Ignore if build result isn't for a pull request", async (t) => {
   const response = await travis.run.call(client, payload);
 
   t.notOk(response);
@@ -35,7 +35,7 @@ test("Ignore if build result isn't for a pull request", async t => {
   t.end();
 });
 
-test("Ignore if no there is no Travis configuration", async t => {
+test("Ignore if no there is no Travis configuration", async (t) => {
   payload.pull_request = true;
   client.cfg.pulls.ci.travis = null;
 
@@ -46,11 +46,11 @@ test("Ignore if no there is no Travis configuration", async t => {
   t.end();
 });
 
-test("Ignore if pull request has no configured Travis label", async t => {
+test("Ignore if pull request has no configured Travis label", async (t) => {
   client.cfg.pulls.ci.travis = "travis";
 
   const request = simple.mock(client.issues, "listLabelsOnIssue").resolveWith({
-    data: []
+    data: [],
   });
 
   const response = await travis.run.call(client, payload);
@@ -61,16 +61,16 @@ test("Ignore if pull request has no configured Travis label", async t => {
   t.end();
 });
 
-test("Alert about passing build", async t => {
+test("Alert about passing build", async (t) => {
   const request = simple.mock(client.issues, "listLabelsOnIssue").resolveWith({
-    data: [{name: "travis"}]
+    data: [{ name: "travis" }],
   });
 
   const message = "[tests](https://travis-ci.org)";
   const request2 = simple.mock(client.issues, "createComment").resolveWith({
     data: {
-      body: message
-    }
+      body: message,
+    },
   });
 
   await travis.run.call(client, payload);
@@ -82,17 +82,17 @@ test("Alert about passing build", async t => {
   t.end();
 });
 
-test("Alert about failing build", async t => {
+test("Alert about failing build", async (t) => {
   payload.state = "failed";
   const request = simple.mock(client.issues, "listLabelsOnIssue").resolveWith({
-    data: [{name: "travis"}]
+    data: [{ name: "travis" }],
   });
 
   const error = "failed [build logs](https://travis-ci.org)";
   const request2 = simple.mock(client.issues, "createComment").resolveWith({
     data: {
-      body: error
-    }
+      body: error,
+    },
   });
 
   await travis.run.call(client, payload);

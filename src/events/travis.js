@@ -1,4 +1,4 @@
-exports.run = async function(payload) {
+exports.run = async function (payload) {
   if (!payload.pull_request || !this.cfg.pulls.ci.travis) return;
 
   const repoOwner = payload.repository.owner_name;
@@ -6,10 +6,12 @@ exports.run = async function(payload) {
   const number = payload.pull_request_number;
 
   const labels = await this.issues.listLabelsOnIssue({
-    owner: repoOwner, repo: repoName, issue_number: number
+    owner: repoOwner,
+    repo: repoName,
+    issue_number: number,
   });
 
-  const labelCheck = labels.data.find(label => {
+  const labelCheck = labels.data.find((label) => {
     return label.name === this.cfg.pulls.ci.travis;
   });
 
@@ -20,15 +22,19 @@ exports.run = async function(payload) {
   let comment;
 
   if (state === "passed") {
-    comment = this.templates.get("travisPass").format({url});
+    comment = this.templates.get("travisPass").format({ url });
   } else {
     comment = this.templates.get("travisFail").format({
-      buildLogs: `[build logs](${url})`, state: state
+      buildLogs: `[build logs](${url})`,
+      state: state,
     });
   }
 
   return this.issues.createComment({
-    owner: repoOwner, repo: repoName, issue_number: number, body: comment
+    owner: repoOwner,
+    repo: repoName,
+    issue_number: number,
+    body: comment,
   });
 };
 

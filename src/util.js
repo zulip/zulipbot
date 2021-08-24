@@ -5,7 +5,7 @@
  * @return {Array} Sorted array containing only unique entries.
  */
 
-exports.deduplicate = function(array) {
+exports.deduplicate = function (array) {
   return Array.from(new Set(array)).sort();
 };
 
@@ -16,7 +16,7 @@ exports.deduplicate = function(array) {
  * @return {Array} Array of all data entries.
  */
 
-exports.getAllPages = async function(path, parameters) {
+exports.getAllPages = async function (path, parameters) {
   const [api, method] = path.split(".");
   const options = this[api][method].endpoint.merge(parameters);
   const responses = await this.paginate(options);
