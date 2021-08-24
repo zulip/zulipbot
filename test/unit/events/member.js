@@ -55,7 +55,7 @@ test("Assign successfully if invite was found", async t => {
   const response = await member.run.call(client, payload);
 
   t.notOk(client.invites.has("octokitten@zulip/zulipbot"));
-  t.deepIs(request.lastCall.arg.assignees, ["octokitten"]);
+  t.strictSame(request.lastCall.arg.assignees, ["octokitten"]);
   t.ok(response);
 
   simple.restore();
@@ -82,8 +82,8 @@ test("Warn if issue assignment failed", async t => {
   await member.run.call(client, payload);
 
   t.notOk(client.invites.has("octokitten@zulip/zulipbot"));
-  t.deepIs(request.lastCall.arg.assignees, ["octokitten"]);
-  t.is(request2.lastCall.arg.body, error);
+  t.strictSame(request.lastCall.arg.assignees, ["octokitten"]);
+  t.equal(request2.lastCall.arg.body, error);
 
   simple.restore();
   t.end();

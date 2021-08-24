@@ -33,7 +33,7 @@ test("Reject if commenter isn't an assignee", async t => {
   const response = await abandon.run.call(client, payload, commenter);
 
   t.ok(request.called);
-  t.is(response.data.body, error);
+  t.equal(response.data.body, error);
 
   simple.restore();
   t.end();
@@ -52,7 +52,7 @@ test("Remove if commenter is assigned", async t => {
   const response = await abandon.run.call(client, payload, commenter);
 
   t.ok(request.called);
-  t.deepIs(response.data.assignees, []);
+  t.strictSame(response.data.assignees, []);
 
   simple.restore();
   t.end();

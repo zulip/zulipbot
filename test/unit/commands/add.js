@@ -85,7 +85,7 @@ test("Add appropriate labels", async t => {
   await add.run.call(client, payload, commenter, args);
 
   t.ok(request1.called);
-  t.deepIs(request2.lastCall.arg.labels, ["bug"]);
+  t.strictSame(request2.lastCall.arg.labels, ["bug"]);
 
   simple.restore();
   t.end();
@@ -113,8 +113,8 @@ test("Add appropriate label and reject label not in repository", async t => {
   await add.run.call(client, payload, commenter, args);
 
   t.ok(request1.called);
-  t.deepIs(request2.lastCall.arg.labels, ["bug"]);
-  t.is(request3.lastCall.arg.body, error);
+  t.strictSame(request2.lastCall.arg.labels, ["bug"]);
+  t.equal(request3.lastCall.arg.body, error);
 
   simple.restore();
   t.end();
@@ -142,8 +142,8 @@ test("Add appropriate labels and reject labels not in repository", async t => {
   await add.run.call(client, payload, commenter, args);
 
   t.ok(request1.called);
-  t.deepIs(request2.lastCall.arg.labels, ["bug"]);
-  t.is(request3.lastCall.arg.body, error);
+  t.strictSame(request2.lastCall.arg.labels, ["bug"]);
+  t.equal(request3.lastCall.arg.body, error);
 
   simple.restore();
   t.end();
@@ -171,8 +171,8 @@ test("Add appropriate labels and reject already added label", async t => {
   await add.run.call(client, payload, commenter, args);
 
   t.ok(request1.called);
-  t.deepIs(request2.lastCall.arg.labels, ["bug"]);
-  t.is(request3.lastCall.arg.body, error);
+  t.strictSame(request2.lastCall.arg.labels, ["bug"]);
+  t.equal(request3.lastCall.arg.body, error);
 
   simple.restore();
   t.end();
@@ -201,7 +201,7 @@ test("Add appropriate labels and reject already added labels", async t => {
 
   t.ok(request1.called);
   t.notOk(request2.called);
-  t.is(request3.lastCall.arg.body, error);
+  t.equal(request3.lastCall.arg.body, error);
 
   simple.restore();
   t.end();

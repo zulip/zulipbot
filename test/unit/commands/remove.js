@@ -75,7 +75,7 @@ test("Remove appropriate labels", async t => {
 
   await remove.run.call(client, payload, commenter, args);
 
-  t.deepIs(request.lastCall.arg.labels, ["help wanted"]);
+  t.strictSame(request.lastCall.arg.labels, ["help wanted"]);
 
   simple.restore();
   t.end();
@@ -98,8 +98,8 @@ test("Remove appropriate labels with single rejection message", async t => {
 
   await remove.run.call(client, payload, commenter, args);
 
-  t.deepIs(request.lastCall.arg.labels, ["bug"]);
-  t.is(request2.lastCall.arg.body, error);
+  t.strictSame(request.lastCall.arg.labels, ["bug"]);
+  t.equal(request2.lastCall.arg.body, error);
 
   simple.restore();
   t.end();
@@ -123,8 +123,8 @@ test("Remove appropriate labels with multiple rejection message", async t => {
 
   await remove.run.call(client, payload, commenter, args);
 
-  t.deepIs(request.lastCall.arg.labels, ["bug"]);
-  t.is(request2.lastCall.arg.body, error);
+  t.strictSame(request.lastCall.arg.labels, ["bug"]);
+  t.equal(request2.lastCall.arg.body, error);
 
   simple.restore();
   t.end();

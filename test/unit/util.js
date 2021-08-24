@@ -6,7 +6,7 @@ const client = require(`${homePath}/client.js`);
 
 test("Deduplicates arrays successfully", async t => {
   const array = [1, 2, "2", 3, "3", 3];
-  t.deepIs(client.util.deduplicate(array), [1, 2, "2", 3, "3"]);
+  t.strictSame(client.util.deduplicate(array), [1, 2, "2", 3, "3"]);
 });
 
 test("Fetches all pages successfully", async t => {
@@ -17,8 +17,8 @@ test("Fetches all pages successfully", async t => {
     .resolveWith(Array(101).fill(1));
 
   const response = await client.util.getAllPages("issues.list", {key: "val"});
-  t.is(request1.lastCall.arg.key, "val");
-  t.is(request2.lastCall.arg.key, "val");
-  t.is(request2.lastCall.arg.endpoint, "GET /test");
-  t.deepIs(response, results);
+  t.equal(request1.lastCall.arg.key, "val");
+  t.equal(request2.lastCall.arg.key, "val");
+  t.equal(request2.lastCall.arg.endpoint, "GET /test");
+  t.strictSame(response, results);
 });

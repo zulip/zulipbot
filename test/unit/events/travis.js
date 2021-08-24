@@ -77,7 +77,7 @@ test("Alert about passing build", async t => {
 
   t.ok(request.called);
   t.ok(request2.called);
-  t.is(request2.lastCall.arg.body, message);
+  t.equal(request2.lastCall.arg.body, message);
 
   t.end();
 });
@@ -98,7 +98,7 @@ test("Alert about failing build", async t => {
   await travis.run.call(client, payload);
 
   t.ok(request.called);
-  t.is(request2.lastCall.arg.body, error);
+  t.equal(request2.lastCall.arg.body, error);
 
   t.end();
 });

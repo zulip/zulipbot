@@ -28,7 +28,7 @@ test("Reject if commenter is already an assignee", async t => {
   await claim.run.call(client, payload, commenter);
 
   t.ok(request.called);
-  t.is(request.lastCall.arg.body, error);
+  t.equal(request.lastCall.arg.body, error);
 
   simple.restore();
   t.end();
@@ -46,7 +46,7 @@ test("Reject if assignee limit is reached", async t => {
   await claim.run.call(client, payload, commenter);
 
   t.ok(request.called);
-  t.is(request.lastCall.arg.body, commenter);
+  t.equal(request.lastCall.arg.body, commenter);
 
   simple.restore();
   t.end();
@@ -66,7 +66,7 @@ test("Throw error if collaborator check code isn't 404", async t => {
   await claim.run.call(client, payload, commenter);
 
   t.ok(request1.called);
-  t.is(request2.lastCall.arg.body, error);
+  t.equal(request2.lastCall.arg.body, error);
 
   simple.restore();
   t.end();
@@ -90,7 +90,7 @@ test("Rejects creation of duplicate invite", async t => {
   await claim.run.call(client, payload, commenter);
 
   t.ok(request1.called);
-  t.is(request2.lastCall.arg.body, "octokitten zulipbot zulip");
+  t.equal(request2.lastCall.arg.body, "octokitten zulipbot zulip");
 
   simple.restore();
   t.end();
@@ -114,7 +114,7 @@ test("Blocks claim if labels are missing", async t => {
 
   await claim.run.call(client, payload, commenter);
   t.ok(request1.called);
-  t.is(request2.lastCall.arg.body, "without labels \"a\", \"b\" zulipbot");
+  t.equal(request2.lastCall.arg.body, "without labels \"a\", \"b\" zulipbot");
 
   simple.restore();
   t.end();
@@ -141,7 +141,7 @@ test("Warns if labels are present without force flag", async t => {
   await claim.run.call(client, payload, commenter, "");
 
   t.ok(request1.called);
-  t.is(request2.lastCall.arg.body, "warn with label \"bug\" zulipbot");
+  t.equal(request2.lastCall.arg.body, "warn with label \"bug\" zulipbot");
 
   simple.restore();
   t.end();
@@ -165,8 +165,8 @@ test("Invite new contributor", async t => {
   await claim.run.call(client, payload, commenter, "--force");
 
   t.ok(request1.called);
-  t.is(request2.lastCall.arg.body, "contrib octokitten zulipbot zulip");
-  t.is(request3.lastCall.arg.permission, "pull");
+  t.equal(request2.lastCall.arg.body, "contrib octokitten zulipbot zulip");
+  t.equal(request3.lastCall.arg.permission, "pull");
   t.ok(client.invites.has("octokitten@zulip/zulipbot"));
 
   simple.restore();
@@ -187,7 +187,7 @@ test("Throw error if permission is not specified", async t => {
   await claim.run.call(client, payload, commenter, "--force");
 
   t.ok(request1.called);
-  t.is(request2.lastCall.arg.body, error);
+  t.equal(request2.lastCall.arg.body, error);
 
   simple.restore();
   t.end();
@@ -213,7 +213,7 @@ test("Always assign if commenter is contributor", async t => {
 
   t.ok(request1.called);
   t.ok(request2.called);
-  t.deepIs(request3.lastCall.arg.assignees, [commenter]);
+  t.strictSame(request3.lastCall.arg.assignees, [commenter]);
 
   simple.restore();
   t.end();
@@ -239,7 +239,7 @@ test("Always assign if commenter is contributor", async t => {
 
   t.ok(request1.called);
   t.ok(request2.called);
-  t.deepIs(request3.lastCall.arg.assignees, [commenter]);
+  t.strictSame(request3.lastCall.arg.assignees, [commenter]);
 
   simple.restore();
   t.end();
@@ -269,7 +269,7 @@ test("Error if no assignees were added", async t => {
   t.ok(request1.called);
   t.ok(request2.called);
   t.ok(request3.called);
-  t.is(request4.lastCall.arg.body, error);
+  t.equal(request4.lastCall.arg.body, error);
 
   simple.restore();
   t.end();
@@ -292,8 +292,8 @@ test("Assign if claim limit validation passed", async t => {
   await claim.run.call(client, payload, commenter);
 
   t.ok(request1.called);
-  t.is(request2.callCount, 2);
-  t.deepIs(request3.lastCall.arg.assignees, [commenter]);
+  t.equal(request2.callCount, 2);
+  t.strictSame(request3.lastCall.arg.assignees, [commenter]);
 
   simple.restore();
   t.end();
@@ -325,8 +325,8 @@ test("Reject claim limit validation failed", async t => {
   await claim.run.call(client, payload, commenter);
 
   t.ok(request1.called);
-  t.is(request2.callCount, 2);
-  t.is(request3.lastCall.arg.body, "1 octocat issue");
+  t.equal(request2.callCount, 2);
+  t.equal(request3.lastCall.arg.body, "1 octocat issue");
 
   simple.restore();
   t.end();
@@ -362,8 +362,8 @@ test("Reject claim limit validation failed (limit over 1)", async t => {
   await claim.run.call(client, payload, commenter);
 
   t.ok(request1.called);
-  t.is(request2.callCount, 2);
-  t.is(request3.lastCall.arg.body, "2 octocat issues");
+  t.equal(request2.callCount, 2);
+  t.equal(request3.lastCall.arg.body, "2 octocat issues");
 
   simple.restore();
   t.end();
