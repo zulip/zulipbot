@@ -5,7 +5,7 @@ exports.run = async function (payload) {
   const pull = payload.pull_request;
   const repo = payload.repository;
   const assignee = this.cfg.activity.pulls.reviewed.assignee;
-  const ref = this.cfg.pulls.references.required;
+  const reference = this.cfg.pulls.references.required;
   const autoUpdate = this.cfg.activity.pulls.autoUpdate;
   const size = this.cfg.pulls.status.size;
 
@@ -25,7 +25,7 @@ exports.run = async function (payload) {
     await this.responses.get("areaLabel").run(issue.data, repo, l);
   }
 
-  if (!ref || pull.title.includes(this.cfg.pulls.status.wip)) return;
+  if (!reference || pull.title.includes(this.cfg.pulls.status.wip)) return;
 
   if (action === "opened") {
     await this.responses.get("reference").run(pull, repo, true);

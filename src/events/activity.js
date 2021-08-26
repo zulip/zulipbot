@@ -55,15 +55,15 @@ async function scrapePulls(pulls) {
     }
 
     const references = new Search(this, pull, pull.base.repo);
-    const bodyRefs = await references.getBody();
-    const commitRefs = await references.getCommits();
+    const bodyReferences = await references.getBody();
+    const commitReferences = await references.getCommits();
 
-    if (bodyRefs.length > 0 || commitRefs.length > 0) {
-      const refs = [...commitRefs, ...bodyRefs];
-      for (const ref of refs) {
+    if (bodyReferences.length > 0 || commitReferences.length > 0) {
+      const references_ = [...commitReferences, ...bodyReferences];
+      for (const reference of references_) {
         const ignore = this.cfg.activity.pulls.needsReview.ignore;
         if (needsReview && ignore) time = Date.now();
-        referenceList.set(`${repoName}/${ref}`, time);
+        referenceList.set(`${repoName}/${reference}`, time);
       }
     }
   }

@@ -31,14 +31,14 @@ client.templates = new Map();
 for (const data of commands) {
   const [category, name] = data.aliasPath.split(".");
   const aliases = client.cfg.issues.commands[category][name];
-  for (let i = aliases.length; i--; ) {
-    client.commands.set(aliases[i], data);
+  for (let index = aliases.length; index--; ) {
+    client.commands.set(aliases[index], data);
   }
 }
 
 for (const data of events) {
-  for (let i = data.events.length; i--; ) {
-    client.events.set(data.events[i], data.run.bind(client));
+  for (let index = data.events.length; index--; ) {
+    client.events.set(data.events[index], data.run.bind(client));
   }
 }
 

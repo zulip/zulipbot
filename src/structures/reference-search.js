@@ -83,15 +83,15 @@ class ReferenceSearch {
     // statusCheck is an array of promises, so use Promise.all
     const matchStatuses = await Promise.all(statusCheck);
     // remove strings that didn't contain any references
-    const filteredMatches = matchStatuses.filter((e) => e);
+    const filteredMatches = matchStatuses.filter(Boolean);
     // sort and remove duplicate references
     const references = this.client.util.deduplicate(filteredMatches);
     return references;
   }
 
   async getBody() {
-    const bodyRefs = await this.find([this.body]);
-    return bodyRefs;
+    const bodyReferences = await this.find([this.body]);
+    return bodyReferences;
   }
 
   async getCommits() {
@@ -102,9 +102,9 @@ class ReferenceSearch {
     });
 
     const msgs = commits.data.map((c) => c.commit.message);
-    const commitRefs = await this.find(msgs);
+    const commitReferences = await this.find(msgs);
 
-    return commitRefs;
+    return commitReferences;
   }
 }
 

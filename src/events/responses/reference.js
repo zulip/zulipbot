@@ -9,10 +9,12 @@ exports.run = async function (pull, repo, opened) {
   const repoOwner = repo.owner.login;
 
   const references = new Search(this, pull, repo);
-  const bodyRefs = await references.getBody();
-  const commitRefs = await references.getCommits();
+  const bodyReferences = await references.getBody();
+  const commitReferences = await references.getCommits();
 
-  const missingRefs = bodyRefs.filter((r) => !commitRefs.includes(r));
+  const missingReferences = bodyReferences.filter(
+    (r) => !commitReferences.includes(r)
+  );
 
   const template = this.templates.get("fixCommitWarning");
   const comments = await template.getComments({
@@ -21,12 +23,12 @@ exports.run = async function (pull, repo, opened) {
     repo: repoName,
   });
 
-  if (comments.length === 0 && missingRefs.length > 0) {
+  if (comments.length === 0 && missingReferences.length > 0) {
     const comment = template.format({
       author: author,
-      issues: missingRefs.join(", #"),
-      fixIssues: missingRefs.join(", fixes #"),
-      issuePronoun: missingRefs.length > 0 ? "them" : "it",
+      issues: missingReferences.join(", #"),
+      fixIssues: missingReferences.join(", fixes #"),
+      issuePronoun: missingReferences.length > 0 ? "them" : "it",
     });
     return this.issues.createComment({
       owner: repoOwner,
@@ -38,12 +40,12 @@ exports.run = async function (pull, repo, opened) {
 
   if (!opened || !this.cfg.pulls.references.labels) return;
 
-  for (const issue of commitRefs) {
+  for (const issue of commitReferences) {
     labelReference.call(this, issue, number, repo);
   }
 };
 
-async function labelReference(refIssue, number, repo) {
+async function labelReference(referencedIssue, number, repo) {
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
   const labelCfg = this.cfg.pulls.references.labels;
@@ -51,7 +53,7 @@ async function labelReference(refIssue, number, repo) {
   const response = await this.issues.listLabelsOnIssue({
     owner: repoOwner,
     repo: repoName,
-    issue_number: refIssue,
+    issue_number: referencedIssue,
   });
 
   let labels = response.data.map((label) => label.name);
@@ -59,9 +61,9 @@ async function labelReference(refIssue, number, repo) {
   if (typeof labelCfg === "object") {
     const cfgCheck = [labelCfg.include, labelCfg.exclude];
 
-    const defined = (arr) => Array.isArray(arr) && arr.length > 0;
+    const defined = (array) => Array.isArray(array) && array.length > 0;
 
-    if (cfgCheck.filter((arr) => defined(arr)).length !== 1) {
+    if (cfgCheck.filter((array) => defined(array)).length !== 1) {
       const error = "**ERROR:** Invalid `references.labels` configuration.";
       return this.issues.createComment({
         owner: repoOwner,

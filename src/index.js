@@ -14,66 +14,66 @@ app.listen(port, () => {
   console.log(`Website is running on http://localhost:${port}`);
 });
 
-app.get("/", (req, res) => {
-  res.redirect("https://github.com/zulip/zulipbot");
+app.get("/", (request, response) => {
+  response.redirect("https://github.com/zulip/zulipbot");
 });
 
 const jsonParser = express.json({ limit: "50mb" });
 const urlencodedParser = express.urlencoded({ extended: true });
 
-app.post("/github", jsonParser, async (req, res) => {
+app.post("/github", jsonParser, async (request, response) => {
   const secret = client.cfg.auth.webhookSecret.toString();
-  const body = JSON.stringify(req.body);
+  const body = JSON.stringify(request.body);
   const hmac = crypto.createHmac("sha1", secret).update(body).digest("hex");
   const hash = Buffer.from(`sha1=${hmac}`);
-  const signature = Buffer.from(req.get("X-Hub-Signature"));
+  const signature = Buffer.from(request.get("X-Hub-Signature"));
 
   // compare buffer length first to prevent timingSafeEqual() errors
   const equalLength = hash.length === signature.length;
   const equal = equalLength ? crypto.timingSafeEqual(hash, signature) : false;
   if (!equal) {
-    return res.status(401).send("Signature doesn't match computed hash");
+    return response.status(401).send("Signature doesn't match computed hash");
   }
 
-  const eventType = req.get("X-GitHub-Event");
+  const eventType = request.get("X-GitHub-Event");
   if (!eventType) {
-    return res.status(400).send("X-GitHub-Event header was null");
+    return response.status(400).send("X-GitHub-Event header was null");
   }
 
-  const payload = req.body;
+  const payload = request.body;
   const repo = payload.repository ? payload.repository.full_name : null;
   const check = client.cfg.activity.check.repositories.includes(repo);
   const eventHandler = client.events.get(eventType);
-  if (!check || !eventHandler) return res.status(204).end();
+  if (!check || !eventHandler) return response.status(204).end();
 
   eventHandler(payload);
-  res.status(202).send("Request is being processed");
+  response.status(202).send("Request is being processed");
 });
 
-app.post("/travis", urlencodedParser, async (req, res) => {
-  const response = await fetch("https://api.travis-ci.org/config");
-  const json = await response.json();
+app.post("/travis", urlencodedParser, async (request, response) => {
+  const travisResponse = await fetch("https://api.travis-ci.org/config");
+  const json = await travisResponse.json();
   const publicKey = json.config.notifications.webhook.public_key;
   const verifier = crypto.createVerify("sha1");
-  const signature = Buffer.from(req.headers.signature, "base64");
-  verifier.update(req.body.payload);
+  const signature = Buffer.from(request.headers.signature, "base64");
+  verifier.update(request.body.payload);
   const valid = verifier.verify(publicKey, signature);
 
   if (!valid) {
-    return res.status(401).send("Signature doesn't match computed hash");
+    return response.status(401).send("Signature doesn't match computed hash");
   }
 
-  const repo = req.get("Travis-Repo-Slug");
+  const repo = request.get("Travis-Repo-Slug");
   if (!repo) {
-    return res.status(400).send("Travis-Repo-Slug header was null");
+    return response.status(400).send("Travis-Repo-Slug header was null");
   }
 
   const check = client.cfg.activity.check.repositories.includes(repo);
-  if (!check) return res.status(204).end();
+  if (!check) return response.status(204).end();
 
-  const payload = JSON.parse(req.body.payload);
+  const payload = JSON.parse(request.body.payload);
   client.events.get("travis")(payload);
-  res.status(202).send("Request is being processed");
+  response.status(202).send("Request is being processed");
 });
 
 process.on("unhandledRejection", (error) => {

@@ -130,9 +130,9 @@ exports.update = async function (pull, repo) {
       "fixCommitWarning",
       async (pull, repo) => {
         const references = new Search(this, pull, repo);
-        const bodyRefs = await references.getBody();
-        const commitRefs = await references.getCommits();
-        return bodyRefs.every((r) => commitRefs.includes(r));
+        const bodyReferences = await references.getBody();
+        const commitReferences = await references.getCommits();
+        return bodyReferences.every((r) => commitReferences.includes(r));
       },
     ],
   ]);
