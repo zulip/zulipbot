@@ -41,7 +41,7 @@ function parse(payload) {
     const file = this.commands.get(keyword);
 
     if (file) {
-      file.run.apply(this, [payload, commenter, args]);
+      file.run.call(this, payload, commenter, args);
     }
   }
 }

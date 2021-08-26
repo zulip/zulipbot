@@ -73,7 +73,7 @@ async function scrapePulls(pulls) {
     labels: this.cfg.activity.issues.inProgress,
   });
 
-  await scrapeInactiveIssues.apply(this, [referenceList, issues]);
+  await scrapeInactiveIssues.call(this, referenceList, issues);
 }
 
 async function checkInactivePull(pull) {

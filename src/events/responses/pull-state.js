@@ -24,12 +24,12 @@ exports.label = async function (payload) {
   if (autoUpdate) {
     const author = payload.pull_request.user.login;
     const reviewer = payload.review ? payload.review.user.login : null;
-    labels = review.apply(this, [labels, action, author, reviewer]);
+    labels = review.call(this, labels, action, author, reviewer);
   }
 
   if (sizeLabels && ["opened", "synchronize"].includes(action)) {
     const repo = payload.repository;
-    labels = await size.apply(this, [sizeLabels, labels, number, repo]);
+    labels = await size.call(this, sizeLabels, labels, number, repo);
   }
 
   if (!_.isEqual(oldLabels.sort(), labels.sort())) {

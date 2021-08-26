@@ -6,7 +6,7 @@ exports.close = function (issue, repo) {
   recentlyClosed.set(issue.id, issue);
 
   setTimeout(() => {
-    clearClosed.apply(this, [issue, repo]);
+    clearClosed.call(this, issue, repo);
   }, this.cfg.eventsDelay * 60 * 1000);
 };
 

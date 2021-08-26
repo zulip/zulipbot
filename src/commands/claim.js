@@ -43,10 +43,10 @@ exports.run = async function (payload, commenter, args) {
     });
 
     if (contributors.some((c) => c.login === commenter)) {
-      return claim.apply(this, [commenter, number, repoOwner, repoName]);
+      return claim.call(this, commenter, number, repoOwner, repoName);
     }
 
-    return validate.apply(this, [commenter, number, repoOwner, repoName]);
+    return validate.call(this, commenter, number, repoOwner, repoName);
   } catch (error) {
     if (error.status !== 404) {
       const error = "**ERROR:** Unexpected response from GitHub API.";
@@ -58,7 +58,7 @@ exports.run = async function (payload, commenter, args) {
       });
     }
 
-    return invite.apply(this, [payload, commenter, args]);
+    return invite.call(this, payload, commenter, args);
   }
 };
 
@@ -172,7 +172,7 @@ async function validate(commenter, number, repoOwner, repoName) {
     });
   }
 
-  return claim.apply(this, [commenter, number, repoOwner, repoName]);
+  return claim.call(this, commenter, number, repoOwner, repoName);
 }
 
 async function claim(commenter, number, repoOwner, repoName) {

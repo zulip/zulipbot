@@ -39,7 +39,7 @@ exports.run = async function (pull, repo, opened) {
   if (!opened || !this.cfg.pulls.references.labels) return;
 
   for (const issue of commitRefs) {
-    labelReference.apply(this, [issue, number, repo]);
+    labelReference.call(this, issue, number, repo);
   }
 };
 

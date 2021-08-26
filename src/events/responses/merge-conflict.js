@@ -11,7 +11,7 @@ exports.run = async function (repo) {
   const iterator = pulls[Symbol.iterator]();
 
   for (const pull of iterator) {
-    await check.apply(this, [pull.number, repo]);
+    await check.call(this, pull.number, repo);
   }
 };
 
