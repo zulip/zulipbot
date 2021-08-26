@@ -59,7 +59,7 @@ async function scrapePulls(pulls) {
     const commitRefs = await references.getCommits();
 
     if (bodyRefs.length > 0 || commitRefs.length > 0) {
-      const refs = commitRefs.concat(bodyRefs);
+      const refs = [...commitRefs, ...bodyRefs];
       for (const ref of refs) {
         const ignore = this.cfg.activity.pulls.needsReview.ignore;
         if (needsReview && ignore) time = Date.now();

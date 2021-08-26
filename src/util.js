@@ -8,7 +8,7 @@
  */
 
 exports.deduplicate = function (array) {
-  return Array.from(new Set(array)).sort();
+  return [...new Set(array)].sort();
 };
 
 /**
