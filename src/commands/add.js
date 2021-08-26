@@ -33,7 +33,7 @@ exports.run = async function (payload, commenter, args) {
   const template = this.templates.get("labelError");
   let response;
 
-  if (rejected.length) {
+  if (rejected.length > 0) {
     const one = rejected.length === 1;
     const error = template.format({
       labels: `Label${one ? "" : "s"}`,
@@ -52,7 +52,7 @@ exports.run = async function (payload, commenter, args) {
     });
   }
 
-  if (alreadyAdded.length) {
+  if (alreadyAdded.length > 0) {
     const one = alreadyAdded.length === 1;
     const labels = alreadyAdded.join('", "');
     const error = template.format({
@@ -72,7 +72,7 @@ exports.run = async function (payload, commenter, args) {
     });
   }
 
-  if (addLabels.length) {
+  if (addLabels.length > 0) {
     response = await this.issues.addLabels({
       owner: repoOwner,
       repo: repoName,

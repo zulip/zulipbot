@@ -183,7 +183,7 @@ async function claim(commenter, number, repoOwner, repoName) {
     assignees: [commenter],
   });
 
-  if (response.data.assignees.length) return;
+  if (response.data.assignees.length > 0) return;
 
   const error = "**ERROR:** Issue claiming failed (no assignee was added).";
 

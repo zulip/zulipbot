@@ -22,7 +22,7 @@ exports.run = async function (payload) {
 
   this.invites.delete(`${member}@${repoFullName}`);
 
-  if (response.data.assignees.length) return true;
+  if (response.data.assignees.length > 0) return true;
 
   const error = "**ERROR:** Issue claiming failed (no assignee was added).";
   return this.issues.createComment({

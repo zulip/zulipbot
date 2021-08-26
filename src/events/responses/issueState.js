@@ -18,7 +18,7 @@ async function clearClosed(issue, repo) {
   const repoOwner = repo.owner.login;
   const repoName = repo.name;
 
-  if (!recentlyClosed.has(issue.id) || !issue.assignees.length) {
+  if (!recentlyClosed.has(issue.id) || issue.assignees.length === 0) {
     return;
   }
 

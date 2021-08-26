@@ -164,7 +164,7 @@ exports.update = async function (pull, repo) {
       repo: repoName,
     });
 
-    if (!comments.length) continue;
+    if (comments.length === 0) continue;
 
     comments.forEach((comment) => {
       this.issues.deleteComment({

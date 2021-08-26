@@ -23,7 +23,7 @@ exports.run = async function (payload, commenter, args) {
     labels: removeLabels,
   });
 
-  if (!rejected.length) return true;
+  if (rejected.length === 0) return true;
 
   const one = rejected.length === 1;
   const type = payload.issue.pull_request ? "pull request" : "issue";

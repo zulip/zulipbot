@@ -60,7 +60,7 @@ async function scrapePulls(pulls) {
     const bodyRefs = await references.getBody();
     const commitRefs = await references.getCommits();
 
-    if (bodyRefs.length || commitRefs.length) {
+    if (bodyRefs.length > 0 || commitRefs.length > 0) {
       const refs = commitRefs.concat(bodyRefs);
       refs.forEach((ref) => {
         const ignore = this.cfg.activity.pulls.needsReview.ignore;
@@ -97,7 +97,7 @@ async function checkInactivePull(pull) {
     issue_number: number,
   });
 
-  if (!comments.length) {
+  if (comments.length === 0) {
     this.issues.createComment({
       owner: repoOwner,
       repo: repoName,
@@ -133,7 +133,7 @@ async function scrapeInactiveIssues(references, issues) {
 
     const logins = issue.assignees.map((assignee) => assignee.login);
 
-    if (!issue.assignees.length) {
+    if (issue.assignees.length === 0) {
       const comment = "**ERROR:** This active issue has no assignee.";
       return this.issues.createComment({
         owner: repoOwner,
@@ -158,7 +158,7 @@ async function scrapeInactiveIssues(references, issues) {
       issue_number: number,
     });
 
-    if (comments.length) {
+    if (comments.length > 0) {
       this.issues.removeAssignees({
         owner: repoOwner,
         repo: repoName,

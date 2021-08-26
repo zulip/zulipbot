@@ -21,12 +21,12 @@ exports.run = async function (pull, repo, opened) {
     repo: repoName,
   });
 
-  if (!comments.length && missingRefs.length) {
+  if (comments.length === 0 && missingRefs.length > 0) {
     const comment = template.format({
       author: author,
       issues: missingRefs.join(", #"),
       fixIssues: missingRefs.join(", fixes #"),
-      issuePronoun: missingRefs.length ? "them" : "it",
+      issuePronoun: missingRefs.length > 0 ? "them" : "it",
     });
     return this.issues.createComment({
       owner: repoOwner,
@@ -59,7 +59,7 @@ async function labelReference(refIssue, number, repo) {
   if (typeof labelCfg === "object") {
     const cfgCheck = [labelCfg.include, labelCfg.exclude];
 
-    const defined = (arr) => Array.isArray(arr) && arr.length;
+    const defined = (arr) => Array.isArray(arr) && arr.length > 0;
 
     if (cfgCheck.filter(defined).length !== 1) {
       const error = "**ERROR:** Invalid `references.labels` configuration.";

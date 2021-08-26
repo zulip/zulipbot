@@ -40,9 +40,9 @@ exports.run = async function (issue, repo, label) {
 
   const tag = `${repoOwner}/${repoName}#${number}`;
 
-  if (comments.length) {
+  if (comments.length > 0) {
     const id = comments[0].id;
-    if (issueAreaLabels.length) {
+    if (issueAreaLabels.length > 0) {
       this.issues.updateComment({
         owner: repoOwner,
         repo: repoName,
@@ -56,7 +56,7 @@ exports.run = async function (issue, repo, label) {
         comment_id: id,
       });
     }
-  } else if (!referenced.includes(tag) && issueAreaLabels.length) {
+  } else if (!referenced.includes(tag) && issueAreaLabels.length > 0) {
     this.issues.createComment({
       owner: repoOwner,
       repo: repoName,
