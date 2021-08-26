@@ -1,10 +1,8 @@
-"use strict";
+import nock from "nock";
+import { test } from "tap";
 
-const nock = require("nock");
-const test = require("tap").test;
-
-const client = require("../../../src/client.js");
-const travis = require("../../../src/events/travis.js");
+import client from "../../../src/client.js";
+import * as travis from "../../../src/events/travis.js";
 
 const payload = {
   state: "passed",

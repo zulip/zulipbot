@@ -1,6 +1,4 @@
-"use strict";
-
-const _ = require("lodash");
+import _ from "lodash";
 
 class Template {
   constructor(client, name, content) {
@@ -65,4 +63,4 @@ class Template {
   }
 }
 
-module.exports = Template;
+export default Template;

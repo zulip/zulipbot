@@ -1,8 +1,6 @@
-"use strict";
+import Search from "../../structures/reference-search.js";
 
-const Search = require("../../structures/reference-search.js");
-
-exports.run = async function (pull, repo, opened) {
+export const run = async function (pull, repo, opened) {
   const author = pull.user.login;
   const number = pull.number;
   const repoName = repo.name;

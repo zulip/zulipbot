@@ -1,8 +1,6 @@
-"use strict";
+import Search from "../structures/reference-search.js";
 
-const Search = require("../structures/reference-search.js");
-
-exports.run = async function () {
+export const run = async function () {
   // Create array with PRs from all active repositories
   const repos = this.cfg.activity.check.repositories;
   const pages = repos.map(async (repo) => {
@@ -186,4 +184,4 @@ async function scrapeInactiveIssues(references, issues) {
   }
 }
 
-exports.events = ["activity"];
+export const events = ["activity"];

@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * EXAMPLE CUSTOM ZULIPBOT CONFIGURATION — Zulip
  *
@@ -7,7 +5,7 @@
  * explanations on each option.
  */
 
-exports.issues = {
+export const issues = {
   commands: {
     assign: {
       claim: ["claim"],
@@ -80,7 +78,7 @@ exports.issues = {
   },
 };
 
-exports.pulls = {
+export const pulls = {
   status: {
     mergeConflicts: {
       label: "has conflicts",
@@ -114,7 +112,7 @@ exports.pulls = {
   },
 };
 
-exports.activity = {
+export const activity = {
   inactive: "inactive",
   check: {
     repositories: [
@@ -144,4 +142,4 @@ exports.activity = {
   },
 };
 
-exports.eventsDelay = 3;
+export const eventsDelay = 3;

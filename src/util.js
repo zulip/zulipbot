@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * Sorts and removes duplicate elements from a given array.
  *
@@ -7,7 +5,7 @@
  * @return {Array} Sorted array containing only unique entries.
  */
 
-exports.deduplicate = function (array) {
+export const deduplicate = function (array) {
   return [...new Set(array)].sort();
 };
 
@@ -18,7 +16,7 @@ exports.deduplicate = function (array) {
  * @return {Array} Array of all data entries.
  */
 
-exports.getAllPages = async function (path, parameters) {
+export const getAllPages = async function (path, parameters) {
   const [api, method] = path.split(".");
   const options = this[api][method].endpoint.merge(parameters);
   const responses = await this.paginate(options);

@@ -1,10 +1,8 @@
-"use strict";
+import * as activity from "./activity.js";
+import * as issue from "./issue.js";
+import * as member from "./member.js";
+import * as pull from "./pull.js";
+import * as push from "./push.js";
+import * as travis from "./travis.js";
 
-const activity = require("./activity.js");
-const issue = require("./issue.js");
-const member = require("./member.js");
-const pull = require("./pull.js");
-const push = require("./push.js");
-const travis = require("./travis.js");
-
-module.exports = [activity, issue, member, pull, push, travis];
+export default [activity, issue, member, pull, push, travis];

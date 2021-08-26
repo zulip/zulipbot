@@ -1,10 +1,8 @@
-"use strict";
+import nock from "nock";
+import { test } from "tap";
 
-const nock = require("nock");
-const test = require("tap").test;
-
-const client = require("../../../src/client.js");
-const pull = require("../../../src/events/pull.js");
+import client from "../../../src/client.js";
+import * as pull from "../../../src/events/pull.js";
 
 const payload = {
   action: "opened",

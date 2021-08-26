@@ -1,8 +1,6 @@
-"use strict";
+import * as abandon from "./abandon.js";
+import * as add from "./add.js";
+import * as claim from "./claim.js";
+import * as remove from "./remove.js";
 
-const abandon = require("./abandon.js");
-const add = require("./add.js");
-const claim = require("./claim.js");
-const remove = require("./remove.js");
-
-module.exports = [abandon, add, claim, remove];
+export default [abandon, add, claim, remove];

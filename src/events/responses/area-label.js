@@ -1,8 +1,6 @@
-"use strict";
-
 const referenced = [];
 
-exports.run = async function (issue, repo, label) {
+export const run = async function (issue, repo, label) {
   const areaLabel = label.name;
   const number = issue.number;
   const repoName = repo.name;

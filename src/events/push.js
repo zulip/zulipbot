@@ -1,6 +1,4 @@
-"use strict";
-
-exports.run = function (payload) {
+export const run = function (payload) {
   const repo = payload.repository;
   const { branch, label, comment } = this.cfg.pulls.status.mergeConflicts;
   const mainPush = payload.ref === `refs/heads/${branch}`;
@@ -12,4 +10,4 @@ exports.run = function (payload) {
   }, this.cfg.eventsDelay * 60 * 1000);
 };
 
-exports.events = ["push"];
+export const events = ["push"];

@@ -1,6 +1,4 @@
-"use strict";
-
-exports.run = async function (payload, commenter, args) {
+export const run = async function (payload, commenter, args) {
   const creator = payload.issue.user.login;
   const self = this.cfg.issues.commands.label.self;
   const selfLabel = self.users ? !self.users.includes(commenter) : self;
@@ -45,4 +43,4 @@ exports.run = async function (payload, commenter, args) {
   });
 };
 
-exports.aliasPath = "label.remove";
+export const aliasPath = "label.remove";

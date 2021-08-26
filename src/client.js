@@ -1,25 +1,23 @@
-"use strict";
+import fs from "fs";
 
-const fs = require("fs");
+import { Octokit } from "@octokit/rest";
+import _ from "lodash";
 
-const { Octokit } = require("@octokit/rest");
-const _ = require("lodash");
+import * as custom from "../config/config.js";
+import * as defaults from "../config/default.js";
 
-const custom = require("../config/config.js");
-const defaults = require("../config/default.js");
-
-const commands = require("./commands");
-const events = require("./events");
-const responses = require("./events/responses");
-const Template = require("./structures/template.js");
-const util = require("./util.js");
+import commands from "./commands/index.js";
+import events from "./events/index.js";
+import * as responses from "./events/responses/index.js";
+import Template from "./structures/template.js";
+import * as util from "./util.js";
 
 const cfg = _.merge({}, defaults, custom);
 const client = new Octokit({
   auth: cfg.auth.oAuthToken,
 });
 client.cfg = cfg;
-client.util = util;
+client.util = { ...util };
 
 for (const method of Object.keys(client.util)) {
   client.util[method] = client.util[method].bind(client);
@@ -45,7 +43,7 @@ for (const data of events) {
   }
 }
 
-for (const [name, data] of Object.entries(responses)) {
+for (const [name, { ...data }] of Object.entries(responses)) {
   for (const method of Object.keys(data)) {
     data[method] = data[method].bind(client);
   }
@@ -53,15 +51,17 @@ for (const [name, data] of Object.entries(responses)) {
   client.responses.set(name, data);
 }
 
-const templates = fs.readdirSync(`${__dirname}/../config/templates`);
+const templates = fs.readdirSync(
+  new URL("../config/templates", import.meta.url)
+);
 for (const file of templates) {
   const [name] = file.split(".md");
   const content = fs.readFileSync(
-    `${__dirname}/../config/templates/${file}`,
+    new URL(`../config/templates/${file}`, import.meta.url),
     "utf8"
   );
   const template = new Template(client, name, content);
   client.templates.set(name, template);
 }
 
-module.exports = client;
+export default client;

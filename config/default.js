@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * DEFAULT ZULIPBOT CONFIGURATION — DO NOT EDIT
  *
@@ -8,7 +6,7 @@
  */
 
 // Default authentication specified by environment variables
-exports.auth = {
+export const auth = {
   oAuthToken: process.env.OAUTH_TOKEN,
   webhookSecret: process.env.WEBHOOK_SECRET,
 };
@@ -19,7 +17,7 @@ exports.auth = {
  * - Area label system
  */
 
-exports.issues = {
+export const issues = {
   commands: {
     assign: {
       claim: [],
@@ -54,7 +52,7 @@ exports.issues = {
  * - Continuous integration build updates
  */
 
-exports.pulls = {
+export const pulls = {
   status: {
     mergeConflicts: {
       branch: "main",
@@ -83,7 +81,7 @@ exports.pulls = {
  * - Review statuses for pull requests
  */
 
-exports.activity = {
+export const activity = {
   inactive: null,
   check: {
     repositories: [],
@@ -109,4 +107,4 @@ exports.activity = {
 };
 
 // Delay (in seconds) responses to certain events
-exports.eventsDelay = 0;
+export const eventsDelay = 0;

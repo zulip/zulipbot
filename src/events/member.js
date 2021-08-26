@@ -1,6 +1,4 @@
-"use strict";
-
-exports.run = async function (payload) {
+export const run = async function (payload) {
   const claimEnabled = this.cfg.issues.commands.assign.claim.length;
 
   if (payload.action !== "added" || !claimEnabled) return;
@@ -33,4 +31,4 @@ exports.run = async function (payload) {
   });
 };
 
-exports.events = ["member"];
+export const events = ["member"];

@@ -1,8 +1,6 @@
-"use strict";
-
 const recentlyClosed = new Map();
 
-exports.close = function (issue, repo) {
+export const close = function (issue, repo) {
   recentlyClosed.set(issue.id, issue);
 
   setTimeout(() => {
@@ -10,7 +8,7 @@ exports.close = function (issue, repo) {
   }, this.cfg.eventsDelay * 60 * 1000);
 };
 
-exports.reopen = function (issue) {
+export const reopen = function (issue) {
   if (recentlyClosed.has(issue.id)) recentlyClosed.delete(issue.id);
 };
 
@@ -36,7 +34,7 @@ async function clearClosed(issue, repo) {
   recentlyClosed.delete(issue.id);
 }
 
-exports.progress = function (payload) {
+export const progress = function (payload) {
   const action = payload.action;
   const number = payload.issue.number;
   const repoOwner = payload.repository.owner.login;

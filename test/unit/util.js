@@ -1,9 +1,7 @@
-"use strict";
+import nock from "nock";
+import { test } from "tap";
 
-const nock = require("nock");
-const test = require("tap").test;
-
-const client = require("../../src/client.js");
+import client from "../../src/client.js";
 
 test("Deduplicates arrays successfully", async (t) => {
   const array = [1, 2, "2", 3, "3", 3];

@@ -1,6 +1,4 @@
-"use strict";
-
-exports.run = async function (repo) {
+export const run = async function (repo) {
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
 

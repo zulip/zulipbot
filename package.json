@@ -2,6 +2,7 @@
   "name": "zulipbot",
   "version": "1.0.0",
   "description": "GitHub workflow-optimizing bot",
+  "type": "module",
   "scripts": {
     "start": "node ./src/index.js",
     "pretest": "eslint . && prettier --check . '!**/*.js'",
@@ -15,6 +16,8 @@
     "node-fetch": "^2.1.2"
   },
   "devDependencies": {
+    "@istanbuljs/esm-loader-hook": "^0.1.2",
+    "@nextools/suppress-experimental-warnings": "^0.1.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-config-xo": "^0.38.0",
@@ -43,5 +46,11 @@
   "bugs": {
     "url": "https://github.com/zulip/zulipbot/issues"
   },
-  "homepage": "https://github.com/zulip/zulipbot#readme"
+  "homepage": "https://github.com/zulip/zulipbot#readme",
+  "tap": {
+    "node-arg": [
+      "--require=@nextools/suppress-experimental-warnings",
+      "--experimental-loader=@istanbuljs/esm-loader-hook"
+    ]
+  }
 }

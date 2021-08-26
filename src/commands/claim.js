@@ -1,6 +1,4 @@
-"use strict";
-
-exports.run = async function (payload, commenter, args) {
+export const run = async function (payload, commenter, args) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const number = payload.issue.number;
@@ -195,4 +193,4 @@ async function claim(commenter, number, repoOwner, repoName) {
   });
 }
 
-exports.aliasPath = "assign.claim";
+export const aliasPath = "assign.claim";

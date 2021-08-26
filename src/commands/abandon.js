@@ -1,6 +1,4 @@
-"use strict";
-
-exports.run = function (payload, commenter) {
+export const run = function (payload, commenter) {
   const repoOwner = payload.repository.owner.login;
   const repoName = payload.repository.name;
   const number = payload.issue.number;
@@ -24,4 +22,4 @@ exports.run = function (payload, commenter) {
   });
 };
 
-exports.aliasPath = "assign.abandon";
+export const aliasPath = "assign.abandon";

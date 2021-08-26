@@ -1,9 +1,7 @@
-"use strict";
+import { test } from "tap";
 
-const test = require("tap").test;
-
-const client = require("../../../src/client.js");
-const push = require("../../../src/events/push.js");
+import client from "../../../src/client.js";
+import * as push from "../../../src/events/push.js";
 
 const payload = {
   ref: "refs/heads/branch",

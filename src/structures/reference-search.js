@@ -1,6 +1,4 @@
-"use strict";
-
-const _ = require("lodash");
+import _ from "lodash";
 
 const keywords = [
   "close",
@@ -110,4 +108,4 @@ class ReferenceSearch {
   }
 }
 
-module.exports = ReferenceSearch;
+export default ReferenceSearch;

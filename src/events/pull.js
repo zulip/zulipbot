@@ -1,6 +1,4 @@
-"use strict";
-
-exports.run = async function (payload) {
+export const run = async function (payload) {
   const action = payload.action;
   const pull = payload.pull_request;
   const repo = payload.repository;
@@ -35,4 +33,4 @@ exports.run = async function (payload) {
   }
 };
 
-exports.events = ["pull_request", "pull_request_review"];
+export const events = ["pull_request", "pull_request_review"];

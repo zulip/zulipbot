@@ -1,8 +1,6 @@
-"use strict";
+import _ from "lodash";
 
-const _ = require("lodash");
-
-exports.run = async function (payload) {
+export const run = async function (payload) {
   const action = payload.action;
   const issue = payload.issue;
   const repo = payload.repository;
@@ -51,4 +49,4 @@ function parse(payload) {
   }
 }
 
-exports.events = ["issues", "issue_comment"];
+export const events = ["issues", "issue_comment"];

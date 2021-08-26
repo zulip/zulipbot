@@ -1,10 +1,8 @@
-"use strict";
+import _ from "lodash";
 
-const _ = require("lodash");
+import Search from "../../structures/reference-search.js";
 
-const Search = require("../../structures/reference-search.js");
-
-exports.label = async function (payload) {
+export const label = async function (payload) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const number = payload.pull_request.number;
@@ -95,7 +93,7 @@ async function size(sizeLabels, labels, number, repo) {
   return pullLabels;
 }
 
-exports.assign = function (payload) {
+export const assign = function (payload) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const reviewer = payload.reviewer.user.login;
@@ -109,7 +107,7 @@ exports.assign = function (payload) {
   });
 };
 
-exports.update = async function (pull, repo) {
+export const update = async function (pull, repo) {
   const number = pull.number;
   const repoName = repo.name;
   const repoOwner = repo.owner.login;

@@ -1,11 +1,10 @@
-"use strict";
+import crypto from "crypto";
+import fs from "fs";
 
-const crypto = require("crypto");
+import express from "express";
+import fetch from "node-fetch";
 
-const express = require("express");
-const fetch = require("node-fetch");
-
-const client = require("./client.js");
+import client from "./client.js";
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -95,9 +94,9 @@ for (const pair of Object.entries(client.cfg.auth)) {
   }
 
   try {
-    const secretsPath = `${__dirname}/../config/secrets.json`;
+    const secretsPath = new URL("../config/secrets.json", import.meta.url);
     console.log(`Using value from \`${secretsPath}\` for \`${key}\`...`);
-    const secrets = require(secretsPath);
+    const secrets = JSON.parse(fs.readFileSync(secretsPath));
     if (typeof secrets[key] !== "string") {
       throw new TypeError(`Expected string for \`${key}\``);
     }

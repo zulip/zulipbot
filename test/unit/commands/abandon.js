@@ -1,10 +1,8 @@
-"use strict";
+import nock from "nock";
+import { test } from "tap";
 
-const nock = require("nock");
-const test = require("tap").test;
-
-const client = require("../../../src/client.js");
-const abandon = require("../../../src/commands/abandon.js");
+import client from "../../../src/client.js";
+import * as abandon from "../../../src/commands/abandon.js";
 
 const payload = {
   repository: {

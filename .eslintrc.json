@@ -7,12 +7,7 @@
   ],
   "env": {
     "node": true,
-    "es6": true,
-    "mocha": true
-  },
-  "parserOptions": {
-    "ecmaVersion": 2019,
-    "sourceType": "script"
+    "es2020": true
   },
   "rules": {
     "arrow-body-style": "error",
@@ -41,7 +36,7 @@
     "unicorn/no-null": "off",
     "unicorn/no-process-exit": "off",
     "unicorn/numeric-separators-style": "off",
-    "unicorn/prefer-module": "off",
+    "unicorn/prefer-node-protocol": "off",
     "unicorn/prevent-abbreviations": [
       "error",
       { "replacements": { "args": false } }
