@@ -61,7 +61,7 @@ async function labelReference(refIssue, number, repo) {
 
     const defined = (arr) => Array.isArray(arr) && arr.length > 0;
 
-    if (cfgCheck.filter(defined).length !== 1) {
+    if (cfgCheck.filter((arr) => defined(arr)).length !== 1) {
       const error = "**ERROR:** Invalid `references.labels` configuration.";
       return this.issues.createComment({
         owner: repoOwner,
