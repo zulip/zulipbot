@@ -1,5 +1,7 @@
 "use strict";
 
+const _ = require("lodash");
+
 const keywords = [
   "close",
   "closes",
@@ -62,7 +64,7 @@ class ReferenceSearch {
   async find(strings) {
     const matches = strings.flatMap((string) =>
       keywords.map((tense) => {
-        const regex = new RegExp(`${tense}:? #([0-9]+)`, "i");
+        const regex = new RegExp(`${_.escapeRegExp(tense)}:? #([0-9]+)`, "i");
         const match = string.match(regex);
         return match ? match[1] : match;
       })

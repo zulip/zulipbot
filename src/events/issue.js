@@ -1,5 +1,7 @@
 "use strict";
 
+const _ = require("lodash");
+
 exports.run = async function (payload) {
   const action = payload.action;
   const issue = payload.issue;
@@ -29,7 +31,10 @@ function parse(payload) {
 
   if (commenter === username || !body) return;
 
-  const prefix = new RegExp(`@${username} +(\\w+)( +(--\\w+|"[^"]+"))*`, "g");
+  const prefix = new RegExp(
+    `@${_.escapeRegExp(username)} +(\\w+)( +(--\\w+|"[^"]+"))*`,
+    "g"
+  );
   const parsed = body.match(prefix);
   if (!parsed) return;
 
