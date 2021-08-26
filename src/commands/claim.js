@@ -7,7 +7,7 @@ exports.run = async function (payload, commenter, args) {
   const limit = this.cfg.issues.commands.assign.limit;
 
   if (
-    payload.issue.assignees.find((assignee) => assignee.login === commenter)
+    payload.issue.assignees.some((assignee) => assignee.login === commenter)
   ) {
     const error = "**ERROR:** You have already claimed this issue.";
     return this.issues.createComment({
@@ -42,7 +42,7 @@ exports.run = async function (payload, commenter, args) {
       repo: repoName,
     });
 
-    if (contributors.find((c) => c.login === commenter)) {
+    if (contributors.some((c) => c.login === commenter)) {
       return claim.apply(this, [commenter, number, repoOwner, repoName]);
     }
 
