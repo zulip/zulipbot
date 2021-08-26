@@ -11,13 +11,13 @@ test("Deduplicates arrays successfully", async (t) => {
 });
 
 test("Fetches all pages successfully", async (t) => {
-  const results = Array(101).fill(1);
+  const results = new Array(101).fill(1);
   const request1 = simple
     .mock(client.issues.list.endpoint, "merge")
     .returnWith({ key: "val", endpoint: "GET /test" });
   const request2 = simple
     .mock(client, "paginate")
-    .resolveWith(Array(101).fill(1));
+    .resolveWith(new Array(101).fill(1));
 
   const response = await client.util.getAllPages("issues.list", { key: "val" });
   t.equal(request1.lastCall.arg.key, "val");
