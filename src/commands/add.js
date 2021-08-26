@@ -5,7 +5,7 @@ exports.run = async function (payload, commenter, args) {
   const self = this.cfg.issues.commands.label.self;
   const selfLabel = self.users ? !self.users.includes(commenter) : self;
   const forbidden = selfLabel && creator !== commenter;
-  if (forbidden || !args.match(/".*?"/)) return;
+  if (forbidden || !/".*?"/.test(args)) return;
 
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
