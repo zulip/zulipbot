@@ -21,16 +21,14 @@ exports.run = async function (payload) {
 
   const state = payload.state;
   const url = payload.build_url;
-  let comment;
 
-  if (state === "passed") {
-    comment = this.templates.get("travisPass").format({ url });
-  } else {
-    comment = this.templates.get("travisFail").format({
-      buildLogs: `[build logs](${url})`,
-      state: state,
-    });
-  }
+  const comment =
+    state === "passed"
+      ? this.templates.get("travisPass").format({ url })
+      : this.templates.get("travisFail").format({
+          buildLogs: `[build logs](${url})`,
+          state: state,
+        });
 
   return this.issues.createComment({
     owner: repoOwner,
