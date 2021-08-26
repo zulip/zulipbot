@@ -42,9 +42,7 @@ exports.progress = function (payload) {
   const repoOwner = payload.repository.owner.login;
   const repoName = payload.repository.name;
   const label = this.cfg.activity.issues.inProgress;
-  const labeled = payload.issue.labels.find((l) => {
-    return l.name === label;
-  });
+  const labeled = payload.issue.labels.find((l) => l.name === label);
 
   const assignees = payload.issue.assignees;
   let assigned = assignees.length;

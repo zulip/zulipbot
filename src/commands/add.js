@@ -25,9 +25,9 @@ exports.run = async function (payload, commenter, args) {
 
   const alreadyAdded = labels.filter((label) => issueLabels.has(label));
   const rejected = labels.filter((label) => !repoLabels.has(label));
-  const addLabels = labels.filter((label) => {
-    return repoLabels.has(label) && !issueLabels.has(label);
-  });
+  const addLabels = labels.filter(
+    (label) => repoLabels.has(label) && !issueLabels.has(label)
+  );
 
   const type = payload.issue.pull_request ? "pull request" : "issue";
   const template = this.templates.get("labelError");

@@ -13,9 +13,9 @@ exports.run = async function (payload) {
     issue_number: number,
   });
 
-  const labelCheck = labels.data.find((label) => {
-    return label.name === this.cfg.pulls.ci.travis;
-  });
+  const labelCheck = labels.data.find(
+    (label) => label.name === this.cfg.pulls.ci.travis
+  );
 
   if (!labelCheck) return;
 

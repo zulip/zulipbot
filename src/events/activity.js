@@ -43,12 +43,12 @@ async function scrapePulls(pulls) {
     const inactive = labels.find(
       (label) => label === this.cfg.activity.inactive
     );
-    const reviewed = labels.find((l) => {
-      return l === this.cfg.activity.pulls.reviewed.label;
-    });
-    const needsReview = labels.find((l) => {
-      return l === this.cfg.activity.pulls.needsReview.label;
-    });
+    const reviewed = labels.find(
+      (l) => l === this.cfg.activity.pulls.reviewed.label
+    );
+    const needsReview = labels.find(
+      (l) => l === this.cfg.activity.pulls.needsReview.label
+    );
 
     if (time + ims <= Date.now() && !inactive && reviewed) {
       checkInactivePull.call(this, pull);
@@ -111,9 +111,9 @@ async function scrapeInactiveIssues(references, issues) {
   const iterator = issues[Symbol.iterator]();
 
   for (const issue of iterator) {
-    const inactiveLabel = issue.labels.find((label) => {
-      return label.name === this.cfg.activity.inactive;
-    });
+    const inactiveLabel = issue.labels.find(
+      (label) => label.name === this.cfg.activity.inactive
+    );
     if (inactiveLabel) continue;
 
     let time = Date.parse(issue.updated_at);

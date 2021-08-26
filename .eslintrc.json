@@ -15,6 +15,7 @@
     "sourceType": "script"
   },
   "rules": {
+    "arrow-body-style": "error",
     "camelcase": "off",
     "capitalized-comments": "off",
     "curly": ["error", "multi-line", "consistent"],

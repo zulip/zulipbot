@@ -52,18 +52,18 @@ async function check(number, repo) {
     });
     const lastCommitTime = commits.slice(-1).pop().commit.committer.date;
 
-    const warnComment = warnings.find((c) => {
-      return Date.parse(lastCommitTime) < Date.parse(c.created_at);
-    });
+    const warnComment = warnings.find(
+      (c) => Date.parse(lastCommitTime) < Date.parse(c.created_at)
+    );
 
     const labels = await this.issues.listLabelsOnIssue({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
     });
-    const inactive = labels.data.find((l) => {
-      return l.name === this.cfg.activity.inactive;
-    });
+    const inactive = labels.data.find(
+      (l) => l.name === this.cfg.activity.inactive
+    );
 
     if (inactive) return;
 
