@@ -9,7 +9,7 @@
     "posttest": "tap --coverage-report=lcovonly --no-check-coverage"
   },
   "dependencies": {
-    "@octokit/rest": "^16.43.2",
+    "@octokit/rest": "^17.11.2",
     "express": "^4.17.1",
     "lodash": "^4.17.21",
     "node-fetch": "^2.1.2"
