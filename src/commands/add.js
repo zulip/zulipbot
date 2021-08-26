@@ -10,7 +10,7 @@ exports.run = async function (payload, commenter, args) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const number = payload.issue.number;
-  const issueLabels = payload.issue.labels.map((label) => label.name);
+  const issueLabels = new Set(payload.issue.labels.map((label) => label.name));
 
   const repoLabelArray = await this.util.getAllPages(
     "issues.listLabelsForRepo",
@@ -20,13 +20,13 @@ exports.run = async function (payload, commenter, args) {
     }
   );
 
-  const repoLabels = repoLabelArray.map((label) => label.name);
+  const repoLabels = new Set(repoLabelArray.map((label) => label.name));
   const labels = args.match(/".*?"/g).map((string) => string.replace(/"/g, ""));
 
-  const alreadyAdded = labels.filter((label) => issueLabels.includes(label));
-  const rejected = labels.filter((label) => !repoLabels.includes(label));
+  const alreadyAdded = labels.filter((label) => issueLabels.has(label));
+  const rejected = labels.filter((label) => !repoLabels.has(label));
   const addLabels = labels.filter((label) => {
-    return repoLabels.includes(label) && !issueLabels.includes(label);
+    return repoLabels.has(label) && !issueLabels.has(label);
   });
 
   const type = payload.issue.pull_request ? "pull request" : "issue";
