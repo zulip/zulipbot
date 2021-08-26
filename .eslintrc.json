@@ -1,17 +1,19 @@
 {
-  "extends": ["xo", "plugin:prettier/recommended"],
+  "extends": ["xo", "plugin:import/recommended", "plugin:prettier/recommended"],
   "env": {
     "node": true,
     "es6": true,
     "mocha": true
   },
   "parserOptions": {
+    "ecmaVersion": 2019,
     "sourceType": "script"
   },
   "rules": {
     "camelcase": "off",
     "capitalized-comments": "off",
     "curly": ["error", "multi-line", "consistent"],
+    "import/no-cycle": "error",
     "max-nested-callbacks": ["error", 3],
     "max-params": ["error", 5],
     "no-await-in-loop": "off",
