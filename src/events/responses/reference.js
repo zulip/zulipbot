@@ -38,9 +38,9 @@ exports.run = async function (pull, repo, opened) {
 
   if (!opened || !this.cfg.pulls.references.labels) return;
 
-  commitRefs.forEach((issue) => {
+  for (const issue of commitRefs) {
     labelReference.apply(this, [issue, number, repo]);
-  });
+  }
 };
 
 async function labelReference(refIssue, number, repo) {

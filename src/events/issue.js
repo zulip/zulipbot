@@ -33,9 +33,9 @@ function parse(payload) {
   const parsed = body.match(prefix);
   if (!parsed) return;
 
-  parsed.forEach((command) => {
+  for (const command of parsed) {
     const codeBlocks = [`\`\`\`\r\n${command}\r\n\`\`\``, `\`${command}\``];
-    if (codeBlocks.some((block) => body.includes(block))) return;
+    if (codeBlocks.some((block) => body.includes(block))) continue;
     const [, keyword] = command.replace(/\s+/, " ").split(" ");
     const args = command.replace(/\s+/, " ").split(" ").slice(2).join(" ");
     const file = this.commands.get(keyword);
@@ -43,7 +43,7 @@ function parse(payload) {
     if (file) {
       file.run.apply(this, [payload, commenter, args]);
     }
-  });
+  }
 }
 
 exports.events = ["issues", "issue_comment"];

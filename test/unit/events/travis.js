@@ -22,11 +22,11 @@ const templates = new Map([
   ["travisFail", "{state} {buildLogs}"],
 ]);
 
-templates.forEach((value, key) => {
+for (const [key, value] of templates.entries()) {
   const template = client.templates.get(key);
   template.content = value;
   client.templates.set(key, template);
-});
+}
 
 test("Ignore if build result isn't for a pull request", async (t) => {
   const response = await travis.run.call(client, payload);

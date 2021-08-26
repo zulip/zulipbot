@@ -86,11 +86,12 @@ if (client.cfg.activity.check.interval) {
   }, client.cfg.activity.check.interval * 3600000);
 }
 
-Object.entries(client.cfg.auth).forEach((pair) => {
+for (const pair of Object.entries(client.cfg.auth)) {
   const [key, value] = pair;
 
   if (typeof value === "string") {
-    return console.log(`Using environment variable value for \`${key}\`...`);
+    console.log(`Using environment variable value for \`${key}\`...`);
+    continue;
   }
 
   try {
@@ -106,7 +107,7 @@ Object.entries(client.cfg.auth).forEach((pair) => {
     console.log(`\`${key}\` value was not set. Please fix your configuration.`);
     process.exit(1);
   }
-});
+}
 
 client.users.getAuthenticated().then((response) => {
   client.cfg.auth.username = response.data.login;

@@ -61,14 +61,15 @@ class ReferenceSearch {
 
   async find(strings) {
     let matches = [];
-    strings.forEach((string) => {
+    for (const string of strings) {
       const wordMatches = keywords.map((tense) => {
         const regex = new RegExp(`${tense}:? #([0-9]+)`, "i");
         const match = string.match(regex);
         return match ? match[1] : match;
       });
       matches = matches.concat(wordMatches);
-    });
+    }
+
     // check matches for valid issue references
     const statusCheck = matches.map(async (number) => {
       if (!number) return false;

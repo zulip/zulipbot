@@ -82,9 +82,9 @@ async function size(sizeLabels, labels, number, repo) {
 
   let label = sizeLabels.keys().next().value;
 
-  sizeLabels.forEach((size, name) => {
+  for (const [name, size] of sizeLabels.entries()) {
     if (changes > size) label = name;
-  });
+  }
 
   pullLabels.push(label);
 
@@ -166,12 +166,12 @@ exports.update = async function (pull, repo) {
 
     if (comments.length === 0) continue;
 
-    comments.forEach((comment) => {
+    for (const comment of comments) {
       this.issues.deleteComment({
         owner: repoOwner,
         repo: repoName,
         comment_id: comment.id,
       });
-    });
+    }
   }
 };
