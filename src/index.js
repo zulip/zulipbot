@@ -97,7 +97,10 @@ Object.entries(client.cfg.auth).forEach((pair) => {
     const secretsPath = `${__dirname}/../config/secrets.json`;
     console.log(`Using value from \`${secretsPath}\` for \`${key}\`...`);
     const secrets = require(secretsPath);
-    if (typeof secrets[key] !== "string") throw new Error();
+    if (typeof secrets[key] !== "string") {
+      throw new TypeError(`Expected string for \`${key}\``);
+    }
+
     client.cfg.auth[key] = secrets[key];
   } catch {
     console.log(`\`${key}\` value was not set. Please fix your configuration.`);
