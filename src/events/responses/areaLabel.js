@@ -43,7 +43,7 @@ exports.run = async function (issue, repo, label) {
   if (comments.length) {
     const id = comments[0].id;
     if (issueAreaLabels.length) {
-      this.issues.editComment({
+      this.issues.updateComment({
         owner: repoOwner,
         repo: repoName,
         comment_id: id,
