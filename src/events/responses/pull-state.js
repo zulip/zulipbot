@@ -33,7 +33,7 @@ exports.label = async function (payload) {
   }
 
   if (!_.isEqual(oldLabels.sort(), labels.sort())) {
-    await this.issues.replaceLabels({
+    await this.issues.replaceAllLabels({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
