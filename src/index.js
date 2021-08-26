@@ -1,9 +1,11 @@
 "use strict";
 
-const client = require("./client.js");
 const crypto = require("crypto");
+
 const express = require("express");
 const fetch = require("node-fetch");
+
+const client = require("./client.js");
 
 const app = express();
 const port = process.env.PORT || 8080;

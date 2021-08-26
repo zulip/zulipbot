@@ -1,6 +1,7 @@
 "use strict";
 
 const _ = require("lodash");
+
 const Search = require("../../structures/ReferenceSearch.js");
 
 exports.label = async function (payload) {

@@ -1,14 +1,23 @@
 "use strict";
 
-const { Octokit } = require("@octokit/rest");
 const fs = require("fs");
 
+const { Octokit } = require("@octokit/rest");
+
 const cfg = require("../config/default.js");
+
+const commands = require("./commands");
+const events = require("./events");
+const responses = require("./events/responses");
+const Template = require("./structures/Template.js");
+const util = require("./util.js");
+
 const client = new Octokit({
   auth: cfg.auth.oAuthToken,
 });
 client.cfg = cfg;
-client.util = require("./util.js");
+client.util = util;
+
 for (const method of Object.keys(client.util)) {
   client.util[method] = client.util[method].bind(client);
 }
@@ -19,7 +28,6 @@ client.invites = new Map();
 client.responses = new Map();
 client.templates = new Map();
 
-const commands = require("./commands");
 for (const data of commands) {
   const [category, name] = data.aliasPath.split(".");
   const aliases = client.cfg.issues.commands[category][name];
@@ -28,14 +36,12 @@ for (const data of commands) {
   }
 }
 
-const events = require("./events");
 for (const data of events) {
   for (let i = data.events.length; i--; ) {
     client.events.set(data.events[i], data.run.bind(client));
   }
 }
 
-const responses = require("./events/responses");
 for (const [name, data] of Object.entries(responses)) {
   for (const method of Object.keys(data)) {
     data[method] = data[method].bind(client);
@@ -44,7 +50,6 @@ for (const [name, data] of Object.entries(responses)) {
   client.responses.set(name, data);
 }
 
-const Template = require("./structures/Template.js");
 const templates = fs.readdirSync(`${__dirname}/../config/templates`);
 for (const file of templates) {
   const [name] = file.split(".md");
