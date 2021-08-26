@@ -24,10 +24,10 @@ exports.issues = {
     assign: {
       claim: [],
       abandon: [],
-      limit: Infinity,
+      limit: Number.POSITIVE_INFINITY,
       newContributors: {
         permission: null,
-        restricted: Infinity,
+        restricted: Number.POSITIVE_INFINITY,
         warn: {
           labels: [],
           presence: false,
