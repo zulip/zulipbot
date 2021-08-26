@@ -110,7 +110,3 @@ exports.activity = {
 
 // Delay (in seconds) responses to certain events
 exports.eventsDelay = 0;
-
-// Apply custom configuration on top of default configuration
-const custom = require("./config.js");
-module.exports = require("lodash").merge(exports, custom);

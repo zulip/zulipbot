@@ -3,8 +3,10 @@
 const fs = require("fs");
 
 const { Octokit } = require("@octokit/rest");
+const _ = require("lodash");
 
-const cfg = require("../config/default.js");
+const custom = require("../config/config.js");
+const defaults = require("../config/default.js");
 
 const commands = require("./commands");
 const events = require("./events");
@@ -12,6 +14,7 @@ const responses = require("./events/responses");
 const Template = require("./structures/template.js");
 const util = require("./util.js");
 
+const cfg = _.merge({}, defaults, custom);
 const client = new Octokit({
   auth: cfg.auth.oAuthToken,
 });
