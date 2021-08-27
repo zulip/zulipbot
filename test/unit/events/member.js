@@ -1,6 +1,6 @@
 "use strict";
 
-const simple = require("simple-mock");
+const nock = require("nock");
 const test = require("tap").test;
 
 const client = require("../../../src/client.js");
@@ -40,42 +40,36 @@ test("Ignore if there aren't any recorded invites", async (t) => {
 test("Assign successfully if invite was found", async (t) => {
   client.invites.set("octokitten@zulip/zulipbot", 69);
 
-  const request = simple.mock(client.issues, "addAssignees").resolveWith({
-    data: {
+  const scope = nock("https://api.github.com")
+    .post("/repos/zulip/zulipbot/issues/69/assignees", {
       assignees: ["octokitten"],
-    },
-  });
+    })
+    .reply(200, { assignees: ["octokitten"] });
 
   const response = await member.run.call(client, payload);
 
   t.notOk(client.invites.has("octokitten@zulip/zulipbot"));
-  t.strictSame(request.lastCall.arg.assignees, ["octokitten"]);
   t.ok(response);
 
-  simple.restore();
+  scope.done();
 });
 
 test("Warn if issue assignment failed", async (t) => {
   client.invites.set("octokitten@zulip/zulipbot", 69);
 
-  const request = simple.mock(client.issues, "addAssignees").resolveWith({
-    data: {
-      assignees: [],
-    },
-  });
-
   const error = "**ERROR:** Issue claiming failed (no assignee was added).";
-  const request2 = simple.mock(client.issues, "createComment").resolveWith({
-    data: {
-      body: error,
-    },
-  });
+
+  const scope = nock("https://api.github.com")
+    .post("/repos/zulip/zulipbot/issues/69/assignees", {
+      assignees: ["octokitten"],
+    })
+    .reply(200, { assignees: [] })
+    .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
+    .reply(200);
 
   await member.run.call(client, payload);
 
   t.notOk(client.invites.has("octokitten@zulip/zulipbot"));
-  t.strictSame(request.lastCall.arg.assignees, ["octokitten"]);
-  t.equal(request2.lastCall.arg.body, error);
 
-  simple.restore();
+  scope.done();
 });

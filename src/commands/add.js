@@ -44,7 +44,7 @@ exports.run = async function (payload, commenter, args) {
       action: "added to",
     });
 
-    this.issues.createComment({
+    await this.issues.createComment({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
@@ -64,7 +64,7 @@ exports.run = async function (payload, commenter, args) {
       type: type,
     });
 
-    this.issues.createComment({
+    await this.issues.createComment({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,

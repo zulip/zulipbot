@@ -1,6 +1,6 @@
 "use strict";
 
-const simple = require("simple-mock");
+const nock = require("nock");
 const test = require("tap").test;
 
 const client = require("../../../src/client.js");
@@ -58,61 +58,50 @@ test("Reject if invalid arguments were provided", async (t) => {
   t.notOk(response);
 });
 
-test("Remove appropriate labels", async (t) => {
+test("Remove appropriate labels", async () => {
   client.cfg.issues.commands.label.self = false;
   const commenter = "octocat";
   const args = '"bug"';
 
-  const request = simple.mock(client.issues, "setLabels").resolveWith();
+  const scope = nock("https://api.github.com")
+    .put("/repos/zulip/zulipbot/issues/69/labels", { labels: ["help wanted"] })
+    .reply(200);
 
   await remove.run.call(client, payload, commenter, args);
 
-  t.strictSame(request.lastCall.arg.labels, ["help wanted"]);
-
-  simple.restore();
+  scope.done();
 });
 
-test("Remove appropriate labels with single rejection message", async (t) => {
+test("Remove appropriate labels with single rejection message", async () => {
   const commenter = "octocat";
   const args = '"help wanted" "test"';
-
-  const request = simple.mock(client.issues, "setLabels").resolveWith();
-
   const error = 'Label "test" does not exist was removed from pull request.';
 
-  const request2 = simple.mock(client.issues, "createComment").resolveWith({
-    data: {
-      body: error,
-    },
-  });
+  const scope = nock("https://api.github.com")
+    .put("/repos/zulip/zulipbot/issues/69/labels", { labels: ["bug"] })
+    .reply(200)
+    .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
+    .reply(200);
 
   await remove.run.call(client, payload, commenter, args);
 
-  t.strictSame(request.lastCall.arg.labels, ["bug"]);
-  t.equal(request2.lastCall.arg.body, error);
-
-  simple.restore();
+  scope.done();
 });
 
-test("Remove appropriate labels with multiple rejection message", async (t) => {
+test("Remove appropriate labels with multiple rejection message", async () => {
   payload.issue.pull_request = false;
   const commenter = "octocat";
   const args = '"help wanted" "a" "b"';
 
-  const request = simple.mock(client.issues, "setLabels").resolveWith();
-
   const error = 'Labels "a", "b" do not exist were removed from issue.';
 
-  const request2 = simple.mock(client.issues, "createComment").resolveWith({
-    data: {
-      body: error,
-    },
-  });
+  const scope = nock("https://api.github.com")
+    .put("/repos/zulip/zulipbot/issues/69/labels", { labels: ["bug"] })
+    .reply(200)
+    .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
+    .reply(200);
 
   await remove.run.call(client, payload, commenter, args);
 
-  t.strictSame(request.lastCall.arg.labels, ["bug"]);
-  t.equal(request2.lastCall.arg.body, error);
-
-  simple.restore();
+  scope.done();
 });

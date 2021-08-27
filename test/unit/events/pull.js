@@ -1,6 +1,6 @@
 "use strict";
 
-const simple = require("simple-mock");
+const nock = require("nock");
 const test = require("tap").test;
 
 const client = require("../../../src/client.js");
@@ -9,7 +9,7 @@ const pull = require("../../../src/events/pull.js");
 const payload = {
   action: "opened",
   pull_request: {
-    number: 69999,
+    number: 69,
     title: "Fix all the bugs",
     user: { login: "octocat" },
     body: null,
@@ -21,27 +21,21 @@ const payload = {
   },
 };
 
-const repoLabels = [{ name: "test" }, { name: "test2" }, { name: "bug" }];
-
-test("Ignore empty body", async (t) => {
-  const request1 = simple
-    .mock(client.util, "getAllPages")
-    .resolveWith(repoLabels)
-    .resolveWith([]);
-  const request2 = simple
-    .mock(client.issues, "listLabelsOnIssue")
-    .resolveWith({ data: [{ name: "enhancement" }] });
-  const request3 = simple.mock(client.issues, "setLabels").resolveWith();
-  const request4 = simple.mock(client.pulls, "listCommits").resolveWith({
-    data: [{ commit: { message: "Fix all the bugs" } }],
-  });
-
+test("Ignore empty body", async () => {
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulipbot/issues/69/labels")
+    .reply(200, [{ name: "enhancement" }])
+    .get("/repos/zulip/zulipbot/pulls/69/files")
+    .reply(200, [])
+    .put("/repos/zulip/zulipbot/issues/69/labels", {
+      labels: ["enhancement", "size: XS"],
+    })
+    .reply(200)
+    .get("/repos/zulip/zulipbot/pulls/69/commits")
+    .reply(200, [{ commit: { message: "Fix all the bugs" } }])
+    .get("/repos/zulip/zulipbot/issues/69/comments")
+    .reply(200, []);
   await pull.run.call(client, payload);
 
-  t.ok(request1.called);
-  t.ok(request2.called);
-  t.strictSame(request3.lastCall.arg.labels, ["enhancement", "size: XS"]);
-  t.ok(request4.called);
-
-  simple.restore();
+  scope.done();
 });

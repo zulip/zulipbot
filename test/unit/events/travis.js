@@ -1,6 +1,6 @@
 "use strict";
 
-const simple = require("simple-mock");
+const nock = require("nock");
 const test = require("tap").test;
 
 const client = require("../../../src/client.js");
@@ -46,50 +46,42 @@ test("Ignore if no there is no Travis configuration", async (t) => {
 test("Ignore if pull request has no configured Travis label", async (t) => {
   client.cfg.pulls.ci.travis = "travis";
 
-  const request = simple.mock(client.issues, "listLabelsOnIssue").resolveWith({
-    data: [],
-  });
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulipbot/issues/69/labels")
+    .reply(200, []);
 
   const response = await travis.run.call(client, payload);
 
-  t.ok(request.called);
   t.notOk(response);
+  scope.done();
 });
 
-test("Alert about passing build", async (t) => {
-  const request = simple.mock(client.issues, "listLabelsOnIssue").resolveWith({
-    data: [{ name: "travis" }],
-  });
-
+test("Alert about passing build", async () => {
   const message = "[tests](https://travis-ci.org)";
-  const request2 = simple.mock(client.issues, "createComment").resolveWith({
-    data: {
-      body: message,
-    },
-  });
+
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulipbot/issues/69/labels")
+    .reply(200, [{ name: "travis" }])
+    .post("/repos/zulip/zulipbot/issues/69/comments", { body: message })
+    .reply(200);
 
   await travis.run.call(client, payload);
 
-  t.ok(request.called);
-  t.ok(request2.called);
-  t.equal(request2.lastCall.arg.body, message);
+  scope.done();
 });
 
-test("Alert about failing build", async (t) => {
+test("Alert about failing build", async () => {
   payload.state = "failed";
-  const request = simple.mock(client.issues, "listLabelsOnIssue").resolveWith({
-    data: [{ name: "travis" }],
-  });
 
   const error = "failed [build logs](https://travis-ci.org)";
-  const request2 = simple.mock(client.issues, "createComment").resolveWith({
-    data: {
-      body: error,
-    },
-  });
+
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulipbot/issues/69/labels")
+    .reply(200, [{ name: "travis" }])
+    .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
+    .reply(200);
 
   await travis.run.call(client, payload);
 
-  t.ok(request.called);
-  t.equal(request2.lastCall.arg.body, error);
+  scope.done();
 });

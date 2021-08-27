@@ -1,6 +1,6 @@
 "use strict";
 
-const simple = require("simple-mock");
+const nock = require("nock");
 const test = require("tap").test;
 
 const client = require("../../../src/client.js");
@@ -60,133 +60,92 @@ test("Reject if invalid arguments were provided", async (t) => {
   t.notOk(response);
 });
 
-test("Add appropriate labels", async (t) => {
+test("Add appropriate labels", async () => {
   client.cfg.issues.commands.label.self = false;
   const commenter = "octocat";
   const args = '"bug"';
 
-  const request1 = simple
-    .mock(client.util, "getAllPages")
-    .resolveWith(repoLabels);
-
-  const request2 = simple.mock(client.issues, "addLabels").resolveWith();
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulipbot/labels")
+    .reply(200, repoLabels)
+    .post("/repos/zulip/zulipbot/issues/69/labels", { labels: ["bug"] })
+    .reply(200);
 
   await add.run.call(client, payload, commenter, args);
 
-  t.ok(request1.called);
-  t.strictSame(request2.lastCall.arg.labels, ["bug"]);
-
-  simple.restore();
+  scope.done();
 });
 
-test("Add appropriate label and reject label not in repository", async (t) => {
+test("Add appropriate label and reject label not in repository", async () => {
   payload.issue.pull_request = true;
   const commenter = "octocat";
   const args = '"bug" "invalid"';
-
-  const request1 = simple
-    .mock(client.util, "getAllPages")
-    .resolveWith(repoLabels);
-
-  const request2 = simple.mock(client.issues, "addLabels").resolveWith();
-
   const error = 'Label "invalid" does not exist was added to pull request.';
 
-  const request3 = simple.mock(client.issues, "createComment").resolveWith({
-    data: {
-      body: error,
-    },
-  });
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulipbot/labels")
+    .reply(200, repoLabels)
+    .post("/repos/zulip/zulipbot/issues/69/labels", { labels: ["bug"] })
+    .reply(200)
+    .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
+    .reply(200);
 
   await add.run.call(client, payload, commenter, args);
 
-  t.ok(request1.called);
-  t.strictSame(request2.lastCall.arg.labels, ["bug"]);
-  t.equal(request3.lastCall.arg.body, error);
-
-  simple.restore();
+  scope.done();
 });
 
-test("Add appropriate labels and reject labels not in repository", async (t) => {
+test("Add appropriate labels and reject labels not in repository", async () => {
   payload.issue.pull_request = false;
   const commenter = "octocat";
   const args = '"bug" "a" "b"';
-
-  const request1 = simple
-    .mock(client.util, "getAllPages")
-    .resolveWith(repoLabels);
-
-  const request2 = simple.mock(client.issues, "addLabels").resolveWith();
-
   const error = 'Labels "a", "b" do not exist were added to issue.';
 
-  const request3 = simple.mock(client.issues, "createComment").resolveWith({
-    data: {
-      body: error,
-    },
-  });
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulipbot/labels")
+    .reply(200, repoLabels)
+    .post("/repos/zulip/zulipbot/issues/69/labels", { labels: ["bug"] })
+    .reply(200)
+    .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
+    .reply(200);
 
   await add.run.call(client, payload, commenter, args);
 
-  t.ok(request1.called);
-  t.strictSame(request2.lastCall.arg.labels, ["bug"]);
-  t.equal(request3.lastCall.arg.body, error);
-
-  simple.restore();
+  scope.done();
 });
 
-test("Add appropriate labels and reject already added label", async (t) => {
+test("Add appropriate labels and reject already added label", async () => {
   payload.issue.pull_request = true;
   const commenter = "octocat";
   const args = '"bug" "test"';
-
-  const request1 = simple
-    .mock(client.util, "getAllPages")
-    .resolveWith(repoLabels);
-
-  const request2 = simple.mock(client.issues, "addLabels").resolveWith();
-
   const error = 'Label "test" already exists was added to pull request.';
 
-  const request3 = simple.mock(client.issues, "createComment").resolveWith({
-    data: {
-      body: error,
-    },
-  });
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulipbot/labels")
+    .reply(200, repoLabels)
+    .post("/repos/zulip/zulipbot/issues/69/labels", { labels: ["bug"] })
+    .reply(200)
+    .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
+    .reply(200);
 
   await add.run.call(client, payload, commenter, args);
 
-  t.ok(request1.called);
-  t.strictSame(request2.lastCall.arg.labels, ["bug"]);
-  t.equal(request3.lastCall.arg.body, error);
-
-  simple.restore();
+  scope.done();
 });
 
-test("Add appropriate labels and reject already added labels", async (t) => {
+test("Add appropriate labels and reject already added labels", async () => {
   payload.issue.pull_request = false;
   const commenter = "octocat";
   const args = '"test" "test2"';
-
-  const request1 = simple
-    .mock(client.util, "getAllPages")
-    .resolveWith(repoLabels);
-
-  const request2 = simple.mock(client.issues, "addLabels").resolveWith();
-
   const error = 'Labels "test", "test2" already exist were added to issue.';
 
-  const request3 = simple.mock(client.issues, "createComment").resolveWith({
-    data: {
-      body: error,
-    },
-  });
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulipbot/labels")
+    .reply(200, repoLabels)
+    .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
+    .reply(200);
 
   await add.run.call(client, payload, commenter, args);
 
-  t.ok(request1.called);
-  t.notOk(request2.called);
-  t.equal(request3.lastCall.arg.body, error);
-
-  simple.restore();
+  scope.done();
 });
