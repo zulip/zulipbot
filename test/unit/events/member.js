@@ -20,8 +20,6 @@ test("Ignore if payload action isn't added", async (t) => {
   const response = await member.run.call(client, payload);
 
   t.notOk(response);
-
-  t.end();
 });
 
 test("Ignore if there aren't any claim command aliases", async (t) => {
@@ -30,8 +28,6 @@ test("Ignore if there aren't any claim command aliases", async (t) => {
   const response = await member.run.call(client, payload);
 
   t.notOk(response);
-
-  t.end();
 });
 
 test("Ignore if there aren't any recorded invites", async (t) => {
@@ -39,8 +35,6 @@ test("Ignore if there aren't any recorded invites", async (t) => {
   const response = await member.run.call(client, payload);
 
   t.notOk(response);
-
-  t.end();
 });
 
 test("Assign successfully if invite was found", async (t) => {
@@ -59,7 +53,6 @@ test("Assign successfully if invite was found", async (t) => {
   t.ok(response);
 
   simple.restore();
-  t.end();
 });
 
 test("Warn if issue assignment failed", async (t) => {
@@ -85,5 +78,4 @@ test("Warn if issue assignment failed", async (t) => {
   t.equal(request2.lastCall.arg.body, error);
 
   simple.restore();
-  t.end();
 });

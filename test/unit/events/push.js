@@ -19,8 +19,6 @@ test("Ignore if non-main branch was pushed", async (t) => {
   const response = await push.run.call(client, payload);
 
   t.notOk(response);
-
-  t.end();
 });
 
 test("Ignore if there was no merge conflict configuration", async (t) => {
@@ -30,8 +28,6 @@ test("Ignore if there was no merge conflict configuration", async (t) => {
   const response = await push.run.call(client, payload);
 
   t.notOk(response);
-
-  t.end();
 });
 
 test("Trigger events if main branch was pushed", async (t) => {
@@ -44,6 +40,4 @@ test("Trigger events if main branch was pushed", async (t) => {
   const response = await push.run.call(client, payload);
 
   t.type(response, "Timeout");
-
-  t.end();
 });

@@ -37,8 +37,6 @@ test("Reject if self-labelling enabled with different commenter", async (t) => {
   const response = await add.run.call(client, payload, commenter, args);
 
   t.notOk(response);
-
-  t.end();
 });
 
 test("Reject if self-labelling users excludes commenter", async (t) => {
@@ -51,8 +49,6 @@ test("Reject if self-labelling users excludes commenter", async (t) => {
   const response = await add.run.call(client, payload, commenter, args);
 
   t.notOk(response);
-
-  t.end();
 });
 
 test("Reject if invalid arguments were provided", async (t) => {
@@ -62,8 +58,6 @@ test("Reject if invalid arguments were provided", async (t) => {
   const response = await add.run.call(client, payload, commenter, args);
 
   t.notOk(response);
-
-  t.end();
 });
 
 test("Add appropriate labels", async (t) => {
@@ -83,7 +77,6 @@ test("Add appropriate labels", async (t) => {
   t.strictSame(request2.lastCall.arg.labels, ["bug"]);
 
   simple.restore();
-  t.end();
 });
 
 test("Add appropriate label and reject label not in repository", async (t) => {
@@ -112,7 +105,6 @@ test("Add appropriate label and reject label not in repository", async (t) => {
   t.equal(request3.lastCall.arg.body, error);
 
   simple.restore();
-  t.end();
 });
 
 test("Add appropriate labels and reject labels not in repository", async (t) => {
@@ -141,7 +133,6 @@ test("Add appropriate labels and reject labels not in repository", async (t) => 
   t.equal(request3.lastCall.arg.body, error);
 
   simple.restore();
-  t.end();
 });
 
 test("Add appropriate labels and reject already added label", async (t) => {
@@ -170,7 +161,6 @@ test("Add appropriate labels and reject already added label", async (t) => {
   t.equal(request3.lastCall.arg.body, error);
 
   simple.restore();
-  t.end();
 });
 
 test("Add appropriate labels and reject already added labels", async (t) => {
@@ -199,5 +189,4 @@ test("Add appropriate labels and reject already added labels", async (t) => {
   t.equal(request3.lastCall.arg.body, error);
 
   simple.restore();
-  t.end();
 });

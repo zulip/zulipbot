@@ -39,7 +39,6 @@ test("Reject if commenter isn't an assignee", async (t) => {
   t.equal(response.data.body, error);
 
   simple.restore();
-  t.end();
 });
 
 test("Remove if commenter is assigned", async (t) => {
@@ -57,5 +56,4 @@ test("Remove if commenter is assigned", async (t) => {
   t.strictSame(response.data.assignees, []);
 
   simple.restore();
-  t.end();
 });

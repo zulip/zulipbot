@@ -32,7 +32,6 @@ test("Reject if commenter is already an assignee", async (t) => {
   t.equal(request.lastCall.arg.body, error);
 
   simple.restore();
-  t.end();
 });
 
 test("Reject if assignee limit is reached", async (t) => {
@@ -50,7 +49,6 @@ test("Reject if assignee limit is reached", async (t) => {
   t.equal(request.lastCall.arg.body, commenter);
 
   simple.restore();
-  t.end();
 });
 
 test("Throw error if collaborator check code isn't 404", async (t) => {
@@ -70,7 +68,6 @@ test("Throw error if collaborator check code isn't 404", async (t) => {
   t.equal(request2.lastCall.arg.body, error);
 
   simple.restore();
-  t.end();
 });
 
 test("Rejects creation of duplicate invite", async (t) => {
@@ -94,7 +91,6 @@ test("Rejects creation of duplicate invite", async (t) => {
   t.equal(request2.lastCall.arg.body, "octokitten zulipbot zulip");
 
   simple.restore();
-  t.end();
 });
 
 test("Blocks claim if labels are missing", async (t) => {
@@ -118,7 +114,6 @@ test("Blocks claim if labels are missing", async (t) => {
   t.equal(request2.lastCall.arg.body, 'without labels "a", "b" zulipbot');
 
   simple.restore();
-  t.end();
 });
 
 test("Warns if labels are present without force flag", async (t) => {
@@ -145,7 +140,6 @@ test("Warns if labels are present without force flag", async (t) => {
   t.equal(request2.lastCall.arg.body, 'warn with label "bug" zulipbot');
 
   simple.restore();
-  t.end();
 });
 
 test("Invite new contributor", async (t) => {
@@ -171,7 +165,6 @@ test("Invite new contributor", async (t) => {
   t.ok(client.invites.has("octokitten@zulip/zulipbot"));
 
   simple.restore();
-  t.end();
 });
 
 test("Throw error if permission is not specified", async (t) => {
@@ -191,7 +184,6 @@ test("Throw error if permission is not specified", async (t) => {
   t.equal(request2.lastCall.arg.body, error);
 
   simple.restore();
-  t.end();
 });
 
 test("Always assign if commenter is contributor", async (t) => {
@@ -216,7 +208,6 @@ test("Always assign if commenter is contributor", async (t) => {
   t.strictSame(request3.lastCall.arg.assignees, [commenter]);
 
   simple.restore();
-  t.end();
 });
 
 test("Error if no assignees were added", async (t) => {
@@ -245,7 +236,6 @@ test("Error if no assignees were added", async (t) => {
   t.equal(request4.lastCall.arg.body, error);
 
   simple.restore();
-  t.end();
 });
 
 test("Assign if claim limit validation passed", async (t) => {
@@ -268,7 +258,6 @@ test("Assign if claim limit validation passed", async (t) => {
   t.strictSame(request3.lastCall.arg.assignees, [commenter]);
 
   simple.restore();
-  t.end();
 });
 
 test("Reject claim limit validation failed", async (t) => {
@@ -302,7 +291,6 @@ test("Reject claim limit validation failed", async (t) => {
   t.equal(request3.lastCall.arg.body, "1 octocat issue");
 
   simple.restore();
-  t.end();
 });
 
 test("Reject claim limit validation failed (limit over 1)", async (t) => {
@@ -340,5 +328,4 @@ test("Reject claim limit validation failed (limit over 1)", async (t) => {
   t.equal(request3.lastCall.arg.body, "2 octocat issues");
 
   simple.restore();
-  t.end();
 });

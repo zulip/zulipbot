@@ -35,8 +35,6 @@ test("Reject if self-labelling enabled with different commenter", async (t) => {
   const response = await remove.run.call(client, payload, commenter, args);
 
   t.notOk(response);
-
-  t.end();
 });
 
 test("Reject if self-labelling users excludes commenter", async (t) => {
@@ -49,8 +47,6 @@ test("Reject if self-labelling users excludes commenter", async (t) => {
   const response = await remove.run.call(client, payload, commenter, args);
 
   t.notOk(response);
-
-  t.end();
 });
 
 test("Reject if invalid arguments were provided", async (t) => {
@@ -60,8 +56,6 @@ test("Reject if invalid arguments were provided", async (t) => {
   const response = await remove.run.call(client, payload, commenter, args);
 
   t.notOk(response);
-
-  t.end();
 });
 
 test("Remove appropriate labels", async (t) => {
@@ -76,7 +70,6 @@ test("Remove appropriate labels", async (t) => {
   t.strictSame(request.lastCall.arg.labels, ["help wanted"]);
 
   simple.restore();
-  t.end();
 });
 
 test("Remove appropriate labels with single rejection message", async (t) => {
@@ -99,7 +92,6 @@ test("Remove appropriate labels with single rejection message", async (t) => {
   t.equal(request2.lastCall.arg.body, error);
 
   simple.restore();
-  t.end();
 });
 
 test("Remove appropriate labels with multiple rejection message", async (t) => {
@@ -123,5 +115,4 @@ test("Remove appropriate labels with multiple rejection message", async (t) => {
   t.equal(request2.lastCall.arg.body, error);
 
   simple.restore();
-  t.end();
 });

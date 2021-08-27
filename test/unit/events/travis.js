@@ -32,8 +32,6 @@ test("Ignore if build result isn't for a pull request", async (t) => {
   const response = await travis.run.call(client, payload);
 
   t.notOk(response);
-
-  t.end();
 });
 
 test("Ignore if no there is no Travis configuration", async (t) => {
@@ -43,8 +41,6 @@ test("Ignore if no there is no Travis configuration", async (t) => {
   const response = await travis.run.call(client, payload);
 
   t.notOk(response);
-
-  t.end();
 });
 
 test("Ignore if pull request has no configured Travis label", async (t) => {
@@ -58,8 +54,6 @@ test("Ignore if pull request has no configured Travis label", async (t) => {
 
   t.ok(request.called);
   t.notOk(response);
-
-  t.end();
 });
 
 test("Alert about passing build", async (t) => {
@@ -79,8 +73,6 @@ test("Alert about passing build", async (t) => {
   t.ok(request.called);
   t.ok(request2.called);
   t.equal(request2.lastCall.arg.body, message);
-
-  t.end();
 });
 
 test("Alert about failing build", async (t) => {
@@ -100,6 +92,4 @@ test("Alert about failing build", async (t) => {
 
   t.ok(request.called);
   t.equal(request2.lastCall.arg.body, error);
-
-  t.end();
 });

@@ -44,5 +44,4 @@ test("Ignore empty body", async (t) => {
   t.ok(request4.called);
 
   simple.restore();
-  t.end();
 });
