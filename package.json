@@ -23,7 +23,6 @@
     "eslint-plugin-unicorn": "^35.0.0",
     "prettier": "^2.3.2",
     "simple-mock": "^0.8.0",
-    "smee": "^0.2.0",
     "tap": "^15.0.9"
   },
   "repository": {
