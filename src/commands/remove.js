@@ -16,7 +16,7 @@ exports.run = async function (payload, commenter, args) {
   const removeLabels = issueLabels.filter((label) => !labels.includes(label));
   const rejected = labels.filter((label) => !issueLabels.includes(label));
 
-  await this.issues.replaceAllLabels({
+  await this.issues.setLabels({
     owner: repoOwner,
     repo: repoName,
     issue_number: number,

@@ -31,7 +31,7 @@ test("Ignore empty body", async (t) => {
   const request2 = simple
     .mock(client.issues, "listLabelsOnIssue")
     .resolveWith({ data: [{ name: "enhancement" }] });
-  const request3 = simple.mock(client.issues, "replaceAllLabels").resolveWith();
+  const request3 = simple.mock(client.issues, "setLabels").resolveWith();
   const request4 = simple.mock(client.pulls, "listCommits").resolveWith({
     data: [{ commit: { message: "Fix all the bugs" } }],
   });
