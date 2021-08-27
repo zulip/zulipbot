@@ -219,31 +219,6 @@ test("Always assign if commenter is contributor", async (t) => {
   t.end();
 });
 
-test("Always assign if commenter is contributor", async (t) => {
-  const commenter = "octocat";
-
-  const request1 = simple.mock(client.repos, "checkCollaborator").resolveWith();
-
-  const request2 = simple
-    .mock(client.util, "getAllPages")
-    .resolveWith([{ login: "octocat" }]);
-
-  const request3 = simple.mock(client.issues, "addAssignees").resolveWith({
-    data: {
-      assignees: ["octocat"],
-    },
-  });
-
-  await claim.run.call(client, payload, commenter);
-
-  t.ok(request1.called);
-  t.ok(request2.called);
-  t.strictSame(request3.lastCall.arg.assignees, [commenter]);
-
-  simple.restore();
-  t.end();
-});
-
 test("Error if no assignees were added", async (t) => {
   const commenter = "octocat";
 
