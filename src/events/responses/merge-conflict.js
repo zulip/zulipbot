@@ -8,9 +8,8 @@ exports.run = async function (repo) {
     owner: repoOwner,
     repo: repoName,
   });
-  const iterator = pulls[Symbol.iterator]();
 
-  for (const pull of iterator) {
+  for (const pull of pulls) {
     await check.call(this, pull.number, repo);
   }
 };

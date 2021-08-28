@@ -24,9 +24,8 @@ exports.run = async function () {
 async function scrapePulls(pulls) {
   const referenceList = new Map();
   const ims = this.cfg.activity.check.reminder * 86400000;
-  const iterator = pulls[Symbol.iterator]();
 
-  for (const pull of iterator) {
+  for (const pull of pulls) {
     let time = Date.parse(pull.updated_at);
     const number = pull.number;
     const repoName = pull.base.repo.name;
@@ -108,9 +107,8 @@ async function checkInactivePull(pull) {
 async function scrapeInactiveIssues(references, issues) {
   const ms = this.cfg.activity.check.limit * 86400000;
   const ims = this.cfg.activity.check.reminder * 86400000;
-  const iterator = issues[Symbol.iterator]();
 
-  for (const issue of iterator) {
+  for (const issue of issues) {
     const inactiveLabel = issue.labels.find(
       (label) => label.name === this.cfg.activity.inactive
     );
