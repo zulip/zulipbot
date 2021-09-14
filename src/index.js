@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import fs from "fs";
 
+import { Webhooks, createNodeMiddleware } from "@octokit/webhooks";
 import express from "express";
 import fetch from "node-fetch";
 
@@ -17,37 +18,19 @@ app.get("/", (request, response) => {
   response.redirect("https://github.com/zulip/zulipbot");
 });
 
-const jsonParser = express.json({ limit: "50mb" });
 const urlencodedParser = express.urlencoded({ extended: true });
 
-app.post("/github", jsonParser, async (request, response) => {
-  const secret = client.cfg.auth.webhookSecret.toString();
-  const body = JSON.stringify(request.body);
-  const hmac = crypto.createHmac("sha1", secret).update(body).digest("hex");
-  const hash = Buffer.from(`sha1=${hmac}`);
-  const signature = Buffer.from(request.get("X-Hub-Signature"));
-
-  // compare buffer length first to prevent timingSafeEqual() errors
-  const equalLength = hash.length === signature.length;
-  const equal = equalLength ? crypto.timingSafeEqual(hash, signature) : false;
-  if (!equal) {
-    return response.status(401).send("Signature doesn't match computed hash");
-  }
-
-  const eventType = request.get("X-GitHub-Event");
-  if (!eventType) {
-    return response.status(400).send("X-GitHub-Event header was null");
-  }
-
-  const payload = request.body;
+const webhooks = new Webhooks({ secret: client.cfg.auth.webhookSecret });
+webhooks.onAny(async ({ name, payload }) => {
   const repo = payload.repository ? payload.repository.full_name : null;
   const check = client.cfg.activity.check.repositories.includes(repo);
-  const eventHandler = client.events.get(eventType);
-  if (!check || !eventHandler) return response.status(204).end();
+  const eventHandler = client.events.get(name);
+  if (!check || !eventHandler) return;
 
-  eventHandler(payload);
-  response.status(202).send("Request is being processed");
+  await eventHandler(payload);
 });
+
+app.use("/github", createNodeMiddleware(webhooks, { path: "/" }));
 
 app.post("/travis", urlencodedParser, async (request, response) => {
   const travisResponse = await fetch("https://api.travis-ci.org/config");
