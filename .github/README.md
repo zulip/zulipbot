@@ -1,7 +1,6 @@
 # zulipbot
 
 [![Build status](https://github.com/zulip/zulipbot/actions/workflows/node.js.yml/badge.svg)](https://github.com/zulip/zulipbot/actions/workflows/node.js.yml)
-[![David](https://img.shields.io/david/zulip/zulipbot.svg)](https://david-dm.org/zulip/zulipbot)
 [![GitHub release](https://img.shields.io/github/release/zulip/zulipbot.svg)](https://github.com/zulip/zulipbot/releases/latest)
 [![GitHub license](https://img.shields.io/badge/license-Apache%202-blue.svg)](../LICENSE.md)
 [![zulipbot chat](https://img.shields.io/badge/chat-zulip-2c7c6e.svg)](https://chat.zulip.org/#narrow/stream/zulipbot)
