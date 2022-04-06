@@ -3,7 +3,7 @@
 [![Build status](https://github.com/zulip/zulipbot/actions/workflows/node.js.yml/badge.svg)](https://github.com/zulip/zulipbot/actions/workflows/node.js.yml)
 [![GitHub release](https://img.shields.io/github/release/zulip/zulipbot.svg)](https://github.com/zulip/zulipbot/releases/latest)
 [![GitHub license](https://img.shields.io/badge/license-Apache%202-blue.svg)](../LICENSE.md)
-[![zulipbot chat](https://img.shields.io/badge/chat-zulip-2c7c6e.svg)](https://chat.zulip.org/#narrow/stream/zulipbot)
+[![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://chat.zulip.org/#narrow/stream/zulipbot)
 
 [@zulipbot](https://github.com/zulipbot) is a GitHub workflow bot application
 for the [Zulip organization](https://zulip.org) and its repositories. Written in
