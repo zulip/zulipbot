@@ -4,7 +4,7 @@ async function checkLabels(payload, commenter, args) {
   const number = payload.issue.number;
 
   const labels = new Set(payload.issue.labels.map((label) => label.name));
-  const warn = this.cfg.issues.commands.assign.newContributors.warn;
+  const warn = this.cfg.issues.commands.assign.warn;
   const present = warn.labels.some((label) => labels.has(label));
   const absent = warn.labels.every((label) => !labels.has(label));
   const alert = warn.presence ? present : absent;
@@ -65,6 +65,10 @@ export const run = async function (payload, commenter, args) {
     });
   }
 
+  if (!(await checkLabels.call(this, payload, commenter, args))) {
+    return;
+  }
+
   try {
     await this.repos.checkCollaborator({
       owner: repoOwner,
@@ -80,10 +84,6 @@ export const run = async function (payload, commenter, args) {
         issue_number: number,
         body: error,
       });
-    }
-
-    if (!(await checkLabels.call(this, payload, commenter, args))) {
-      return;
     }
 
     return invite.call(this, payload, commenter);

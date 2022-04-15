@@ -26,11 +26,11 @@ export const issues = {
       newContributors: {
         permission: null,
         restricted: Number.POSITIVE_INFINITY,
-        warn: {
-          labels: [],
-          presence: false,
-          force: true,
-        },
+      },
+      warn: {
+        labels: [],
+        presence: false,
+        force: true,
       },
     },
     label: {

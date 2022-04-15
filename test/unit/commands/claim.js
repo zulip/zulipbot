@@ -51,6 +51,7 @@ test("Throw error if collaborator check code isn't 404", async () => {
   payload.issue.assignees = [];
   const commenter = "octokitten";
   const error = "**ERROR:** Unexpected response from GitHub API.";
+  client.cfg.issues.commands.assign.warn.labels = ["bug"];
 
   const scope = nock("https://api.github.com")
     .get(`/repos/zulip/zulipbot/collaborators/${commenter}`)
@@ -71,7 +72,7 @@ test("Rejects creation of duplicate invite", async () => {
   client.templates.set("inviteError", template);
 
   client.invites.set("octokitten@zulip/zulipbot", 69);
-  client.cfg.issues.commands.assign.newContributors.warn.labels = ["bug"];
+  client.cfg.issues.commands.assign.warn.labels = ["bug"];
 
   const scope = nock("https://api.github.com")
     .get(`/repos/zulip/zulipbot/collaborators/${commenter}`)
@@ -90,15 +91,13 @@ test("Blocks claim if labels are missing", async () => {
   const commenter = "octokitten";
   client.invites.delete("octokitten@zulip/zulipbot");
   client.cfg.auth.username = "zulipbot";
-  client.cfg.issues.commands.assign.newContributors.warn.labels = ["a", "b"];
+  client.cfg.issues.commands.assign.warn.labels = ["a", "b"];
 
   const template = client.templates.get("claimBlock");
   template.content = "{state} {labelGrammar} {list} {username}";
   client.templates.set("claimBlock", template);
 
   const scope = nock("https://api.github.com")
-    .get(`/repos/zulip/zulipbot/collaborators/${commenter}`)
-    .reply(404)
     .post("/repos/zulip/zulipbot/issues/69/comments", {
       body: 'without labels "a", "b" zulipbot',
     })
@@ -111,7 +110,7 @@ test("Blocks claim if labels are missing", async () => {
 
 test("Warns if labels are present without force flag", async () => {
   const commenter = "octokitten";
-  client.cfg.issues.commands.assign.newContributors.warn = {
+  client.cfg.issues.commands.assign.warn = {
     labels: ["bug"],
     presence: true,
     force: true,
@@ -122,8 +121,6 @@ test("Warns if labels are present without force flag", async () => {
   client.templates.set("claimWarning", template);
 
   const scope = nock("https://api.github.com")
-    .get(`/repos/zulip/zulipbot/collaborators/${commenter}`)
-    .reply(404)
     .post("/repos/zulip/zulipbot/issues/69/comments", {
       body: 'warn with label "bug" zulipbot',
     })
@@ -179,6 +176,7 @@ test("Throw error if permission is not specified", async () => {
 
 test("Always assign if commenter is contributor", async () => {
   const commenter = "octocat";
+  client.cfg.issues.commands.assign.warn.presence = false;
 
   const scope = nock("https://api.github.com")
     .get(`/repos/zulip/zulipbot/collaborators/${commenter}`)
