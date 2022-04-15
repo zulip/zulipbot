@@ -1,9 +1,5 @@
-Hello @{assignee}, you claimed this issue to work on it, but this issue and any referenced pull requests haven't been updated for {remind} days. Are you still working on this issue?
+@{assignee} We noticed that you have not made any updates to this issue or linked PRs for {remind} days. Please comment here if you are still actively working on it. Otherwise, we'd appreciate a quick `@{username} abandon` comment so that someone else can claim this issue and continue from where you left off.
 
-If so, please update this issue by leaving a comment on this issue to let me know that you're still working on it. Otherwise, I'll automatically remove you from this issue in {abandon} days.
-
-If you've decided to work on something else, simply comment `@{username} abandon` so that someone else can claim it and continue from where you left off.
-
-Thank you for your valuable contributions to Zulip!
+If we don't hear back, you will be automatically unassigned in {abandon} days. Thanks!
 
 <!-- inactiveWarning -->
