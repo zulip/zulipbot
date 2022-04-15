@@ -15,7 +15,7 @@ export const issues = {
         permission: "pull",
         restricted: 1,
         warn: {
-          labels: ["help wanted", "good first issue"],
+          labels: ["help wanted"],
           force: false,
         },
       },
@@ -99,12 +99,7 @@ export const pulls = {
   references: {
     required: true,
     labels: {
-      exclude: [
-        "in progress",
-        "good first issue",
-        "good sprint project",
-        "help wanted",
-      ],
+      exclude: ["in progress", "help wanted"],
     },
   },
   ci: {
