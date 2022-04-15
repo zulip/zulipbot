@@ -26,7 +26,7 @@ test("Reject if commenter is already an assignee", async () => {
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
     .reply(200);
 
-  await claim.run.call(client, payload, commenter);
+  await claim.run.call(client, payload, commenter, "");
 
   scope.done();
 });
@@ -42,7 +42,7 @@ test("Reject if assignee limit is reached", async () => {
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: commenter })
     .reply(200);
 
-  await claim.run.call(client, payload, commenter);
+  await claim.run.call(client, payload, commenter, "");
 
   scope.done();
 });
@@ -58,7 +58,7 @@ test("Throw error if collaborator check code isn't 404", async () => {
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
     .reply(200);
 
-  await claim.run.call(client, payload, commenter);
+  await claim.run.call(client, payload, commenter, "");
 
   scope.done();
 });
@@ -81,7 +81,7 @@ test("Rejects creation of duplicate invite", async () => {
     })
     .reply(200);
 
-  await claim.run.call(client, payload, commenter);
+  await claim.run.call(client, payload, commenter, "");
 
   scope.done();
 });
@@ -104,7 +104,7 @@ test("Blocks claim if labels are missing", async () => {
     })
     .reply(200);
 
-  await claim.run.call(client, payload, commenter);
+  await claim.run.call(client, payload, commenter, "");
 
   scope.done();
 });
@@ -190,7 +190,7 @@ test("Always assign if commenter is contributor", async () => {
     })
     .reply(200, { assignees: ["octocat"] });
 
-  await claim.run.call(client, payload, commenter);
+  await claim.run.call(client, payload, commenter, "");
 
   scope.done();
 });
@@ -211,7 +211,7 @@ test("Error if no assignees were added", async () => {
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
     .reply(200);
 
-  await claim.run.call(client, payload, commenter);
+  await claim.run.call(client, payload, commenter, "");
 
   scope.done();
 });
@@ -231,7 +231,7 @@ test("Assign if claim limit validation passed", async () => {
     })
     .reply(200, { assignees: ["octocat"] });
 
-  await claim.run.call(client, payload, commenter);
+  await claim.run.call(client, payload, commenter, "");
 
   scope.done();
 });
@@ -255,7 +255,7 @@ test("Reject claim limit validation failed", async () => {
     })
     .reply(200);
 
-  await claim.run.call(client, payload, commenter);
+  await claim.run.call(client, payload, commenter, "");
 
   scope.done();
 });
@@ -279,7 +279,7 @@ test("Reject claim limit validation failed (limit over 1)", async () => {
     })
     .reply(200);
 
-  await claim.run.call(client, payload, commenter);
+  await claim.run.call(client, payload, commenter, "");
 
   scope.done();
 });
