@@ -1,3 +1,1 @@
-Hello @{commenter}, it looks like someone has already claimed this issue! Since we believe multiple assignments to the same issue may cause some confusion, we encourage you to search for other unclaimed issues to work on. However, you can always reclaim this issue if no one is working on it.
-
-We look forward to your valuable contributions!
+@{commenter} This issue cannot be claimed, as someone else is already working on it. Please see our [contributor guide](https://zulip.readthedocs.io/en/latest/overview/contributing.html#your-first-codebase-contribution) for advice on finding an issue to work on. Thanks!
