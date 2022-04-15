@@ -34,17 +34,6 @@ export const run = async function (payload, commenter, args) {
       repo: repoName,
       username: commenter,
     });
-
-    const contributors = await this.util.getAllPages("repos.listContributors", {
-      owner: repoOwner,
-      repo: repoName,
-    });
-
-    if (contributors.some((c) => c.login === commenter)) {
-      return claim.call(this, commenter, number, repoOwner, repoName);
-    }
-
-    return validate.call(this, commenter, number, repoOwner, repoName);
   } catch (error) {
     if (error.status !== 404) {
       const error = "**ERROR:** Unexpected response from GitHub API.";
@@ -58,6 +47,17 @@ export const run = async function (payload, commenter, args) {
 
     return invite.call(this, payload, commenter, args);
   }
+
+  const contributors = await this.util.getAllPages("repos.listContributors", {
+    owner: repoOwner,
+    repo: repoName,
+  });
+
+  if (contributors.some((c) => c.login === commenter)) {
+    return claim.call(this, commenter, number, repoOwner, repoName);
+  }
+
+  return validate.call(this, commenter, number, repoOwner, repoName);
 };
 
 async function invite(payload, commenter, args) {
