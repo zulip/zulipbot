@@ -14,10 +14,10 @@ export const issues = {
       newContributors: {
         permission: "pull",
         restricted: 1,
-        warn: {
-          labels: ["help wanted"],
-          force: false,
-        },
+      },
+      warn: {
+        labels: ["help wanted"],
+        force: false,
       },
     },
     label: {
