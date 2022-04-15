@@ -71,6 +71,7 @@ test("Rejects creation of duplicate invite", async () => {
   client.templates.set("inviteError", template);
 
   client.invites.set("octokitten@zulip/zulipbot", 69);
+  client.cfg.issues.commands.assign.newContributors.warn.labels = ["bug"];
 
   const scope = nock("https://api.github.com")
     .get(`/repos/zulip/zulipbot/collaborators/${commenter}`)
