@@ -1,3 +1,40 @@
+async function checkLabels(payload, commenter, args) {
+  const repoName = payload.repository.name;
+  const repoOwner = payload.repository.owner.login;
+  const number = payload.issue.number;
+
+  const labels = new Set(payload.issue.labels.map((label) => label.name));
+  const warn = this.cfg.issues.commands.assign.newContributors.warn;
+  const present = warn.labels.some((label) => labels.has(label));
+  const absent = warn.labels.every((label) => !labels.has(label));
+  const alert = warn.presence ? present : absent;
+
+  if (alert && (!warn.force || (warn.force && !args.includes("--force")))) {
+    const one = warn.labels.length === 1;
+    const type = warn.force ? "claimWarning" : "claimBlock";
+    const comment = this.templates.get(type).format({
+      username: this.cfg.auth.username,
+      state: warn.presence ? "with" : "without",
+      labelGrammar: `label${one ? "" : "s"}`,
+      list: `"${warn.labels.join('", "')}"`,
+      commenter: commenter,
+      repoName: repoName,
+      repoOwner: repoOwner,
+    });
+
+    await this.issues.createComment({
+      owner: repoOwner,
+      repo: repoName,
+      issue_number: number,
+      body: comment,
+    });
+
+    return false;
+  }
+
+  return true;
+}
+
 export const run = async function (payload, commenter, args) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
@@ -45,7 +82,11 @@ export const run = async function (payload, commenter, args) {
       });
     }
 
-    return invite.call(this, payload, commenter, args);
+    if (!(await checkLabels.call(this, payload, commenter, args))) {
+      return;
+    }
+
+    return invite.call(this, payload, commenter);
   }
 
   const contributors = await this.util.getAllPages("repos.listContributors", {
@@ -60,7 +101,7 @@ export const run = async function (payload, commenter, args) {
   return validate.call(this, commenter, number, repoOwner, repoName);
 };
 
-async function invite(payload, commenter, args) {
+async function invite(payload, commenter) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const number = payload.issue.number;
@@ -79,33 +120,6 @@ async function invite(payload, commenter, args) {
       repo: repoName,
       issue_number: number,
       body: error,
-    });
-  }
-
-  const labels = new Set(payload.issue.labels.map((label) => label.name));
-  const warn = this.cfg.issues.commands.assign.newContributors.warn;
-  const present = warn.labels.some((label) => labels.has(label));
-  const absent = warn.labels.every((label) => !labels.has(label));
-  const alert = warn.presence ? present : absent;
-
-  if (alert && (!warn.force || (warn.force && !args.includes("--force")))) {
-    const one = warn.labels.length === 1;
-    const type = warn.force ? "claimWarning" : "claimBlock";
-    const comment = this.templates.get(type).format({
-      username: this.cfg.auth.username,
-      state: warn.presence ? "with" : "without",
-      labelGrammar: `label${one ? "" : "s"}`,
-      list: `"${warn.labels.join('", "')}"`,
-      commenter: commenter,
-      repoName: repoName,
-      repoOwner: repoOwner,
-    });
-
-    return this.issues.createComment({
-      owner: repoOwner,
-      repo: repoName,
-      issue_number: number,
-      body: comment,
     });
   }
 
