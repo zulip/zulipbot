@@ -91,6 +91,5 @@ for (const pair of Object.entries(client.cfg.auth)) {
   }
 }
 
-client.users.getAuthenticated().then((response) => {
-  client.cfg.auth.username = response.data.login;
-});
+const response = await client.users.getAuthenticated();
+client.cfg.auth.username = response.data.login;
