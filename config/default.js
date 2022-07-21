@@ -69,9 +69,6 @@ export const pulls = {
     required: false,
     labels: false,
   },
-  ci: {
-    travis: null,
-  },
 };
 
 /**

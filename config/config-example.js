@@ -105,9 +105,6 @@ export const pulls = {
       exclude: ["in progress", "help wanted"],
     },
   },
-  ci: {
-    travis: "travis updates",
-  },
 };
 
 export const activity = {
