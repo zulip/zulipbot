@@ -10,9 +10,9 @@
   },
   "dependencies": {
     "@octokit/plugin-retry": "^3.0.9",
-    "@octokit/plugin-throttling": "^3.5.2",
-    "@octokit/rest": "^18.10.0",
-    "@octokit/webhooks": "^9.14.2",
+    "@octokit/plugin-throttling": "^4.1.0",
+    "@octokit/rest": "^19.0.3",
+    "@octokit/webhooks": "^10.0.8",
     "express": "^4.17.1",
     "lodash": "^4.17.21",
     "node-fetch": "^3.0.0"
@@ -21,10 +21,10 @@
     "c8": "^7.10.0",
     "eslint": "^8.5.0",
     "eslint-config-prettier": "^8.3.0",
-    "eslint-config-xo": "^0.40.0",
+    "eslint-config-xo": "^0.41.0",
     "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-unicorn": "^42.0.0",
+    "eslint-plugin-unicorn": "^43.0.2",
     "nock": "^13.1.3",
     "prettier": "^2.4.0",
     "tap": "^16.0.1"
