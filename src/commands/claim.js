@@ -65,6 +65,20 @@ export const run = async function (payload, commenter, args) {
     });
   }
 
+  if (payload.issue.pull_request) {
+    const comment = this.templates.get("claimPullRequest").format({
+      commenter,
+      repoName,
+      repoOwner,
+    });
+    return this.issues.createComment({
+      owner: repoOwner,
+      repo: repoName,
+      issue_number: number,
+      body: comment,
+    });
+  }
+
   if (!(await checkLabels.call(this, payload, commenter, args))) {
     return;
   }

@@ -87,6 +87,38 @@ test("Rejects creation of duplicate invite", async () => {
   scope.done();
 });
 
+test("Reject claim on pull request", async () => {
+  const commenter = "octocat";
+
+  const payload = {
+    repository: {
+      owner: { login: "zulip" },
+      name: "zulipbot",
+    },
+    issue: {
+      number: 123,
+      assignees: [],
+      pull_request: {
+        url: "https://api.github.com/repos/zulip/zulipbot/pulls/123",
+      },
+    },
+  };
+
+  const template = client.templates.get("claimPullRequest");
+  template.content = "{commenter} {repoName} {repoOwner}";
+  client.templates.set("claimPullRequest", template);
+
+  const scope = nock("https://api.github.com")
+    .post("/repos/zulip/zulipbot/issues/123/comments", {
+      body: "octocat zulipbot zulip",
+    })
+    .reply(200);
+
+  await claim.run.call(client, payload, commenter, "");
+
+  scope.done();
+});
+
 test("Blocks claim if labels are missing", async () => {
   const commenter = "octokitten";
   client.invites.delete("octokitten@zulip/zulipbot");
