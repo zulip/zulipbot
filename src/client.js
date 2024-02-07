@@ -40,8 +40,10 @@ const client = new MyOctokit({
         } times for ${method} ${url}; aborting`,
       );
     },
-    onAbuseLimit: (retryAfter, { method, url }) => {
-      client.log.warn(`Abuse detected for ${method} ${url}; aborting`);
+    onSecondaryRateLimit: (retryAfter, { method, url }) => {
+      client.log.warn(
+        `Secondary rate limit detected for ${method} ${url}; aborting`,
+      );
     },
   },
 });
