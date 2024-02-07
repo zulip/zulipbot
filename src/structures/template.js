@@ -1,5 +1,3 @@
-import _ from "lodash";
-
 class Template {
   constructor(client, name, content) {
     /**
@@ -53,10 +51,7 @@ class Template {
     let content = this.content;
     for (const variable of Object.entries(context)) {
       const [expression, value] = variable;
-      content = content.replace(
-        new RegExp(`{${_.escapeRegExp(expression)}}`, "g"),
-        value
-      );
+      content = content.replaceAll(`{${expression}}`, value);
     }
 
     return content;

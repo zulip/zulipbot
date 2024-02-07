@@ -19,7 +19,9 @@ export const run = async function (payload, commenter, args) {
   );
 
   const repoLabels = new Set(repoLabelArray.map((label) => label.name));
-  const labels = args.match(/".*?"/g).map((string) => string.replace(/"/g, ""));
+  const labels = args
+    .match(/".*?"/g)
+    .map((string) => string.replaceAll('"', ""));
 
   const alreadyAdded = labels.filter((label) => issueLabels.has(label));
   const rejected = labels.filter((label) => !repoLabels.has(label));

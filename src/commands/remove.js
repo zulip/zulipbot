@@ -10,7 +10,9 @@ export const run = async function (payload, commenter, args) {
   const number = payload.issue.number;
   const issueLabels = payload.issue.labels.map((label) => label.name);
 
-  const labels = args.match(/".*?"/g).map((string) => string.replace(/"/g, ""));
+  const labels = args
+    .match(/".*?"/g)
+    .map((string) => string.replaceAll('"', ""));
   const removeLabels = issueLabels.filter((label) => !labels.includes(label));
   const rejected = labels.filter((label) => !issueLabels.includes(label));
 
