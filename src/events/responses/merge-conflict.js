@@ -47,7 +47,7 @@ async function check(number, repo) {
       repo: repoName,
       pull_number: number,
     });
-    const lastCommitTime = commits.slice(-1).pop().commit.committer.date;
+    const lastCommitTime = commits.at(-1).commit.committer.date;
 
     const warnComment = warnings.find(
       (c) => Date.parse(lastCommitTime) < Date.parse(c.created_at)
