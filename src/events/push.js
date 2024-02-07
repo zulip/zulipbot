@@ -5,9 +5,12 @@ export const run = function (payload) {
 
   if (!mainPush || (!label && !comment)) return;
 
-  return setTimeout(() => {
-    this.responses.get("mergeConflict").run(repo);
-  }, this.cfg.eventsDelay * 60 * 1000);
+  return setTimeout(
+    () => {
+      this.responses.get("mergeConflict").run(repo);
+    },
+    this.cfg.eventsDelay * 60 * 1000,
+  );
 };
 
 export const events = ["push"];

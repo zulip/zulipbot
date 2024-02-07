@@ -11,7 +11,7 @@ export const run = async function (pull, repo, opened) {
   const commitReferences = await references.getCommits();
 
   const missingReferences = bodyReferences.filter(
-    (r) => !commitReferences.includes(r)
+    (r) => !commitReferences.includes(r),
   );
 
   const template = this.templates.get("fixCommitWarning");

@@ -38,13 +38,13 @@ async function scrapePulls(pulls) {
     const labels = response.data.map((label) => label.name);
 
     const inactive = labels.find(
-      (label) => label === this.cfg.activity.inactive
+      (label) => label === this.cfg.activity.inactive,
     );
     const reviewed = labels.find(
-      (l) => l === this.cfg.activity.pulls.reviewed.label
+      (l) => l === this.cfg.activity.pulls.reviewed.label,
     );
     const needsReview = labels.find(
-      (l) => l === this.cfg.activity.pulls.needsReview.label
+      (l) => l === this.cfg.activity.pulls.needsReview.label,
     );
 
     if (time + ims <= Date.now() && !inactive && reviewed) {
@@ -108,7 +108,7 @@ async function scrapeInactiveIssues(references, issues) {
 
   for (const issue of issues) {
     const inactiveLabel = issue.labels.find(
-      (label) => label.name === this.cfg.activity.inactive
+      (label) => label.name === this.cfg.activity.inactive,
     );
     if (inactiveLabel) continue;
 

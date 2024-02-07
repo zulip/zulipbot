@@ -65,7 +65,7 @@ class ReferenceSearch {
         const regex = new RegExp(`${_.escapeRegExp(tense)}:? #([0-9]+)`, "i");
         const match = string.match(regex);
         return match ? match[1] : match;
-      })
+      }),
     );
 
     // check matches for valid issue references

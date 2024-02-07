@@ -3,9 +3,12 @@ const recentlyClosed = new Map();
 export const close = function (issue, repo) {
   recentlyClosed.set(issue.id, issue);
 
-  setTimeout(() => {
-    clearClosed.call(this, issue, repo);
-  }, this.cfg.eventsDelay * 60 * 1000);
+  setTimeout(
+    () => {
+      clearClosed.call(this, issue, repo);
+    },
+    this.cfg.eventsDelay * 60 * 1000,
+  );
 };
 
 export const reopen = function (issue) {

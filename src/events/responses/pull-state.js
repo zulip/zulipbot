@@ -74,7 +74,7 @@ async function size(sizeLabels, labels, number, repo) {
 
   const changes = files
     .filter(
-      (file) => !this.cfg.pulls.status.size.exclude.includes(file.filename)
+      (file) => !this.cfg.pulls.status.size.exclude.includes(file.filename),
     )
     .reduce((sum, file) => sum + file.changes, 0);
 

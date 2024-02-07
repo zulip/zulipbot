@@ -166,7 +166,7 @@ async function validate(commenter, number, repoOwner, repoName) {
 
   const limit = this.cfg.issues.commands.assign.newContributors.restricted;
   const assigned = issues.filter((issue) =>
-    issue.assignees.find((assignee) => assignee.login === commenter)
+    issue.assignees.find((assignee) => assignee.login === commenter),
   );
 
   if (assigned.length >= limit) {

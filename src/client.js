@@ -29,7 +29,7 @@ const client = new MyOctokit({
         client.log.warn(
           `Rate limit exceeded ${
             retryCount + 1
-          } times for ${method} ${url}; retrying in ${retryAfter} seconds`
+          } times for ${method} ${url}; retrying in ${retryAfter} seconds`,
         );
         return true;
       }
@@ -37,7 +37,7 @@ const client = new MyOctokit({
       client.log.warn(
         `Rate limit exceeded ${
           retryCount + 1
-        } times for ${method} ${url}; aborting`
+        } times for ${method} ${url}; aborting`,
       );
     },
     onAbuseLimit: (retryAfter, { method, url }) => {
@@ -81,13 +81,13 @@ for (const [name, { ...data }] of Object.entries(responses)) {
 }
 
 const templates = fs.readdirSync(
-  new URL("../config/templates", import.meta.url)
+  new URL("../config/templates", import.meta.url),
 );
 for (const file of templates) {
   const [name] = file.split(".md");
   const content = fs.readFileSync(
     new URL(`../config/templates/${file}`, import.meta.url),
-    "utf8"
+    "utf8",
   );
   const template = new Template(client, name, content);
   client.templates.set(name, template);

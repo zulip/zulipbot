@@ -31,7 +31,7 @@ function parse(payload) {
 
   const prefix = new RegExp(
     `@${_.escapeRegExp(username)} +(\\w+)( +(--\\w+|"[^"]+"))*`,
-    "g"
+    "g",
   );
   const parsed = body.match(prefix);
   if (!parsed) return;

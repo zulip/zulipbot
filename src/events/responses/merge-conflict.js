@@ -50,7 +50,7 @@ async function check(number, repo) {
     const lastCommitTime = commits.at(-1).commit.committer.date;
 
     const warnComment = warnings.find(
-      (c) => Date.parse(lastCommitTime) < Date.parse(c.created_at)
+      (c) => Date.parse(lastCommitTime) < Date.parse(c.created_at),
     );
 
     const labels = await this.issues.listLabelsOnIssue({
@@ -59,7 +59,7 @@ async function check(number, repo) {
       issue_number: number,
     });
     const inactive = labels.data.find(
-      (l) => l.name === this.cfg.activity.inactive
+      (l) => l.name === this.cfg.activity.inactive,
     );
 
     if (inactive) return;
