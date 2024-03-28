@@ -9,10 +9,10 @@
     "test": "tap --coverage-report=lcovonly"
   },
   "dependencies": {
-    "@octokit/plugin-retry": "^6.0.1",
-    "@octokit/plugin-throttling": "^8.1.3",
+    "@octokit/plugin-retry": "^7.0.3",
+    "@octokit/plugin-throttling": "^9.0.3",
     "@octokit/rest": "^20.0.2",
-    "@octokit/webhooks": "^12.1.0",
+    "@octokit/webhooks": "^13.1.1",
     "express": "^4.17.1",
     "lodash": "^4.17.21"
   },
