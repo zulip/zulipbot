@@ -21,7 +21,13 @@ const payload = {
   },
 };
 
-const repoLabels = [{ name: "test" }, { name: "test2" }, { name: "bug" }];
+const repoLabels = [
+  { name: "test" },
+  { name: "test2" },
+  { name: "bug" },
+  { name: "area: test (specific)" },
+  { name: "area: test" },
+];
 
 const template = client.templates.get("labelError");
 template.content = "{labels} {labelList} {exist} {beState} {action} {type}.";
@@ -141,6 +147,24 @@ test("Add appropriate labels and reject already added labels", async () => {
     .get("/repos/zulip/zulipbot/labels")
     .reply(200, repoLabels)
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
+    .reply(200);
+
+  await add.run.call(client, payload, commenter, args);
+
+  scope.done();
+});
+
+test("Add general label when specific label is added", async () => {
+  client.cfg.issues.commands.label.self = false;
+  const commenter = "octocat";
+  const args = '"area: test (specific)"';
+
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulipbot/labels")
+    .reply(200, repoLabels)
+    .post("/repos/zulip/zulipbot/issues/69/labels", {
+      labels: ["area: test (specific)", "area: test"],
+    })
     .reply(200);
 
   await add.run.call(client, payload, commenter, args);
