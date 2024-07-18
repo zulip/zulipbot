@@ -9,6 +9,11 @@
     "node": true,
     "es2020": true
   },
+  "settings": {
+    "import/resolver": {
+      "typescript": {}
+    }
+  },
   "rules": {
     "arrow-body-style": "error",
     "camelcase": "off",
