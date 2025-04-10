@@ -103,12 +103,18 @@ export const run = async function (payload, commenter, args) {
     return invite.call(this, payload, commenter);
   }
 
-  const contributors = await this.util.getAllPages("repos.listContributors", {
+  // A commenter is considered a contributor if they have at least one commit
+  // in the repository. So, fetching just one commit by the author is sufficient
+  // to determine whether they are a contributor or not.
+  const commenterCommitsResponse = await this.repos.listCommits({
     owner: repoOwner,
     repo: repoName,
+    author: commenter,
+    per_page: 1,
   });
 
-  if (contributors.some((c) => c.login === commenter)) {
+  if (commenterCommitsResponse.data.length > 0) {
+    // commenter is a contributor
     return claim.call(this, commenter, number, repoOwner, repoName);
   }
 

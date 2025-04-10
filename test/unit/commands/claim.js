@@ -206,15 +206,16 @@ test("Throw error if permission is not specified", async () => {
   scope.done();
 });
 
-test("Always assign if commenter is contributor", async () => {
+test("Always assign if commenter has at least one commit", async () => {
   const commenter = "octocat";
   client.cfg.issues.commands.assign.warn.presence = false;
 
   const scope = nock("https://api.github.com")
     .get(`/repos/zulip/zulipbot/collaborators/${commenter}`)
     .reply(204)
-    .get("/repos/zulip/zulipbot/contributors")
-    .reply(200, [{ login: "octocat" }])
+    .get(`/repos/zulip/zulipbot/commits`)
+    .query({ author: commenter, per_page: 1 })
+    .reply(200, [{ sha: "dummysha123" }])
     .post("/repos/zulip/zulipbot/issues/69/assignees", {
       assignees: ["octocat"],
     })
@@ -232,8 +233,9 @@ test("Error if no assignees were added", async () => {
   const scope = nock("https://api.github.com")
     .get(`/repos/zulip/zulipbot/collaborators/${commenter}`)
     .reply(204)
-    .get("/repos/zulip/zulipbot/contributors")
-    .reply(200, [{ login: "octocat" }])
+    .get(`/repos/zulip/zulipbot/commits`)
+    .query({ author: commenter, per_page: 1 })
+    .reply(200, [{ sha: "dummysha123" }])
     .post("/repos/zulip/zulipbot/issues/69/assignees", {
       assignees: ["octocat"],
     })
@@ -252,7 +254,8 @@ test("Assign if claim limit validation passed", async () => {
   const scope = nock("https://api.github.com")
     .get(`/repos/zulip/zulipbot/collaborators/${commenter}`)
     .reply(204)
-    .get("/repos/zulip/zulipbot/contributors")
+    .get(`/repos/zulip/zulipbot/commits`)
+    .query({ author: commenter, per_page: 1 })
     .reply(200, [])
     .get("/issues?filter=all&labels=in%20progress")
     .reply(200, [])
@@ -276,7 +279,8 @@ test("Reject claim limit validation failed", async () => {
   const scope = nock("https://api.github.com")
     .get(`/repos/zulip/zulipbot/collaborators/${commenter}`)
     .reply(204)
-    .get("/repos/zulip/zulipbot/contributors")
+    .get(`/repos/zulip/zulipbot/commits`)
+    .query({ author: commenter, per_page: 1 })
     .reply(200, [])
     .get("/issues?filter=all&labels=in%20progress")
     .reply(200, [{ assignees: [{ login: "octocat" }] }])
@@ -297,7 +301,8 @@ test("Reject claim limit validation failed (limit over 1)", async () => {
   const scope = nock("https://api.github.com")
     .get(`/repos/zulip/zulipbot/collaborators/${commenter}`)
     .reply(204)
-    .get("/repos/zulip/zulipbot/contributors")
+    .get(`/repos/zulip/zulipbot/commits`)
+    .query({ author: commenter, per_page: 1 })
     .reply(200, [])
     .get("/issues?filter=all&labels=in%20progress")
     .reply(200, [
