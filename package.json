@@ -13,7 +13,7 @@
     "@octokit/plugin-throttling": "^9.0.3",
     "@octokit/rest": "^20.0.2",
     "@octokit/webhooks": "^13.1.1",
-    "express": "^4.17.1",
+    "express": "^4.20.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
