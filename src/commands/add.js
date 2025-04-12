@@ -23,9 +23,24 @@ export const run = async function (payload, commenter, args) {
     .match(/".*?"/g)
     .map((string) => string.replaceAll('"', ""));
 
+  // Get all specific area labels
+  const specificLabels = labels.filter(
+    (label) =>
+      label.includes("area: ") && label.includes("(") && label.includes(")"),
+  );
+
+  const generalLabels = new Set();
+  // Add general labels from every specific label
+  for (const label of specificLabels) {
+    generalLabels.add(label.slice(0, Math.max(0, label.indexOf(" ("))));
+  }
+
   const alreadyAdded = labels.filter((label) => issueLabels.has(label));
   const rejected = labels.filter((label) => !repoLabels.has(label));
-  const addLabels = labels.filter(
+
+  // Add general lables to the input lables and filter
+  const combinedLabels = new Set([...labels, ...generalLabels]);
+  const addLabels = [...combinedLabels].filter(
     (label) => repoLabels.has(label) && !issueLabels.has(label),
   );
 
