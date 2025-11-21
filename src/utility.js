@@ -6,7 +6,7 @@
  */
 
 export const deduplicate = function (array) {
-  return [...new Set(array)].sort();
+  return [...new Set(array)].toSorted();
 };
 
 /**

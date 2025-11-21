@@ -30,7 +30,7 @@ export const label = async function (payload) {
     labels = await size.call(this, sizeLabels, labels, number, repo);
   }
 
-  if (!_.isEqual(oldLabels.sort(), labels.sort())) {
+  if (!_.isEqual(oldLabels.toSorted(), labels.toSorted())) {
     await this.issues.setLabels({
       owner: repoOwner,
       repo: repoName,
@@ -86,7 +86,7 @@ async function size(sizeLabels, labels, number, repo) {
 
   pullLabels.push(label);
 
-  if (pullLabels.sort() === labels.sort()) {
+  if (pullLabels.toSorted() === labels.toSorted()) {
     return labels;
   }
 
