@@ -12,7 +12,7 @@ import commands from "./commands/index.js";
 import events from "./events/index.js";
 import * as responses from "./events/responses/index.js";
 import Template from "./structures/template.js";
-import * as util from "./util.js";
+import * as utility from "./utility.js";
 
 const MyOctokit = Octokit.plugin(retry, throttling);
 
@@ -48,7 +48,7 @@ const client = new MyOctokit({
   },
 });
 client.cfg = cfg;
-client.util = { ...util };
+client.util = { ...utility };
 
 for (const method of Object.keys(client.util)) {
   client.util[method] = client.util[method].bind(client);
