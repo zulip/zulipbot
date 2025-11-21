@@ -14,7 +14,7 @@ export const run = async function () {
   const array = await Promise.all(pages);
 
   // Flatten arrays of arrays with PR data
-  const pulls = array.flat(1);
+  const pulls = array.flat();
 
   await scrapePulls.call(this, pulls);
 };
