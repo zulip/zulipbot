@@ -30,7 +30,7 @@ function parse(payload) {
   if (commenter === username || !body) return;
 
   const prefix = new RegExp(
-    `@${_.escapeRegExp(username)} +(\\w+)( +(--\\w+|"[^"]+"))*`,
+    String.raw`@${_.escapeRegExp(username)} +(\w+)( +(--\w+|"[^"]+"))*`,
     "g",
   );
   const parsed = body.match(prefix);
