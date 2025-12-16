@@ -21,15 +21,16 @@ const client = new MyOctokit({
   auth: cfg.auth.oAuthToken,
   retry: {
     enabled: process.env.NODE_ENV !== "test",
+    doNotRetry: [],
   },
   throttle: {
     enabled: process.env.NODE_ENV !== "test",
     onRateLimit: (retryAfter, { method, url, request: { retryCount } }) => {
-      if (retryCount < 3) {
+      if (retryCount < 5) {
         client.log.warn(
-          `Rate limit exceeded ${
+          `Rate limit exceeded(attempt ${
             retryCount + 1
-          } times for ${method} ${url}; retrying in ${retryAfter} seconds`,
+          } /5) for ${method} ${url}; retrying in ${retryAfter} seconds`,
         );
         return true;
       }
@@ -37,13 +38,29 @@ const client = new MyOctokit({
       client.log.warn(
         `Rate limit exceeded ${
           retryCount + 1
-        } times for ${method} ${url}; aborting`,
+        } times for ${method} ${url}; Aborting after max retires. This may cause missed events. `,
       );
+      return false;
     },
-    onSecondaryRateLimit: (retryAfter, { method, url }) => {
+    onSecondaryRateLimit: (
+      retryAfter,
+      { method, url, request: { retryCount } },
+    ) => {
+      if (retryCount < 3) {
+        client.log.warn(
+          `Secondary rate limit detected (attempt${
+            retryCount + 1
+          }/3) for ${method} ${url}; Retrying in ${retryAfter}seconds`,
+        );
+        return true;
+      }
+
       client.log.warn(
-        `Secondary rate limit detected for ${method} ${url}; aborting`,
+        `Secondary rate limit exceeded ${
+          retryCount + 1
+        } times for ${method} ${url};Aborting. This indicates too many requests too quickly.`,
       );
+      return false;
     },
   },
 });
