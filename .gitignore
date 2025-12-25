@@ -1,4 +1,4 @@
 .tap
 node_modules
-/config/config.js
+/config/config.ts
 /config/secrets.json

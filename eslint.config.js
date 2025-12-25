@@ -1,5 +1,6 @@
 import { defineConfig } from "eslint/config";
 import xo from "eslint-config-xo";
+import xoTypeScript from "eslint-config-xo-typescript";
 import importPlugin from "eslint-plugin-import";
 import prettierRecommended from "eslint-plugin-prettier/recommended";
 import unicorn from "eslint-plugin-unicorn";
@@ -9,6 +10,10 @@ export default defineConfig(
     ignores: ["package-lock.json"],
   },
   xo,
+  {
+    files: ["**/*.{cts,mts,ts}"],
+    extends: xoTypeScript,
+  },
   importPlugin.flatConfigs.recommended,
   unicorn.configs.recommended,
   prettierRecommended,
@@ -21,6 +26,8 @@ export default defineConfig(
     },
     rules: {
       "@stylistic/curly-newline": "off", // https://github.com/prettier/eslint-config-prettier/issues/351
+      "@typescript-eslint/naming-convention": "off",
+      "@typescript-eslint/no-restricted-types": "off",
       "arrow-body-style": "error",
       "capitalized-comments": "off",
       curly: ["error", "multi-line", "consistent"],
@@ -45,6 +52,7 @@ export default defineConfig(
       strict: "error",
       "unicorn/no-null": "off",
       "unicorn/no-process-exit": "off",
+      "unicorn/no-useless-undefined": "off",
       "unicorn/numeric-separators-style": "off",
       "unicorn/prefer-node-protocol": "off",
       "unicorn/prevent-abbreviations": [
@@ -60,5 +68,9 @@ export default defineConfig(
       "unicorn/expiring-todo-comments": "off",
       strict: "off",
     },
+  },
+  {
+    files: ["**/tsconfig.json"],
+    language: "json/jsonc", // https://github.com/xojs/xo/issues/798
   },
 );

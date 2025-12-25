@@ -1,0 +1,5 @@
+ignoredBuiltDependencies:
+  - unrs-resolver
+
+patchedDependencies:
+  partial-mock: patches/partial-mock.patch
