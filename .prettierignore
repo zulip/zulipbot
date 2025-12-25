@@ -1,3 +1,5 @@
 .tap
 /config/config.js
 /config/secrets.json
+/pnpm-lock.yaml
+/pnpm-workspace.yaml
