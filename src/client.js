@@ -51,8 +51,7 @@ client.invites = new Map();
 client.templates = new Map();
 
 for (const data of commands) {
-  const [category, name] = data.aliasPath.split(".");
-  const aliases = client.cfg.issues.commands[category][name];
+  const aliases = data.aliasPath(client.cfg.issues.commands);
   for (const alias of aliases) {
     client.commands.set(alias, data);
   }

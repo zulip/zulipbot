@@ -81,4 +81,4 @@ export const run = async function (payload, commenter, args) {
   return response;
 };
 
-export const aliasPath = "label.add";
+export const aliasPath = (commands) => commands.label.add;

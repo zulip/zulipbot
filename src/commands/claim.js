@@ -227,4 +227,4 @@ async function claim(commenter, number, repoOwner, repoName) {
   });
 }
 
-export const aliasPath = "assign.claim";
+export const aliasPath = (commands) => commands.assign.claim;

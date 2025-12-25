@@ -45,4 +45,4 @@ export const run = async function (payload, commenter, args) {
   });
 };
 
-export const aliasPath = "label.remove";
+export const aliasPath = (commands) => commands.label.remove;
