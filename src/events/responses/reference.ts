@@ -1,7 +1,19 @@
-import Search from "../../structures/reference-search.js";
+import type { components } from "@octokit/openapi-webhooks-types";
+import { assertDefined } from "ts-extras";
 
-export const run = async function (pull, repo, opened) {
-  const author = pull.user.login;
+import type { Client } from "../../client.ts";
+import Search from "../../structures/reference-search.ts";
+
+export const run = async function (
+  this: Client,
+  pull:
+    | components["schemas"]["pull-request"]
+    | components["schemas"]["webhook-pull-request-synchronize"]["pull_request"]
+    | components["schemas"]["pull-request-webhook"],
+  repo: components["schemas"]["repository-webhooks"],
+  opened: boolean,
+) {
+  const author = pull.user?.login;
   const number = pull.number;
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
@@ -15,6 +27,7 @@ export const run = async function (pull, repo, opened) {
   );
 
   const template = this.templates.get("fixCommitWarning");
+  assertDefined(template);
   const comments = await template.getComments({
     issue_number: number,
     owner: repoOwner,
@@ -28,22 +41,28 @@ export const run = async function (pull, repo, opened) {
       fixIssues: missingReferences.join(", fixes #"),
       issuePronoun: missingReferences.length > 0 ? "them" : "it",
     });
-    return this.issues.createComment({
+    await this.issues.createComment({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
       body: comment,
     });
+    return;
   }
 
   if (!opened || !this.cfg.pulls.references.labels) return;
 
   for (const issue of commitReferences) {
-    labelReference.call(this, issue, number, repo);
+    void labelReference.call(this, issue, number, repo);
   }
 };
 
-async function labelReference(referencedIssue, number, repo) {
+async function labelReference(
+  this: Client,
+  referencedIssue: number,
+  number: number,
+  repo: components["schemas"]["repository-webhooks"],
+) {
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
   const labelCfg = this.cfg.pulls.references.labels;
@@ -57,30 +76,31 @@ async function labelReference(referencedIssue, number, repo) {
   let labels = response.data.map((label) => label.name);
 
   if (typeof labelCfg === "object") {
-    const cfgCheck = [labelCfg.include, labelCfg.exclude];
-
-    const defined = (array) => Array.isArray(array) && array.length > 0;
-
-    if (cfgCheck.filter((array) => defined(array)).length !== 1) {
+    if (
+      Number(labelCfg.include !== undefined) +
+        Number(labelCfg.exclude !== undefined) !==
+      1
+    ) {
       const error = "**ERROR:** Invalid `references.labels` configuration.";
-      return this.issues.createComment({
+      await this.issues.createComment({
         owner: repoOwner,
         repo: repoName,
         issue_number: number,
         body: error,
       });
+      return;
     }
 
-    if (defined(labelCfg.include)) {
+    if (labelCfg.include !== undefined) {
       labels = labels.filter((label) => labelCfg.include.includes(label));
     }
 
-    if (defined(labelCfg.exclude)) {
+    if (labelCfg.exclude !== undefined) {
       labels = labels.filter((label) => !labelCfg.exclude.includes(label));
     }
   }
 
-  this.issues.addLabels({
+  void this.issues.addLabels({
     owner: repoOwner,
     repo: repoName,
     issue_number: number,

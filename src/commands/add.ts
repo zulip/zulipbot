@@ -1,13 +1,27 @@
-export const run = async function (payload, commenter, args) {
-  const creator = payload.issue.user.login;
+import { assertDefined } from "ts-extras";
+
+import type { Client } from "../client.ts";
+
+import type { CommandAliases, CommandPayload } from "./index.ts";
+
+export const run = async function (
+  this: Client,
+  payload: CommandPayload,
+  commenter: string,
+  args: string,
+) {
+  const creator = payload.issue.user?.login;
   const self = this.cfg.issues.commands.label.self;
-  const selfLabel = self.users ? !self.users.includes(commenter) : self;
+  const selfLabel =
+    typeof self === "object" ? !self.users.includes(commenter) : self;
   const forbidden = selfLabel && creator !== commenter;
-  if (forbidden || !/".*?"/.test(args)) return;
+  const rawLabels = args.match(/".*?"/g);
+  if (forbidden || rawLabels === null) return;
 
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const number = payload.issue.number;
+  assertDefined(payload.issue.labels);
   const issueLabels = new Set(payload.issue.labels.map((label) => label.name));
 
   const repoLabelArray = await this.paginate(this.issues.listLabelsForRepo, {
@@ -16,9 +30,7 @@ export const run = async function (payload, commenter, args) {
   });
 
   const repoLabels = new Set(repoLabelArray.map((label) => label.name));
-  const labels = args
-    .match(/".*?"/g)
-    .map((string) => string.replaceAll('"', ""));
+  const labels = rawLabels.map((string) => string.replaceAll('"', ""));
 
   const alreadyAdded = labels.filter((label) => issueLabels.has(label));
   const rejected = labels.filter((label) => !repoLabels.has(label));
@@ -28,6 +40,7 @@ export const run = async function (payload, commenter, args) {
 
   const type = payload.issue.pull_request ? "pull request" : "issue";
   const template = this.templates.get("labelError");
+  assertDefined(template);
   let response;
 
   if (rejected.length > 0) {
@@ -81,4 +94,4 @@ export const run = async function (payload, commenter, args) {
   return response;
 };
 
-export const aliasPath = (commands) => commands.label.add;
+export const aliasPath = (commands: CommandAliases) => commands.label.add;

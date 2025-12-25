@@ -1,8 +1,21 @@
-async function checkLabels(payload, commenter, args) {
+import { RequestError } from "@octokit/request-error";
+import { assertDefined } from "ts-extras";
+
+import type { Client } from "../client.ts";
+
+import type { CommandAliases, CommandPayload } from "./index.ts";
+
+async function checkLabels(
+  this: Client,
+  payload: CommandPayload,
+  commenter: string,
+  args: string,
+) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const number = payload.issue.number;
 
+  assertDefined(payload.issue.labels);
   const labels = new Set(payload.issue.labels.map((label) => label.name));
   const warn = this.cfg.issues.commands.assign.warn;
   const present = warn.labels.some((label) => labels.has(label));
@@ -12,7 +25,10 @@ async function checkLabels(payload, commenter, args) {
   if (alert && (!warn.force || (warn.force && !args.includes("--force")))) {
     const one = warn.labels.length === 1;
     const type = warn.force ? "claimWarning" : "claimBlock";
-    const comment = this.templates.get(type).format({
+    const template = this.templates.get(type);
+    assertDefined(template);
+    assertDefined(this.cfg.auth.username);
+    const comment = template.format({
       username: this.cfg.auth.username,
       state: warn.presence ? "with" : "without",
       labelGrammar: `label${one ? "" : "s"}`,
@@ -35,14 +51,19 @@ async function checkLabels(payload, commenter, args) {
   return true;
 }
 
-export const run = async function (payload, commenter, args) {
+export const run = async function (
+  this: Client,
+  payload: CommandPayload,
+  commenter: string,
+  args: string,
+) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const number = payload.issue.number;
   const limit = this.cfg.issues.commands.assign.limit;
 
   if (
-    payload.issue.assignees.some((assignee) => assignee.login === commenter)
+    payload.issue.assignees.some((assignee) => assignee?.login === commenter)
   ) {
     const error = "**ERROR:** You have already claimed this issue.";
     return this.issues.createComment({
@@ -54,9 +75,9 @@ export const run = async function (payload, commenter, args) {
   }
 
   if (payload.issue.assignees.length >= limit) {
-    const warn = this.templates
-      .get("multipleClaimWarning")
-      .format({ commenter });
+    const template = this.templates.get("multipleClaimWarning");
+    assertDefined(template);
+    const warn = template.format({ commenter });
     return this.issues.createComment({
       owner: repoOwner,
       repo: repoName,
@@ -66,7 +87,9 @@ export const run = async function (payload, commenter, args) {
   }
 
   if (payload.issue.pull_request) {
-    const comment = this.templates.get("claimPullRequest").format({
+    const template = this.templates.get("claimPullRequest");
+    assertDefined(template);
+    const comment = template.format({
       commenter,
       repoName,
       repoOwner,
@@ -90,7 +113,7 @@ export const run = async function (payload, commenter, args) {
       username: commenter,
     });
   } catch (error) {
-    if (error.status !== 404) {
+    if (!(error instanceof RequestError) || error.status !== 404) {
       const error = "**ERROR:** Unexpected response from GitHub API.";
       return this.issues.createComment({
         owner: repoOwner,
@@ -121,7 +144,11 @@ export const run = async function (payload, commenter, args) {
   return validate.call(this, commenter, number, repoOwner, repoName);
 };
 
-async function invite(payload, commenter) {
+async function invite(
+  this: Client,
+  payload: CommandPayload,
+  commenter: string,
+) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const number = payload.issue.number;
@@ -129,7 +156,9 @@ async function invite(payload, commenter) {
   const inviteKey = `${commenter}@${repoOwner}/${repoName}`;
 
   if (this.invites.has(inviteKey)) {
-    const error = this.templates.get("inviteError").format({
+    const template = this.templates.get("inviteError");
+    assertDefined(template);
+    const error = template.format({
       commenter,
       repoName,
       repoOwner,
@@ -155,13 +184,15 @@ async function invite(payload, commenter) {
     });
   }
 
-  const comment = this.templates.get("contributorAddition").format({
+  const template = this.templates.get("contributorAddition");
+  assertDefined(template);
+  const comment = template.format({
     commenter,
     repoName,
     repoOwner,
   });
 
-  this.issues.createComment({
+  void this.issues.createComment({
     owner: repoOwner,
     repo: repoName,
     issue_number: number,
@@ -178,7 +209,13 @@ async function invite(payload, commenter) {
   });
 }
 
-async function validate(commenter, number, repoOwner, repoName) {
+async function validate(
+  this: Client,
+  commenter: string,
+  number: number,
+  repoOwner: string,
+  repoName: string,
+) {
   const issues = await this.paginate(this.issues.list, {
     filter: "all",
     labels: this.cfg.activity.issues.inProgress,
@@ -186,11 +223,13 @@ async function validate(commenter, number, repoOwner, repoName) {
 
   const limit = this.cfg.issues.commands.assign.newContributors.restricted;
   const assigned = issues.filter((issue) =>
-    issue.assignees.find((assignee) => assignee.login === commenter),
+    issue.assignees?.find((assignee) => assignee.login === commenter),
   );
 
   if (assigned.length >= limit) {
-    const comment = this.templates.get("claimRestriction").format({
+    const template = this.templates.get("claimRestriction");
+    assertDefined(template);
+    const comment = template.format({
       issue: `issue${limit === 1 ? "" : "s"}`,
       limit: limit,
       commenter: commenter,
@@ -207,7 +246,13 @@ async function validate(commenter, number, repoOwner, repoName) {
   return claim.call(this, commenter, number, repoOwner, repoName);
 }
 
-async function claim(commenter, number, repoOwner, repoName) {
+async function claim(
+  this: Client,
+  commenter: string,
+  number: number,
+  repoOwner: string,
+  repoName: string,
+) {
   const response = await this.issues.addAssignees({
     owner: repoOwner,
     repo: repoName,
@@ -215,7 +260,13 @@ async function claim(commenter, number, repoOwner, repoName) {
     assignees: [commenter],
   });
 
-  if (response.data.assignees.length > 0) return;
+  if (
+    response.data.assignees !== undefined &&
+    response.data.assignees !== null &&
+    response.data.assignees.length > 0
+  ) {
+    return;
+  }
 
   const error = "**ERROR:** Issue claiming failed (no assignee was added).";
 
@@ -227,4 +278,4 @@ async function claim(commenter, number, repoOwner, repoName) {
   });
 }
 
-export const aliasPath = (commands) => commands.assign.claim;
+export const aliasPath = (commands: CommandAliases) => commands.assign.claim;

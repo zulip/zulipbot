@@ -2,28 +2,36 @@ import fs from "fs";
 
 import { Webhooks, createNodeMiddleware } from "@octokit/webhooks";
 import express from "express";
+import { assertDefined, safeCastTo } from "ts-extras";
 
-import client from "./client.js";
-import * as events from "./events/index.js";
+import client from "./client.ts";
+import * as events from "./events/index.ts";
 
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env["PORT"] ?? 8080;
 
 app.listen(port, () => {
   console.log(`Website is running on http://localhost:${port}`);
 });
 
-app.get("/", (request, response) => {
+app.get("/", (_request, response) => {
   response.redirect("https://github.com/zulip/zulipbot");
 });
 
+assertDefined(client.cfg.auth.webhookSecret);
 const webhooks = new Webhooks({ secret: client.cfg.auth.webhookSecret });
 webhooks.onAny(async (event) => {
-  const repo = event.payload.repository
-    ? event.payload.repository.full_name
-    : null;
-  if (!client.cfg.activity.check.repositories.includes(repo)) return;
+  if (
+    !("repository" in event.payload) ||
+    event.payload.repository === null ||
+    !client.cfg.activity.check.repositories.includes(
+      event.payload.repository.full_name,
+    )
+  ) {
+    return;
+  }
 
+  // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
   switch (event.name) {
     case "issues":
     case "issue_comment": {
@@ -43,7 +51,7 @@ webhooks.onAny(async (event) => {
     }
 
     case "push": {
-      await events.push.run.call(client, event.payload);
+      events.push.run.call(client, event.payload);
       break;
     }
 
@@ -54,17 +62,19 @@ webhooks.onAny(async (event) => {
 app.use("/github", createNodeMiddleware(webhooks, { path: "/" }));
 
 process.on("unhandledRejection", (error) => {
-  console.log(`Unhandled promise rejection:\n${error.stack}`);
+  console.log(
+    `Unhandled promise rejection:\n${error instanceof Error ? error.stack : String(error)}`,
+  );
 });
 
 if (client.cfg.activity.check.interval) {
   setInterval(() => {
-    events.activity.run.call(client);
+    void events.activity.run.call(client);
   }, client.cfg.activity.check.interval * 3600000);
 }
 
-for (const pair of Object.entries(client.cfg.auth)) {
-  const [key, value] = pair;
+for (const key of ["oAuthToken", "webhookSecret"] as const) {
+  const value = client.cfg.auth[key];
 
   if (typeof value === "string") {
     console.log(`Using environment variable value for \`${key}\`...`);
@@ -73,13 +83,21 @@ for (const pair of Object.entries(client.cfg.auth)) {
 
   try {
     const secretsPath = new URL("../config/secrets.json", import.meta.url);
-    console.log(`Using value from \`${secretsPath}\` for \`${key}\`...`);
-    const secrets = JSON.parse(fs.readFileSync(secretsPath));
-    if (typeof secrets[key] !== "string") {
+    console.log(`Using value from \`${secretsPath.href}\` for \`${key}\`...`);
+    const secrets: unknown = JSON.parse(fs.readFileSync(secretsPath, "utf8"));
+    let secret;
+    if (
+      typeof secrets !== "object" ||
+      secrets === null ||
+      typeof (secret = safeCastTo<{
+        oAuthToken?: string;
+        webhookSecret?: string;
+      }>(secrets)[key]) !== "string"
+    ) {
       throw new TypeError(`Expected string for \`${key}\``);
     }
 
-    client.cfg.auth[key] = secrets[key];
+    client.cfg.auth[key] = secret;
   } catch {
     console.log(`\`${key}\` value was not set. Please fix your configuration.`);
     process.exit(1);

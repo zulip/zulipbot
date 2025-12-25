@@ -4,23 +4,51 @@ import { retry } from "@octokit/plugin-retry";
 import { throttling } from "@octokit/plugin-throttling";
 import { Octokit } from "@octokit/rest";
 import _ from "lodash";
+import { assertDefined } from "ts-extras";
+import type { Writable } from "type-fest";
 
-import * as custom from "../config/config.js";
-import * as defaults from "../config/default.js";
+import * as custom from "../config/config.ts";
+import * as defaults from "../config/default.ts";
 
-import commands from "./commands/index.js";
-import Template from "./structures/template.js";
+import commands, {
+  type CommandAliases,
+  type CommandPayload,
+} from "./commands/index.ts";
+import Template from "./structures/template.ts";
 
-export class Client extends Octokit.plugin(retry, throttling) {
+const MyOctokit: typeof Octokit &
+  (new (
+    ...args: any[]
+  ) => ReturnType<typeof retry> & ReturnType<typeof throttling>) =
+  Octokit.plugin(retry, throttling);
+
+export class Client extends MyOctokit {
+  cfg: Writable<typeof defaults>;
+  commands: Map<
+    string,
+    {
+      run: (
+        this: Client,
+        payload: CommandPayload,
+        commenter: string,
+        args: string,
+      ) => Promise<unknown>;
+      aliasPath: (commands: CommandAliases) => string[];
+    }
+  >;
+
+  invites: Map<string, number>;
+  templates: Map<string, Template>;
+
   constructor() {
-    const cfg = _.merge({}, defaults, custom);
+    const cfg: Writable<typeof defaults> = _.merge({}, defaults, custom);
     super({
       auth: cfg.auth.oAuthToken,
       retry: {
-        enabled: process.env.NODE_ENV !== "test",
+        enabled: process.env["NODE_ENV"] !== "test",
       },
       throttle: {
-        enabled: process.env.NODE_ENV !== "test",
+        enabled: process.env["NODE_ENV"] !== "test",
         onRateLimit: (retryAfter, { method, url }, _octokit, retryCount) => {
           if (retryCount < 3) {
             this.log.warn(
@@ -36,8 +64,9 @@ export class Client extends Octokit.plugin(retry, throttling) {
               retryCount + 1
             } times for ${method} ${url}; aborting`,
           );
+          return; // eslint-disable-line no-useless-return
         },
-        onSecondaryRateLimit: (retryAfter, { method, url }) => {
+        onSecondaryRateLimit: (_retryAfter, { method, url }) => {
           this.log.warn(
             `Secondary rate limit detected for ${method} ${url}; aborting`,
           );
@@ -62,6 +91,7 @@ export class Client extends Octokit.plugin(retry, throttling) {
     );
     for (const file of templates) {
       const [name] = file.split(".md");
+      assertDefined(name);
       const content = fs.readFileSync(
         new URL(`../config/templates/${file}`, import.meta.url),
         "utf8",

@@ -25,7 +25,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: pnpm
-      - run: ln -s config-example.js config/config.js
+      - run: ln -s config-example.ts config/config.ts
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
       - uses: codecov/codecov-action@v5

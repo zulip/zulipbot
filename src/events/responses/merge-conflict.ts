@@ -1,5 +1,16 @@
-export const run = async function (repo) {
+import type { components } from "@octokit/openapi-webhooks-types";
+import { assertDefined, assertPresent } from "ts-extras";
+
+import type { Client } from "../../client.ts";
+
+export const run = async function (
+  this: Client,
+  repo:
+    | components["schemas"]["repository"]
+    | components["schemas"]["webhook-push"]["repository"],
+) {
   const repoName = repo.name;
+  assertPresent(repo.owner);
   const repoOwner = repo.owner.login;
 
   const pulls = await this.paginate(this.pulls.list, {
@@ -12,8 +23,15 @@ export const run = async function (repo) {
   }
 };
 
-async function check(number, repo) {
+async function check(
+  this: Client,
+  number: number,
+  repo:
+    | components["schemas"]["repository"]
+    | components["schemas"]["webhook-push"]["repository"],
+) {
   const repoName = repo.name;
+  assertPresent(repo.owner);
   const repoOwner = repo.owner.login;
   const { branch, label, comment } = this.cfg.pulls.status.mergeConflicts;
 
@@ -27,6 +45,7 @@ async function check(number, repo) {
   const username = pull.data.user.login;
 
   const template = this.templates.get("mergeConflictWarning");
+  assertDefined(template);
   const warning = template.format({
     username,
     branch,
@@ -47,10 +66,12 @@ async function check(number, repo) {
       repo: repoName,
       pull_number: number,
     });
-    const lastCommitTime = commits.at(-1).commit.committer.date;
+    const lastCommitTime = commits.at(-1)?.commit.committer?.date;
 
     const warnComment = warnings.find(
-      (c) => Date.parse(lastCommitTime) < Date.parse(c.created_at),
+      (c) =>
+        lastCommitTime === undefined ||
+        Date.parse(lastCommitTime) < Date.parse(c.created_at),
     );
 
     const labels = await this.issues.listLabelsOnIssue({
@@ -65,7 +86,7 @@ async function check(number, repo) {
     if (inactive) return;
 
     if (!warnComment && comment) {
-      this.issues.createComment({
+      void this.issues.createComment({
         owner: repoOwner,
         repo: repoName,
         issue_number: number,

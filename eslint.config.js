@@ -26,6 +26,8 @@ export default defineConfig(
     },
     rules: {
       "@stylistic/curly-newline": "off", // https://github.com/prettier/eslint-config-prettier/issues/351
+      "@typescript-eslint/naming-convention": "off",
+      "@typescript-eslint/no-restricted-types": "off",
       "arrow-body-style": "error",
       "capitalized-comments": "off",
       curly: ["error", "multi-line", "consistent"],
@@ -50,6 +52,7 @@ export default defineConfig(
       strict: "error",
       "unicorn/no-null": "off",
       "unicorn/no-process-exit": "off",
+      "unicorn/no-useless-undefined": "off",
       "unicorn/numeric-separators-style": "off",
       "unicorn/prefer-node-protocol": "off",
       "unicorn/prevent-abbreviations": [

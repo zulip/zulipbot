@@ -1,10 +1,14 @@
+import type { EmitterWebhookEvent } from "@octokit/webhooks";
 import nock from "nock";
+import { partialMock } from "partial-mock";
 import { test } from "tap";
 
-import client from "../../../src/client.js";
-import * as pull from "../../../src/events/pull.js";
+import client from "../../../src/client.ts";
+import * as pull from "../../../src/events/pull.ts";
 
-const payload = {
+const payload: EmitterWebhookEvent<
+  "pull_request" | "pull_request_review"
+>["payload"] = partialMock({
   action: "opened",
   pull_request: {
     number: 69,
@@ -17,9 +21,9 @@ const payload = {
     owner: { login: "zulip" },
     name: "zulipbot",
   },
-};
+});
 
-test("Ignore empty body", async () => {
+void test("Ignore empty body", async () => {
   const scope = nock("https://api.github.com")
     .get("/repos/zulip/zulipbot/issues/69/labels")
     .reply(200, [{ name: "enhancement" }])

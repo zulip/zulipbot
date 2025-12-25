@@ -1,30 +1,47 @@
+import type { EmitterWebhookEvent } from "@octokit/webhooks/types";
 import _ from "lodash";
+import { assertDefined, assertPresent } from "ts-extras";
 
-import * as responses from "./responses/index.js";
+import type { Client } from "../client.ts";
+import type { CommandPayload } from "../commands/index.ts";
 
-export const run = async function (payload) {
+import * as responses from "./responses/index.ts";
+
+export const run = async function (
+  this: Client,
+  payload: EmitterWebhookEvent<"issues" | "issue_comment">["payload"],
+) {
   const action = payload.action;
-  const issue = payload.issue;
   const repo = payload.repository;
-  const label = payload.label;
 
-  if (payload.assignee && this.cfg.activity.issues.inProgress) {
+  if (
+    "assignee" in payload &&
+    payload.assignee &&
+    this.cfg.activity.issues.inProgress
+  ) {
     responses.issueState.progress.call(this, payload);
   }
 
-  if (["labeled", "unlabeled"].includes(action)) {
-    await responses.areaLabel.run.call(this, issue, repo, label);
+  if (action === "labeled" || action === "unlabeled") {
+    assertDefined(payload.label);
+    await responses.areaLabel.run.call(
+      this,
+      payload.issue,
+      repo,
+      payload.label,
+    );
   } else if (action === "closed" && this.cfg.activity.issues.clearClosed) {
-    responses.issueState.close.call(this, issue, repo);
+    responses.issueState.close.call(this, payload.issue, repo);
   } else if (action === "reopened") {
-    responses.issueState.reopen.call(this, issue);
+    responses.issueState.reopen.call(this, payload.issue);
   } else if (action === "opened" || action === "created") {
     parse.call(this, payload);
   }
 };
 
-function parse(payload) {
-  const data = payload.comment || payload.issue;
+function parse(this: Client, payload: CommandPayload) {
+  const data = "comment" in payload ? payload.comment : payload.issue;
+  assertPresent(data.user);
   const commenter = data.user.login;
   const body = data.body;
   const username = this.cfg.auth.username;
@@ -42,11 +59,12 @@ function parse(payload) {
     const codeBlocks = [`\`\`\`\r\n${command}\r\n\`\`\``, `\`${command}\``];
     if (codeBlocks.some((block) => body.includes(block))) continue;
     const [, keyword] = command.replace(/\s+/, " ").split(" ");
+    assertDefined(keyword);
     const args = command.replace(/\s+/, " ").split(" ").slice(2).join(" ");
     const file = this.commands.get(keyword);
 
     if (file) {
-      file.run.call(this, payload, commenter, args);
+      void file.run.call(this, payload, commenter, args);
     }
   }
 }

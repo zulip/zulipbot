@@ -1,8 +1,17 @@
+import type { components } from "@octokit/openapi-types";
+import type { EmitterWebhookEvent } from "@octokit/webhooks";
 import _ from "lodash";
+import { assertDefined, assertPresent } from "ts-extras";
 
-import Search from "../../structures/reference-search.js";
+import type { Client } from "../../client.ts";
+import Search from "../../structures/reference-search.ts";
 
-export const label = async function (payload) {
+export const label = async function (
+  this: Client,
+  payload: EmitterWebhookEvent<
+    "pull_request" | "pull_request_review"
+  >["payload"],
+) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const number = payload.pull_request.number;
@@ -20,8 +29,8 @@ export const label = async function (payload) {
   const sizeLabels = this.cfg.pulls.status.size.labels;
 
   if (autoUpdate) {
-    const author = payload.pull_request.user.login;
-    const reviewer = payload.review ? payload.review.user.login : null;
+    const author = payload.pull_request.user?.login;
+    const reviewer = "review" in payload ? payload.review.user?.login : null;
     labels = review.call(this, labels, action, author, reviewer);
   }
 
@@ -40,9 +49,19 @@ export const label = async function (payload) {
   }
 };
 
-function review(labels, action, author, reviewer) {
+function review(
+  this: Client,
+  labels: string[],
+  action: EmitterWebhookEvent<
+    "pull_request" | "pull_request_review"
+  >["payload"]["action"],
+  author: string | undefined,
+  reviewer: string | null | undefined,
+) {
   const needsReviewLabel = this.cfg.activity.pulls.needsReview.label;
+  assertPresent(needsReviewLabel);
   const reviewedLabel = this.cfg.activity.pulls.reviewed.label;
+  assertPresent(reviewedLabel);
   const needsReview = labels.includes(needsReviewLabel);
   const reviewed = labels.includes(reviewedLabel);
 
@@ -61,7 +80,13 @@ function review(labels, action, author, reviewer) {
   return labels;
 }
 
-async function size(sizeLabels, labels, number, repo) {
+async function size(
+  this: Client,
+  sizeLabels: Map<string, number>,
+  labels: string[],
+  number: number,
+  repo: components["schemas"]["repository-webhooks"],
+) {
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
   const pullLabels = labels.filter((label) => !sizeLabels.has(label));
@@ -79,6 +104,7 @@ async function size(sizeLabels, labels, number, repo) {
     .reduce((sum, file) => sum + file.changes, 0);
 
   let label = sizeLabels.keys().next().value;
+  assertDefined(label);
 
   for (const [name, size] of sizeLabels.entries()) {
     if (changes > size) label = name;
@@ -93,13 +119,16 @@ async function size(sizeLabels, labels, number, repo) {
   return pullLabels;
 }
 
-export const assign = function (payload) {
+export const assign = function (
+  this: Client,
+  payload: components["schemas"]["webhook-pull-request-review-submitted"],
+) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const reviewer = payload.sender.login;
   const number = payload.pull_request.number;
 
-  this.issues.addAssignees({
+  void this.issues.addAssignees({
     owner: repoOwner,
     repo: repoName,
     issue_number: number,
@@ -107,12 +136,26 @@ export const assign = function (payload) {
   });
 };
 
-export const update = async function (pull, repo) {
+export const update = async function (
+  this: Client,
+  pull:
+    | components["schemas"]["pull-request-simple"]
+    | components["schemas"]["webhook-pull-request-synchronize"]["pull_request"],
+  repo: components["schemas"]["repository"],
+) {
   const number = pull.number;
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
 
-  const warnings = new Map([
+  const warnings = new Map<
+    string,
+    (
+      pull:
+        | components["schemas"]["pull-request-simple"]
+        | components["schemas"]["webhook-pull-request-synchronize"]["pull_request"],
+      repo: components["schemas"]["repository"],
+    ) => Promise<boolean>
+  >([
     [
       "mergeConflictWarning",
       async () => {
@@ -121,7 +164,7 @@ export const update = async function (pull, repo) {
           repo: repoName,
           pull_number: number,
         });
-        return pullInfo.data.mergeable;
+        return pullInfo.data.mergeable ?? false;
       },
     ],
     [
@@ -137,6 +180,7 @@ export const update = async function (pull, repo) {
 
   for (const [name, check] of warnings) {
     const template = this.templates.get(name);
+    assertDefined(template);
     const deletable = await check(pull, repo);
     if (!deletable) continue;
 
@@ -165,7 +209,7 @@ export const update = async function (pull, repo) {
     if (comments.length === 0) continue;
 
     for (const comment of comments) {
-      this.issues.deleteComment({
+      void this.issues.deleteComment({
         owner: repoOwner,
         repo: repoName,
         comment_id: comment.id,
