@@ -1,10 +1,14 @@
+import assert from "node:assert";
+
 import nock from "nock";
+import { partialMock } from "partial-mock";
 import { test } from "tap";
 
-import client from "../../../src/client.js";
-import * as abandon from "../../../src/commands/abandon.js";
+import client from "../../../src/client.ts";
+import * as abandon from "../../../src/commands/abandon.ts";
+import type { CommandPayload } from "../../../src/commands/index.ts";
 
-const payload = {
+const payload: CommandPayload = partialMock({
   repository: {
     owner: {
       login: "zulip",
@@ -19,9 +23,9 @@ const payload = {
       },
     ],
   },
-};
+});
 
-test("Reject if commenter isn't an assignee", async (t) => {
+void test("Reject if commenter isn't an assignee", async (t) => {
   const commenter = "octokitten";
 
   const error = "**ERROR:** You have not claimed this issue to work on yet.";
@@ -36,7 +40,7 @@ test("Reject if commenter isn't an assignee", async (t) => {
   scope.done();
 });
 
-test("Remove if commenter is assigned", async (t) => {
+void test("Remove if commenter is assigned", async (t) => {
   const commenter = "octocat";
 
   const scope = nock("https://api.github.com")
@@ -47,6 +51,7 @@ test("Remove if commenter is assigned", async (t) => {
 
   const response = await abandon.run.call(client, payload, commenter);
 
+  assert.ok("assignees" in response.data);
   t.strictSame(response.data.assignees, []);
 
   scope.done();

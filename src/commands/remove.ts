@@ -1,18 +1,30 @@
-export const run = async function (payload, commenter, args) {
-  const creator = payload.issue.user.login;
+import { assertDefined } from "ts-extras";
+
+import type { Client } from "../client.ts";
+
+import type { CommandAliases, CommandPayload } from "./index.ts";
+
+export const run = async function (
+  this: Client,
+  payload: CommandPayload,
+  commenter: string,
+  args: string,
+) {
+  const creator = payload.issue.user?.login;
   const self = this.cfg.issues.commands.label.self;
-  const selfLabel = self.users ? !self.users.includes(commenter) : self;
+  const selfLabel =
+    typeof self === "object" ? !self.users.includes(commenter) : self;
   const forbidden = selfLabel && creator !== commenter;
-  if (forbidden || !/".*?"/.test(args)) return;
+  const rawLabels = args.match(/".*?"/g);
+  if (forbidden || rawLabels === null) return;
 
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const number = payload.issue.number;
-  const issueLabels = payload.issue.labels.map((label) => label.name);
+  assertDefined(payload.issue.labels);
+  const issueLabels = [...payload.issue.labels].map((label) => label.name);
 
-  const labels = args
-    .match(/".*?"/g)
-    .map((string) => string.replaceAll('"', ""));
+  const labels = rawLabels.map((string) => string.replaceAll('"', ""));
   const removeLabels = issueLabels.filter((label) => !labels.includes(label));
   const rejected = labels.filter((label) => !issueLabels.includes(label));
 
@@ -28,7 +40,9 @@ export const run = async function (payload, commenter, args) {
   const one = rejected.length === 1;
   const type = payload.issue.pull_request ? "pull request" : "issue";
 
-  const error = this.templates.get("labelError").format({
+  const template = this.templates.get("labelError");
+  assertDefined(template);
+  const error = template.format({
     labels: `Label${one ? "" : "s"}`,
     type: type,
     labelList: `"${rejected.join('", "')}"`,
@@ -45,4 +59,4 @@ export const run = async function (payload, commenter, args) {
   });
 };
 
-export const aliasPath = (commands) => commands.label.remove;
+export const aliasPath = (commands: CommandAliases) => commands.label.remove;

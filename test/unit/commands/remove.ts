@@ -1,10 +1,13 @@
 import nock from "nock";
+import { partialMock } from "partial-mock";
 import { test } from "tap";
+import { assertDefined } from "ts-extras";
 
-import client from "../../../src/client.js";
-import * as remove from "../../../src/commands/remove.js";
+import client from "../../../src/client.ts";
+import type { CommandPayload } from "../../../src/commands/index.ts";
+import * as remove from "../../../src/commands/remove.ts";
 
-const payload = {
+const payload: CommandPayload = partialMock({
   repository: {
     owner: {
       login: "zulip",
@@ -12,20 +15,21 @@ const payload = {
     name: "zulipbot",
   },
   issue: {
-    pull_request: true,
+    pull_request: {},
     number: 69,
     labels: [{ name: "bug" }, { name: "help wanted" }],
     user: {
       login: "octocat",
     },
   },
-};
+});
 
 const template = client.templates.get("labelError");
+assertDefined(template);
 template.content = "{labels} {labelList} {exist} {beState} {action} {type}.";
 client.templates.set("labelError", template);
 
-test("Reject if self-labelling enabled with different commenter", async (t) => {
+void test("Reject if self-labelling enabled with different commenter", async (t) => {
   client.cfg.issues.commands.label.self = true;
   const commenter = "octokitten";
   const args = '"bug"';
@@ -35,7 +39,7 @@ test("Reject if self-labelling enabled with different commenter", async (t) => {
   t.notOk(response);
 });
 
-test("Reject if self-labelling users excludes commenter", async (t) => {
+void test("Reject if self-labelling users excludes commenter", async (t) => {
   client.cfg.issues.commands.label.self = {
     users: ["octocat"],
   };
@@ -47,7 +51,7 @@ test("Reject if self-labelling users excludes commenter", async (t) => {
   t.notOk(response);
 });
 
-test("Reject if invalid arguments were provided", async (t) => {
+void test("Reject if invalid arguments were provided", async (t) => {
   const commenter = "octocat";
   const args = "no arguments";
 
@@ -56,7 +60,7 @@ test("Reject if invalid arguments were provided", async (t) => {
   t.notOk(response);
 });
 
-test("Remove appropriate labels", async () => {
+void test("Remove appropriate labels", async () => {
   client.cfg.issues.commands.label.self = false;
   const commenter = "octocat";
   const args = '"bug"';
@@ -70,7 +74,7 @@ test("Remove appropriate labels", async () => {
   scope.done();
 });
 
-test("Remove appropriate labels with single rejection message", async () => {
+void test("Remove appropriate labels with single rejection message", async () => {
   const commenter = "octocat";
   const args = '"help wanted" "test"';
   const error = 'Label "test" does not exist was removed from pull request.';
@@ -86,8 +90,19 @@ test("Remove appropriate labels with single rejection message", async () => {
   scope.done();
 });
 
-test("Remove appropriate labels with multiple rejection message", async () => {
-  payload.issue.pull_request = false;
+const payload2: CommandPayload = partialMock({
+  repository: payload.repository,
+  issue: {
+    pull_request: undefined,
+    number: payload.issue.number,
+    labels: payload.issue.labels,
+    user: {
+      login: "octocat",
+    },
+  },
+});
+
+void test("Remove appropriate labels with multiple rejection message", async () => {
   const commenter = "octocat";
   const args = '"help wanted" "a" "b"';
 
@@ -99,7 +114,7 @@ test("Remove appropriate labels with multiple rejection message", async () => {
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
     .reply(200);
 
-  await remove.run.call(client, payload, commenter, args);
+  await remove.run.call(client, payload2, commenter, args);
 
   scope.done();
 });

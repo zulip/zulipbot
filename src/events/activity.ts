@@ -1,10 +1,16 @@
-import Search from "../structures/reference-search.js";
+import type { components } from "@octokit/openapi-types";
+import { assertDefined } from "ts-extras";
 
-export const run = async function () {
+import type { Client } from "../client.ts";
+import Search from "../structures/reference-search.ts";
+
+export const run = async function (this: Client) {
   // Create array with PRs from all active repositories
   const repos = this.cfg.activity.check.repositories;
   const pages = repos.map(async (repo) => {
     const [repoOwner, repoName] = repo.split("/");
+    assertDefined(repoOwner);
+    assertDefined(repoName);
     return this.paginate(this.pulls.list, {
       owner: repoOwner,
       repo: repoName,
@@ -19,9 +25,12 @@ export const run = async function () {
   await scrapePulls.call(this, pulls);
 };
 
-async function scrapePulls(pulls) {
-  const referenceList = new Map();
-  const ims = this.cfg.activity.check.reminder * 86400000;
+async function scrapePulls(
+  this: Client,
+  pulls: Array<components["schemas"]["pull-request-simple"]>,
+) {
+  const referenceList = new Map<string, number>();
+  const ims = (this.cfg.activity.check.reminder ?? 0) * 86400000;
 
   for (const pull of pulls) {
     let time = Date.parse(pull.updated_at);
@@ -67,19 +76,23 @@ async function scrapePulls(pulls) {
 
   const issues = await this.paginate(this.issues.list, {
     filter: "all",
-    labels: this.cfg.activity.issues.inProgress,
+    labels: this.cfg.activity.issues.inProgress ?? undefined,
   });
 
   await scrapeInactiveIssues.call(this, referenceList, issues);
 }
 
-async function checkInactivePull(pull) {
-  const author = pull.user.login;
+async function checkInactivePull(
+  this: Client,
+  pull: components["schemas"]["pull-request-simple"],
+) {
+  const author = pull.user?.login;
   const repoName = pull.base.repo.name;
   const repoOwner = pull.base.repo.owner.login;
   const number = pull.number;
 
   const template = this.templates.get("updateWarning");
+  assertDefined(template);
 
   const comment = template.format({
     days: this.cfg.activity.check.reminder,
@@ -102,42 +115,56 @@ async function checkInactivePull(pull) {
   }
 }
 
-async function scrapeInactiveIssues(references, issues) {
-  const ms = this.cfg.activity.check.limit * 86400000;
-  const ims = this.cfg.activity.check.reminder * 86400000;
+async function scrapeInactiveIssues(
+  this: Client,
+  references: Map<string, number>,
+  issues: Array<components["schemas"]["issue"]>,
+) {
+  const ms = (this.cfg.activity.check.limit ?? 0) * 86400000;
+  const ims = (this.cfg.activity.check.reminder ?? 0) * 86400000;
 
   for (const issue of issues) {
-    const inactiveLabel = issue.labels.find(
-      (label) => label.name === this.cfg.activity.inactive,
+    const hasInactiveLabel = issue.labels.some(
+      (label) =>
+        (typeof label === "string" ? label : label.name) ===
+        this.cfg.activity.inactive,
     );
-    if (inactiveLabel) continue;
+    if (hasInactiveLabel) continue;
 
     let time = Date.parse(issue.updated_at);
     const number = issue.number;
+    assertDefined(issue.repository);
     const repoName = issue.repository.name;
     const repoOwner = issue.repository.owner.login;
     const issueTag = `${repoName}/${number}`;
     const repoTag = issue.repository.full_name;
 
-    if (time < references.get(issueTag)) time = references.get(issueTag);
+    const reference = references.get(issueTag);
+    if (reference !== undefined && time < reference) time = reference;
 
     const active = this.cfg.activity.check.repositories.includes(repoTag);
 
     if (time + ms >= Date.now() || !active) continue;
 
-    const logins = issue.assignees.map((assignee) => assignee.login);
-
-    if (issue.assignees.length === 0) {
+    if (
+      issue.assignees === undefined ||
+      issue.assignees === null ||
+      issue.assignees.length === 0
+    ) {
       const comment = "**ERROR:** This active issue has no assignee.";
-      return this.issues.createComment({
+      await this.issues.createComment({
         owner: repoOwner,
         repo: repoName,
         issue_number: number,
         body: comment,
       });
+      return;
     }
 
+    const logins = issue.assignees.map((assignee) => assignee.login);
+
     const template = this.templates.get("inactiveWarning");
+    assertDefined(template);
 
     const comment = template.format({
       assignee: logins.join(", @"),
@@ -152,7 +179,7 @@ async function scrapeInactiveIssues(references, issues) {
       issue_number: number,
     });
 
-    if (comments.length > 0) {
+    if (comments[0] !== undefined) {
       await this.issues.removeAssignees({
         owner: repoOwner,
         repo: repoName,
@@ -160,7 +187,9 @@ async function scrapeInactiveIssues(references, issues) {
         assignees: logins,
       });
 
-      const warning = this.templates.get("abandonWarning").format({
+      const template = this.templates.get("abandonWarning");
+      assertDefined(template);
+      const warning = template.format({
         assignee: logins.join(", @"),
         total: (ms + ims) / 86400000,
         username: this.cfg.auth.username,

@@ -27,12 +27,12 @@ the **zulipbot wiki**.
 
 ## Usage
 
-If you're using the [Zulip project configuration](../config/config-example.js)
-(`./config/config-example.js`), see zulipbot's [usage
+If you're using the [Zulip project configuration](../config/config-example.ts)
+(`./config/config-example.ts`), see zulipbot's [usage
 instructions](https://zulip.readthedocs.io/en/latest/contributing/zulipbot-usage.html)
 on the Zulip documentation.
 
-If you're using your own custom configuration (`./config/config.js` is different
+If you're using your own custom configuration (`./config/config.ts` is different
 from the Zulip project configuration), please visit the
 [Commands](https://github.com/zulip/zulipbot/wiki/Commands) page on the
 **zulipbot wiki**.

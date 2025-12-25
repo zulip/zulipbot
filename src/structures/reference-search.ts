@@ -1,4 +1,7 @@
+import type { components } from "@octokit/openapi-types";
 import _ from "lodash";
+
+import type { Client } from "../client.ts";
 
 const keywords = [
   "close",
@@ -13,35 +16,29 @@ const keywords = [
 ];
 
 class ReferenceSearch {
-  constructor(client, pull, repo) {
-    /**
-     * The client that instantiated this template
-     * @type {Object}
-     */
+  /** The client that instantiated this template */
+  client: Client;
+  /** The number of the pull request this search applies to */
+  number: number;
+  /** The description of the pull request this search applies to */
+  body: string;
+  /** The name of the repository of the pull request this search applies to */
+  repoName: string;
+  /** The owner of the repository of the pull request this search applies to */
+  repoOwner: string;
+
+  constructor(
+    client: Client,
+    pull:
+      | components["schemas"]["pull-request-simple"]
+      | components["schemas"]["webhook-pull-request-synchronize"]["pull_request"]
+      | components["schemas"]["pull-request-webhook"],
+    repo: components["schemas"]["repository"],
+  ) {
     this.client = client;
-
-    /**
-     * The number of the pull request this search applies to
-     * @type {Number}
-     */
     this.number = pull.number;
-
-    /**
-     * The description of the pull request this search applies to
-     * @type {String}
-     */
-    this.body = pull.body || "";
-
-    /**
-     * The name of the repository of the pull request this search applies to
-     * @type {Object}
-     */
+    this.body = pull.body ?? "";
     this.repoName = repo.name;
-
-    /**
-     * The owner of the repository of the pull request this search applies to
-     * @type {Object}
-     */
     this.repoOwner = repo.owner.login;
   }
 
@@ -55,16 +52,16 @@ class ReferenceSearch {
    * Referenced issues are only closed when pull requests are merged,
    * not necessarily when commits are merged.
    *
-   * @param {Array} strings Strings to find references in.
-   * @return {Array} Sorted array of all referenced issue numbers.
+   * @param strings Strings to find references in.
+   * @return Sorted array of all referenced issue numbers.
    */
 
-  async find(strings) {
+  async find(strings: string[]) {
     const matches = strings.flatMap((string) =>
       keywords.map((tense) => {
         const regex = new RegExp(`${_.escapeRegExp(tense)}:? #([0-9]+)`, "i");
         const match = string.match(regex);
-        return match ? match[1] : match;
+        return match ? Number(match[1]) : null;
       }),
     );
 
@@ -74,7 +71,7 @@ class ReferenceSearch {
       const issue = await this.client.issues.get({
         owner: this.repoOwner,
         repo: this.repoName,
-        issue_number: number,
+        issue_number: Number(number),
       });
       // valid references are open issues
       const valid = !issue.data.pull_request && issue.data.state === "open";
@@ -83,9 +80,11 @@ class ReferenceSearch {
     // statusCheck is an array of promises, so use Promise.all
     const matchStatuses = await Promise.all(statusCheck);
     // remove strings that didn't contain any references
-    const filteredMatches = matchStatuses.filter(Boolean);
+    const filteredMatches = matchStatuses.filter((number) => number !== false);
     // sort and remove duplicate references
-    const references = [...new Set(filteredMatches)].toSorted();
+    const references = [...new Set(filteredMatches)].toSorted((a, b) =>
+      a < b ? -1 : a > b ? 1 : 0,
+    );
     return references;
   }
 

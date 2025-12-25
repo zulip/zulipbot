@@ -5,10 +5,16 @@
  * explanations on each option.
  */
 
+import { safeCastTo } from "ts-extras";
+
 // Default authentication specified by environment variables
-export const auth = {
-  oAuthToken: process.env.OAUTH_TOKEN,
-  webhookSecret: process.env.WEBHOOK_SECRET,
+export const auth: {
+  oAuthToken: string | undefined;
+  webhookSecret: string | undefined;
+  username?: string;
+} = {
+  oAuthToken: process.env["OAUTH_TOKEN"],
+  webhookSecret: process.env["WEBHOOK_SECRET"],
 };
 
 /**
@@ -20,27 +26,27 @@ export const auth = {
 export const issues = {
   commands: {
     assign: {
-      claim: [],
-      abandon: [],
+      claim: new Array<string>(),
+      abandon: new Array<string>(),
       limit: Number.POSITIVE_INFINITY,
       newContributors: {
-        permission: null,
+        permission: safeCastTo<string | null>(null),
         restricted: Number.POSITIVE_INFINITY,
       },
       warn: {
-        labels: [],
+        labels: new Array<string>(),
         presence: false,
         force: true,
       },
     },
     label: {
-      add: [],
-      remove: [],
-      self: false,
+      add: new Array<string>(),
+      remove: new Array<string>(),
+      self: safeCastTo<boolean | { users: string[] }>(false),
     },
   },
   area: {
-    labels: null,
+    labels: safeCastTo<Map<string, string> | null>(null),
     references: false,
   },
 };
@@ -56,18 +62,22 @@ export const pulls = {
   status: {
     mergeConflicts: {
       branch: "main",
-      label: null,
+      label: safeCastTo<string | null>(null),
       comment: false,
     },
-    wip: null,
+    wip: safeCastTo<string | null>(null),
     size: {
-      labels: null,
-      exclude: [],
+      labels: safeCastTo<Map<string, number> | null>(null),
+      exclude: new Array<string>(),
     },
   },
   references: {
     required: false,
-    labels: false,
+    labels: safeCastTo<
+      | { include: string[]; exclude?: never }
+      | { include?: never; exclude: string[] }
+      | false
+    >(false),
   },
 };
 
@@ -79,25 +89,25 @@ export const pulls = {
  */
 
 export const activity = {
-  inactive: null,
+  inactive: safeCastTo<string | null>(null),
   check: {
-    repositories: [],
-    interval: null,
-    reminder: null,
-    limit: null,
+    repositories: new Array<string>(),
+    interval: safeCastTo<number | null>(null),
+    reminder: safeCastTo<number | null>(null),
+    limit: safeCastTo<number | null>(null),
   },
   issues: {
-    inProgress: null,
+    inProgress: safeCastTo<string | undefined>(undefined),
     clearClosed: false,
   },
   pulls: {
     autoUpdate: true,
     reviewed: {
-      label: null,
-      assignee: null,
+      label: safeCastTo<string | null>(null),
+      assignee: safeCastTo<boolean | null>(null),
     },
     needsReview: {
-      label: null,
+      label: safeCastTo<string | null>(null),
       ignore: false,
     },
   },

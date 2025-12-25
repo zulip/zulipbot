@@ -12,6 +12,7 @@
     "strict": true,
 
     /* Modules */
+    "allowImportingTsExtensions": true,
     "module": "nodenext",
     "noUncheckedSideEffectImports": true,
     "types": ["node"],
