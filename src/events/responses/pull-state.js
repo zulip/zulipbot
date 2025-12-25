@@ -96,7 +96,7 @@ async function size(sizeLabels, labels, number, repo) {
 export const assign = function (payload) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
-  const reviewer = payload.reviewer.user.login;
+  const reviewer = payload.sender.login;
   const number = payload.pull_request.number;
 
   this.issues.addAssignees({
