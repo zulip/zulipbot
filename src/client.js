@@ -10,7 +10,6 @@ import * as defaults from "../config/default.js";
 
 import commands from "./commands/index.js";
 import events from "./events/index.js";
-import * as responses from "./events/responses/index.js";
 import Template from "./structures/template.js";
 
 const MyOctokit = Octokit.plugin(retry, throttling);
@@ -51,7 +50,6 @@ client.cfg = cfg;
 client.commands = new Map();
 client.events = new Map();
 client.invites = new Map();
-client.responses = new Map();
 client.templates = new Map();
 
 for (const data of commands) {
@@ -66,14 +64,6 @@ for (const data of events) {
   for (let index = data.events.length; index--; ) {
     client.events.set(data.events[index], data.run.bind(client));
   }
-}
-
-for (const [name, { ...data }] of Object.entries(responses)) {
-  for (const method of Object.keys(data)) {
-    data[method] = data[method].bind(client);
-  }
-
-  client.responses.set(name, data);
 }
 
 const templates = fs.readdirSync(

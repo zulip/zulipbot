@@ -1,5 +1,7 @@
 import _ from "lodash";
 
+import * as responses from "./responses/index.js";
+
 export const run = async function (payload) {
   const action = payload.action;
   const issue = payload.issue;
@@ -7,15 +9,15 @@ export const run = async function (payload) {
   const label = payload.label;
 
   if (payload.assignee && this.cfg.activity.issues.inProgress) {
-    this.responses.get("issueState").progress(payload);
+    responses.issueState.progress.call(this, payload);
   }
 
   if (["labeled", "unlabeled"].includes(action)) {
-    await this.responses.get("areaLabel").run(issue, repo, label);
+    await responses.areaLabel.run.call(this, issue, repo, label);
   } else if (action === "closed" && this.cfg.activity.issues.clearClosed) {
-    this.responses.get("issueState").close(issue, repo);
+    responses.issueState.close.call(this, issue, repo);
   } else if (action === "reopened") {
-    this.responses.get("issueState").reopen(issue);
+    responses.issueState.reopen.call(this, issue);
   } else if (action === "opened" || action === "created") {
     parse.call(this, payload);
   }

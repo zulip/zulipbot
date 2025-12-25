@@ -1,3 +1,5 @@
+import * as responses from "./responses/index.js";
+
 export const run = function (payload) {
   const repo = payload.repository;
   const { branch, label, comment } = this.cfg.pulls.status.mergeConflicts;
@@ -7,7 +9,7 @@ export const run = function (payload) {
 
   return setTimeout(
     () => {
-      this.responses.get("mergeConflict").run(repo);
+      responses.mergeConflict.run.call(this, repo);
     },
     this.cfg.eventsDelay * 60 * 1000,
   );
