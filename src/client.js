@@ -24,7 +24,7 @@ const client = new MyOctokit({
   },
   throttle: {
     enabled: process.env.NODE_ENV !== "test",
-    onRateLimit: (retryAfter, { method, url, request: { retryCount } }) => {
+    onRateLimit: (retryAfter, { method, url }, _octokit, retryCount) => {
       if (retryCount < 3) {
         client.log.warn(
           `Rate limit exceeded ${
