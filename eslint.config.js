@@ -1,5 +1,6 @@
 import { defineConfig } from "eslint/config";
 import xo from "eslint-config-xo";
+import xoTypeScript from "eslint-config-xo-typescript";
 import importPlugin from "eslint-plugin-import";
 import prettierRecommended from "eslint-plugin-prettier/recommended";
 import unicorn from "eslint-plugin-unicorn";
@@ -9,6 +10,10 @@ export default defineConfig(
     ignores: ["package-lock.json"],
   },
   xo,
+  {
+    files: ["**/*.{cts,mts,ts}"],
+    extends: xoTypeScript,
+  },
   importPlugin.flatConfigs.recommended,
   unicorn.configs.recommended,
   prettierRecommended,
@@ -60,5 +65,9 @@ export default defineConfig(
       "unicorn/expiring-todo-comments": "off",
       strict: "off",
     },
+  },
+  {
+    files: ["**/tsconfig.json"],
+    language: "json/jsonc", // https://github.com/xojs/xo/issues/798
   },
 );

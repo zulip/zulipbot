@@ -1,0 +1,39 @@
+diff --git a/dist/es2015/partial-mock.js b/dist/es2015/partial-mock.js
+index 31071b1ad45123612b949dce4163d9a75ea91c1c..7a3498c231fd2f481baf391d1364f4a4587f2312 100644
+--- a/dist/es2015/partial-mock.js
++++ b/dist/es2015/partial-mock.js
+@@ -52,7 +52,7 @@ var proxify = function (refs, target, extras, suffix, report) {
+             value instanceof Promise) {
+             return value.then(function (res) { return followProp(res, name, { then: DOES_NOT_MATTER }); });
+         }
+-        if (Array.isArray(value) || typeof value === 'object') {
++        if (Array.isArray(value) || (typeof value === 'object' && value !== null)) {
+             return proxify(refs, value, extras, name, report);
+         }
+         if (typeof value === 'function' &&
+diff --git a/dist/es2019/partial-mock.js b/dist/es2019/partial-mock.js
+index 0967dfbf2d1490cf8336a765556a1d8b3eaba78d..cd3bc2fceda4c6f57f409f5dd79fcdfc3ba0668c 100644
+--- a/dist/es2019/partial-mock.js
++++ b/dist/es2019/partial-mock.js
+@@ -51,7 +51,7 @@ const proxify = (refs, target, extras, suffix, report) => {
+             value instanceof Promise) {
+             return value.then((res) => followProp(res, name, { then: DOES_NOT_MATTER }));
+         }
+-        if (Array.isArray(value) || typeof value === 'object') {
++        if (Array.isArray(value) || (typeof value === 'object' && value !== null)) {
+             return proxify(refs, value, extras, name, report);
+         }
+         if (typeof value === 'function' &&
+diff --git a/dist/es5/partial-mock.js b/dist/es5/partial-mock.js
+index e58b180ccb5237dfa24a6da12f0dd1a7d3016fef..e0d7ada242cca204df953129436c90a842a6bc57 100644
+--- a/dist/es5/partial-mock.js
++++ b/dist/es5/partial-mock.js
+@@ -55,7 +55,7 @@ var proxify = function (refs, target, extras, suffix, report) {
+             value instanceof Promise) {
+             return value.then(function (res) { return followProp(res, name, { then: magic_symbols_1.DOES_NOT_MATTER }); });
+         }
+-        if (Array.isArray(value) || typeof value === 'object') {
++        if (Array.isArray(value) || (typeof value === 'object' && value !== null)) {
+             return proxify(refs, value, extras, name, report);
+         }
+         if (typeof value === 'function' &&

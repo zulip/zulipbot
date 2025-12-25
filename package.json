@@ -5,29 +5,46 @@
   "type": "module",
   "scripts": {
     "start": "node ./src/index.js",
-    "pretest": "eslint . && prettier --check . '!**/*.js'",
+    "pretest": "eslint . && prettier --check . '!**/*.js' '!**/*.ts'",
     "test": "tap --coverage-report=lcovonly"
   },
   "packageManager": "pnpm@10.26.2+sha512.0e308ff2005fc7410366f154f625f6631ab2b16b1d2e70238444dd6ae9d630a8482d92a451144debc492416896ed16f7b114a86ec68b8404b2443869e68ffda6",
   "dependencies": {
     "@octokit/plugin-retry": "^8.0.3",
     "@octokit/plugin-throttling": "^11.0.3",
+    "@octokit/request-error": "^7.1.0",
     "@octokit/rest": "^22.0.1",
     "@octokit/webhooks": "^14.1.3",
     "express": "^5.1.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "ts-extras": "^0.16.1"
   },
   "devDependencies": {
+    "@octokit/openapi-types": "^27.0.0",
+    "@octokit/openapi-webhooks-types": "^12.1.0",
+    "@types/express": "^5.0.5",
+    "@types/lodash": "^4.17.20",
+    "@types/node": "^22.19.1",
+    "@types/node-fetch": "^2.6.13",
+    "@types/react": "^19.2.7",
+    "@types/tap": "^15.0.12",
+    "@typescript-eslint/eslint-plugin": "^8.47.0",
+    "@typescript-eslint/parser": "^8.47.0",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-config-xo": "^0.49.0",
+    "eslint-config-xo-typescript": "^9.0.0",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-unicorn": "^62.0.0",
     "nock": "^14.0.10",
+    "partial-mock": "^1.1.0",
     "prettier": "~3.5.3",
-    "tap": "^21.1.5"
+    "tap": "^21.1.5",
+    "type-fest": "^5.2.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.47.0"
   },
   "repository": {
     "type": "git",
