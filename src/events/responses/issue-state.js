@@ -19,19 +19,17 @@ async function clearClosed(issue, repo) {
   const repoOwner = repo.owner.login;
   const repoName = repo.name;
 
-  if (!recentlyClosed.has(issue.id) || issue.assignees.length === 0) {
+  const assignees = issue.assignees.map((a) => a.login);
+
+  if (!recentlyClosed.has(issue.id) || assignees.length === 0) {
     return;
   }
-
-  const assignees = JSON.stringify({
-    assignees: issue.assignees.map((a) => a.login),
-  });
 
   await this.issues.removeAssignees({
     owner: repoOwner,
     repo: repoName,
     issue_number: issue.number,
-    body: assignees,
+    assignees: assignees,
   });
 
   recentlyClosed.delete(issue.id);
