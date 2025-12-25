@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    /* Type Checking */
+    "exactOptionalPropertyTypes": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strict": true,
+
+    /* Modules */
+    "module": "nodenext",
+    "noUncheckedSideEffectImports": true,
+    "types": ["node"],
+
+    /* Emit */
+    "noEmit": true,
+
+    /* JavaScript Support */
+    "allowJs": true,
+
+    /* Editor Support */
+
+    /* Interop Constraints */
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+
+    /* Language and Environment */
+    "lib": ["esnext"],
+    "target": "esnext",
+
+    /* Projects */
+    "composite": true
+  }
+}
