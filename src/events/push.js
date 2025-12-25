@@ -14,5 +14,3 @@ export const run = function (payload) {
     this.cfg.eventsDelay * 60 * 1000,
   );
 };
-
-export const events = ["push"];

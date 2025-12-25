@@ -183,5 +183,3 @@ async function scrapeInactiveIssues(references, issues) {
     }
   }
 }
-
-export const events = ["activity"];

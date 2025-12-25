@@ -34,5 +34,3 @@ export const run = async function (payload) {
     await responses.pullState.update.call(this, pull, repo);
   }
 };
-
-export const events = ["pull_request", "pull_request_review"];

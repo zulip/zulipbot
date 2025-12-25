@@ -50,5 +50,3 @@ function parse(payload) {
     }
   }
 }
-
-export const events = ["issues", "issue_comment"];

@@ -30,5 +30,3 @@ export const run = async function (payload) {
     body: error,
   });
 };
-
-export const events = ["member"];

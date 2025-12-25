@@ -9,7 +9,6 @@ import * as custom from "../config/config.js";
 import * as defaults from "../config/default.js";
 
 import commands from "./commands/index.js";
-import events from "./events/index.js";
 import Template from "./structures/template.js";
 
 const MyOctokit = Octokit.plugin(retry, throttling);
@@ -48,7 +47,6 @@ const client = new MyOctokit({
 client.cfg = cfg;
 
 client.commands = new Map();
-client.events = new Map();
 client.invites = new Map();
 client.templates = new Map();
 
@@ -57,12 +55,6 @@ for (const data of commands) {
   const aliases = client.cfg.issues.commands[category][name];
   for (let index = aliases.length; index--; ) {
     client.commands.set(aliases[index], data);
-  }
-}
-
-for (const data of events) {
-  for (let index = data.events.length; index--; ) {
-    client.events.set(data.events[index], data.run.bind(client));
   }
 }
 

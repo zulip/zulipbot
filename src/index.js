@@ -4,6 +4,7 @@ import { Webhooks, createNodeMiddleware } from "@octokit/webhooks";
 import express from "express";
 
 import client from "./client.js";
+import * as events from "./events/index.js";
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -17,13 +18,37 @@ app.get("/", (request, response) => {
 });
 
 const webhooks = new Webhooks({ secret: client.cfg.auth.webhookSecret });
-webhooks.onAny(async ({ name, payload }) => {
-  const repo = payload.repository ? payload.repository.full_name : null;
-  const check = client.cfg.activity.check.repositories.includes(repo);
-  const eventHandler = client.events.get(name);
-  if (!check || !eventHandler) return;
+webhooks.onAny(async (event) => {
+  const repo = event.payload.repository
+    ? event.payload.repository.full_name
+    : null;
+  if (!client.cfg.activity.check.repositories.includes(repo)) return;
 
-  await eventHandler(payload);
+  switch (event.name) {
+    case "issues":
+    case "issue_comment": {
+      await events.issue.run.call(client, event.payload);
+      break;
+    }
+
+    case "member": {
+      await events.member.run.call(client, event.payload);
+      break;
+    }
+
+    case "pull_request":
+    case "pull_request_review": {
+      await events.pull.run.call(client, event.payload);
+      break;
+    }
+
+    case "push": {
+      await events.push.run.call(client, event.payload);
+      break;
+    }
+
+    // no default
+  }
 });
 
 app.use("/github", createNodeMiddleware(webhooks, { path: "/" }));
@@ -34,7 +59,7 @@ process.on("unhandledRejection", (error) => {
 
 if (client.cfg.activity.check.interval) {
   setInterval(() => {
-    client.events.get("activity")();
+    events.activity.run.call(client);
   }, client.cfg.activity.check.interval * 3600000);
 }
 
