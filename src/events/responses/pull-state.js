@@ -66,7 +66,7 @@ async function size(sizeLabels, labels, number, repo) {
   const repoOwner = repo.owner.login;
   const pullLabels = labels.filter((label) => !sizeLabels.has(label));
 
-  const files = await this.util.getAllPages("pulls.listFiles", {
+  const files = await this.paginate(this.pulls.listFiles, {
     owner: repoOwner,
     repo: repoName,
     pull_number: number,

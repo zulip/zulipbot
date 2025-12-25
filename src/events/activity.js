@@ -5,7 +5,7 @@ export const run = async function () {
   const repos = this.cfg.activity.check.repositories;
   const pages = repos.map(async (repo) => {
     const [repoOwner, repoName] = repo.split("/");
-    return this.util.getAllPages("pulls.list", {
+    return this.paginate(this.pulls.list, {
       owner: repoOwner,
       repo: repoName,
     });
@@ -65,7 +65,7 @@ async function scrapePulls(pulls) {
     }
   }
 
-  const issues = await this.util.getAllPages("issues.list", {
+  const issues = await this.paginate(this.issues.list, {
     filter: "all",
     labels: this.cfg.activity.issues.inProgress,
   });

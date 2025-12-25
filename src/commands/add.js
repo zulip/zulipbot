@@ -10,13 +10,10 @@ export const run = async function (payload, commenter, args) {
   const number = payload.issue.number;
   const issueLabels = new Set(payload.issue.labels.map((label) => label.name));
 
-  const repoLabelArray = await this.util.getAllPages(
-    "issues.listLabelsForRepo",
-    {
-      owner: repoOwner,
-      repo: repoName,
-    },
-  );
+  const repoLabelArray = await this.paginate(this.issues.listLabelsForRepo, {
+    owner: repoOwner,
+    repo: repoName,
+  });
 
   const repoLabels = new Set(repoLabelArray.map((label) => label.name));
   const labels = args

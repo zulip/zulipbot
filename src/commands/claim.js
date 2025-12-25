@@ -179,7 +179,7 @@ async function invite(payload, commenter) {
 }
 
 async function validate(commenter, number, repoOwner, repoName) {
-  const issues = await this.util.getAllPages("issues.list", {
+  const issues = await this.paginate(this.issues.list, {
     filter: "all",
     labels: this.cfg.activity.issues.inProgress,
   });

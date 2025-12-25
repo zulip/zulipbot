@@ -2,7 +2,7 @@ export const run = async function (repo) {
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
 
-  const pulls = await this.util.getAllPages("pulls.list", {
+  const pulls = await this.paginate(this.pulls.list, {
     owner: repoOwner,
     repo: repoName,
   });
@@ -42,7 +42,7 @@ async function check(number, repo) {
 
   // Use a strict false check; unknown merge conflict statuses return null
   if (mergeable === false) {
-    const commits = await this.util.getAllPages("pulls.listCommits", {
+    const commits = await this.paginate(this.pulls.listCommits, {
       owner: repoOwner,
       repo: repoName,
       pull_number: number,

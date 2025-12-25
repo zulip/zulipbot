@@ -27,8 +27,10 @@ class Template {
    */
 
   async getComments(parameters) {
-    const method = "issues.listComments";
-    const comments = await this.client.util.getAllPages(method, parameters);
+    const comments = await this.client.paginate(
+      this.client.issues.listComments,
+      parameters,
+    );
 
     const templateComments = comments.filter((comment) => {
       // Use end of template comments to check if comment is from template

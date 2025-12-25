@@ -29,7 +29,9 @@ test("Fetches all pages successfully", async (t) => {
       link: '<https://api.github.com/issues?key=val&page=3>; rel="prev", <https://api.github.com/issues?key=val&page=1>; rel="first"',
     });
 
-  const response = await client.util.getAllPages("issues.list", { key: "val" });
+  const response = await client.paginate(client.issues.list, {
+    key: "val",
+  });
   t.strictSame(response, results);
 
   scope.done();
