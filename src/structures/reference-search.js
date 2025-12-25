@@ -85,7 +85,7 @@ class ReferenceSearch {
     // remove strings that didn't contain any references
     const filteredMatches = matchStatuses.filter(Boolean);
     // sort and remove duplicate references
-    const references = this.client.util.deduplicate(filteredMatches);
+    const references = [...new Set(filteredMatches)].toSorted();
     return references;
   }
 

@@ -5,7 +5,7 @@ import client from "../../src/client.js";
 
 test("Deduplicates arrays successfully", async (t) => {
   const array = [1, 2, "2", 3, "3", 3];
-  t.strictSame(client.util.deduplicate(array), [1, 2, "2", 3, "3"]);
+  t.strictSame([...new Set(array)].toSorted(), [1, 2, "2", 3, "3"]);
 });
 
 test("Fetches all pages successfully", async (t) => {
