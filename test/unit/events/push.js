@@ -1,3 +1,6 @@
+import timers from "node:timers";
+
+import nock from "nock";
 import { test } from "tap";
 
 import client from "../../../src/client.js";
@@ -31,11 +34,14 @@ test("Ignore if there was no merge conflict configuration", async (t) => {
 test("Trigger events if main branch was pushed", async (t) => {
   client.cfg.eventsDelay = 0;
   client.cfg.pulls.status.mergeConflicts.comment = true;
-  client.responses.set("mergeConflict", {
-    run: () => {},
-  });
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulipbot/pulls")
+    .reply(200, []);
 
   const response = await push.run.call(client, payload);
+  await timers.promises.setTimeout(0);
+
+  scope.done();
 
   t.type(response, "Timeout");
 });
