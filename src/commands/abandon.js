@@ -22,4 +22,4 @@ export const run = function (payload, commenter) {
   });
 };
 
-export const aliasPath = "assign.abandon";
+export const aliasPath = (commands) => commands.assign.abandon;
