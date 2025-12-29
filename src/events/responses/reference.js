@@ -39,7 +39,7 @@ export const run = async function (pull, repo, opened) {
   if (!opened || !this.cfg.pulls.references.labels) return;
 
   for (const issue of commitReferences) {
-    labelReference.call(this, issue, number, repo);
+    await labelReference.call(this, issue, number, repo);
   }
 };
 
@@ -80,7 +80,7 @@ async function labelReference(referencedIssue, number, repo) {
     }
   }
 
-  this.issues.addLabels({
+  await this.issues.addLabels({
     owner: repoOwner,
     repo: repoName,
     issue_number: number,

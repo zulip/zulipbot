@@ -65,7 +65,7 @@ async function check(number, repo) {
     if (inactive) return;
 
     if (!warnComment && comment) {
-      this.issues.createComment({
+      await this.issues.createComment({
         owner: repoOwner,
         repo: repoName,
         issue_number: number,

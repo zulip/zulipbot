@@ -47,6 +47,7 @@ export default defineConfig(
       "unicorn/no-process-exit": "off",
       "unicorn/numeric-separators-style": "off",
       "unicorn/prefer-node-protocol": "off",
+      "unicorn/prefer-ternary": "off",
       "unicorn/prevent-abbreviations": [
         "error",
         { replacements: { args: false } },

@@ -35,7 +35,7 @@ async function clearClosed(issue, repo) {
   recentlyClosed.delete(issue.id);
 }
 
-export const progress = function (payload) {
+export const progress = async function (payload) {
   const action = payload.action;
   const number = payload.issue.number;
   const repoOwner = payload.repository.owner.login;
@@ -49,14 +49,14 @@ export const progress = function (payload) {
   if (assigned === 1) assigned = payload.assignee.id !== assignees[0].id;
 
   if (action === "assigned" && !labeled) {
-    this.issues.addLabels({
+    await this.issues.addLabels({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
       labels: [label],
     });
   } else if (action === "unassigned" && !assigned && labeled) {
-    this.issues.removeLabel({
+    await this.issues.removeLabel({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,

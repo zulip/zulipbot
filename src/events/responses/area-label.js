@@ -41,21 +41,21 @@ export const run = async function (issue, repo, label) {
   if (comments.length > 0) {
     const id = comments[0].id;
     if (issueAreaLabels.length > 0) {
-      this.issues.updateComment({
+      await this.issues.updateComment({
         owner: repoOwner,
         repo: repoName,
         comment_id: id,
         body: comment,
       });
     } else {
-      this.issues.deleteComment({
+      await this.issues.deleteComment({
         owner: repoOwner,
         repo: repoName,
         comment_id: id,
       });
     }
   } else if (!referenced.includes(tag) && issueAreaLabels.length > 0) {
-    this.issues.createComment({
+    await this.issues.createComment({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,

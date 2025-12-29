@@ -14,7 +14,7 @@ export const run = async function (payload) {
   }
 
   if (action === "submitted" && assignee) {
-    responses.pullState.assign.call(this, payload);
+    await responses.pullState.assign.call(this, payload);
   } else if (["labeled", "unlabeled"].includes(action)) {
     const l = payload.label;
     const issue = await this.issues.get({

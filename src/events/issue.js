@@ -9,7 +9,7 @@ export const run = async function (payload) {
   const label = payload.label;
 
   if (payload.assignee && this.cfg.activity.issues.inProgress) {
-    responses.issueState.progress.call(this, payload);
+    await responses.issueState.progress.call(this, payload);
   }
 
   if (["labeled", "unlabeled"].includes(action)) {
@@ -19,11 +19,11 @@ export const run = async function (payload) {
   } else if (action === "reopened") {
     responses.issueState.reopen.call(this, issue);
   } else if (action === "opened" || action === "created") {
-    parse.call(this, payload);
+    await parse.call(this, payload);
   }
 };
 
-function parse(payload) {
+async function parse(payload) {
   const data = payload.comment || payload.issue;
   const commenter = data.user.login;
   const body = data.body;
@@ -46,7 +46,7 @@ function parse(payload) {
     const file = this.commands.get(keyword);
 
     if (file) {
-      file.run.call(this, payload, commenter, args);
+      await file.run.call(this, payload, commenter, args);
     }
   }
 }

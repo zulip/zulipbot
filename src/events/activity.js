@@ -48,7 +48,7 @@ async function scrapePulls(pulls) {
     );
 
     if (time + ims <= Date.now() && !inactive && reviewed) {
-      checkInactivePull.call(this, pull);
+      await checkInactivePull.call(this, pull);
     }
 
     const references = new Search(this, pull, pull.base.repo);
@@ -93,7 +93,7 @@ async function checkInactivePull(pull) {
   });
 
   if (comments.length === 0) {
-    this.issues.createComment({
+    await this.issues.createComment({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
@@ -153,7 +153,7 @@ async function scrapeInactiveIssues(references, issues) {
     });
 
     if (comments.length > 0) {
-      this.issues.removeAssignees({
+      await this.issues.removeAssignees({
         owner: repoOwner,
         repo: repoName,
         issue_number: number,
@@ -167,14 +167,14 @@ async function scrapeInactiveIssues(references, issues) {
       });
 
       const id = comments[0].id;
-      this.issues.updateComment({
+      await this.issues.updateComment({
         owner: repoOwner,
         repo: repoName,
         comment_id: id,
         body: warning,
       });
     } else if (time + ims <= Date.now()) {
-      this.issues.createComment({
+      await this.issues.createComment({
         owner: repoOwner,
         repo: repoName,
         issue_number: number,

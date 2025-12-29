@@ -93,13 +93,13 @@ async function size(sizeLabels, labels, number, repo) {
   return pullLabels;
 }
 
-export const assign = function (payload) {
+export const assign = async function (payload) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const reviewer = payload.sender.login;
   const number = payload.pull_request.number;
 
-  this.issues.addAssignees({
+  await this.issues.addAssignees({
     owner: repoOwner,
     repo: repoName,
     issue_number: number,
@@ -165,7 +165,7 @@ export const update = async function (pull, repo) {
     if (comments.length === 0) continue;
 
     for (const comment of comments) {
-      this.issues.deleteComment({
+      await this.issues.deleteComment({
         owner: repoOwner,
         repo: repoName,
         comment_id: comment.id,

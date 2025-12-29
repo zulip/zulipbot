@@ -161,7 +161,7 @@ async function invite(payload, commenter) {
     repoOwner,
   });
 
-  this.issues.createComment({
+  await this.issues.createComment({
     owner: repoOwner,
     repo: repoName,
     issue_number: number,
