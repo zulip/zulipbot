@@ -1,0 +1,93 @@
+diff --git a/es5.js b/es5.js
+index a177b6540ba97daa9d6e98211614e926cf28b85b..90cb888f562af7103a8179ae5f80133a74eae5e5 100644
+--- a/es5.js
++++ b/es5.js
+@@ -4887,6 +4887,8 @@
+ 	    }, {
+ 	      key: "schedule",
+ 	      value: function schedule() {
++	        var _this7 = this;
++
+ 	        for (var _len5 = arguments.length, args = new Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+ 	          args[_key5] = arguments[_key5];
+ 	        }
+@@ -4915,7 +4917,17 @@
+ 
+ 	        this._receive(job);
+ 
+-	        return job.promise;
++	        return job.promise["catch"](function (error) {
++	          var caller;
++
++	          if (error != null && error.stack != null && Error.captureStackTrace) {
++	            caller = {};
++	            Error.captureStackTrace(caller);
++	            error.stack += caller.stack.replace(/^[^\n]*/, '');
++	          }
++
++	          return _this7.Promise.reject(error);
++	        });
+ 	      }
+ 	    }, {
+ 	      key: "wrap",
+diff --git a/lib/Bottleneck.js b/lib/Bottleneck.js
+index ff640a15add3c2b6721cfdda80a2c9d638a6b7fe..133c1bbc9ae15e8999fdd0c277a7d42dcf74d667 100644
+--- a/lib/Bottleneck.js
++++ b/lib/Bottleneck.js
+@@ -487,7 +487,17 @@ Bottleneck = function () {
+ 
+       this._receive(job);
+ 
+-      return job.promise;
++      return job.promise.catch(error => {
++        var caller;
++
++        if (error != null && error.stack != null && Error.captureStackTrace) {
++          caller = {};
++          Error.captureStackTrace(caller);
++          error.stack += caller.stack.replace(/^[^\n]*/, '');
++        }
++
++        return this.Promise.reject(error);
++      });
+     }
+ 
+     wrap(fn) {
+diff --git a/light.js b/light.js
+index c4aa2653715bd41d3b0a2270e91a26c1f4f2a8db..064bd8c92956270c78d3024c217d5048ac575369 100644
+--- a/light.js
++++ b/light.js
+@@ -1404,7 +1404,15 @@
+ 	      }
+ 	      job = new Job$1(task, args, options, this.jobDefaults, this.rejectOnDrop, this.Events, this._states, this.Promise);
+ 	      this._receive(job);
+-	      return job.promise;
++	      return job.promise.catch((error) => {
++	        var caller;
++	        if ((error != null) && (error.stack != null) && Error.captureStackTrace) {
++	          caller = {};
++	          Error.captureStackTrace(caller);
++	          error.stack += caller.stack.replace(/^[^\n]*/, '');
++	        }
++	        return this.Promise.reject(error);
++	      });
+ 	    }
+ 
+ 	    wrap(fn) {
+diff --git a/src/Bottleneck.coffee b/src/Bottleneck.coffee
+index 37db2befc438b5023002c201b9c63bd34a96b0bb..1b1c11258f6b4be9772dcfa6777fed452b08930f 100644
+--- a/src/Bottleneck.coffee
++++ b/src/Bottleneck.coffee
+@@ -279,6 +279,12 @@ class Bottleneck
+     job = new Job task, args, options, @jobDefaults, @rejectOnDrop, @Events, @_states, @Promise
+     @_receive job
+     job.promise
++    .catch (error) =>
++      if error? and error.stack? and Error.captureStackTrace
++        caller = {}
++        Error.captureStackTrace caller
++        error.stack += caller.stack.replace(/^[^\n]*/, '')
++      @Promise.reject error
+ 
+   wrap: (fn) ->
+     schedule = @schedule.bind @

@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 patchedDependencies:
+  bottleneck:
+    hash: 7d1dff01610a1639809de8245b254cb0ecaec9e627646c42197e7df08bee653d
+    path: patches/bottleneck.patch
   partial-mock:
     hash: 4f55940cc85c5b68f7df4c94b34e9235c5dc81d3fb67c702cb3684c79680abc3
     path: patches/partial-mock.patch
@@ -3069,13 +3072,13 @@ snapshots:
       '@octokit/core': 7.0.6
       '@octokit/request-error': 7.1.0
       '@octokit/types': 16.0.0
-      bottleneck: 2.19.5
+      bottleneck: 2.19.5(patch_hash=7d1dff01610a1639809de8245b254cb0ecaec9e627646c42197e7df08bee653d)
 
   '@octokit/plugin-throttling@11.0.3(@octokit/core@7.0.6)':
     dependencies:
       '@octokit/core': 7.0.6
       '@octokit/types': 16.0.0
-      bottleneck: 2.19.5
+      bottleneck: 2.19.5(patch_hash=7d1dff01610a1639809de8245b254cb0ecaec9e627646c42197e7df08bee653d)
 
   '@octokit/request-error@7.1.0':
     dependencies:
@@ -3775,7 +3778,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  bottleneck@2.19.5: {}
+  bottleneck@2.19.5(patch_hash=7d1dff01610a1639809de8245b254cb0ecaec9e627646c42197e7df08bee653d): {}
 
   brace-expansion@1.1.12:
     dependencies:

@@ -2,4 +2,5 @@ ignoredBuiltDependencies:
   - unrs-resolver
 
 patchedDependencies:
-  partial-mock: patches/partial-mock.patch
+  bottleneck: patches/bottleneck.patch  # https://github.com/octokit/plugin-retry.js/issues/660, https://github.com/octokit/plugin-throttling.js/issues/823
+  partial-mock: patches/partial-mock.patch  # https://github.com/theKashey/partial-mock/pull/1
