@@ -1,4 +1,5 @@
 import type { components } from "@octokit/openapi-types";
+import { RequestError } from "@octokit/request-error";
 import _ from "lodash";
 
 import type { Client } from "../client.ts";
@@ -57,22 +58,29 @@ class ReferenceSearch {
    */
 
   async find(strings: string[]) {
-    const matches = strings.flatMap((string) =>
-      keywords.map((tense) => {
-        const regex = new RegExp(`${_.escapeRegExp(tense)}:? #([0-9]+)`, "i");
-        const match = string.match(regex);
-        return match ? Number(match[1]) : null;
-      }),
+    const regex = new RegExp(
+      `(?:${keywords.map((keyword) => _.escapeRegExp(keyword)).join("|")}):? #([0-9]+)`,
+      "gi",
     );
+    const issues = strings.flatMap((string) =>
+      [...string.matchAll(regex)].map((match) => Number(match[1])),
+    );
+    const uniqueIssues = [...new Set(issues)];
 
     // check matches for valid issue references
-    const statusCheck = matches.map(async (number) => {
-      if (!number) return false;
-      const issue = await this.client.issues.get({
-        owner: this.repoOwner,
-        repo: this.repoName,
-        issue_number: Number(number),
-      });
+    const statusCheck = uniqueIssues.map(async (number) => {
+      let issue;
+      try {
+        issue = await this.client.issues.get({
+          owner: this.repoOwner,
+          repo: this.repoName,
+          issue_number: Number(number),
+        });
+      } catch (error) {
+        if (error instanceof RequestError && error.status === 404) return false;
+        throw error;
+      }
+
       // valid references are open issues
       const valid = !issue.data.pull_request && issue.data.state === "open";
       return valid ? number : false;
@@ -81,11 +89,7 @@ class ReferenceSearch {
     const matchStatuses = await Promise.all(statusCheck);
     // remove strings that didn't contain any references
     const filteredMatches = matchStatuses.filter((number) => number !== false);
-    // sort and remove duplicate references
-    const references = [...new Set(filteredMatches)].toSorted((a, b) =>
-      a < b ? -1 : a > b ? 1 : 0,
-    );
-    return references;
+    return filteredMatches.toSorted((a, b) => (a < b ? -1 : a > b ? 1 : 0));
   }
 
   async getBody() {
