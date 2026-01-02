@@ -1,1 +1,1 @@
-@{commenter} This issue cannot be claimed, as someone else is already working on it. Please see our [contributor guide](https://zulip.readthedocs.io/en/latest/overview/contributing.html#your-first-codebase-contribution) for advice on finding an issue to work on. Thanks!
+@{commenter} This issue cannot be claimed, as someone else is already working on it. To learn how to pick up issues, please work through all the "Prior to picking up your first issue" sections of the [Zulip contributor guide](https://zulip.readthedocs.io/en/latest/contributing/index.html).

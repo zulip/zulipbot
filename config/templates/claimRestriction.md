@@ -1,3 +1,1 @@
-Hello @{commenter}, it looks like you've currently claimed {limit} {issue} in this repository. We encourage new contributors to focus their efforts on at most {limit} {issue} at a time, so please complete your work on your other claimed issues before trying to claim this issue again.
-
-We look forward to your valuable contributions!
+@{commenter} You can't claim this issue, as you're already working on {limit} {issue} in this repository. Please make sure that every issue assigned to you has a pull request 100% ready for the next round of review. After that, you can post a comment describing the status of your other work (including links to all open PRs), and asking for this issue to be assigned.
