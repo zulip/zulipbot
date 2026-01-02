@@ -1,3 +1,1 @@
-Hello @{commenter}!
-
-You have attempted to claim a pull request, which is someone else's proposed solution for an issue. Please review our [guide for new contributors](https://zulip.readthedocs.io/en/latest/overview/contributing.html) to learn how to find an issue to work on.
+@{commenter} You have attempted to claim a pull request, which is someone else's proposed solution for an issue. To learn how to pick up issues, please work through all the "Prior to picking up your first issue" sections of the [Zulip contributor guide](https://zulip.readthedocs.io/en/latest/contributing/index.html). You will also need to learn the basics of [how to use GitHub](https://docs.github.com/en/get-started).
