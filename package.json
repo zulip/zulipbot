@@ -16,7 +16,7 @@
     "@octokit/rest": "^22.0.1",
     "@octokit/webhooks": "^14.2.0",
     "express": "^5.2.1",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "ts-extras": "^0.16.1"
   },
   "devDependencies": {
