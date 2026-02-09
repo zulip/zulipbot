@@ -40,6 +40,16 @@ export class Client extends MyOctokit {
   invites: Map<string, number>;
   templates: Map<string, Template>;
 
+  // Simple cache to reduce redundant API calls
+  // Key format: "type:owner:repo:identifier"
+  // Cache duration: 5 minutes
+  private cache: Map<string, { data: any; timestamp: number }>;
+  private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+  // Cache statistics for monitoring effectiveness
+  private cacheHits = 0;
+  private cacheMisses = 0;
+
   constructor() {
     const cfg: Writable<typeof defaults> = _.merge({}, defaults, custom);
     super({
@@ -50,7 +60,8 @@ export class Client extends MyOctokit {
       throttle: {
         enabled: process.env["NODE_ENV"] !== "test",
         onRateLimit: (retryAfter, { method, url }, _octokit, retryCount) => {
-          if (retryCount < 3) {
+          // Use configured retry attempts for better resilience
+          if (retryCount < cfg.rateLimit.retry.maxAttempts) {
             this.log.warn(
               `Rate limit exceeded ${
                 retryCount + 1
@@ -59,17 +70,26 @@ export class Client extends MyOctokit {
             return true;
           }
 
-          this.log.warn(
+          this.log.error(
             `Rate limit exceeded ${
               retryCount + 1
-            } times for ${method} ${url}; aborting`,
+            } times for ${method} ${url}; aborting after max retries (${cfg.rateLimit.retry.maxAttempts})`,
           );
-          return; // eslint-disable-line no-useless-return
+          return false;
         },
-        onSecondaryRateLimit: (_retryAfter, { method, url }) => {
-          this.log.warn(
-            `Secondary rate limit detected for ${method} ${url}; aborting`,
+        onSecondaryRateLimit: (retryAfter, { method, url }, _octokit, retryCount) => {
+          // Handle secondary rate limits with configured retry attempts
+          if (retryCount < cfg.rateLimit.retry.secondaryMaxAttempts) {
+            this.log.warn(
+              `Secondary rate limit detected for ${method} ${url}; retrying in ${retryAfter} seconds (attempt ${retryCount + 1})`,
+            );
+            return true;
+          }
+
+          this.log.error(
+            `Secondary rate limit exceeded for ${method} ${url}; aborting after max retries (${cfg.rateLimit.retry.secondaryMaxAttempts})`,
           );
+          return false;
         },
       },
     });
@@ -78,6 +98,7 @@ export class Client extends MyOctokit {
     this.commands = new Map();
     this.invites = new Map();
     this.templates = new Map();
+    this.cache = new Map();
 
     for (const data of commands) {
       const aliases = data.aliasPath(this.cfg.issues.commands);
@@ -99,6 +120,75 @@ export class Client extends MyOctokit {
       const template = new Template(this, name, content);
       this.templates.set(name, template);
     }
+  }
+  
+  /**
+   * Get cached data if available and not expired
+   */
+  getCached<T>(key: string): T | undefined {
+    const cached = this.cache.get(key);
+    if (!cached) {
+      this.cacheMisses++;
+      return undefined;
+    }
+
+    if (Date.now() - cached.timestamp > this.CACHE_TTL) {
+      this.cache.delete(key);
+      this.cacheMisses++;
+      return undefined;
+    }
+
+    this.cacheHits++;
+    return cached.data as T;
+  }
+  
+  /**
+   * Store data in cache with current timestamp
+   */
+  setCached(key: string, data: any): void {
+    this.cache.set(key, { data, timestamp: Date.now() });
+  }
+  
+  /**
+   * Clear cache entry
+   */
+  clearCached(key: string): void {
+    this.cache.delete(key);
+  }
+  
+  /**
+   * Clear all expired cache entries
+   */
+  clearExpiredCache(): void {
+    const now = Date.now();
+    for (const [key, value] of this.cache.entries()) {
+      if (now - value.timestamp > this.CACHE_TTL) {
+        this.cache.delete(key);
+      }
+    }
+  }
+
+  /**
+   * Get cache statistics
+   */
+  getCacheStats(): { hits: number; misses: number; hitRate: number; size: number } {
+    const total = this.cacheHits + this.cacheMisses;
+    const hitRate = total > 0 ? (this.cacheHits / total) * 100 : 0;
+
+    return {
+      hits: this.cacheHits,
+      misses: this.cacheMisses,
+      hitRate: Math.round(hitRate * 100) / 100, // Round to 2 decimal places
+      size: this.cache.size,
+    };
+  }
+
+  /**
+   * Reset cache statistics (useful for monitoring periods)
+   */
+  resetCacheStats(): void {
+    this.cacheHits = 0;
+    this.cacheMisses = 0;
   }
 }
 

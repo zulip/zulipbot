@@ -115,3 +115,32 @@ export const activity = {
 
 // Delay (in seconds) responses to certain events
 export const eventsDelay = 0;
+
+/**
+ * Rate limiting configuration
+ * - Request caching to reduce API calls
+ * - Monitoring and alerting
+ * - Retry behavior
+ */
+
+export const rateLimit = {
+  // Enable request caching to reduce redundant API calls
+  caching: {
+    enabled: true,
+    ttl: 5 * 60 * 1000, // Cache TTL in milliseconds (default: 5 minutes)
+  },
+
+  // Monitor rate limit usage and alert when thresholds are exceeded
+  monitoring: {
+    enabled: true,
+    logInterval: 30 * 60 * 1000, // Log rate limit status every 30 minutes
+    warningThreshold: 75, // Warn when 75% of rate limit is consumed
+    criticalThreshold: 90, // Error when 90% of rate limit is consumed
+  },
+
+  // Retry configuration for rate-limited requests
+  retry: {
+    maxAttempts: 5, // Maximum retry attempts for primary rate limits
+    secondaryMaxAttempts: 2, // Maximum retry attempts for secondary rate limits
+  },
+};

@@ -3,6 +3,7 @@ import { RequestError } from "@octokit/request-error";
 import _ from "lodash";
 
 import type { Client } from "../client.ts";
+import { getCachedIssue } from "../utils/cached-api.ts";
 
 const keywords = [
   "close",
@@ -71,18 +72,19 @@ class ReferenceSearch {
     const statusCheck = uniqueIssues.map(async (number) => {
       let issue;
       try {
-        issue = await this.client.issues.get({
-          owner: this.repoOwner,
-          repo: this.repoName,
-          issue_number: Number(number),
-        });
+        issue = await getCachedIssue(
+          this.client,
+          this.repoOwner,
+          this.repoName,
+          Number(number),
+        );
       } catch (error) {
         if (error instanceof RequestError && error.status === 404) return false;
         throw error;
       }
 
       // valid references are open issues
-      const valid = !issue.data.pull_request && issue.data.state === "open";
+      const valid = !issue.pull_request && issue.state === "open";
       return valid ? number : false;
     });
     // statusCheck is an array of promises, so use Promise.all

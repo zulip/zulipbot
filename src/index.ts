@@ -6,6 +6,7 @@ import { assertDefined, safeCastTo } from "ts-extras";
 
 import client from "./client.ts";
 import * as events from "./events/index.ts";
+import { logRateLimit } from "./utils/rate-limit-monitor.ts";
 
 const app = express();
 const port = process.env["PORT"] ?? 8080;
@@ -31,31 +32,39 @@ webhooks.onAny(async (event) => {
     return;
   }
 
-  // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
-  switch (event.name) {
-    case "issues":
-    case "issue_comment": {
-      await events.issue.run.call(client, event.payload);
-      break;
-    }
+  try {
+    // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
+    switch (event.name) {
+      case "issues":
+      case "issue_comment": {
+        await events.issue.run.call(client, event.payload);
+        break;
+      }
 
-    case "member": {
-      await events.member.run.call(client, event.payload);
-      break;
-    }
+      case "member": {
+        await events.member.run.call(client, event.payload);
+        break;
+      }
 
-    case "pull_request":
-    case "pull_request_review": {
-      await events.pull.run.call(client, event.payload);
-      break;
-    }
+      case "pull_request":
+      case "pull_request_review": {
+        await events.pull.run.call(client, event.payload);
+        break;
+      }
 
-    case "push": {
-      events.push.run.call(client, event.payload);
-      break;
-    }
+      case "push": {
+        events.push.run.call(client, event.payload);
+        break;
+      }
 
-    // no default
+      // no default
+    }
+  } catch (error) {
+    console.error(
+      `Error processing ${event.name} event:`,
+      error instanceof Error ? error.stack : String(error)
+    );
+    // Event processing failed but don't crash - log for monitoring
   }
 });
 
@@ -69,8 +78,51 @@ process.on("unhandledRejection", (error) => {
 
 if (client.cfg.activity.check.interval) {
   setInterval(() => {
-    void events.activity.run.call(client);
+    void events.activity.run.call(client).catch((error) => {
+      console.error(
+        "Error during activity check:",
+        error instanceof Error ? error.stack : String(error)
+      );
+    });
   }, client.cfg.activity.check.interval * 3600000);
+}
+
+// Periodic cache cleanup every 10 minutes to free memory
+setInterval(() => {
+  client.clearExpiredCache();
+}, 10 * 60 * 1000);
+
+// Log cache statistics every hour if caching is enabled
+if (client.cfg.rateLimit.caching.enabled) {
+  setInterval(() => {
+    const stats = client.getCacheStats();
+    if (stats.hits + stats.misses > 0) {
+      client.log.info(
+        `Cache stats: ${stats.hitRate}% hit rate (${stats.hits} hits, ${stats.misses} misses, ${stats.size} entries)`
+      );
+    }
+  }, 60 * 60 * 1000); // Every hour
+}
+
+// Monitor rate limit status periodically if enabled
+if (client.cfg.rateLimit.monitoring.enabled) {
+  setInterval(() => {
+    // Force refresh on periodic checks to get accurate data
+    void logRateLimit(client, true).catch((error) => {
+      console.error(
+        "Error checking rate limit:",
+        error instanceof Error ? error.message : String(error)
+      );
+    });
+  }, client.cfg.rateLimit.monitoring.logInterval);
+
+  // Log initial rate limit status on startup (force refresh)
+  void logRateLimit(client, true).catch((error) => {
+    console.error(
+      "Error checking initial rate limit:",
+      error instanceof Error ? error.message : String(error)
+    );
+  });
 }
 
 for (const key of ["oAuthToken", "webhookSecret"] as const) {

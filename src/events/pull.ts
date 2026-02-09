@@ -2,6 +2,7 @@ import type { EmitterWebhookEvent } from "@octokit/webhooks/types";
 import { assertDefined } from "ts-extras";
 
 import type { Client } from "../client.ts";
+import { getCachedIssue } from "../utils/cached-api.ts";
 
 import * as responses from "./responses/index.ts";
 
@@ -27,12 +28,13 @@ export const run = async function (
   } else if (action === "labeled" || action === "unlabeled") {
     const l = payload.label;
     assertDefined(l);
-    const issue = await this.issues.get({
-      owner: repo.owner.login,
-      repo: repo.name,
-      issue_number: payload.pull_request.number,
-    });
-    await responses.areaLabel.run.call(this, issue.data, repo, l);
+    const issue = await getCachedIssue(
+      this,
+      repo.owner.login,
+      repo.name,
+      payload.pull_request.number,
+    );
+    await responses.areaLabel.run.call(this, issue, repo, l);
   }
 
   if (

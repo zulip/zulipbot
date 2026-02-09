@@ -4,6 +4,7 @@ import _ from "lodash";
 import { assertDefined, assertPresent } from "ts-extras";
 
 import type { Client } from "../../client.ts";
+import { getCachedIssueLabels, invalidateIssueCache } from "../../utils/cached-api.ts";
 import Search from "../../structures/reference-search.ts";
 
 export const label = async function (
@@ -17,13 +18,14 @@ export const label = async function (
   const number = payload.pull_request.number;
   const action = payload.action;
 
-  const response = await this.issues.listLabelsOnIssue({
-    owner: repoOwner,
-    repo: repoName,
-    issue_number: number,
-  });
+  const issueLabels = await getCachedIssueLabels(
+    this,
+    repoOwner,
+    repoName,
+    number,
+  );
 
-  let labels = response.data.map((label) => label.name);
+  let labels = issueLabels.map((label) => label.name);
   const oldLabels = labels;
   const autoUpdate = this.cfg.activity.pulls.autoUpdate;
   const sizeLabels = this.cfg.pulls.status.size.labels;
@@ -46,6 +48,9 @@ export const label = async function (
       issue_number: number,
       labels: labels,
     });
+
+    // Invalidate cache after modifying labels
+    invalidateIssueCache(this, repoOwner, repoName, number);
   }
 };
 
