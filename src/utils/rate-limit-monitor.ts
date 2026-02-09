@@ -5,12 +5,12 @@
 
 import type { Client } from "../client.ts";
 
-export interface RateLimitStatus {
+export type RateLimitStatus = {
   limit: number;
   remaining: number;
   reset: Date;
   used: number;
-}
+};
 
 // Cache rate limit status to avoid excessive API calls
 // The rate limit check itself consumes 1 API call

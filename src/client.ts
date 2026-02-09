@@ -43,7 +43,7 @@ export class Client extends MyOctokit {
   // Simple cache to reduce redundant API calls
   // Key format: "type:owner:repo:identifier"
   // Cache duration: 5 minutes
-  private cache: Map<string, { data: any; timestamp: number }>;
+  private readonly cache: Map<string, { data: unknown; timestamp: number }>;
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   // Cache statistics for monitoring effectiveness
@@ -77,7 +77,12 @@ export class Client extends MyOctokit {
           );
           return false;
         },
-        onSecondaryRateLimit: (retryAfter, { method, url }, _octokit, retryCount) => {
+        onSecondaryRateLimit: (
+          retryAfter,
+          { method, url },
+          _octokit,
+          retryCount,
+        ) => {
           // Handle secondary rate limits with configured retry attempts
           if (retryCount < cfg.rateLimit.retry.secondaryMaxAttempts) {
             this.log.warn(
@@ -121,7 +126,7 @@ export class Client extends MyOctokit {
       this.templates.set(name, template);
     }
   }
-  
+
   /**
    * Get cached data if available and not expired
    */
@@ -139,23 +144,24 @@ export class Client extends MyOctokit {
     }
 
     this.cacheHits++;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- generic cache returns caller-specified type
     return cached.data as T;
   }
-  
+
   /**
    * Store data in cache with current timestamp
    */
-  setCached(key: string, data: any): void {
-    this.cache.set(key, { data, timestamp: Date.now() });
+  setCached(key: string, data: unknown): void {
+    this.cache.set(key, { data: data, timestamp: Date.now() });
   }
-  
+
   /**
    * Clear cache entry
    */
   clearCached(key: string): void {
     this.cache.delete(key);
   }
-  
+
   /**
    * Clear all expired cache entries
    */
@@ -171,7 +177,12 @@ export class Client extends MyOctokit {
   /**
    * Get cache statistics
    */
-  getCacheStats(): { hits: number; misses: number; hitRate: number; size: number } {
+  getCacheStats(): {
+    hits: number;
+    misses: number;
+    hitRate: number;
+    size: number;
+  } {
     const total = this.cacheHits + this.cacheMisses;
     const hitRate = total > 0 ? (this.cacheHits / total) * 100 : 0;
 

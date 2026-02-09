@@ -4,8 +4,11 @@ import _ from "lodash";
 import { assertDefined, assertPresent } from "ts-extras";
 
 import type { Client } from "../../client.ts";
-import { getCachedIssueLabels, invalidateIssueCache } from "../../utils/cached-api.ts";
 import Search from "../../structures/reference-search.ts";
+import {
+  getCachedIssueLabels,
+  invalidateIssueCache,
+} from "../../utils/cached-api.ts";
 
 export const label = async function (
   this: Client,

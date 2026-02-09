@@ -4,6 +4,7 @@
  */
 
 import type { components } from "@octokit/openapi-types";
+
 import type { Client } from "../client.ts";
 
 /**
@@ -17,15 +18,16 @@ export async function getCachedIssueLabels(
   issueNumber: number,
 ): Promise<Array<components["schemas"]["label"]>> {
   const cacheKey = `labels:${owner}:${repo}:${issueNumber}`;
-  
-  const cached = client.getCached<Array<components["schemas"]["label"]>>(cacheKey);
+
+  const cached =
+    client.getCached<Array<components["schemas"]["label"]>>(cacheKey);
   if (cached) {
     return cached;
   }
 
   const response = await client.issues.listLabelsOnIssue({
-    owner,
-    repo,
+    owner: owner,
+    repo: repo,
     issue_number: issueNumber,
   });
 
@@ -44,14 +46,15 @@ export async function getCachedPullRequest(
 ): Promise<components["schemas"]["pull-request"]> {
   const cacheKey = `pull:${owner}:${repo}:${pullNumber}`;
 
-  const cached = client.getCached<components["schemas"]["pull-request"]>(cacheKey);
+  const cached =
+    client.getCached<components["schemas"]["pull-request"]>(cacheKey);
   if (cached) {
     return cached;
   }
 
   const response = await client.pulls.get({
-    owner,
-    repo,
+    owner: owner,
+    repo: repo,
     pull_number: pullNumber,
   });
 
@@ -77,8 +80,8 @@ export async function getCachedIssue(
   }
 
   const response = await client.issues.get({
-    owner,
-    repo,
+    owner: owner,
+    repo: repo,
     issue_number: issueNumber,
   });
 
@@ -97,7 +100,7 @@ export async function isCachedCollaborator(
   username: string,
 ): Promise<boolean> {
   const cacheKey = `collaborator:${owner}:${repo}:${username}`;
-  
+
   const cached = client.getCached<boolean>(cacheKey);
   if (cached !== undefined) {
     return cached;
