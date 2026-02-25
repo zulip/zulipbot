@@ -49,6 +49,7 @@ export default defineConfig(
       "prefer-destructuring": ["error", { array: true, object: false }],
       "prefer-const": "error",
       "prefer-template": "error",
+      "require-unicode-regexp": "off",
       strict: "error",
       "unicorn/no-null": "off",
       "unicorn/no-process-exit": "off",
