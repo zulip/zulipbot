@@ -34,9 +34,8 @@ export const label = async function (
     labels = review.call(this, labels, action, author, reviewer);
   }
 
-  if (sizeLabels && ["opened", "synchronize"].includes(action)) {
-    const repo = payload.repository;
-    labels = await size.call(this, sizeLabels, labels, number, repo);
+  if (sizeLabels && (action === "opened" || action === "synchronize")) {
+    labels = size(sizeLabels, labels, payload.pull_request);
   }
 
   if (!_.isEqual(oldLabels.toSorted(), labels.toSorted())) {
@@ -80,28 +79,15 @@ function review(
   return labels;
 }
 
-async function size(
-  this: Client,
+function size(
   sizeLabels: Map<string, number>,
   labels: string[],
-  number: number,
-  repo: components["schemas"]["repository-webhooks"],
+  pull: EmitterWebhookEvent<
+    "pull_request.opened" | "pull_request.synchronize"
+  >["payload"]["pull_request"],
 ) {
-  const repoName = repo.name;
-  const repoOwner = repo.owner.login;
   const pullLabels = labels.filter((label) => !sizeLabels.has(label));
-
-  const files = await this.paginate(this.pulls.listFiles, {
-    owner: repoOwner,
-    repo: repoName,
-    pull_number: number,
-  });
-
-  const changes = files
-    .filter(
-      (file) => !this.cfg.pulls.status.size.exclude.includes(file.filename),
-    )
-    .reduce((sum, file) => sum + file.changes, 0);
+  const changes = (pull.additions ?? 0) + (pull.deletions ?? 0);
 
   let label = sizeLabels.keys().next().value;
   assertDefined(label);

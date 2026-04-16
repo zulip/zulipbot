@@ -15,6 +15,8 @@ const payload: EmitterWebhookEvent<
     title: "Fix all the bugs",
     user: { login: "octocat" },
     body: null,
+    additions: 0,
+    deletions: 0,
   },
 
   repository: {
@@ -27,8 +29,6 @@ void test("Ignore empty body", async () => {
   const scope = nock("https://api.github.com")
     .get("/repos/zulip/zulipbot/issues/69/labels")
     .reply(200, [{ name: "enhancement" }])
-    .get("/repos/zulip/zulipbot/pulls/69/files")
-    .reply(200, [])
     .put("/repos/zulip/zulipbot/issues/69/labels", {
       labels: ["enhancement", "size: XS"],
     })
@@ -38,6 +38,43 @@ void test("Ignore empty body", async () => {
     .get("/repos/zulip/zulipbot/issues/69/comments")
     .reply(200, []);
   await pull.run.call(client, payload);
+
+  scope.done();
+});
+
+void test("Size label reflects additions + deletions from payload", async () => {
+  const bigPayload: EmitterWebhookEvent<
+    "pull_request" | "pull_request_review"
+  >["payload"] = partialMock({
+    action: "opened",
+    pull_request: {
+      number: 70,
+      title: "Big refactor",
+      user: { login: "octocat" },
+      body: null,
+      // additions alone would map to "size: M" (>25); with deletions it's "size: L" (>50)
+      additions: 30,
+      deletions: 40,
+    },
+
+    repository: {
+      owner: { login: "zulip" },
+      name: "zulipbot",
+    },
+  });
+
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulipbot/issues/70/labels")
+    .reply(200, [])
+    .put("/repos/zulip/zulipbot/issues/70/labels", {
+      labels: ["size: L"],
+    })
+    .reply(200)
+    .get("/repos/zulip/zulipbot/pulls/70/commits")
+    .reply(200, [])
+    .get("/repos/zulip/zulipbot/issues/70/comments")
+    .reply(200, []);
+  await pull.run.call(client, bigPayload);
 
   scope.done();
 });
