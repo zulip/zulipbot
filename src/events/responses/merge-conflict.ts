@@ -25,13 +25,13 @@ export const run = async function (
       assertPresent(repo.owner);
       const repoOwner = repo.owner.login;
 
-      const pulls = await this.paginate(this.pulls.list, {
+      for await (const response of this.paginate.iterator(this.pulls.list, {
         owner: repoOwner,
         repo: repoName,
-      });
-
-      for (const pull of pulls) {
-        await check.call(this, pull.number, repo);
+      })) {
+        for (const pull of response.data) {
+          await check.call(this, pull.number, repo);
+        }
       }
     } while (sweepRequested);
   } finally {
