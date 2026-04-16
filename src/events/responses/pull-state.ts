@@ -98,10 +98,6 @@ function size(
 
   pullLabels.push(label);
 
-  if (pullLabels.toSorted() === labels.toSorted()) {
-    return labels;
-  }
-
   return pullLabels;
 }
 
