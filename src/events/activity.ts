@@ -154,7 +154,7 @@ async function scrapeInactiveIssues(
           issue_number: number,
           body: comment,
         });
-        return;
+        continue;
       }
 
       const logins = issue.assignees.map((assignee) => assignee.login);
