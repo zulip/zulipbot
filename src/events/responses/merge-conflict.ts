@@ -77,12 +77,18 @@ async function check(
 
   // Use a strict false check; unknown merge conflict statuses return null
   if (mergeable === false) {
-    const commits = await this.paginate(this.pulls.listCommits, {
-      owner: repoOwner,
-      repo: repoName,
-      pull_number: number,
-    });
-    const lastCommitTime = commits.at(-1)?.commit.committer?.date;
+    let lastCommitTime: string | undefined;
+    for await (const response of this.paginate.iterator(
+      this.pulls.listCommits,
+      {
+        owner: repoOwner,
+        repo: repoName,
+        pull_number: number,
+      },
+    )) {
+      const last = response.data.at(-1);
+      if (last) lastCommitTime = last.commit.committer?.date ?? lastCommitTime;
+    }
 
     const warnComment = warnings.find(
       (c) =>
