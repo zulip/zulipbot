@@ -3,23 +3,39 @@ import { assertDefined, assertPresent } from "ts-extras";
 
 import type { Client } from "../../client.ts";
 
+let sweepInProgress = false;
+let sweepRequested = false;
+
 export const run = async function (
   this: Client,
   repo:
     | components["schemas"]["repository"]
     | components["schemas"]["webhook-push"]["repository"],
 ) {
-  const repoName = repo.name;
-  assertPresent(repo.owner);
-  const repoOwner = repo.owner.login;
+  if (sweepInProgress) {
+    sweepRequested = true;
+    return;
+  }
 
-  const pulls = await this.paginate(this.pulls.list, {
-    owner: repoOwner,
-    repo: repoName,
-  });
+  sweepInProgress = true;
+  try {
+    do {
+      sweepRequested = false;
+      const repoName = repo.name;
+      assertPresent(repo.owner);
+      const repoOwner = repo.owner.login;
 
-  for (const pull of pulls) {
-    await check.call(this, pull.number, repo);
+      const pulls = await this.paginate(this.pulls.list, {
+        owner: repoOwner,
+        repo: repoName,
+      });
+
+      for (const pull of pulls) {
+        await check.call(this, pull.number, repo);
+      }
+    } while (sweepRequested);
+  } finally {
+    sweepInProgress = false;
   }
 };
 
