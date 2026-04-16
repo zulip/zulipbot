@@ -216,17 +216,23 @@ async function validate(
   repoOwner: string,
   repoName: string,
 ) {
-  const issues = await this.paginate(this.issues.list, {
+  const limit = this.cfg.issues.commands.assign.newContributors.restricted;
+  let assignedCount = 0;
+
+  for await (const response of this.paginate.iterator(this.issues.list, {
     filter: "all",
     labels: this.cfg.activity.issues.inProgress,
-  });
+  })) {
+    for (const issue of response.data) {
+      if (issue.assignees?.find((assignee) => assignee.login === commenter)) {
+        assignedCount++;
+      }
+    }
 
-  const limit = this.cfg.issues.commands.assign.newContributors.restricted;
-  const assigned = issues.filter((issue) =>
-    issue.assignees?.find((assignee) => assignee.login === commenter),
-  );
+    if (assignedCount >= limit) break;
+  }
 
-  if (assigned.length >= limit) {
+  if (assignedCount >= limit) {
     const template = this.templates.get("claimRestriction");
     assertDefined(template);
     const comment = template.format({
