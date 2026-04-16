@@ -42,6 +42,88 @@ void test("Ignore empty body", async () => {
   scope.done();
 });
 
+void test('Single missing reference uses "it" pronoun', async () => {
+  const referencePayload: EmitterWebhookEvent<
+    "pull_request" | "pull_request_review"
+  >["payload"] = partialMock({
+    action: "opened",
+    pull_request: {
+      number: 71,
+      title: "Fix bug",
+      user: { login: "octocat" },
+      body: "Fixes #42",
+      additions: 0,
+      deletions: 0,
+    },
+
+    repository: {
+      owner: { login: "zulip" },
+      name: "zulipbot",
+    },
+  });
+
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulipbot/issues/71/labels")
+    .reply(200, [{ name: "size: XS" }])
+    .get("/repos/zulip/zulipbot/issues/42")
+    .reply(200, { pull_request: false, state: "open" })
+    .get("/repos/zulip/zulipbot/pulls/71/commits")
+    .reply(200, [{ commit: { message: "Unrelated commit" } }])
+    .get("/repos/zulip/zulipbot/issues/71/comments")
+    .reply(200, [])
+    .post(
+      "/repos/zulip/zulipbot/issues/71/comments",
+      (body: { body: string }) =>
+        body.body.includes("have not referenced it in your commit"),
+    )
+    .reply(201);
+  await pull.run.call(client, referencePayload);
+
+  scope.done();
+});
+
+void test('Multiple missing references use "them" pronoun', async () => {
+  const referencePayload: EmitterWebhookEvent<
+    "pull_request" | "pull_request_review"
+  >["payload"] = partialMock({
+    action: "opened",
+    pull_request: {
+      number: 72,
+      title: "Fix bugs",
+      user: { login: "octocat" },
+      body: "Fixes #42, fixes #43",
+      additions: 0,
+      deletions: 0,
+    },
+
+    repository: {
+      owner: { login: "zulip" },
+      name: "zulipbot",
+    },
+  });
+
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulipbot/issues/72/labels")
+    .reply(200, [{ name: "size: XS" }])
+    .get("/repos/zulip/zulipbot/issues/42")
+    .reply(200, { pull_request: false, state: "open" })
+    .get("/repos/zulip/zulipbot/issues/43")
+    .reply(200, { pull_request: false, state: "open" })
+    .get("/repos/zulip/zulipbot/pulls/72/commits")
+    .reply(200, [{ commit: { message: "Unrelated commit" } }])
+    .get("/repos/zulip/zulipbot/issues/72/comments")
+    .reply(200, [])
+    .post(
+      "/repos/zulip/zulipbot/issues/72/comments",
+      (body: { body: string }) =>
+        body.body.includes("have not referenced them in your commit"),
+    )
+    .reply(201);
+  await pull.run.call(client, referencePayload);
+
+  scope.done();
+});
+
 void test("Size label reflects additions + deletions from payload", async () => {
   const bigPayload: EmitterWebhookEvent<
     "pull_request" | "pull_request_review"
