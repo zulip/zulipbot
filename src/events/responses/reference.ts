@@ -39,7 +39,7 @@ export const run = async function (
       author: author,
       issues: missingReferences.join(", #"),
       fixIssues: missingReferences.join(", fixes #"),
-      issuePronoun: missingReferences.length > 0 ? "them" : "it",
+      issuePronoun: missingReferences.length > 1 ? "them" : "it",
     });
     await this.issues.createComment({
       owner: repoOwner,
