@@ -25,19 +25,27 @@ class Template {
   async getComments(
     parameters: RestEndpointMethodTypes["issues"]["listComments"]["parameters"],
   ) {
-    const comments = await this.client.paginate(
+    const templateComments: Awaited<
+      ReturnType<typeof this.client.issues.listComments>
+    >["data"] = [];
+
+    for await (const response of this.client.paginate.iterator(
       this.client.issues.listComments,
       parameters,
-    );
-
-    const templateComments = comments.filter((comment) => {
-      // Use end of template comments to check if comment is from template
-      const matched = comment.body?.trimEnd().endsWith(`<!-- ${this.name} -->`);
-      const fromClient =
-        comment.user !== null &&
-        comment.user.login === this.client.cfg.auth.username;
-      return matched && fromClient;
-    });
+    )) {
+      for (const comment of response.data) {
+        // Use end of template comments to check if comment is from template
+        const matched = comment.body
+          ?.trimEnd()
+          .endsWith(`<!-- ${this.name} -->`);
+        const fromClient =
+          comment.user !== null &&
+          comment.user.login === this.client.cfg.auth.username;
+        if (matched && fromClient) {
+          templateComments.push(comment);
+        }
+      }
+    }
 
     return templateComments;
   }
