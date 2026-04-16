@@ -46,6 +46,7 @@ export class Client extends MyOctokit {
       auth: cfg.auth.oAuthToken,
       retry: {
         enabled: process.env["NODE_ENV"] !== "test",
+        retries: 1,
       },
       throttle: {
         enabled: process.env["NODE_ENV"] !== "test",
