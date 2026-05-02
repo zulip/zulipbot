@@ -1,7 +1,7 @@
-import { RequestError } from "@octokit/request-error";
 import { assertDefined } from "ts-extras";
 
 import type { Client } from "../client.ts";
+import { isCachedCollaborator } from "../utils/cached-api.ts";
 
 import type { CommandAliases, CommandPayload } from "./index.ts";
 
@@ -106,23 +106,14 @@ export const run = async function (
     return;
   }
 
-  try {
-    await this.repos.checkCollaborator({
-      owner: repoOwner,
-      repo: repoName,
-      username: commenter,
-    });
-  } catch (error) {
-    if (!(error instanceof RequestError) || error.status !== 404) {
-      const error = "**ERROR:** Unexpected response from GitHub API.";
-      return this.issues.createComment({
-        owner: repoOwner,
-        repo: repoName,
-        issue_number: number,
-        body: error,
-      });
-    }
+  const isCollaborator = await isCachedCollaborator(
+    this,
+    repoOwner,
+    repoName,
+    commenter,
+  );
 
+  if (!isCollaborator) {
     return invite.call(this, payload, commenter);
   }
 

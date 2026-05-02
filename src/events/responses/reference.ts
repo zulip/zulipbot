@@ -3,6 +3,10 @@ import { assertDefined } from "ts-extras";
 
 import type { Client } from "../../client.ts";
 import Search from "../../structures/reference-search.ts";
+import {
+  getCachedIssueLabels,
+  invalidateIssueCache,
+} from "../../utils/cached-api.ts";
 
 export const run = async function (
   this: Client,
@@ -67,13 +71,14 @@ async function labelReference(
   const repoOwner = repo.owner.login;
   const labelCfg = this.cfg.pulls.references.labels;
 
-  const response = await this.issues.listLabelsOnIssue({
-    owner: repoOwner,
-    repo: repoName,
-    issue_number: referencedIssue,
-  });
+  const issueLabels = await getCachedIssueLabels(
+    this,
+    repoOwner,
+    repoName,
+    referencedIssue,
+  );
 
-  let labels = response.data.map((label) => label.name);
+  let labels = issueLabels.map((label) => label.name);
 
   if (typeof labelCfg === "object") {
     if (
@@ -106,4 +111,7 @@ async function labelReference(
     issue_number: number,
     labels: labels,
   });
+
+  // Invalidate cache after modifying labels
+  invalidateIssueCache(this, repoOwner, repoName, number);
 }
