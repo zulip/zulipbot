@@ -2,7 +2,6 @@ import type { EmitterWebhookEvent } from "@octokit/webhooks";
 import nock from "nock";
 import { partialMock } from "partial-mock";
 import { test } from "tap";
-
 import client from "../../../src/client.ts";
 import * as pull from "../../../src/events/pull.ts";
 

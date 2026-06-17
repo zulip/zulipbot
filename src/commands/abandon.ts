@@ -1,5 +1,4 @@
 import type { Client } from "../client.ts";
-
 import type { CommandAliases, CommandPayload } from "./index.ts";
 
 export const run = async function (

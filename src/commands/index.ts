@@ -1,7 +1,5 @@
 import type { EmitterWebhookEvent } from "@octokit/webhooks/types";
-
 import type { Client } from "../client.ts";
-
 import * as abandon from "./abandon.ts";
 import * as add from "./add.ts";
 import * as claim from "./claim.ts";

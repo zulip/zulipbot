@@ -2,7 +2,6 @@ import nock from "nock";
 import { partialMock } from "partial-mock";
 import { test } from "tap";
 import { assertDefined } from "ts-extras";
-
 import client from "../../../src/client.ts";
 import * as add from "../../../src/commands/add.ts";
 import type { CommandPayload } from "../../../src/commands/index.ts";

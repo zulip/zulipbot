@@ -2,7 +2,6 @@ import type { components } from "@octokit/openapi-types";
 import type { EmitterWebhookEvent } from "@octokit/webhooks";
 import _ from "lodash";
 import { assertDefined, assertPresent } from "ts-extras";
-
 import type { Client } from "../../client.ts";
 import Search from "../../structures/reference-search.ts";
 

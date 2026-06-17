@@ -1,7 +1,6 @@
 import nock from "nock";
 import { test } from "tap";
 import { assertDefined } from "ts-extras";
-
 import client from "../../../src/client.ts";
 import { activity } from "../../../src/events/index.ts";
 

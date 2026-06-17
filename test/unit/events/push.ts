@@ -1,10 +1,8 @@
 import timers from "node:timers";
-
 import type { EmitterWebhookEvent } from "@octokit/webhooks";
 import nock from "nock";
 import { partialMock } from "partial-mock";
 import { test } from "tap";
-
 import client from "../../../src/client.ts";
 import * as push from "../../../src/events/push.ts";
 

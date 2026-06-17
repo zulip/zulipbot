@@ -1,8 +1,6 @@
 import { RequestError } from "@octokit/request-error";
 import { assertDefined } from "ts-extras";
-
 import type { Client } from "../client.ts";
-
 import type { CommandAliases, CommandPayload } from "./index.ts";
 
 async function checkLabels(

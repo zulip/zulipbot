@@ -1,10 +1,8 @@
 import fs from "node:fs";
 import process from "node:process";
-
 import { Webhooks, createNodeMiddleware } from "@octokit/webhooks";
 import express from "express";
 import { assertDefined, safeCastTo } from "ts-extras";
-
 import client from "./client.ts";
 import * as events from "./events/index.ts";
 

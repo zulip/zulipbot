@@ -1,6 +1,5 @@
 import type { EmitterWebhookEvent } from "@octokit/webhooks/types";
 import { assertDefined, assertPresent } from "ts-extras";
-
 import type { Client } from "../client.ts";
 
 export const run = async function (

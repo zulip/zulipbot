@@ -1,6 +1,5 @@
 import type { components } from "@octokit/openapi-webhooks-types";
 import { assertDefined } from "ts-extras";
-
 import type { Client } from "../../client.ts";
 import Search from "../../structures/reference-search.ts";
 

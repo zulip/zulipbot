@@ -1,5 +1,4 @@
 import type { RestEndpointMethodTypes } from "@octokit/rest";
-
 import type { Client } from "../client.ts";
 
 class Template {

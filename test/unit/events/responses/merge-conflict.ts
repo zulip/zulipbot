@@ -3,7 +3,6 @@ import nock from "nock";
 import { partialMock } from "partial-mock";
 import { test } from "tap";
 import { assertDefined } from "ts-extras";
-
 import client from "../../../../src/client.ts";
 import * as mergeConflict from "../../../../src/events/responses/merge-conflict.ts";
 

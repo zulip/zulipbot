@@ -6,7 +6,6 @@
  */
 
 import process from "node:process";
-
 import { safeCastTo } from "ts-extras";
 
 // Default authentication specified by environment variables

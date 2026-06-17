@@ -1,16 +1,13 @@
 import fs from "node:fs";
 import process from "node:process";
-
 import { retry } from "@octokit/plugin-retry";
 import { throttling } from "@octokit/plugin-throttling";
 import { Octokit } from "@octokit/rest";
 import _ from "lodash";
 import { assertDefined } from "ts-extras";
 import type { Writable } from "type-fest";
-
 import * as custom from "../config/config.ts";
 import * as defaults from "../config/default.ts";
-
 import commands, {
   type CommandAliases,
   type CommandPayload,

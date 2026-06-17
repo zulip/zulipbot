@@ -1,7 +1,6 @@
 import type { components } from "@octokit/openapi-types";
 import { RequestError } from "@octokit/request-error";
 import _ from "lodash";
-
 import type { Client } from "../client.ts";
 
 const keywords = [

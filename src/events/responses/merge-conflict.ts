@@ -1,6 +1,5 @@
 import type { components } from "@octokit/openapi-webhooks-types";
 import { assertDefined, assertPresent } from "ts-extras";
-
 import type { Client } from "../../client.ts";
 
 let sweepInProgress = false;

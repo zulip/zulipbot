@@ -35,10 +35,6 @@ export default defineConfig(
       "import/newline-after-import": "error",
       "import/no-cycle": "error",
       "import/no-useless-path-segments": "error",
-      "import/order": [
-        "error",
-        { alphabetize: { order: "asc" }, "newlines-between": "always" },
-      ],
       "max-nested-callbacks": ["error", 3],
       "max-params": ["error", 5],
       "no-await-in-loop": "off",

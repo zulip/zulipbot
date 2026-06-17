@@ -1,10 +1,8 @@
 import type { EmitterWebhookEvent } from "@octokit/webhooks/types";
 import _ from "lodash";
 import { assertDefined, assertPresent } from "ts-extras";
-
 import type { Client } from "../client.ts";
 import type { CommandPayload } from "../commands/index.ts";
-
 import * as responses from "./responses/index.ts";
 
 export const run = async function (
