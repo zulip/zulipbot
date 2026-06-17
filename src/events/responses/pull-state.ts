@@ -70,9 +70,9 @@ function review(
   } else if (action === "synchronize" && reviewed) {
     labels[labels.indexOf(reviewedLabel)] = needsReviewLabel;
   } else if (action === "closed" && reviewed) {
-    labels.splice(labels.indexOf(reviewedLabel), 1);
+    labels = labels.toSpliced(labels.indexOf(reviewedLabel), 1);
   } else if (action === "closed" && needsReview) {
-    labels.splice(labels.indexOf(needsReviewLabel), 1);
+    labels = labels.toSpliced(labels.indexOf(needsReviewLabel), 1);
   }
 
   return labels;
