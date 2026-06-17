@@ -60,7 +60,7 @@ class ReferenceSearch {
   async find(strings: string[]) {
     const regex = new RegExp(
       `(?:${keywords.map((keyword) => _.escapeRegExp(keyword)).join("|")}):? #([0-9]+)`,
-      "gi",
+      "giv",
     );
     const issues = strings.flatMap((string) =>
       [...string.matchAll(regex)].map((match) => Number(match[1])),

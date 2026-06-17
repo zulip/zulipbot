@@ -50,7 +50,7 @@ async function parse(this: Client, payload: CommandPayload) {
 
   const prefix = new RegExp(
     String.raw`@${_.escapeRegExp(username)} +(\w+)( +(--\w+|"[^"]+"))*`,
-    "g",
+    "gv",
   );
   const parsed = prefix.exec(body);
   if (!parsed) return;
@@ -58,9 +58,9 @@ async function parse(this: Client, payload: CommandPayload) {
   for (const command of parsed) {
     const codeBlocks = [`\`\`\`\r\n${command}\r\n\`\`\``, `\`${command}\``];
     if (codeBlocks.some((block) => body.includes(block))) continue;
-    const [, keyword] = command.replace(/\s+/, " ").split(" ");
+    const [, keyword] = command.replace(/\s+/v, " ").split(" ");
     assertDefined(keyword);
-    const args = command.replace(/\s+/, " ").split(" ").slice(2).join(" ");
+    const args = command.replace(/\s+/v, " ").split(" ").slice(2).join(" ");
     const file = this.commands.get(keyword);
 
     if (file) {

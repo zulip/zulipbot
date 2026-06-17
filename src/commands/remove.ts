@@ -15,7 +15,7 @@ export const run = async function (
   const selfLabel =
     typeof self === "object" ? !self.users.includes(commenter) : self;
   const forbidden = selfLabel && creator !== commenter;
-  const rawLabels = args.match(/".*?"/g);
+  const rawLabels = args.match(/".*?"/gv);
   if (forbidden || rawLabels === null) return;
 
   const repoName = payload.repository.name;
