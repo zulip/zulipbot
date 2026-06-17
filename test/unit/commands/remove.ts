@@ -1,6 +1,6 @@
+import { test, type TestContext } from "node:test";
 import nock from "nock";
 import { partialMock } from "partial-mock";
-import { test } from "tap";
 import { assertDefined } from "ts-extras";
 import client from "../../../src/client.ts";
 import type { CommandPayload } from "../../../src/commands/index.ts";
@@ -28,17 +28,17 @@ assertDefined(template);
 template.content = "{labels} {labelList} {exist} {beState} {action} {type}.";
 client.templates.set("labelError", template);
 
-void test("Reject if self-labelling enabled with different commenter", async (t) => {
+void test("remove: Reject if self-labelling enabled with different commenter", async (t: TestContext) => {
   client.cfg.issues.commands.label.self = true;
   const commenter = "octokitten";
   const args = '"bug"';
 
   const response = await remove.run.call(client, payload, commenter, args);
 
-  t.notOk(response);
+  t.assert.strictEqual(response, undefined);
 });
 
-void test("Reject if self-labelling users excludes commenter", async (t) => {
+void test("remove: Reject if self-labelling users excludes commenter", async (t: TestContext) => {
   client.cfg.issues.commands.label.self = {
     users: ["octocat"],
   };
@@ -47,19 +47,19 @@ void test("Reject if self-labelling users excludes commenter", async (t) => {
 
   const response = await remove.run.call(client, payload, commenter, args);
 
-  t.notOk(response);
+  t.assert.strictEqual(response, undefined);
 });
 
-void test("Reject if invalid arguments were provided", async (t) => {
+void test("remove: Reject if invalid arguments were provided", async (t: TestContext) => {
   const commenter = "octocat";
   const args = "no arguments";
 
   const response = await remove.run.call(client, payload, commenter, args);
 
-  t.notOk(response);
+  t.assert.strictEqual(response, undefined);
 });
 
-void test("Remove appropriate labels", async () => {
+void test("remove: Remove appropriate labels", async () => {
   client.cfg.issues.commands.label.self = false;
   const commenter = "octocat";
   const args = '"bug"';
@@ -73,7 +73,7 @@ void test("Remove appropriate labels", async () => {
   scope.done();
 });
 
-void test("Remove appropriate labels with single rejection message", async () => {
+void test("remove: Remove appropriate labels with single rejection message", async () => {
   const commenter = "octocat";
   const args = '"help wanted" "test"';
   const error = 'Label "test" does not exist was removed from pull request.';
@@ -101,7 +101,7 @@ const payload2: CommandPayload = partialMock({
   },
 });
 
-void test("Remove appropriate labels with multiple rejection message", async () => {
+void test("remove: Remove appropriate labels with multiple rejection message", async () => {
   const commenter = "octocat";
   const args = '"help wanted" "a" "b"';
 

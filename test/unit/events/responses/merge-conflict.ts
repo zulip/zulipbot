@@ -1,7 +1,7 @@
+import { test } from "node:test";
 import type { components } from "@octokit/openapi-webhooks-types";
 import nock from "nock";
 import { partialMock } from "partial-mock";
-import { test } from "tap";
 import { assertDefined } from "ts-extras";
 import client from "../../../../src/client.ts";
 import * as mergeConflict from "../../../../src/events/responses/merge-conflict.ts";
@@ -11,7 +11,7 @@ const repo: components["schemas"]["repository"] = partialMock({
   owner: { login: "zulip" },
 });
 
-void test("Posts warning comment on mergeable=false PR", async () => {
+void test("merge-conflict: Posts warning comment on mergeable=false PR", async () => {
   client.cfg.pulls.status.mergeConflicts.branch = "main";
   client.cfg.pulls.status.mergeConflicts.comment = true;
   client.cfg.pulls.status.mergeConflicts.label = null;
@@ -44,7 +44,7 @@ void test("Posts warning comment on mergeable=false PR", async () => {
   scope.done();
 });
 
-void test("Skips warning when inactive label is present", async () => {
+void test("merge-conflict: Skips warning when inactive label is present", async () => {
   client.cfg.pulls.status.mergeConflicts.branch = "main";
   client.cfg.pulls.status.mergeConflicts.comment = true;
   client.cfg.pulls.status.mergeConflicts.label = null;

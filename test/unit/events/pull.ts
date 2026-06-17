@@ -1,7 +1,7 @@
+import { test } from "node:test";
 import type { EmitterWebhookEvent } from "@octokit/webhooks";
 import nock from "nock";
 import { partialMock } from "partial-mock";
-import { test } from "tap";
 import client from "../../../src/client.ts";
 import * as pull from "../../../src/events/pull.ts";
 
@@ -24,7 +24,7 @@ const payload: EmitterWebhookEvent<
   },
 });
 
-void test("Ignore empty body", async () => {
+void test("pull: Ignore empty body", async () => {
   const scope = nock("https://api.github.com")
     .get("/repos/zulip/zulipbot/issues/69/labels")
     .reply(200, [{ name: "enhancement" }])
@@ -41,7 +41,7 @@ void test("Ignore empty body", async () => {
   scope.done();
 });
 
-void test('Single missing reference uses "it" pronoun', async () => {
+void test('pull: Single missing reference uses "it" pronoun', async () => {
   const referencePayload: EmitterWebhookEvent<
     "pull_request" | "pull_request_review"
   >["payload"] = partialMock({
@@ -81,7 +81,7 @@ void test('Single missing reference uses "it" pronoun', async () => {
   scope.done();
 });
 
-void test('Multiple missing references use "them" pronoun', async () => {
+void test('pull: Multiple missing references use "them" pronoun', async () => {
   const referencePayload: EmitterWebhookEvent<
     "pull_request" | "pull_request_review"
   >["payload"] = partialMock({
@@ -123,7 +123,7 @@ void test('Multiple missing references use "them" pronoun', async () => {
   scope.done();
 });
 
-void test("Size label reflects additions + deletions from payload", async () => {
+void test("pull: Size label reflects additions + deletions from payload", async () => {
   const bigPayload: EmitterWebhookEvent<
     "pull_request" | "pull_request_review"
   >["payload"] = partialMock({

@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node ./src/index.ts",
     "pretest": "tsc && eslint && prettier --check .",
-    "test": "tap --coverage-report=lcovonly --type-strip-only"
+    "test:node": "env NODE_ENV=test node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=lcov.info",
+    "test": "node --run test:node"
   },
   "packageManager": "pnpm@11.7.0+sha512.19cc852c120c7125760f2443ee6be0ca5b40f9f50598de1a09a1f177503e010e57c23c77646e01e761de59bf874fb22a3398c33ab9691fc13eb946b6f0f4d620",
   "dependencies": {
@@ -35,7 +36,6 @@
     "nock": "^14.0.15",
     "partial-mock": "^1.1.0",
     "prettier": "^3.8.4",
-    "tap": "^21.7.4",
     "type-fest": "^5.7.0",
     "typescript": "^6.0.3"
   },
@@ -57,11 +57,5 @@
   "bugs": {
     "url": "https://github.com/zulip/zulipbot/issues"
   },
-  "homepage": "https://github.com/zulip/zulipbot#readme",
-  "tap": {
-    "allow-incomplete-coverage": true,
-    "test-env": [
-      "NODE_ENV=test"
-    ]
-  }
+  "homepage": "https://github.com/zulip/zulipbot#readme"
 }

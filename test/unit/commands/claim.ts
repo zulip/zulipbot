@@ -1,6 +1,6 @@
+import { test, type TestContext } from "node:test";
 import nock from "nock";
 import { partialMock } from "partial-mock";
-import { test } from "tap";
 import { assertDefined } from "ts-extras";
 import client from "../../../src/client.ts";
 import * as claim from "../../../src/commands/claim.ts";
@@ -21,7 +21,7 @@ const payload: CommandPayload = partialMock({
   },
 });
 
-void test("Reject if commenter is already an assignee", async () => {
+void test("claim: Reject if commenter is already an assignee", async () => {
   const commenter = "octocat";
   const error = "**ERROR:** You have already claimed this issue.";
 
@@ -34,7 +34,7 @@ void test("Reject if commenter is already an assignee", async () => {
   scope.done();
 });
 
-void test("Reject if assignee limit is reached", async () => {
+void test("claim: Reject if assignee limit is reached", async () => {
   const commenter = "octokitten";
 
   const template = client.templates.get("multipleClaimWarning");
@@ -61,7 +61,7 @@ const payload2: CommandPayload = partialMock({
   },
 });
 
-void test("Throw error if collaborator check code isn't 404", async () => {
+void test("claim: Throw error if collaborator check code isn't 404", async () => {
   const commenter = "octokitten";
   const error = "**ERROR:** Unexpected response from GitHub API.";
   client.cfg.issues.commands.assign.warn.labels = ["bug"];
@@ -77,7 +77,7 @@ void test("Throw error if collaborator check code isn't 404", async () => {
   scope.done();
 });
 
-void test("Rejects creation of duplicate invite", async () => {
+void test("claim: Rejects creation of duplicate invite", async () => {
   const commenter = "octokitten";
 
   const template = client.templates.get("inviteError");
@@ -101,7 +101,7 @@ void test("Rejects creation of duplicate invite", async () => {
   scope.done();
 });
 
-void test("Reject claim on pull request", async () => {
+void test("claim: Reject claim on pull request", async () => {
   const commenter = "octocat";
 
   const payload3: CommandPayload = partialMock({
@@ -134,7 +134,7 @@ void test("Reject claim on pull request", async () => {
   scope.done();
 });
 
-void test("Blocks claim if labels are missing", async () => {
+void test("claim: Blocks claim if labels are missing", async () => {
   const commenter = "octokitten";
   client.invites.delete("octokitten@zulip/zulipbot");
   client.cfg.auth.username = "zulipbot";
@@ -156,7 +156,7 @@ void test("Blocks claim if labels are missing", async () => {
   scope.done();
 });
 
-void test("Warns if labels are present without force flag", async () => {
+void test("claim: Warns if labels are present without force flag", async () => {
   const commenter = "octokitten";
   client.cfg.issues.commands.assign.warn = {
     labels: ["bug"],
@@ -180,7 +180,7 @@ void test("Warns if labels are present without force flag", async () => {
   scope.done();
 });
 
-void test("Invite new contributor", async (t) => {
+void test("claim: Invite new contributor", async (t: TestContext) => {
   const commenter = "octokitten";
 
   const template = client.templates.get("contributorAddition");
@@ -202,12 +202,12 @@ void test("Invite new contributor", async (t) => {
 
   await claim.run.call(client, payload2, commenter, "--force");
 
-  t.ok(client.invites.has("octokitten@zulip/zulipbot"));
+  t.assert.ok(client.invites.has("octokitten@zulip/zulipbot"));
 
   scope.done();
 });
 
-void test("Throw error if permission is not specified", async () => {
+void test("claim: Throw error if permission is not specified", async () => {
   const commenter = "octocat";
   client.cfg.issues.commands.assign.newContributors.permission = null;
 
@@ -224,7 +224,7 @@ void test("Throw error if permission is not specified", async () => {
   scope.done();
 });
 
-void test("Always assign if commenter has at least one commit", async () => {
+void test("claim: Always assign if commenter has at least one commit", async () => {
   const commenter = "octocat";
   client.cfg.issues.commands.assign.warn.presence = false;
 
@@ -244,7 +244,7 @@ void test("Always assign if commenter has at least one commit", async () => {
   scope.done();
 });
 
-void test("Error if no assignees were added", async () => {
+void test("claim: Error if no assignees were added", async () => {
   const commenter = "octocat";
   const error = "**ERROR:** Issue claiming failed (no assignee was added).";
 
@@ -266,7 +266,7 @@ void test("Error if no assignees were added", async () => {
   scope.done();
 });
 
-void test("Assign if claim limit validation passed", async () => {
+void test("claim: Assign if claim limit validation passed", async () => {
   const commenter = "octocat";
 
   const scope = nock("https://api.github.com")
@@ -287,7 +287,7 @@ void test("Assign if claim limit validation passed", async () => {
   scope.done();
 });
 
-void test("Reject claim limit validation failed", async () => {
+void test("claim: Reject claim limit validation failed", async () => {
   const commenter = "octocat";
 
   const template = client.templates.get("claimRestriction");
@@ -313,7 +313,7 @@ void test("Reject claim limit validation failed", async () => {
   scope.done();
 });
 
-void test("Reject claim limit validation failed (limit over 1)", async () => {
+void test("claim: Reject claim limit validation failed (limit over 1)", async () => {
   const commenter = "octocat";
   client.cfg.issues.commands.assign.newContributors.restricted = 2;
 

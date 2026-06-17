@@ -1,10 +1,10 @@
+import { test } from "node:test";
 import nock from "nock";
-import { test } from "tap";
 import { assertDefined } from "ts-extras";
 import client from "../../../src/client.ts";
 import { activity } from "../../../src/events/index.ts";
 
-void test("Handle multiple and missing issue references", async () => {
+void test("activity: Handle multiple and missing issue references", async () => {
   client.cfg.activity.check.repositories = ["zulip/zulip"];
 
   const scope = nock("https://api.github.com")
@@ -35,7 +35,7 @@ void test("Handle multiple and missing issue references", async () => {
   scope.done();
 });
 
-void test("Continues past inactive issue with no assignees", async () => {
+void test("activity: Continues past inactive issue with no assignees", async () => {
   client.cfg.activity.check.repositories = ["zulip/zulip"];
   client.cfg.activity.check.limit = 4;
   client.cfg.activity.check.reminder = 10;
@@ -84,7 +84,7 @@ void test("Continues past inactive issue with no assignees", async () => {
   scope.done();
 });
 
-void test("Unassigns and upgrades warning when prior inactive comment exists", async () => {
+void test("activity: Unassigns and upgrades warning when prior inactive comment exists", async () => {
   client.cfg.activity.check.repositories = ["zulip/zulip"];
   client.cfg.activity.check.limit = 4;
   client.cfg.activity.check.reminder = 10;

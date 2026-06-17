@@ -1,7 +1,6 @@
-import assert from "node:assert";
+import { test, type TestContext } from "node:test";
 import nock from "nock";
 import { partialMock } from "partial-mock";
-import { test } from "tap";
 import client from "../../../src/client.ts";
 import * as abandon from "../../../src/commands/abandon.ts";
 import type { CommandPayload } from "../../../src/commands/index.ts";
@@ -23,7 +22,7 @@ const payload: CommandPayload = partialMock({
   },
 });
 
-void test("Reject if commenter isn't an assignee", async (t) => {
+void test("abandon: Reject if commenter isn't an assignee", async (t: TestContext) => {
   const commenter = "octokitten";
 
   const error = "**ERROR:** You have not claimed this issue to work on yet.";
@@ -33,12 +32,12 @@ void test("Reject if commenter isn't an assignee", async (t) => {
 
   const response = await abandon.run.call(client, payload, commenter);
 
-  t.equal(response.data.body, error);
+  t.assert.strictEqual(response.data.body, error);
 
   scope.done();
 });
 
-void test("Remove if commenter is assigned", async (t) => {
+void test("abandon: Remove if commenter is assigned", async (t: TestContext) => {
   const commenter = "octocat";
 
   const scope = nock("https://api.github.com")
@@ -49,8 +48,8 @@ void test("Remove if commenter is assigned", async (t) => {
 
   const response = await abandon.run.call(client, payload, commenter);
 
-  assert.ok("assignees" in response.data);
-  t.strictSame(response.data.assignees, []);
+  t.assert.ok("assignees" in response.data);
+  t.assert.deepStrictEqual(response.data.assignees, []);
 
   scope.done();
 });

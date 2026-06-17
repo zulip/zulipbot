@@ -1,6 +1,6 @@
+import { test, type TestContext } from "node:test";
 import nock from "nock";
 import { partialMock } from "partial-mock";
-import { test } from "tap";
 import { assertDefined } from "ts-extras";
 import client from "../../../src/client.ts";
 import * as add from "../../../src/commands/add.ts";
@@ -30,17 +30,17 @@ assertDefined(template);
 template.content = "{labels} {labelList} {exist} {beState} {action} {type}.";
 client.templates.set("labelError", template);
 
-void test("Reject if self-labelling enabled with different commenter", async (t) => {
+void test("add: Reject if self-labelling enabled with different commenter", async (t: TestContext) => {
   client.cfg.issues.commands.label.self = true;
   const commenter = "octokitten";
   const args = '"bug"';
 
   const response = await add.run.call(client, payload, commenter, args);
 
-  t.notOk(response);
+  t.assert.strictEqual(response, undefined);
 });
 
-void test("Reject if self-labelling users excludes commenter", async (t) => {
+void test("add: Reject if self-labelling users excludes commenter", async (t: TestContext) => {
   client.cfg.issues.commands.label.self = {
     users: ["octocat"],
   };
@@ -49,19 +49,19 @@ void test("Reject if self-labelling users excludes commenter", async (t) => {
 
   const response = await add.run.call(client, payload, commenter, args);
 
-  t.notOk(response);
+  t.assert.strictEqual(response, undefined);
 });
 
-void test("Reject if invalid arguments were provided", async (t) => {
+void test("add: Reject if invalid arguments were provided", async (t: TestContext) => {
   const commenter = "octocat";
   const args = "no arguments";
 
   const response = await add.run.call(client, payload, commenter, args);
 
-  t.notOk(response);
+  t.assert.strictEqual(response, undefined);
 });
 
-void test("Add appropriate labels", async () => {
+void test("add: Add appropriate labels", async () => {
   client.cfg.issues.commands.label.self = false;
   const commenter = "octocat";
   const args = '"bug"';
@@ -87,7 +87,7 @@ const payload2: CommandPayload = partialMock({
   },
 });
 
-void test("Add appropriate label and reject label not in repository", async () => {
+void test("add: Add appropriate label and reject label not in repository", async () => {
   const commenter = "octocat";
   const args = '"bug" "invalid"';
   const error = 'Label "invalid" does not exist was added to pull request.';
@@ -105,7 +105,7 @@ void test("Add appropriate label and reject label not in repository", async () =
   scope.done();
 });
 
-void test("Add appropriate labels and reject labels not in repository", async () => {
+void test("add: Add appropriate labels and reject labels not in repository", async () => {
   const commenter = "octocat";
   const args = '"bug" "a" "b"';
   const error = 'Labels "a", "b" do not exist were added to issue.';
@@ -123,7 +123,7 @@ void test("Add appropriate labels and reject labels not in repository", async ()
   scope.done();
 });
 
-void test("Add appropriate labels and reject already added label", async () => {
+void test("add: Add appropriate labels and reject already added label", async () => {
   const commenter = "octocat";
   const args = '"bug" "test"';
   const error = 'Label "test" already exists was added to pull request.';
@@ -141,7 +141,7 @@ void test("Add appropriate labels and reject already added label", async () => {
   scope.done();
 });
 
-void test("Add appropriate labels and reject already added labels", async () => {
+void test("add: Add appropriate labels and reject already added labels", async () => {
   const commenter = "octocat";
   const args = '"test" "test2"';
   const error = 'Labels "test", "test2" already exist were added to issue.';
