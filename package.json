@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node ./src/index.ts",
-    "pretest": "tsc && eslint . && prettier --check . '!**/*.js' '!**/*.ts'",
+    "pretest": "tsc && eslint . && prettier --check .",
     "test": "tap --coverage-report=lcovonly"
   },
   "packageManager": "pnpm@10.30.2+sha512.36cdc707e7b7940a988c9c1ecf88d084f8514b5c3f085f53a2e244c2921d3b2545bc20dd4ebe1fc245feec463bb298aecea7a63ed1f7680b877dc6379d8d0cb4",
@@ -35,7 +35,6 @@
     "eslint-config-xo-typescript": "^9.0.0",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-unicorn": "^63.0.0",
     "nock": "^14.0.10",
     "partial-mock": "^1.1.0",

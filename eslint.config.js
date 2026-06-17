@@ -1,8 +1,8 @@
 import { defineConfig } from "eslint/config";
+import prettier from "eslint-config-prettier";
 import xo from "eslint-config-xo";
 import xoTypeScript from "eslint-config-xo-typescript";
 import importPlugin from "eslint-plugin-import";
-import prettierRecommended from "eslint-plugin-prettier/recommended";
 import unicorn from "eslint-plugin-unicorn";
 
 export default defineConfig(
@@ -16,7 +16,7 @@ export default defineConfig(
   },
   importPlugin.flatConfigs.recommended,
   unicorn.configs.recommended,
-  prettierRecommended,
+  prettier,
   {
     languageOptions: {
       ecmaVersion: "latest",
