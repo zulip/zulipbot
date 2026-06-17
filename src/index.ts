@@ -68,7 +68,7 @@ process.on("unhandledRejection", (error) => {
   );
 });
 
-if (client.cfg.activity.check.interval) {
+if (client.cfg.activity.check.interval !== null) {
   setInterval(() => {
     void events.activity.run.call(client);
   }, client.cfg.activity.check.interval * 3600000);

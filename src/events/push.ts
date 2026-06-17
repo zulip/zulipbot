@@ -12,7 +12,7 @@ export const run = function (
   const { branch, label, comment } = this.cfg.pulls.status.mergeConflicts;
   const mainPush = payload.ref === `refs/heads/${branch}`;
 
-  if (!mainPush || (!label && !comment)) return;
+  if (!mainPush || (label === null && !comment)) return;
 
   return setTimeout(
     () => {

@@ -116,7 +116,7 @@ async function check(
       });
     }
 
-    if (label) {
+    if (label !== null) {
       await this.issues.addLabels({
         owner: repoOwner,
         repo: repoName,

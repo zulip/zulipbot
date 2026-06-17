@@ -50,7 +50,7 @@ export const run = async function (
     return;
   }
 
-  if (!opened || !this.cfg.pulls.references.labels) return;
+  if (!opened || this.cfg.pulls.references.labels !== false) return;
 
   for (const issue of commitReferences) {
     await labelReference.call(this, issue, number, repo);

@@ -18,7 +18,7 @@ export const run = async function (
   const autoUpdate = this.cfg.activity.pulls.autoUpdate;
   const size = this.cfg.pulls.status.size;
 
-  if (autoUpdate || size) {
+  if (autoUpdate || size.labels) {
     await responses.pullState.addLabels.call(this, payload);
   }
 

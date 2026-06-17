@@ -7,7 +7,7 @@ export const run = async function (
   this: Client,
   payload: EmitterWebhookEvent<"member">["payload"],
 ) {
-  const claimEnabled = this.cfg.issues.commands.assign.claim.length;
+  const claimEnabled = this.cfg.issues.commands.assign.claim.length > 0;
 
   if (payload.action !== "added" || !claimEnabled) return;
 
@@ -16,7 +16,7 @@ export const run = async function (
   const repoFullName = payload.repository.full_name;
   const invite = this.invites.get(`${member}@${repoFullName}`);
 
-  if (!invite) return;
+  if (invite === undefined) return;
 
   const [repoOwner, repoName] = repoFullName.split("/");
   assertDefined(repoOwner);

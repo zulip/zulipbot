@@ -17,7 +17,7 @@ export const run = async function (
   if (
     "assignee" in payload &&
     payload.assignee &&
-    this.cfg.activity.issues.inProgress
+    this.cfg.activity.issues.inProgress !== undefined
   ) {
     await responses.issueState.progress.call(this, payload);
   }
@@ -46,7 +46,7 @@ async function parse(this: Client, payload: CommandPayload) {
   const body = data.body;
   const username = this.cfg.auth.username;
 
-  if (commenter === username || !body) return;
+  if (commenter === username || body === null) return;
 
   const prefix = new RegExp(
     String.raw`@${_.escapeRegExp(username)} +(\w+)( +(--\w+|"[^"]+"))*`,

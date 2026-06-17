@@ -44,17 +44,13 @@ async function scrapePulls(
       issue_number: number,
     });
 
-    const labels = response.data.map((label) => label.name);
+    const labels = new Set<string | null>(
+      response.data.map((label) => label.name),
+    );
 
-    const inactive = labels.find(
-      (label) => label === this.cfg.activity.inactive,
-    );
-    const reviewed = labels.find(
-      (l) => l === this.cfg.activity.pulls.reviewed.label,
-    );
-    const needsReview = labels.find(
-      (l) => l === this.cfg.activity.pulls.needsReview.label,
-    );
+    const inactive = labels.has(this.cfg.activity.inactive);
+    const reviewed = labels.has(this.cfg.activity.pulls.reviewed.label);
+    const needsReview = labels.has(this.cfg.activity.pulls.needsReview.label);
 
     if (time + ims <= Date.now() && !inactive && reviewed) {
       await checkInactivePull.call(this, pull);

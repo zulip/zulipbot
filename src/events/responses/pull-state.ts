@@ -160,7 +160,7 @@ export const update = async function (
 
     const { label } = this.cfg.pulls.status.mergeConflicts;
 
-    if (label) {
+    if (label !== null) {
       try {
         await this.issues.removeLabel({
           owner: repoOwner,

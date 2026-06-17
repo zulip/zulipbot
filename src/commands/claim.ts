@@ -173,7 +173,7 @@ async function invite(
 
   const perm = this.cfg.issues.commands.assign.newContributors.permission;
 
-  if (!perm) {
+  if (perm === null) {
     const error = "**ERROR:** `newContributors.permission` wasn't configured.";
     return this.issues.createComment({
       owner: repoOwner,

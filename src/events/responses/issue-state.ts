@@ -69,10 +69,10 @@ export const progress = async function (
   assertDefined(payload.issue.labels);
   const labeled = payload.issue.labels.find((l) => l.name === label);
 
-  const assignees = payload.issue.assignees;
-  let assigned: number | boolean = assignees.length;
   // GitHub API bug sometimes doesn't remove unassigned user from array
-  if (assigned === 1) assigned = payload.assignee.id !== assignees[0]!.id;
+  const assigned = payload.issue.assignees.some(
+    (assignee) => assignee !== null && assignee.id !== payload.assignee?.id,
+  );
 
   if (action === "assigned" && !labeled) {
     await this.issues.addLabels({
