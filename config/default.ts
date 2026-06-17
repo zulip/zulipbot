@@ -29,10 +29,10 @@ export const issues = {
     assign: {
       claim: new Array<string>(),
       abandon: new Array<string>(),
-      limit: Number.POSITIVE_INFINITY,
+      limit: Infinity,
       newContributors: {
         permission: safeCastTo<string | null>(null),
-        restricted: Number.POSITIVE_INFINITY,
+        restricted: Infinity,
       },
       warn: {
         labels: new Array<string>(),
