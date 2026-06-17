@@ -73,7 +73,7 @@ class ReferenceSearch {
         issue = await this.client.issues.get({
           owner: this.repoOwner,
           repo: this.repoName,
-          issue_number: Number(number),
+          issue_number: number,
         });
       } catch (error) {
         if (error instanceof RequestError && error.status === 404) return false;
