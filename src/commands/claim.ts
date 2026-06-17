@@ -114,12 +114,11 @@ export const run = async function (
     });
   } catch (error) {
     if (!(error instanceof RequestError) || error.status !== 404) {
-      const error = "**ERROR:** Unexpected response from GitHub API.";
       return this.issues.createComment({
         owner: repoOwner,
         repo: repoName,
         issue_number: number,
-        body: error,
+        body: "**ERROR:** Unexpected response from GitHub API.",
       });
     }
 

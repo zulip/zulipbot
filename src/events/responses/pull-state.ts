@@ -6,7 +6,7 @@ import { assertDefined, assertPresent } from "ts-extras";
 import type { Client } from "../../client.ts";
 import Search from "../../structures/reference-search.ts";
 
-export const label = async function (
+export const addLabels = async function (
   this: Client,
   payload: EmitterWebhookEvent<
     "pull_request" | "pull_request_review"
@@ -35,7 +35,7 @@ export const label = async function (
   }
 
   if (sizeLabels && (action === "opened" || action === "synchronize")) {
-    labels = size(sizeLabels, labels, payload.pull_request);
+    labels = addSize(sizeLabels, labels, payload.pull_request);
   }
 
   if (!_.isEqual(oldLabels.toSorted(), labels.toSorted())) {
@@ -79,7 +79,7 @@ function review(
   return labels;
 }
 
-function size(
+function addSize(
   sizeLabels: Map<string, number>,
   labels: string[],
   pull: EmitterWebhookEvent<
@@ -129,15 +129,7 @@ export const update = async function (
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
 
-  const warnings = new Map<
-    string,
-    (
-      pull:
-        | components["schemas"]["pull-request-simple"]
-        | components["schemas"]["webhook-pull-request-synchronize"]["pull_request"],
-      repo: components["schemas"]["repository"],
-    ) => Promise<boolean>
-  >([
+  const warnings = new Map<string, () => Promise<boolean>>([
     [
       "mergeConflictWarning",
       async () => {
@@ -151,7 +143,7 @@ export const update = async function (
     ],
     [
       "fixCommitWarning",
-      async (pull, repo) => {
+      async () => {
         const references = new Search(this, pull, repo);
         const bodyReferences = await references.getBody();
         const commitReferences = await references.getCommits();
@@ -163,7 +155,7 @@ export const update = async function (
   for (const [name, check] of warnings) {
     const template = this.templates.get(name);
     assertDefined(template);
-    const deletable = await check(pull, repo);
+    const deletable = await check();
     if (!deletable) continue;
 
     const { label } = this.cfg.pulls.status.mergeConflicts;

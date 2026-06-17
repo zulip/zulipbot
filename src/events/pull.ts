@@ -19,7 +19,7 @@ export const run = async function (
   const size = this.cfg.pulls.status.size;
 
   if (autoUpdate || size) {
-    await responses.pullState.label.call(this, payload);
+    await responses.pullState.addLabels.call(this, payload);
   }
 
   if (action === "submitted" && assignee) {

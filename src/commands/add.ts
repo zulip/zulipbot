@@ -64,10 +64,9 @@ export const run = async function (
 
   if (alreadyAdded.length > 0) {
     const one = alreadyAdded.length === 1;
-    const labels = alreadyAdded.join('", "');
     const error = template.format({
       labels: `Label${one ? "" : "s"}`,
-      labelList: `"${labels}"`,
+      labelList: `"${alreadyAdded.join('", "')}"`,
       exist: `already exist${one ? "s" : ""}`,
       beState: `w${one ? "as" : "ere"}`,
       action: "added to",

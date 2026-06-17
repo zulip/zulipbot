@@ -105,7 +105,7 @@ void test("Rejects creation of duplicate invite", async () => {
 void test("Reject claim on pull request", async () => {
   const commenter = "octocat";
 
-  const payload: CommandPayload = partialMock({
+  const payload3: CommandPayload = partialMock({
     repository: {
       owner: { login: "zulip" },
       name: "zulipbot",
@@ -130,7 +130,7 @@ void test("Reject claim on pull request", async () => {
     })
     .reply(200);
 
-  await claim.run.call(client, payload, commenter, "");
+  await claim.run.call(client, payload3, commenter, "");
 
   scope.done();
 });

@@ -183,9 +183,9 @@ async function scrapeInactiveIssues(
           assignees: logins,
         });
 
-        const template = this.templates.get("abandonWarning");
-        assertDefined(template);
-        const warning = template.format({
+        const abandonTemplate = this.templates.get("abandonWarning");
+        assertDefined(abandonTemplate);
+        const warning = abandonTemplate.format({
           assignee: logins.join(", @"),
           total: (ms + ims) / 86400000,
           username: this.cfg.auth.username,
