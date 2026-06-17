@@ -19,7 +19,7 @@ class Template {
   /**
    * Finds comments generated from templates on a issue/pull request.
    *
-   * @return Array of filtered template comments from the client user.
+   * @returns Array of filtered template comments from the client user.
    */
 
   async getComments(
@@ -54,7 +54,7 @@ class Template {
    * Formats template content with values from a given context.
    *
    * @param context Context with names/values of variables to format
-   * @return Formatted template content.
+   * @returns Formatted template content.
    */
 
   format(context: Record<string, unknown>) {

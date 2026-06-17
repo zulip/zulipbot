@@ -54,7 +54,7 @@ class ReferenceSearch {
    * not necessarily when commits are merged.
    *
    * @param strings Strings to find references in.
-   * @return Sorted array of all referenced issue numbers.
+   * @returns Sorted array of all referenced issue numbers.
    */
 
   async find(strings: string[]) {
