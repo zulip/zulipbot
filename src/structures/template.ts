@@ -60,7 +60,7 @@ class Template {
     let content = this.content;
     for (const variable of Object.entries(context)) {
       const [expression, value] = variable;
-      content = content.replaceAll(`{${expression}}`, String(value));
+      content = content.replaceAll(`{${expression}}`, () => String(value));
     }
 
     return content;
