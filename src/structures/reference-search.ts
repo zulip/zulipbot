@@ -88,7 +88,7 @@ class ReferenceSearch {
     const matchStatuses = await Promise.all(statusCheck);
     // remove strings that didn't contain any references
     const filteredMatches = matchStatuses.filter((number) => number !== false);
-    return filteredMatches.toSorted((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+    return filteredMatches.toSorted((a, b) => a - b);
   }
 
   async getBody() {
