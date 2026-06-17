@@ -1,71 +1,43 @@
 import { defineConfig } from "eslint/config";
 import prettier from "eslint-config-prettier";
 import xo from "eslint-config-xo";
-import xoTypeScript from "eslint-config-xo-typescript";
-import importPlugin from "eslint-plugin-import";
-import unicorn from "eslint-plugin-unicorn";
 
 export default defineConfig(
   {
     ignores: ["package-lock.json"],
   },
-  xo,
-  {
-    files: ["**/*.{cts,mts,ts}"],
-    extends: xoTypeScript,
-  },
-  importPlugin.flatConfigs.recommended,
-  unicorn.configs.recommended,
+  xo({
+    prettier: "compat",
+  }),
   prettier,
   {
+    files: ["**/*.{,[cm]}[jt]s"],
     languageOptions: {
       ecmaVersion: "latest",
     },
-    settings: {
-      "import/resolver": "typescript",
-    },
     rules: {
-      "@stylistic/curly-newline": "off", // https://github.com/prettier/eslint-config-prettier/issues/351
       "@typescript-eslint/naming-convention": "off",
       "@typescript-eslint/no-restricted-types": "off",
       "arrow-body-style": "error",
       "capitalized-comments": "off",
       curly: ["error", "multi-line", "consistent"],
-      "import/first": "error",
-      "import/newline-after-import": "error",
-      "import/no-cycle": "error",
-      "import/no-useless-path-segments": "error",
-      "max-nested-callbacks": ["error", 3],
+      "jsdoc/require-asterisk-prefix": ["error", "always"],
       "max-params": ["error", 5],
       "no-await-in-loop": "off",
       "no-useless-constructor": "error",
-      "no-var": "error",
       "prefer-arrow-callback": "error",
       "prefer-destructuring": ["error", { array: true, object: false }],
       "prefer-const": "error",
       "prefer-template": "error",
       strict: "error",
-      "unicorn/no-null": "off",
+      "unicorn/no-break-in-nested-loop": "off",
       "unicorn/no-process-exit": "off",
-      "unicorn/no-useless-undefined": "off",
       "unicorn/numeric-separators-style": "off",
-      "unicorn/prefer-ternary": "off",
       "unicorn/prevent-abbreviations": [
         "error",
         { replacements: { args: false } },
       ],
-      camelcase: ["off", {}],
+      "unicorn/require-array-sort-compare": "off", // https://github.com/xojs/eslint-config-xo/issues/104
     },
-  },
-  {
-    files: ["**/*.json"],
-    rules: {
-      "unicorn/expiring-todo-comments": "off",
-      strict: "off",
-    },
-  },
-  {
-    files: ["**/tsconfig.json"],
-    language: "json/jsonc", // https://github.com/xojs/xo/issues/798
   },
 );

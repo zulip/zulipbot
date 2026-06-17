@@ -55,7 +55,7 @@ export class Client extends MyOctokit {
                 retryCount + 1
               } times for ${method} ${url}; retrying in ${retryAfter} seconds`,
             );
-            return true;
+            return true; // eslint-disable-line @typescript-eslint/strict-void-return
           }
 
           this.log.warn(

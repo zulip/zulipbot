@@ -1,6 +1,11 @@
-ignoredBuiltDependencies:
-  - unrs-resolver
+allowBuilds:
+  unrs-resolver: false
+
+minimumReleaseAgeExclude:
+  - eslint-config-xo@0.53.1
+  - eslint-plugin-jsdoc@63.0.4
+  - eslint-plugin-unicorn@67.0.0
 
 patchedDependencies:
-  bottleneck: patches/bottleneck.patch  # https://github.com/octokit/plugin-retry.js/issues/660, https://github.com/octokit/plugin-throttling.js/issues/823
-  partial-mock: patches/partial-mock.patch  # https://github.com/theKashey/partial-mock/pull/1
+  bottleneck: patches/bottleneck.patch # https://github.com/octokit/plugin-retry.js/issues/660, https://github.com/octokit/plugin-throttling.js/issues/823
+  partial-mock: patches/partial-mock.patch # https://github.com/theKashey/partial-mock/pull/1
