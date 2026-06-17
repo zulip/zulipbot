@@ -1,3 +1,4 @@
+*.tsbuildinfo
 .tap
 node_modules
 /config/config.ts
