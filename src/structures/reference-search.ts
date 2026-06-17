@@ -62,7 +62,7 @@ class ReferenceSearch {
       "giv",
     );
     const issues = strings.flatMap((string) =>
-      [...string.matchAll(regex)].map((match) => Number(match[1])),
+      Array.from(string.matchAll(regex), (match) => Number(match[1])),
     );
     const uniqueIssues = [...new Set(issues)];
 
