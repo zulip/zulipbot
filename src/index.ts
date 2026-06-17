@@ -1,4 +1,5 @@
 import fs from "fs";
+import process from "node:process";
 
 import { Webhooks, createNodeMiddleware } from "@octokit/webhooks";
 import express from "express";

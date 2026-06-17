@@ -1,4 +1,5 @@
 import fs from "fs";
+import process from "node:process";
 
 import { retry } from "@octokit/plugin-retry";
 import { throttling } from "@octokit/plugin-throttling";
