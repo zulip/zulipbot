@@ -75,9 +75,9 @@ export const pulls = {
   references: {
     required: false,
     labels: safeCastTo<
+      | false
       | { include: string[]; exclude?: never }
       | { include?: never; exclude: string[] }
-      | false
     >(false),
   },
 };
