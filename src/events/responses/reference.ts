@@ -36,7 +36,7 @@ export const run = async function (
 
   if (comments.length === 0 && missingReferences.length > 0) {
     const comment = template.format({
-      author: author,
+      author,
       issues: missingReferences.join(", #"),
       fixIssues: missingReferences.join(", fixes #"),
       issuePronoun: missingReferences.length > 1 ? "them" : "it",
@@ -104,6 +104,6 @@ async function labelReference(
     owner: repoOwner,
     repo: repoName,
     issue_number: number,
-    labels: labels,
+    labels,
   });
 }

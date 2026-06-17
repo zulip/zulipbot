@@ -43,7 +43,7 @@ export const addLabels = async function (
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
-      labels: labels,
+      labels,
     });
   }
 };

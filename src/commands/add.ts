@@ -47,7 +47,7 @@ export const run = async function (
     const one = rejected.length === 1;
     const error = template.format({
       labels: `Label${one ? "" : "s"}`,
-      type: type,
+      type,
       labelList: `"${rejected.join('", "')}"`,
       exist: `do${one ? "es" : ""} not exist`,
       beState: `w${one ? "as" : "ere"}`,
@@ -70,7 +70,7 @@ export const run = async function (
       exist: `already exist${one ? "s" : ""}`,
       beState: `w${one ? "as" : "ere"}`,
       action: "added to",
-      type: type,
+      type,
     });
 
     await this.issues.createComment({

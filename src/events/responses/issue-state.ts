@@ -47,7 +47,7 @@ async function clearClosed(
     owner: repoOwner,
     repo: repoName,
     issue_number: issue.number,
-    assignees: assignees,
+    assignees,
   });
 
   recentlyClosed.delete(issue.id);

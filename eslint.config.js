@@ -44,7 +44,6 @@ export default defineConfig(
       "no-await-in-loop": "off",
       "no-useless-constructor": "error",
       "no-var": "error",
-      "object-shorthand": ["error", "consistent-as-needed"],
       "prefer-arrow-callback": "error",
       "prefer-destructuring": ["error", { array: true, object: false }],
       "prefer-const": "error",

@@ -33,9 +33,9 @@ async function checkLabels(
       state: warn.presence ? "with" : "without",
       labelGrammar: `label${one ? "" : "s"}`,
       list: `"${warn.labels.join('", "')}"`,
-      commenter: commenter,
-      repoName: repoName,
-      repoOwner: repoOwner,
+      commenter,
+      repoName,
+      repoOwner,
     });
 
     await this.issues.createComment({
@@ -236,8 +236,8 @@ async function validate(
     assertDefined(template);
     const comment = template.format({
       issue: `issue${limit === 1 ? "" : "s"}`,
-      limit: limit,
-      commenter: commenter,
+      limit,
+      commenter,
     });
 
     return this.issues.createComment({

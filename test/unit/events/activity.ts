@@ -61,14 +61,14 @@ void test("Continues past inactive issue with no assignees", async () => {
         updated_at: oldDate,
         labels: [{ name: "in progress" }],
         assignees: [],
-        repository: repository,
+        repository,
       },
       {
         number: 11,
         updated_at: oldDate,
         labels: [{ name: "in progress" }],
         assignees: [{ login: "alice" }],
-        repository: repository,
+        repository,
       },
     ])
     .post("/repos/zulip/zulip/issues/10/comments", {

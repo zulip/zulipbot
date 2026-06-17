@@ -85,7 +85,7 @@ async function checkInactivePull(
 
   const comment = template.format({
     days: this.cfg.activity.check.reminder,
-    author: author,
+    author,
   });
 
   const comments = await template.getComments({

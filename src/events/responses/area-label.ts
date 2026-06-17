@@ -45,7 +45,7 @@ export const run = async function (
     teams: areaTeams,
     refs: `"${references}"`,
     labels: labelSize,
-    payload: payload,
+    payload,
   });
 
   const comments = await template.getComments({

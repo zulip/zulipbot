@@ -44,7 +44,7 @@ export const run = async function (
   assertDefined(template);
   const error = template.format({
     labels: `Label${one ? "" : "s"}`,
-    type: type,
+    type,
     labelList: `"${rejected.join('", "')}"`,
     exist: `do${one ? "es" : ""} not exist`,
     beState: `w${one ? "as" : "ere"}`,
