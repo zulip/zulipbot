@@ -58,7 +58,6 @@ export const run = async function (
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const number = payload.issue.number;
-  const limit = this.cfg.issues.commands.assign.limit;
 
   if (
     payload.issue.assignees.some((assignee) => assignee?.login === commenter)
@@ -72,7 +71,7 @@ export const run = async function (
     });
   }
 
-  if (payload.issue.assignees.length >= limit) {
+  if (payload.issue.assignees.length >= this.cfg.issues.commands.assign.limit) {
     const template = this.templates.get("multipleClaimWarning");
     assertDefined(template);
     const warn = template.format({ commenter });
