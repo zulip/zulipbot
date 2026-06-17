@@ -32,7 +32,7 @@ export const run = async function (
 
   const alreadyAdded = labels.filter((label) => issueLabels.has(label));
   const rejected = labels.filter((label) => !repoLabels.has(label));
-  const addLabels = labels.filter(
+  const newLabels = labels.filter(
     (label) => repoLabels.has(label) && !issueLabels.has(label),
   );
 
@@ -79,12 +79,12 @@ export const run = async function (
     });
   }
 
-  if (addLabels.length > 0) {
+  if (newLabels.length > 0) {
     response = await this.issues.addLabels({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
-      labels: addLabels,
+      labels: newLabels,
     });
   }
 

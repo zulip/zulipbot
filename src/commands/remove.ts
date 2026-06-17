@@ -23,14 +23,16 @@ export const run = async function (
   const issueLabels = [...payload.issue.labels].map((label) => label.name);
 
   const labels = rawLabels.map((string) => string.replaceAll('"', ""));
-  const removeLabels = issueLabels.filter((label) => !labels.includes(label));
+  const remainingLabels = issueLabels.filter(
+    (label) => !labels.includes(label),
+  );
   const rejected = labels.filter((label) => !issueLabels.includes(label));
 
   await this.issues.setLabels({
     owner: repoOwner,
     repo: repoName,
     issue_number: number,
-    labels: removeLabels,
+    labels: remainingLabels,
   });
 
   if (rejected.length === 0) return true;
