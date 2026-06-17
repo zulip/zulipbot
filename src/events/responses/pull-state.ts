@@ -91,7 +91,7 @@ function addSize(
   let label = sizeLabels.keys().next().value;
   assertDefined(label);
 
-  for (const [name, size] of sizeLabels.entries()) {
+  for (const [name, size] of sizeLabels) {
     if (changes > size) label = name;
   }
 
