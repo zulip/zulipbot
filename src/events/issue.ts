@@ -52,7 +52,7 @@ async function parse(this: Client, payload: CommandPayload) {
     String.raw`@${_.escapeRegExp(username)} +(\w+)( +(--\w+|"[^"]+"))*`,
     "g",
   );
-  const parsed = body.match(prefix);
+  const parsed = prefix.exec(body);
   if (!parsed) return;
 
   for (const command of parsed) {
