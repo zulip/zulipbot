@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 import process from "node:process";
 
 import { retry } from "@octokit/plugin-retry";
