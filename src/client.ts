@@ -104,4 +104,5 @@ export class Client extends MyOctokit {
   }
 }
 
-export default new Client();
+const client = new Client();
+export default client;

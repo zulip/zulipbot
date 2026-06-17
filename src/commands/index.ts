@@ -15,4 +15,5 @@ export type CommandPayload = EmitterWebhookEvent<
 
 export type CommandAliases = Client["cfg"]["issues"]["commands"];
 
-export default [abandon, add, claim, remove];
+const commands = [abandon, add, claim, remove];
+export default commands;
