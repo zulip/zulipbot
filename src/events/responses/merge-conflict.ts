@@ -89,7 +89,7 @@ async function check(
       if (last) lastCommitTime = last.commit.committer?.date ?? lastCommitTime;
     }
 
-    const warnComment = warnings.find(
+    const warnComment = warnings.some(
       (c) =>
         lastCommitTime === undefined ||
         Date.parse(lastCommitTime) < Date.parse(c.created_at),
@@ -100,7 +100,7 @@ async function check(
       repo: repoName,
       issue_number: number,
     });
-    const inactive = labels.data.find(
+    const inactive = labels.data.some(
       (l) => l.name === this.cfg.activity.inactive,
     );
 

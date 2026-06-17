@@ -66,7 +66,7 @@ export const progress = async function (
   const label = this.cfg.activity.issues.inProgress;
   assertDefined(label);
   assertDefined(payload.issue.labels);
-  const labeled = payload.issue.labels.find((l) => l.name === label);
+  const labeled = payload.issue.labels.some((l) => l.name === label);
 
   // GitHub API bug sometimes doesn't remove unassigned user from array
   const assigned = payload.issue.assignees.some(
