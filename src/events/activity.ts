@@ -29,7 +29,7 @@ async function scrapePulls(
   pulls: Array<components["schemas"]["pull-request-simple"]>,
   referenceList: Map<string, number>,
 ) {
-  const ims = (this.cfg.activity.check.reminder ?? 0) * 86400000;
+  const ims = (this.cfg.activity.check.reminder ?? 0) * 86_400_000;
 
   for (const pull of pulls) {
     let time = Date.parse(pull.updated_at);
@@ -107,8 +107,8 @@ async function scrapeInactiveIssues(
   this: Client,
   references: Map<string, number>,
 ) {
-  const ms = (this.cfg.activity.check.limit ?? 0) * 86400000;
-  const ims = (this.cfg.activity.check.reminder ?? 0) * 86400000;
+  const ms = (this.cfg.activity.check.limit ?? 0) * 86_400_000;
+  const ims = (this.cfg.activity.check.reminder ?? 0) * 86_400_000;
 
   for await (const response of this.paginate.iterator(this.issues.list, {
     filter: "all",
@@ -182,7 +182,7 @@ async function scrapeInactiveIssues(
         assertDefined(abandonTemplate);
         const warning = abandonTemplate.format({
           assignee: logins.join(", @"),
-          total: (ms + ims) / 86400000,
+          total: (ms + ims) / 86_400_000,
           username: this.cfg.auth.username,
         });
 

@@ -43,7 +43,7 @@ void test("Continues past inactive issue with no assignees", async () => {
   client.cfg.activity.inactive = "inactive";
   client.cfg.auth.username = "zulipbot";
 
-  const oldDate = new Date(Date.now() - 20 * 86400000).toISOString();
+  const oldDate = new Date(Date.now() - 20 * 86_400_000).toISOString();
   const repository = {
     name: "zulip",
     owner: { login: "zulip" },
@@ -99,7 +99,7 @@ void test("Unassigns and upgrades warning when prior inactive comment exists", a
   abandonTemplate.content = "abandoned {assignee} {total} {username}";
   client.templates.set("abandonWarning", abandonTemplate);
 
-  const oldDate = new Date(Date.now() - 20 * 86400000).toISOString();
+  const oldDate = new Date(Date.now() - 20 * 86_400_000).toISOString();
 
   const scope = nock("https://api.github.com")
     .get("/repos/zulip/zulip/pulls")

@@ -69,7 +69,7 @@ process.on("unhandledRejection", (error) => {
 if (client.cfg.activity.check.interval !== null) {
   setInterval(() => {
     void events.activity.run.call(client);
-  }, client.cfg.activity.check.interval * 3600000);
+  }, client.cfg.activity.check.interval * 3_600_000);
 }
 
 for (const key of ["oAuthToken", "webhookSecret"] as const) {

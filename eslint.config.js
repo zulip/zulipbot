@@ -32,7 +32,6 @@ export default defineConfig(
       strict: "error",
       "unicorn/no-break-in-nested-loop": "off",
       "unicorn/no-process-exit": "off",
-      "unicorn/numeric-separators-style": "off",
       "unicorn/prevent-abbreviations": [
         "error",
         { replacements: { args: false } },
