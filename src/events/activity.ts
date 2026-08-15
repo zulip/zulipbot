@@ -209,13 +209,13 @@ async function scrapeInactiveIssues(bot: Bot, references: Map<string, number>) {
         const abandonTemplate = bot.templates.get("abandonWarning");
         assertDefined(abandonTemplate);
 
-        await bot.octokit.issues.updateComment({
+        await bot.octokit.issues.createComment({
           owner: repoOwner,
           repo: repoName,
-          comment_id: warning.id,
+          issue_number: number,
           body: abandonTemplate.format({
             assignee: assigneeList,
-            total: (ms + ims) / 86_400_000,
+            total: cycle / 86_400_000,
             username: bot.cfg.auth.username,
           }),
         });

@@ -88,7 +88,7 @@ void test("activity: Continues past inactive issue with no assignees", async () 
   scope.done();
 });
 
-void test("activity: Unassigns and upgrades warning when prior inactive comment exists", async () => {
+void test("activity: Unassign and say so when the warning went unanswered", async () => {
   bot.cfg.activity.check.repositories = ["zulip/zulip"];
   bot.cfg.activity.check.limit = 4;
   bot.cfg.activity.check.reminder = 10;
@@ -133,10 +133,10 @@ void test("activity: Unassigns and upgrades warning when prior inactive comment 
     ])
     .delete("/repos/zulip/zulip/issues/20/assignees", { assignees: ["alice"] })
     .reply(200)
-    .patch("/repos/zulip/zulip/issues/comments/555", {
+    .post("/repos/zulip/zulip/issues/20/comments", {
       body: "abandoned alice 14 zulipbot",
     })
-    .reply(200);
+    .reply(201);
 
   await activity.run(bot);
 
