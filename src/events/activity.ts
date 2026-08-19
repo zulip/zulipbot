@@ -103,12 +103,28 @@ async function checkInactivePull(
   }
 }
 
+function isWarningPending(
+  warning: components["schemas"]["issue-comment"],
+  comments: Array<components["schemas"]["issue-comment"]>,
+  referenceTime: number | undefined,
+  lifetime: number,
+) {
+  const warned = Date.parse(warning.created_at);
+  const expired = warned + lifetime < Date.now();
+  const answered =
+    comments.some((comment) => Date.parse(comment.created_at) > warned) ||
+    (referenceTime !== undefined && referenceTime > warned);
+
+  return !expired && !answered;
+}
+
 async function scrapeInactiveIssues(
   this: Client,
   references: Map<string, number>,
 ) {
   const ms = (this.cfg.activity.check.limit ?? 0) * 86_400_000;
   const ims = (this.cfg.activity.check.reminder ?? 0) * 86_400_000;
+  const cycle = ms + ims;
 
   for await (const response of this.paginate.iterator(this.issues.list, {
     filter: "all",
@@ -153,24 +169,23 @@ async function scrapeInactiveIssues(
       }
 
       const logins = issue.assignees.map((assignee) => assignee.login);
+      const assigneeList = logins.join(", @");
 
       const template = this.templates.get("inactiveWarning");
       assertDefined(template);
 
-      const comment = template.format({
-        assignee: logins.join(", @"),
-        remind: this.cfg.activity.check.reminder,
-        abandon: this.cfg.activity.check.limit,
-        username: this.cfg.auth.username,
-      });
-
-      const comments = await template.getComments({
+      const comments = await this.paginate(this.issues.listComments, {
         owner: repoOwner,
         repo: repoName,
         issue_number: number,
       });
 
-      if (comments[0] !== undefined) {
+      const warning = comments.findLast((comment) => template.matches(comment));
+
+      if (
+        warning !== undefined &&
+        isWarningPending(warning, comments, reference, cycle)
+      ) {
         await this.issues.removeAssignees({
           owner: repoOwner,
           repo: repoName,
@@ -180,25 +195,28 @@ async function scrapeInactiveIssues(
 
         const abandonTemplate = this.templates.get("abandonWarning");
         assertDefined(abandonTemplate);
-        const warning = abandonTemplate.format({
-          assignee: logins.join(", @"),
-          total: (ms + ims) / 86_400_000,
-          username: this.cfg.auth.username,
-        });
 
-        const id = comments[0].id;
-        await this.issues.updateComment({
+        await this.issues.createComment({
           owner: repoOwner,
           repo: repoName,
-          comment_id: id,
-          body: warning,
+          issue_number: number,
+          body: abandonTemplate.format({
+            assignee: assigneeList,
+            total: cycle / 86_400_000,
+            username: this.cfg.auth.username,
+          }),
         });
       } else if (time + ims <= Date.now()) {
         await this.issues.createComment({
           owner: repoOwner,
           repo: repoName,
           issue_number: number,
-          body: comment,
+          body: template.format({
+            assignee: assigneeList,
+            remind: this.cfg.activity.check.reminder,
+            abandon: this.cfg.activity.check.limit,
+            username: this.cfg.auth.username,
+          }),
         });
       }
     }

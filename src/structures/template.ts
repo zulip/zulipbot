@@ -1,6 +1,9 @@
 import type { RestEndpointMethodTypes } from "@octokit/rest";
 import type { Client } from "../client.ts";
 
+type IssueComment =
+  RestEndpointMethodTypes["issues"]["listComments"]["response"]["data"][number];
+
 class Template {
   /** The client that instantiated this template */
   client: Client;
@@ -15,6 +18,15 @@ class Template {
     this.content = content;
   }
 
+  matches(comment: IssueComment) {
+    const marker = `<!-- ${this.name} -->`;
+    const fromClient =
+      comment.user !== null &&
+      comment.user.login === this.client.cfg.auth.username;
+
+    return comment.body?.trimEnd().endsWith(marker) === true && fromClient;
+  }
+
   /**
    * Finds comments generated from templates on a issue/pull request.
    *
@@ -24,29 +36,12 @@ class Template {
   async getComments(
     parameters: RestEndpointMethodTypes["issues"]["listComments"]["parameters"],
   ) {
-    const templateComments: Awaited<
-      ReturnType<typeof this.client.issues.listComments>
-    >["data"] = [];
-
-    for await (const response of this.client.paginate.iterator(
+    const comments = await this.client.paginate(
       this.client.issues.listComments,
       parameters,
-    )) {
-      for (const comment of response.data) {
-        // Use end of template comments to check if comment is from template
-        const matched = comment.body
-          ?.trimEnd()
-          .endsWith(`<!-- ${this.name} -->`);
-        const fromClient =
-          comment.user !== null &&
-          comment.user.login === this.client.cfg.auth.username;
-        if (matched && fromClient) {
-          templateComments.push(comment);
-        }
-      }
-    }
+    );
 
-    return templateComments;
+    return comments.filter((comment) => this.matches(comment));
   }
 
   /**
