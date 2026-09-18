@@ -8,7 +8,9 @@ import * as member from "../../../src/events/member.ts";
 const payload: EmitterWebhookEvent<"member">["payload"] = partialMock({
   action: "removed",
   repository: {
+    name: "zulipbot",
     full_name: "zulip/zulipbot",
+    owner: { login: "zulip" },
   },
   member: {
     login: "octokitten",

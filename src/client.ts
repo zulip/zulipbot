@@ -1,10 +1,10 @@
 import fs from "node:fs";
 import process from "node:process";
+import path from "node:path";
 import { retry } from "@octokit/plugin-retry";
 import { throttling } from "@octokit/plugin-throttling";
 import { Octokit } from "@octokit/rest";
 import _ from "lodash";
-import { assertDefined } from "ts-extras";
 import type { Writable } from "type-fest";
 import * as custom from "../config/config.ts";
 import * as defaults from "../config/default.ts";
@@ -85,16 +85,12 @@ export class Client extends MyOctokit {
       }
     }
 
-    const templates = fs.readdirSync(
-      new URL("../config/templates", import.meta.url),
+    const templates = fs.globSync(
+      path.join(import.meta.dirname, "../config/templates/*.md"),
     );
     for (const file of templates) {
-      const [name] = file.split(".md");
-      assertDefined(name);
-      const content = fs.readFileSync(
-        new URL(`../config/templates/${file}`, import.meta.url),
-        "utf8",
-      );
+      const name = path.basename(file, ".md");
+      const content = fs.readFileSync(file, "utf8");
       const template = new Template(this, name, content);
       this.templates.set(name, template);
     }

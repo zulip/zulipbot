@@ -9,7 +9,7 @@ export const run = async function (this: Client) {
 
   // Process each repository sequentially to limit memory usage
   for (const repo of repos) {
-    const [repoOwner, repoName] = repo.split("/");
+    const [repoOwner, repoName] = repo.split("/", 2);
     assertDefined(repoOwner);
     assertDefined(repoName);
 

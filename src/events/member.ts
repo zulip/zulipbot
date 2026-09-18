@@ -1,6 +1,6 @@
-import type { EmitterWebhookEvent } from "@octokit/webhooks/types";
 import type { RestEndpointMethodTypes } from "@octokit/rest";
-import { assertDefined, assertPresent } from "ts-extras";
+import type { EmitterWebhookEvent } from "@octokit/webhooks/types";
+import { assertPresent } from "ts-extras";
 import type { Client } from "../client.ts";
 
 export const run = async function (
@@ -18,13 +18,12 @@ export const run = async function (
   assertPresent(payload.member);
   const member = payload.member.login;
   const repoFullName = payload.repository.full_name;
+  const repoOwner = payload.repository.owner.login;
+  const repoName = payload.repository.name;
+
   const invite = this.invites.get(`${member}@${repoFullName}`);
 
   if (invite === undefined) return;
-
-  const [repoOwner, repoName] = repoFullName.split("/");
-  assertDefined(repoOwner);
-  assertDefined(repoName);
 
   const response = await this.issues.addAssignees({
     owner: repoOwner,
