@@ -16,15 +16,25 @@ const keywords = [
 ];
 
 class ReferenceSearch {
-  /** The client that instantiated this template */
+  /**
+   * The client that instantiated this template
+   */
   client: Client;
-  /** The number of the pull request this search applies to */
+  /**
+   * The number of the pull request this search applies to
+   */
   number: number;
-  /** The description of the pull request this search applies to */
+  /**
+   * The description of the pull request this search applies to
+   */
   body: string;
-  /** The name of the repository of the pull request this search applies to */
+  /**
+   * The name of the repository of the pull request this search applies to
+   */
   repoName: string;
-  /** The owner of the repository of the pull request this search applies to */
+  /**
+   * The owner of the repository of the pull request this search applies to
+   */
   repoOwner: string;
 
   constructor(

@@ -2,11 +2,17 @@ import type { RestEndpointMethodTypes } from "@octokit/rest";
 import type { Client } from "../client.ts";
 
 class Template {
-  /** The client that instantiated this template */
+  /**
+   * The client that instantiated this template
+   */
   client: Client;
-  /** The name of this template */
+  /**
+   * The name of this template
+   */
   name: string;
-  /** The content of this template */
+  /**
+   * The content of this template
+   */
   content: string;
 
   constructor(client: Client, name: string, content: string) {
