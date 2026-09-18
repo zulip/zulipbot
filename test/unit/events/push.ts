@@ -16,7 +16,7 @@ const payload: EmitterWebhookEvent<"push">["payload"] = partialMock({
   },
 });
 
-void test("push: Ignore if non-main branch was pushed", async (t: TestContext) => {
+void test("push: Ignore if non-main branch was pushed", (t: TestContext) => {
   const response = push.run.call(client, payload);
 
   t.assert.strictEqual(response, undefined);
@@ -27,7 +27,7 @@ const mainPayload: EmitterWebhookEvent<"push">["payload"] = partialMock({
   repository: payload.repository,
 });
 
-void test("push: Ignore if there was no merge conflict configuration", async (t: TestContext) => {
+void test("push: Ignore if there was no merge conflict configuration", (t: TestContext) => {
   client.cfg.pulls.status.mergeConflicts.comment = false;
   client.cfg.pulls.status.mergeConflicts.label = null;
   const response = push.run.call(client, mainPayload);
