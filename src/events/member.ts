@@ -1,11 +1,16 @@
 import type { EmitterWebhookEvent } from "@octokit/webhooks/types";
+import type { RestEndpointMethodTypes } from "@octokit/rest";
 import { assertDefined, assertPresent } from "ts-extras";
 import type { Client } from "../client.ts";
 
 export const run = async function (
   this: Client,
   payload: EmitterWebhookEvent<"member">["payload"],
-) {
+): Promise<
+  | RestEndpointMethodTypes["issues"]["createComment"]["response"]
+  | true
+  | undefined
+> {
   const claimEnabled = this.cfg.issues.commands.assign.claim.length > 0;
 
   if (payload.action !== "added" || !claimEnabled) return;

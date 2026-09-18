@@ -1,4 +1,5 @@
 import { RequestError } from "@octokit/request-error";
+import type { RestEndpointMethodTypes } from "@octokit/rest";
 import { assertDefined } from "ts-extras";
 import type { Client } from "../client.ts";
 import type { CommandAliases, CommandPayload } from "./index.ts";
@@ -54,7 +55,11 @@ export const run = async function (
   payload: CommandPayload,
   commenter: string,
   args: string,
-) {
+): Promise<
+  | RestEndpointMethodTypes["issues"]["createComment"]["response"]
+  | RestEndpointMethodTypes["repos"]["addCollaborator"]["response"]
+  | undefined
+> {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const number = payload.issue.number;
@@ -144,7 +149,10 @@ async function invite(
   this: Client,
   payload: CommandPayload,
   commenter: string,
-) {
+): Promise<
+  | RestEndpointMethodTypes["issues"]["createComment"]["response"]
+  | RestEndpointMethodTypes["repos"]["addCollaborator"]["response"]
+> {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const number = payload.issue.number;

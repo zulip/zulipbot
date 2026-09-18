@@ -1,3 +1,4 @@
+import type { RestEndpointMethodTypes } from "@octokit/rest";
 import { assertDefined } from "ts-extras";
 import type { Client } from "../client.ts";
 import type { CommandAliases, CommandPayload } from "./index.ts";
@@ -7,7 +8,9 @@ export const run = async function (
   payload: CommandPayload,
   commenter: string,
   args: string,
-) {
+): Promise<
+  RestEndpointMethodTypes["issues"]["addLabels"]["response"] | undefined
+> {
   const creator = payload.issue.user?.login;
   const self = this.cfg.issues.commands.label.self;
   const selfLabel =

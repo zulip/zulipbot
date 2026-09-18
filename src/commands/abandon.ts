@@ -1,3 +1,4 @@
+import type { RestEndpointMethodTypes } from "@octokit/rest";
 import type { Client } from "../client.ts";
 import type { CommandAliases, CommandPayload } from "./index.ts";
 
@@ -5,7 +6,10 @@ export const run = async function (
   this: Client,
   payload: CommandPayload,
   commenter: string,
-) {
+): Promise<
+  | RestEndpointMethodTypes["issues"]["createComment"]["response"]
+  | RestEndpointMethodTypes["issues"]["removeAssignees"]["response"]
+> {
   const repoOwner = payload.repository.owner.login;
   const repoName = payload.repository.name;
   const number = payload.issue.number;
