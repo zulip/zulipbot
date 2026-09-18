@@ -13,7 +13,7 @@ export const run = async function (
 > {
   const claimEnabled = this.cfg.issues.commands.assign.claim.length > 0;
 
-  if (payload.action !== "added" || !claimEnabled) return;
+  if (!claimEnabled || payload.action !== "added") return;
 
   assertPresent(payload.member);
   const member = payload.member.login;

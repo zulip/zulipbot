@@ -51,7 +51,7 @@ async function scrapePulls(
     const reviewed = labels.has(this.cfg.activity.pulls.reviewed.label);
     const needsReview = labels.has(this.cfg.activity.pulls.needsReview.label);
 
-    if (time + ims <= Date.now() && !inactive && reviewed) {
+    if (!inactive && reviewed && time + ims <= Date.now()) {
       await checkInactivePull.call(this, pull);
     }
 
@@ -135,7 +135,7 @@ async function scrapeInactiveIssues(
 
       const active = this.cfg.activity.check.repositories.includes(repoTag);
 
-      if (time + ms >= Date.now() || !active) continue;
+      if (!active || time + ms >= Date.now()) continue;
 
       if (
         issue.assignees === undefined ||
