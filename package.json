@@ -3,14 +3,28 @@
   "version": "1.0.0",
   "private": true,
   "description": "GitHub workflow-optimizing bot",
+  "license": "Apache-2.0",
+  "repository": "github:zulip/zulipbot",
+  "homepage": "https://github.com/zulip/zulipbot#readme",
+  "bugs": "https://github.com/zulip/zulipbot/issues",
+  "author": "Cynthia Lin <cynthialin1004@gmail.com> (https://synicalsyntax.com)",
   "type": "module",
+  "packageManager": "pnpm@11.7.0+sha512.19cc852c120c7125760f2443ee6be0ca5b40f9f50598de1a09a1f177503e010e57c23c77646e01e761de59bf874fb22a3398c33ab9691fc13eb946b6f0f4d620",
   "scripts": {
     "start": "node --disable-proto=throw --disallow-code-generation-from-strings ./src/index.ts",
     "pretest": "tsc && eslint && prettier --check .",
     "test:node": "env NODE_ENV=test node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=lcov.info --disable-proto=throw --disallow-code-generation-from-strings",
     "test": "node --run test:node"
   },
-  "packageManager": "pnpm@11.7.0+sha512.19cc852c120c7125760f2443ee6be0ca5b40f9f50598de1a09a1f177503e010e57c23c77646e01e761de59bf874fb22a3398c33ab9691fc13eb946b6f0f4d620",
+  "keywords": [
+    "zulip",
+    "bot",
+    "bots",
+    "github",
+    "workflow",
+    "zulipbot",
+    "synicalsyntax"
+  ],
   "dependencies": {
     "@octokit/plugin-retry": "^8.1.0",
     "@octokit/plugin-throttling": "^11.0.3",
@@ -35,19 +49,5 @@
     "prettier": "^3.8.4",
     "type-fest": "^5.7.0",
     "typescript": "^6.0.3"
-  },
-  "repository": "github:zulip/zulipbot",
-  "keywords": [
-    "zulip",
-    "bot",
-    "bots",
-    "github",
-    "workflow",
-    "zulipbot",
-    "synicalsyntax"
-  ],
-  "author": "Cynthia Lin <cynthialin1004@gmail.com> (https://synicalsyntax.com)",
-  "license": "Apache-2.0",
-  "bugs": "https://github.com/zulip/zulipbot/issues",
-  "homepage": "https://github.com/zulip/zulipbot#readme"
+  }
 }
