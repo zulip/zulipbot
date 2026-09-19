@@ -22,7 +22,6 @@
     "bots",
     "github",
     "workflow",
-    "zulipbot",
     "synicalsyntax"
   ],
   "dependencies": {
