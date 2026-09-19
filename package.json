@@ -35,10 +35,7 @@
     "type-fest": "^5.7.0",
     "typescript": "^6.0.3"
   },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/zulip/zulipbot.git"
-  },
+  "repository": "github:zulip/zulipbot",
   "keywords": [
     "zulip",
     "bot",
@@ -50,8 +47,6 @@
   ],
   "author": "Cynthia Lin <cynthialin1004@gmail.com> (https://synicalsyntax.com)",
   "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/zulip/zulipbot/issues"
-  },
+  "bugs": "https://github.com/zulip/zulipbot/issues",
   "homepage": "https://github.com/zulip/zulipbot#readme"
 }
