@@ -56,7 +56,9 @@ async function check(
     pull_number: number,
   });
 
-  const mergeable = pull.data.mergeable;
+  // Use a strict false check; unknown merge conflict statuses return null
+  if (pull.data.mergeable !== false) return;
+
   const username = pull.data.user.login;
 
   const template = this.templates.get("mergeConflictWarning");
@@ -74,54 +76,48 @@ async function check(
     issue_number: number,
   });
 
-  // Use a strict false check; unknown merge conflict statuses return null
-  if (mergeable === false) {
-    let lastCommitTime: string | undefined;
-    for await (const response of this.paginate.iterator(
-      this.pulls.listCommits,
-      {
-        owner: repoOwner,
-        repo: repoName,
-        pull_number: number,
-      },
-    )) {
-      const last = response.data.at(-1);
-      if (last) lastCommitTime = last.commit.committer?.date ?? lastCommitTime;
-    }
+  let lastCommitTime: string | undefined;
+  for await (const response of this.paginate.iterator(this.pulls.listCommits, {
+    owner: repoOwner,
+    repo: repoName,
+    pull_number: number,
+  })) {
+    const last = response.data.at(-1);
+    if (last) lastCommitTime = last.commit.committer?.date ?? lastCommitTime;
+  }
 
-    const warnComment = warnings.some(
-      (c) =>
-        lastCommitTime === undefined ||
-        Date.parse(lastCommitTime) < Date.parse(c.created_at),
-    );
+  const warnComment = warnings.some(
+    (c) =>
+      lastCommitTime === undefined ||
+      Date.parse(lastCommitTime) < Date.parse(c.created_at),
+  );
 
-    const labels = await this.issues.listLabelsOnIssue({
+  const labels = await this.issues.listLabelsOnIssue({
+    owner: repoOwner,
+    repo: repoName,
+    issue_number: number,
+  });
+  const inactive = labels.data.some(
+    (l) => l.name === this.cfg.activity.inactive,
+  );
+
+  if (inactive) return;
+
+  if (!warnComment && comment) {
+    await this.issues.createComment({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
+      body: warning,
     });
-    const inactive = labels.data.some(
-      (l) => l.name === this.cfg.activity.inactive,
-    );
+  }
 
-    if (inactive) return;
-
-    if (!warnComment && comment) {
-      await this.issues.createComment({
-        owner: repoOwner,
-        repo: repoName,
-        issue_number: number,
-        body: warning,
-      });
-    }
-
-    if (label !== null) {
-      await this.issues.addLabels({
-        owner: repoOwner,
-        repo: repoName,
-        issue_number: number,
-        labels: [label],
-      });
-    }
+  if (label !== null) {
+    await this.issues.addLabels({
+      owner: repoOwner,
+      repo: repoName,
+      issue_number: number,
+      labels: [label],
+    });
   }
 }
