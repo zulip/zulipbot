@@ -137,12 +137,11 @@ export const run = async function (
     per_page: 1,
   });
 
-  if (commenterCommitsResponse.data.length > 0) {
-    // commenter is a contributor
-    return claim.call(this, commenter, number, repoOwner, repoName);
-  }
-
-  return validate.call(this, commenter, number, repoOwner, repoName);
+  return (
+    commenterCommitsResponse.data.length > 0 // commenter is a contributor
+      ? claim
+      : validate
+  ).call(this, commenter, number, repoOwner, repoName);
 };
 
 async function invite(
