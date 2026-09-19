@@ -7,8 +7,7 @@ const referenced: string[] = [];
 export const run = async function (
   this: Client,
   issue:
-    | components["schemas"]["issue"]
-    | components["schemas"]["webhooks_issue"],
+    components["schemas"]["issue"] | components["schemas"]["webhooks_issue"],
   repo: components["schemas"]["repository-webhooks"],
   label: components["schemas"]["webhooks_label"],
 ) {

@@ -12,7 +12,7 @@
   "engines": {
     "node": ">=22.11.0"
   },
-  "packageManager": "pnpm@11.7.0+sha512.19cc852c120c7125760f2443ee6be0ca5b40f9f50598de1a09a1f177503e010e57c23c77646e01e761de59bf874fb22a3398c33ab9691fc13eb946b6f0f4d620",
+  "packageManager": "pnpm@12.5.1+sha512.e3f305bc784a2bc89f5ad3b6138889470fae8d2af5f36b61216ec91c2c3d64089775f9de38aac331044ea40f245cb0d5666392dfdf65824e1907ef6a2c62de5f",
   "scripts": {
     "start": "node --disable-proto=throw --disallow-code-generation-from-strings ./src/index.ts",
     "pretest": "tsc && eslint && prettier --check .",
@@ -43,13 +43,14 @@
     "@types/express": "^5.0.6",
     "@types/lodash": "^4.17.24",
     "@types/node": "^22.19.21",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "eslint": "^10.5.0",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-config-xo": "^0.53.1",
+    "eslint-config-xo": "^3.0.1",
     "nock": "^14.0.15",
     "partial-mock": "^1.1.0",
     "prettier": "^3.8.4",
     "type-fest": "^5.7.0",
-    "typescript": "^6.0.3"
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
   }
 }

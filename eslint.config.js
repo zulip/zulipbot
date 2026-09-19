@@ -25,6 +25,7 @@ export default defineConfig(
       "max-params": ["error", 5],
       "no-await-in-loop": "off",
       "no-useless-constructor": "error",
+      "node-test/require-assertion": "off",
       "prefer-arrow-callback": "error",
       "prefer-destructuring": ["error", { array: true, object: false }],
       "prefer-const": "error",
@@ -32,11 +33,6 @@ export default defineConfig(
       strict: "error",
       "unicorn/no-break-in-nested-loop": "off",
       "unicorn/no-process-exit": "off",
-      "unicorn/prevent-abbreviations": [
-        "error",
-        { replacements: { args: false } },
-      ],
-      "unicorn/require-array-sort-compare": "off", // https://github.com/xojs/eslint-config-xo/issues/104
     },
   },
 );

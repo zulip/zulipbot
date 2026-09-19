@@ -55,8 +55,7 @@ async function clearClosed(
 export const progress = async function (
   this: Client,
   payload: components["schemas"][
-    | "webhook-issues-assigned"
-    | "webhook-issues-unassigned"],
+    "webhook-issues-assigned" | "webhook-issues-unassigned"],
 ) {
   assertPresent(payload.assignee);
   const action = payload.action;
