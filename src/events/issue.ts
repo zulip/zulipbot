@@ -50,7 +50,8 @@ async function parse(this: Client, payload: CommandPayload) {
     String.raw`@${_.escapeRegExp(username)} +(\w+)( +(--\w+|"[^"]+"))*`,
     "gv",
   );
-  const parsed = prefix.exec(body);
+  // eslint-disable-next-line regexp/prefer-regexp-exec
+  const parsed = body.match(prefix);
   if (!parsed) return;
 
   for (const command of parsed) {
