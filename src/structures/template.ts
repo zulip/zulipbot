@@ -43,10 +43,10 @@ class Template {
         const matched = comment.body
           ?.trimEnd()
           .endsWith(`<!-- ${this.name} -->`);
-        const fromClient =
+        const isFromClient =
           comment.user !== null &&
           comment.user.login === this.client.cfg.auth.username;
-        if (matched && fromClient) {
+        if (matched && isFromClient) {
           templateComments.push(comment);
         }
       }

@@ -13,11 +13,11 @@ export const run = async function (
 > {
   const creator = payload.issue.user?.login;
   const self = this.cfg.issues.commands.label.self;
-  const selfLabel =
+  const isSelfLabel =
     typeof self === "object" ? !self.users.includes(commenter) : self;
-  const forbidden = selfLabel && creator !== commenter;
+  const isForbidden = isSelfLabel && creator !== commenter;
   const rawLabels = args.match(/".*?"/gv);
-  if (forbidden || rawLabels === null) return;
+  if (isForbidden || rawLabels === null) return;
 
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
@@ -45,13 +45,13 @@ export const run = async function (
   let response;
 
   if (rejected.length > 0) {
-    const one = rejected.length === 1;
+    const isOne = rejected.length === 1;
     const error = template.format({
-      labels: `Label${one ? "" : "s"}`,
+      labels: `Label${isOne ? "" : "s"}`,
       type,
       labelList: `"${rejected.join('", "')}"`,
-      exist: `do${one ? "es" : ""} not exist`,
-      beState: `w${one ? "as" : "ere"}`,
+      exist: `do${isOne ? "es" : ""} not exist`,
+      beState: `w${isOne ? "as" : "ere"}`,
       action: "added to",
     });
 
@@ -64,12 +64,12 @@ export const run = async function (
   }
 
   if (alreadyAdded.length > 0) {
-    const one = alreadyAdded.length === 1;
+    const isOne = alreadyAdded.length === 1;
     const error = template.format({
-      labels: `Label${one ? "" : "s"}`,
+      labels: `Label${isOne ? "" : "s"}`,
       labelList: `"${alreadyAdded.join('", "')}"`,
-      exist: `already exist${one ? "s" : ""}`,
-      beState: `w${one ? "as" : "ere"}`,
+      exist: `already exist${isOne ? "s" : ""}`,
+      beState: `w${isOne ? "as" : "ere"}`,
       action: "added to",
       type,
     });

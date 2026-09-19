@@ -66,21 +66,21 @@ export const progress = async function (
   const label = this.cfg.activity.issues.inProgress;
   assertDefined(label);
   assertDefined(payload.issue.labels);
-  const labeled = payload.issue.labels.some((l) => l.name === label);
+  const isLabeled = payload.issue.labels.some((l) => l.name === label);
 
   // GitHub API bug sometimes doesn't remove unassigned user from array
-  const assigned = payload.issue.assignees.some(
+  const isAssigned = payload.issue.assignees.some(
     (assignee) => assignee !== null && assignee.id !== payload.assignee?.id,
   );
 
-  if (action === "assigned" && !labeled) {
+  if (action === "assigned" && !isLabeled) {
     await this.issues.addLabels({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
       labels: [label],
     });
-  } else if (action === "unassigned" && !assigned && labeled) {
+  } else if (action === "unassigned" && !isAssigned && isLabeled) {
     await this.issues.removeLabel({
       owner: repoOwner,
       repo: repoName,

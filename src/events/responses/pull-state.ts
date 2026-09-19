@@ -24,10 +24,10 @@ export const addLabels = async function (
 
   let labels = response.data.map((label) => label.name);
   const oldLabels = labels;
-  const autoUpdate = this.cfg.activity.pulls.autoUpdate;
+  const shouldAutoUpdate = this.cfg.activity.pulls.autoUpdate;
   const sizeLabels = this.cfg.pulls.status.size.labels;
 
-  if (autoUpdate) {
+  if (shouldAutoUpdate) {
     const author = payload.pull_request.user?.login;
     const reviewer = "review" in payload ? payload.review.user?.login : null;
     labels = review.call(this, labels, action, author, reviewer);
@@ -60,18 +60,18 @@ function review(
   assertPresent(needsReviewLabel);
   const reviewedLabel = this.cfg.activity.pulls.reviewed.label;
   assertPresent(reviewedLabel);
-  const needsReview = labels.includes(needsReviewLabel);
-  const reviewed = labels.includes(reviewedLabel);
+  const isNeedsReview = labels.includes(needsReviewLabel);
+  const isReviewed = labels.includes(reviewedLabel);
 
   if (action === "opened" || action === "reopened") {
     labels.push(needsReviewLabel);
-  } else if (action === "submitted" && needsReview && reviewer !== author) {
+  } else if (action === "submitted" && isNeedsReview && reviewer !== author) {
     labels[labels.indexOf(needsReviewLabel)] = reviewedLabel;
-  } else if (action === "synchronize" && reviewed) {
+  } else if (action === "synchronize" && isReviewed) {
     labels[labels.indexOf(reviewedLabel)] = needsReviewLabel;
-  } else if (action === "closed" && reviewed) {
+  } else if (action === "closed" && isReviewed) {
     labels = labels.toSpliced(labels.indexOf(reviewedLabel), 1);
-  } else if (action === "closed" && needsReview) {
+  } else if (action === "closed" && isNeedsReview) {
     labels = labels.toSpliced(labels.indexOf(needsReviewLabel), 1);
   }
 
@@ -154,8 +154,8 @@ export const update = async function (
   for (const [name, check] of warnings) {
     const template = this.templates.get(name);
     assertDefined(template);
-    const deletable = await check();
-    if (!deletable) continue;
+    const shouldDelete = await check();
+    if (!shouldDelete) continue;
 
     const { label } = this.cfg.pulls.status.mergeConflicts;
 

@@ -91,8 +91,8 @@ class ReferenceSearch {
       }
 
       // valid references are open issues
-      const valid = !issue.data.pull_request && issue.data.state === "open";
-      return valid ? number : false;
+      const isValid = !issue.data.pull_request && issue.data.state === "open";
+      return isValid ? number : false;
     });
     // statusCheck is an array of promises, so use Promise.all
     const matchStatuses = await Promise.all(statusCheck);

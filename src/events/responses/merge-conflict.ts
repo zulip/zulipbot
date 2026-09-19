@@ -2,8 +2,8 @@ import type { components } from "@octokit/openapi-webhooks-types";
 import { assertDefined, assertPresent } from "ts-extras";
 import type { Client } from "../../client.ts";
 
-let sweepInProgress = false;
-let sweepRequested = false;
+let isSweepInProgress = false;
+let wasSweepRequested = false;
 
 export const run = async function (
   this: Client,
@@ -11,15 +11,15 @@ export const run = async function (
     | components["schemas"]["repository"]
     | components["schemas"]["webhook-push"]["repository"],
 ) {
-  if (sweepInProgress) {
-    sweepRequested = true;
+  if (isSweepInProgress) {
+    wasSweepRequested = true;
     return;
   }
 
-  sweepInProgress = true;
+  isSweepInProgress = true;
   try {
     do {
-      sweepRequested = false;
+      wasSweepRequested = false;
       const repoName = repo.name;
       assertPresent(repo.owner);
       const repoOwner = repo.owner.login;
@@ -32,9 +32,9 @@ export const run = async function (
           await check.call(this, pull.number, repo);
         }
       }
-    } while (sweepRequested);
+    } while (wasSweepRequested);
   } finally {
-    sweepInProgress = false;
+    isSweepInProgress = false;
   }
 };
 
@@ -86,7 +86,7 @@ async function check(
     if (last) lastCommitTime = last.commit.committer?.date ?? lastCommitTime;
   }
 
-  const warnComment = warnings.some(
+  const hasWarnComment = warnings.some(
     (c) =>
       lastCommitTime === undefined ||
       Date.parse(lastCommitTime) < Date.parse(c.created_at),
@@ -97,13 +97,13 @@ async function check(
     repo: repoName,
     issue_number: number,
   });
-  const inactive = labels.data.some(
+  const isInactive = labels.data.some(
     (l) => l.name === this.cfg.activity.inactive,
   );
 
-  if (inactive) return;
+  if (isInactive) return;
 
-  if (!warnComment && comment) {
+  if (!hasWarnComment && comment) {
     await this.issues.createComment({
       owner: repoOwner,
       repo: repoName,

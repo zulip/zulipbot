@@ -10,7 +10,7 @@ export const run = async function (
     | components["schemas"]["webhook-pull-request-synchronize"]["pull_request"]
     | components["schemas"]["pull-request-webhook"],
   repo: components["schemas"]["repository-webhooks"],
-  opened: boolean,
+  isOpened: boolean,
 ) {
   const author = pull.user?.login;
   const number = pull.number;
@@ -49,7 +49,7 @@ export const run = async function (
     return;
   }
 
-  if (!opened || this.cfg.pulls.references.labels !== false) return;
+  if (!isOpened || this.cfg.pulls.references.labels !== false) return;
 
   for (const issue of commitReferences) {
     await labelReference.call(this, issue, number, repo);

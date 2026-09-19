@@ -8,9 +8,9 @@ export const run = function (
 ) {
   const repo = payload.repository;
   const { branch, label, comment } = this.cfg.pulls.status.mergeConflicts;
-  const mainPush = payload.ref === `refs/heads/${branch}`;
+  const isMainPush = payload.ref === `refs/heads/${branch}`;
 
-  if (!mainPush || (label === null && !comment)) return;
+  if (!isMainPush || (label === null && !comment)) return;
 
   return setTimeout(
     () => {

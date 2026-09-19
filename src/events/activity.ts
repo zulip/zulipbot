@@ -47,11 +47,11 @@ async function scrapePulls(
       response.data.map((label) => label.name),
     );
 
-    const inactive = labels.has(this.cfg.activity.inactive);
-    const reviewed = labels.has(this.cfg.activity.pulls.reviewed.label);
-    const needsReview = labels.has(this.cfg.activity.pulls.needsReview.label);
+    const isInactive = labels.has(this.cfg.activity.inactive);
+    const isReviewed = labels.has(this.cfg.activity.pulls.reviewed.label);
+    const isNeedsReview = labels.has(this.cfg.activity.pulls.needsReview.label);
 
-    if (!inactive && reviewed && time + ims <= Date.now()) {
+    if (!isInactive && isReviewed && time + ims <= Date.now()) {
       await checkInactivePull.call(this, pull);
     }
 
@@ -63,8 +63,8 @@ async function scrapePulls(
 
     const references_ = [...commitReferences, ...bodyReferences];
     for (const reference of references_) {
-      const ignore = this.cfg.activity.pulls.needsReview.ignore;
-      if (needsReview && ignore) time = Date.now();
+      const shouldIgnore = this.cfg.activity.pulls.needsReview.ignore;
+      if (isNeedsReview && shouldIgnore) time = Date.now();
       referenceList.set(`${repoName}/${reference}`, time);
     }
   }
@@ -133,9 +133,9 @@ async function scrapeInactiveIssues(
       const reference = references.get(issueTag);
       if (reference !== undefined && time < reference) time = reference;
 
-      const active = this.cfg.activity.check.repositories.includes(repoTag);
+      const isActive = this.cfg.activity.check.repositories.includes(repoTag);
 
-      if (!active || time + ms >= Date.now()) continue;
+      if (!isActive || time + ms >= Date.now()) continue;
 
       if (
         issue.assignees === undefined ||

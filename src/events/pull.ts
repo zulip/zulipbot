@@ -12,11 +12,11 @@ export const run = async function (
   const action = payload.action;
   const repo = payload.repository;
   const assignee = this.cfg.activity.pulls.reviewed.assignee;
-  const reference = this.cfg.pulls.references.required;
-  const autoUpdate = this.cfg.activity.pulls.autoUpdate;
+  const shouldCheckReferences = this.cfg.pulls.references.required;
+  const shouldAutoUpdate = this.cfg.activity.pulls.autoUpdate;
   const size = this.cfg.pulls.status.size;
 
-  if (autoUpdate || size.labels) {
+  if (shouldAutoUpdate || size.labels) {
     await responses.pullState.addLabels.call(this, payload);
   }
 
@@ -34,7 +34,7 @@ export const run = async function (
   }
 
   if (
-    !reference ||
+    !shouldCheckReferences ||
     (this.cfg.pulls.status.wip !== null &&
       payload.pull_request.title.includes(this.cfg.pulls.status.wip))
   ) {

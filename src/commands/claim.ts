@@ -4,7 +4,7 @@ import { assertDefined } from "ts-extras";
 import type { Client } from "../client.ts";
 import type { CommandAliases, CommandPayload } from "./index.ts";
 
-async function checkLabels(
+async function isLabeledForClaiming(
   this: Client,
   payload: CommandPayload,
   commenter: string,
@@ -17,12 +17,15 @@ async function checkLabels(
   assertDefined(payload.issue.labels);
   const labels = new Set(payload.issue.labels.map((label) => label.name));
   const warn = this.cfg.issues.commands.assign.warn;
-  const present = warn.labels.some((label) => labels.has(label));
-  const absent = warn.labels.every((label) => !labels.has(label));
-  const alert = warn.presence ? present : absent;
+  const isPresent = warn.labels.some((label) => labels.has(label));
+  const isAbsent = warn.labels.every((label) => !labels.has(label));
+  const shouldAlert = warn.presence ? isPresent : isAbsent;
 
-  if (alert && (!warn.force || (warn.force && !args.includes("--force")))) {
-    const one = warn.labels.length === 1;
+  if (
+    shouldAlert &&
+    (!warn.force || (warn.force && !args.includes("--force")))
+  ) {
+    const isOne = warn.labels.length === 1;
     const type = warn.force ? "claimWarning" : "claimBlock";
     const template = this.templates.get(type);
     assertDefined(template);
@@ -30,7 +33,7 @@ async function checkLabels(
     const comment = template.format({
       username: this.cfg.auth.username,
       state: warn.presence ? "with" : "without",
-      labelGrammar: `label${one ? "" : "s"}`,
+      labelGrammar: `label${isOne ? "" : "s"}`,
       list: `"${warn.labels.join('", "')}"`,
       commenter,
       repoName,
@@ -104,7 +107,7 @@ export const run = async function (
     });
   }
 
-  if (!(await checkLabels.call(this, payload, commenter, args))) {
+  if (!(await isLabeledForClaiming.call(this, payload, commenter, args))) {
     return;
   }
 
