@@ -118,8 +118,8 @@ export const activity = {
       "zulip/zulipbot",
     ],
     interval: 6,
-    reminder: 10,
-    limit: 4,
+    reminder: 53,
+    limit: 7,
     pullRequestReminder: 10,
   },
   issues: {
