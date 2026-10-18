@@ -120,6 +120,7 @@ export const activity = {
     interval: 6,
     reminder: 10,
     limit: 4,
+    pullRequestReminder: 10,
   },
   issues: {
     inProgress: "in progress",

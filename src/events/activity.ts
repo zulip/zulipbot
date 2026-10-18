@@ -29,7 +29,8 @@ async function scrapePulls(
   pulls: Array<components["schemas"]["pull-request-simple"]>,
   referenceList: Map<string, number>,
 ) {
-  const ims = (this.cfg.activity.check.reminder ?? 0) * 86_400_000;
+  const { reminder, pullRequestReminder } = this.cfg.activity.check;
+  const prReminder = pullRequestReminder ?? reminder;
 
   for (const pull of pulls) {
     let time = Date.parse(pull.updated_at);
@@ -51,8 +52,13 @@ async function scrapePulls(
     const isReviewed = labels.has(this.cfg.activity.pulls.reviewed.label);
     const isNeedsReview = labels.has(this.cfg.activity.pulls.needsReview.label);
 
-    if (!isInactive && isReviewed && time + ims <= Date.now()) {
-      await checkInactivePull.call(this, pull);
+    if (
+      prReminder !== null &&
+      !isInactive &&
+      isReviewed &&
+      time + prReminder * 86_400_000 <= Date.now()
+    ) {
+      await checkInactivePull.call(this, pull, prReminder);
     }
 
     const references = new Search(this, pull, pull.base.repo);
@@ -73,6 +79,7 @@ async function scrapePulls(
 async function checkInactivePull(
   this: Client,
   pull: components["schemas"]["pull-request-simple"],
+  days: number,
 ) {
   const author = pull.user?.login;
   const repoName = pull.base.repo.name;
@@ -83,7 +90,7 @@ async function checkInactivePull(
   assertDefined(template);
 
   const comment = template.format({
-    days: this.cfg.activity.check.reminder,
+    days,
     author,
   });
 
