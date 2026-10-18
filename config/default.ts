@@ -111,6 +111,10 @@ export const activity = {
       label: safeCastTo<string | null>(null),
       ignore: false,
     },
+    underReview: {
+      labels: new Array<string>(),
+      ignore: false,
+    },
   },
 };
 
