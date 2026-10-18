@@ -134,6 +134,10 @@ export const activity = {
       label: "needs review",
       ignore: true,
     },
+    underReview: {
+      labels: ["maintainer review", "integration review"],
+      ignore: true,
+    },
   },
 };
 

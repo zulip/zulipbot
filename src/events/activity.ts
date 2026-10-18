@@ -50,6 +50,8 @@ async function scrapePulls(
     const isInactive = labels.has(this.cfg.activity.inactive);
     const isReviewed = labels.has(this.cfg.activity.pulls.reviewed.label);
     const isNeedsReview = labels.has(this.cfg.activity.pulls.needsReview.label);
+    const { underReview } = this.cfg.activity.pulls;
+    const isUnderReview = underReview.labels.some((label) => labels.has(label));
 
     if (!isInactive && isReviewed && time + ims <= Date.now()) {
       await checkInactivePull.call(this, pull);
@@ -65,6 +67,7 @@ async function scrapePulls(
     for (const reference of references_) {
       const shouldIgnore = this.cfg.activity.pulls.needsReview.ignore;
       if (isNeedsReview && shouldIgnore) time = Date.now();
+      if (isUnderReview && underReview.ignore) time = Date.now();
       referenceList.set(`${repoName}/${reference}`, time);
     }
   }
