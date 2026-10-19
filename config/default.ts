@@ -96,6 +96,7 @@ export const activity = {
     interval: safeCastTo<number | null>(null),
     reminder: safeCastTo<number | null>(null),
     limit: safeCastTo<number | null>(null),
+    pullRequestReminder: safeCastTo<number | null>(null),
   },
   issues: {
     inProgress: safeCastTo<string | undefined>(undefined),

@@ -137,3 +137,119 @@ void test("activity: Unassigns and upgrades warning when prior inactive comment 
 
   scope.done();
 });
+
+void test("activity: Nudges reviewed PRs using pullRequestReminder, not reminder", async () => {
+  client.cfg.activity.check.repositories = ["zulip/zulip"];
+  client.cfg.activity.check.reminder = 53;
+  client.cfg.activity.check.limit = 7;
+  client.cfg.activity.check.pullRequestReminder = 10;
+  client.cfg.activity.inactive = "inactive";
+  client.cfg.activity.pulls.reviewed.label = "reviewed";
+  client.cfg.activity.issues.inProgress = "in progress";
+
+  const updateTemplate = client.templates.get("updateWarning");
+  assertDefined(updateTemplate);
+  updateTemplate.content = "nudge {author} {days}";
+
+  // Stale for 20 days: past pullRequestReminder (10) but not reminder (53).
+  const oldDate = new Date(Date.now() - 20 * 86_400_000).toISOString();
+
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulip/pulls")
+    .reply(200, [
+      {
+        base: { repo: { name: "zulip", owner: { login: "zulip" } } },
+        number: 1,
+        body: "",
+        user: { login: "bob" },
+        updated_at: oldDate,
+      },
+    ])
+    .get("/repos/zulip/zulip/issues/1/labels")
+    .reply(200, [{ name: "reviewed" }])
+    .get("/repos/zulip/zulip/issues/1/comments")
+    .reply(200, [])
+    .post("/repos/zulip/zulip/issues/1/comments", { body: "nudge bob 10" })
+    .reply(201)
+    .get("/repos/zulip/zulip/pulls/1/commits")
+    .reply(200, [])
+    .get("/issues?filter=all&labels=in%20progress")
+    .reply(200, []);
+
+  await activity.run.call(client);
+
+  scope.done();
+});
+
+void test("activity: Falls back to reminder for the PR nudge when pullRequestReminder is unset", async () => {
+  client.cfg.activity.check.repositories = ["zulip/zulip"];
+  client.cfg.activity.check.reminder = 10;
+  client.cfg.activity.check.limit = 7;
+  client.cfg.activity.check.pullRequestReminder = null;
+  client.cfg.activity.inactive = "inactive";
+  client.cfg.activity.pulls.reviewed.label = "reviewed";
+  client.cfg.activity.issues.inProgress = "in progress";
+
+  // Stale for 5 days: short of reminder (10). A missing fallback would use 0
+  // and nudge immediately, so no comment endpoints are mocked.
+  const recentDate = new Date(Date.now() - 5 * 86_400_000).toISOString();
+
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulip/pulls")
+    .reply(200, [
+      {
+        base: { repo: { name: "zulip", owner: { login: "zulip" } } },
+        number: 1,
+        body: "",
+        user: { login: "bob" },
+        updated_at: recentDate,
+      },
+    ])
+    .get("/repos/zulip/zulip/issues/1/labels")
+    .reply(200, [{ name: "reviewed" }])
+    .get("/repos/zulip/zulip/pulls/1/commits")
+    .reply(200, [])
+    .get("/issues?filter=all&labels=in%20progress")
+    .reply(200, []);
+
+  await activity.run.call(client);
+
+  scope.done();
+});
+
+void test("activity: Skips the reviewed-PR nudge when neither reminder is configured", async () => {
+  client.cfg.activity.check.repositories = ["zulip/zulip"];
+  client.cfg.activity.check.reminder = null;
+  client.cfg.activity.check.limit = 7;
+  client.cfg.activity.check.pullRequestReminder = null;
+  client.cfg.activity.inactive = "inactive";
+  client.cfg.activity.pulls.reviewed.label = "reviewed";
+  client.cfg.activity.issues.inProgress = "in progress";
+
+  // Neither reminder is configured, so a long-stale reviewed pull request is
+  // left alone rather than nudged at a zero-day threshold. No comment
+  // endpoints are mocked, so any nudge attempt would fail the test.
+  const oldDate = new Date(Date.now() - 100 * 86_400_000).toISOString();
+
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulip/pulls")
+    .reply(200, [
+      {
+        base: { repo: { name: "zulip", owner: { login: "zulip" } } },
+        number: 1,
+        body: "",
+        user: { login: "bob" },
+        updated_at: oldDate,
+      },
+    ])
+    .get("/repos/zulip/zulip/issues/1/labels")
+    .reply(200, [{ name: "reviewed" }])
+    .get("/repos/zulip/zulip/pulls/1/commits")
+    .reply(200, [])
+    .get("/issues?filter=all&labels=in%20progress")
+    .reply(200, []);
+
+  await activity.run.call(client);
+
+  scope.done();
+});
