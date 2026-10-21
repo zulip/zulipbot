@@ -39,7 +39,7 @@ void test("push: Trigger events if main branch was pushed", async (t: TestContex
   client.cfg.eventsDelay = 0;
   client.cfg.pulls.status.mergeConflicts.comment = true;
   const scope = nock("https://api.github.com")
-    .get("/repos/zulip/zulipbot/pulls")
+    .get("/repos/zulip/zulipbot/pulls?per_page=100")
     .reply(200, []);
 
   const response = push.run.call(client, mainPayload);

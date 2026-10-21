@@ -27,6 +27,7 @@ export const run = async function (
       for await (const response of this.paginate.iterator(this.pulls.list, {
         owner: repoOwner,
         repo: repoName,
+        per_page: 100,
       })) {
         for (const pull of response.data) {
           await check.call(this, pull.number, repo);
@@ -59,6 +60,14 @@ async function check(
   // Use a strict false check; unknown merge conflict statuses return null
   if (pull.data.mergeable !== false) return;
 
+  // Labels are already included in the pull request response, so check them
+  // here (before any further API calls) instead of fetching them again.
+  const isInactive = pull.data.labels.some(
+    (l) => l.name === this.cfg.activity.inactive,
+  );
+
+  if (isInactive) return;
+
   const username = pull.data.user.login;
 
   const template = this.templates.get("mergeConflictWarning");
@@ -81,6 +90,7 @@ async function check(
     owner: repoOwner,
     repo: repoName,
     pull_number: number,
+    per_page: 100,
   })) {
     const last = response.data.at(-1);
     if (last) lastCommitTime = last.commit.committer?.date ?? lastCommitTime;
@@ -91,17 +101,6 @@ async function check(
       lastCommitTime === undefined ||
       Date.parse(lastCommitTime) < Date.parse(c.created_at),
   );
-
-  const labels = await this.issues.listLabelsOnIssue({
-    owner: repoOwner,
-    repo: repoName,
-    issue_number: number,
-  });
-  const isInactive = labels.data.some(
-    (l) => l.name === this.cfg.activity.inactive,
-  );
-
-  if (isInactive) return;
 
   if (!hasWarnComment && comment) {
     await this.issues.createComment({

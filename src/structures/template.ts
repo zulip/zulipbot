@@ -36,7 +36,7 @@ class Template {
 
     for await (const response of this.client.paginate.iterator(
       this.client.issues.listComments,
-      parameters,
+      { per_page: 100, ...parameters },
     )) {
       for (const comment of response.data) {
         // Use end of template comments to check if comment is from template

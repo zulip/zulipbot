@@ -65,10 +65,27 @@ export class Client extends MyOctokit {
           );
           return; // eslint-disable-line no-useless-return
         },
-        onSecondaryRateLimit: (_retryAfter, { method, url }) => {
+        onSecondaryRateLimit: (
+          retryAfter,
+          { method, url },
+          _octokit,
+          retryCount,
+        ) => {
+          if (retryCount < 3) {
+            this.log.warn(
+              `Secondary rate limit detected ${
+                retryCount + 1
+              } times for ${method} ${url}; retrying in ${retryAfter} seconds`,
+            );
+            return true; // eslint-disable-line @typescript-eslint/strict-void-return
+          }
+
           this.log.warn(
-            `Secondary rate limit detected for ${method} ${url}; aborting`,
+            `Secondary rate limit detected ${
+              retryCount + 1
+            } times for ${method} ${url}; aborting`,
           );
+          return; // eslint-disable-line no-useless-return
         },
       },
     });

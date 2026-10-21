@@ -228,6 +228,7 @@ async function validate(
   for await (const response of this.paginate.iterator(this.issues.list, {
     filter: "all",
     labels: this.cfg.activity.issues.inProgress,
+    per_page: 100,
   })) {
     for (const issue of response.data) {
       if (issue.assignees?.find((assignee) => assignee.login === commenter)) {

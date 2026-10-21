@@ -275,7 +275,7 @@ void test("claim: Assign if claim limit validation passed", async () => {
     .get(`/repos/zulip/zulipbot/commits`)
     .query({ author: commenter, per_page: 1 })
     .reply(200, [])
-    .get("/issues?filter=all&labels=in%20progress")
+    .get("/issues?filter=all&labels=in%20progress&per_page=100")
     .reply(200, [])
     .post("/repos/zulip/zulipbot/issues/69/assignees", {
       assignees: ["octocat"],
@@ -301,7 +301,7 @@ void test("claim: Reject claim limit validation failed", async () => {
     .get(`/repos/zulip/zulipbot/commits`)
     .query({ author: commenter, per_page: 1 })
     .reply(200, [])
-    .get("/issues?filter=all&labels=in%20progress")
+    .get("/issues?filter=all&labels=in%20progress&per_page=100")
     .reply(200, [{ assignees: [{ login: "octocat" }] }])
     .post("/repos/zulip/zulipbot/issues/69/comments", {
       body: "1 octocat issue",
@@ -323,7 +323,7 @@ void test("claim: Reject claim limit validation failed (limit over 1)", async ()
     .get(`/repos/zulip/zulipbot/commits`)
     .query({ author: commenter, per_page: 1 })
     .reply(200, [])
-    .get("/issues?filter=all&labels=in%20progress")
+    .get("/issues?filter=all&labels=in%20progress&per_page=100")
     .reply(200, [
       { assignees: [{ login: "octocat" }] },
       { assignees: [{ login: "octocat" }] },

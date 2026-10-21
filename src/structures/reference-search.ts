@@ -76,8 +76,11 @@ class ReferenceSearch {
     );
     const uniqueIssues = [...new Set(issues)];
 
-    // check matches for valid issue references
-    const statusCheck = uniqueIssues.map(async (number) => {
+    // Check matches for valid issue references sequentially rather than
+    // firing off unbounded concurrent requests, which risks tripping
+    // GitHub's secondary rate limit for too many concurrent requests.
+    const validIssues: number[] = [];
+    for (const number of uniqueIssues) {
       let issue;
       try {
         issue = await this.client.issues.get({
@@ -86,19 +89,17 @@ class ReferenceSearch {
           issue_number: number,
         });
       } catch (error) {
-        if (error instanceof RequestError && error.status === 404) return false;
+        if (error instanceof RequestError && error.status === 404) continue;
         throw error;
       }
 
       // valid references are open issues
-      const isValid = !issue.data.pull_request && issue.data.state === "open";
-      return isValid ? number : false;
-    });
-    // statusCheck is an array of promises, so use Promise.all
-    const matchStatuses = await Promise.all(statusCheck);
-    // remove strings that didn't contain any references
-    const filteredMatches = matchStatuses.filter((number) => number !== false);
-    return filteredMatches.toSorted((a, b) => a - b);
+      if (!issue.data.pull_request && issue.data.state === "open") {
+        validIssues.push(number);
+      }
+    }
+
+    return validIssues.toSorted((a, b) => a - b);
   }
 
   async getBody() {

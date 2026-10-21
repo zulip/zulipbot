@@ -16,6 +16,7 @@ export const run = async function (this: Client) {
     for await (const response of this.paginate.iterator(this.pulls.list, {
       owner: repoOwner,
       repo: repoName,
+      per_page: 100,
     })) {
       await scrapePulls.call(this, response.data, referenceList);
     }
@@ -33,18 +34,12 @@ async function scrapePulls(
 
   for (const pull of pulls) {
     let time = Date.parse(pull.updated_at);
-    const number = pull.number;
     const repoName = pull.base.repo.name;
-    const repoOwner = pull.base.repo.owner.login;
 
-    const response = await this.issues.listLabelsOnIssue({
-      owner: repoOwner,
-      repo: repoName,
-      issue_number: number,
-    });
-
+    // Labels are already included in the pull request list response, so
+    // check them here instead of re-fetching them for every pull request.
     const labels = new Set<string | null>(
-      response.data.map((label) => label.name),
+      pull.labels.map((label) => label.name),
     );
 
     const isInactive = labels.has(this.cfg.activity.inactive);
@@ -116,6 +111,7 @@ async function scrapeInactiveIssues(
   for await (const response of this.paginate.iterator(this.issues.list, {
     filter: "all",
     labels: this.cfg.activity.issues.inProgress ?? undefined,
+    per_page: 100,
   })) {
     for (const issue of response.data) {
       const hasInactiveLabel = issue.labels.some(

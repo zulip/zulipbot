@@ -5,6 +5,7 @@ import express from "express";
 import { assertDefined, safeCastTo } from "ts-extras";
 import client from "./client.ts";
 import * as events from "./events/index.ts";
+import { formatWebhookError } from "./webhook-error.ts";
 
 const app = express();
 const port = process.env["PORT"] ?? 8080;
@@ -56,6 +57,10 @@ webhooks.onAny(async (event) => {
 
     // no default
   }
+});
+
+webhooks.onError((error) => {
+  console.log(formatWebhookError(error));
 });
 
 app.use("/github", createNodeMiddleware(webhooks, { path: "/" }));

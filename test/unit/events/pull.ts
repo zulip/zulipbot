@@ -34,7 +34,7 @@ void test("pull: Ignore empty body", async () => {
     .reply(200)
     .get("/repos/zulip/zulipbot/pulls/69/commits")
     .reply(200, [{ commit: { message: "Fix all the bugs" } }])
-    .get("/repos/zulip/zulipbot/issues/69/comments")
+    .get("/repos/zulip/zulipbot/issues/69/comments?per_page=100")
     .reply(200, []);
   await pull.run.call(client, payload);
 
@@ -68,7 +68,7 @@ void test('pull: Single missing reference uses "it" pronoun', async () => {
     .reply(200, { pull_request: false, state: "open" })
     .get("/repos/zulip/zulipbot/pulls/71/commits")
     .reply(200, [{ commit: { message: "Unrelated commit" } }])
-    .get("/repos/zulip/zulipbot/issues/71/comments")
+    .get("/repos/zulip/zulipbot/issues/71/comments?per_page=100")
     .reply(200, [])
     .post(
       "/repos/zulip/zulipbot/issues/71/comments",
@@ -110,7 +110,7 @@ void test('pull: Multiple missing references use "them" pronoun', async () => {
     .reply(200, { pull_request: false, state: "open" })
     .get("/repos/zulip/zulipbot/pulls/72/commits")
     .reply(200, [{ commit: { message: "Unrelated commit" } }])
-    .get("/repos/zulip/zulipbot/issues/72/comments")
+    .get("/repos/zulip/zulipbot/issues/72/comments?per_page=100")
     .reply(200, [])
     .post(
       "/repos/zulip/zulipbot/issues/72/comments",
@@ -153,7 +153,7 @@ void test("pull: Size label reflects additions + deletions from payload", async 
     .reply(200)
     .get("/repos/zulip/zulipbot/pulls/70/commits")
     .reply(200, [])
-    .get("/repos/zulip/zulipbot/issues/70/comments")
+    .get("/repos/zulip/zulipbot/issues/70/comments?per_page=100")
     .reply(200, []);
   await pull.run.call(client, bigPayload);
 
