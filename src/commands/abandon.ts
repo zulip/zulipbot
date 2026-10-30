@@ -1,9 +1,9 @@
 import type { RestEndpointMethodTypes } from "@octokit/rest";
-import type { Client } from "../client.ts";
+import type { Bot } from "../bot.ts";
 import type { CommandAliases, CommandPayload } from "./index.ts";
 
 export const run = async function (
-  this: Client,
+  bot: Bot,
   payload: CommandPayload,
   commenter: string,
 ): Promise<
@@ -17,7 +17,7 @@ export const run = async function (
 
   if (!assignees.includes(commenter)) {
     const error = "**ERROR:** You have not claimed this issue to work on yet.";
-    return this.issues.createComment({
+    return bot.octokit.issues.createComment({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
@@ -25,7 +25,7 @@ export const run = async function (
     });
   }
 
-  return this.issues.removeAssignees({
+  return bot.octokit.issues.removeAssignees({
     owner: repoOwner,
     repo: repoName,
     issue_number: number,

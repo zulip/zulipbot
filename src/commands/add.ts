@@ -1,10 +1,10 @@
 import type { RestEndpointMethodTypes } from "@octokit/rest";
 import { assertDefined } from "ts-extras";
-import type { Client } from "../client.ts";
+import type { Bot } from "../bot.ts";
 import type { CommandAliases, CommandPayload } from "./index.ts";
 
 export const run = async function (
-  this: Client,
+  bot: Bot,
   payload: CommandPayload,
   commenter: string,
   args: string,
@@ -12,7 +12,7 @@ export const run = async function (
   RestEndpointMethodTypes["issues"]["addLabels"]["response"] | undefined
 > {
   const creator = payload.issue.user?.login;
-  const self = this.cfg.issues.commands.label.self;
+  const self = bot.cfg.issues.commands.label.self;
   const isSelfLabel =
     typeof self === "object" ? !self.users.includes(commenter) : self;
   const isForbidden = isSelfLabel && creator !== commenter;
@@ -25,10 +25,13 @@ export const run = async function (
   assertDefined(payload.issue.labels);
   const issueLabels = new Set(payload.issue.labels.map((label) => label.name));
 
-  const repoLabelArray = await this.paginate(this.issues.listLabelsForRepo, {
-    owner: repoOwner,
-    repo: repoName,
-  });
+  const repoLabelArray = await bot.octokit.paginate(
+    bot.octokit.issues.listLabelsForRepo,
+    {
+      owner: repoOwner,
+      repo: repoName,
+    },
+  );
 
   const repoLabels = new Set(repoLabelArray.map((label) => label.name));
   const labels = rawLabels.map((string) => string.replaceAll('"', ""));
@@ -40,7 +43,7 @@ export const run = async function (
   );
 
   const type = payload.issue.pull_request ? "pull request" : "issue";
-  const template = this.templates.get("labelError");
+  const template = bot.templates.get("labelError");
   assertDefined(template);
   let response;
 
@@ -55,7 +58,7 @@ export const run = async function (
       action: "added to",
     });
 
-    await this.issues.createComment({
+    await bot.octokit.issues.createComment({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
@@ -74,7 +77,7 @@ export const run = async function (
       type,
     });
 
-    await this.issues.createComment({
+    await bot.octokit.issues.createComment({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
@@ -83,7 +86,7 @@ export const run = async function (
   }
 
   if (newLabels.length > 0) {
-    response = await this.issues.addLabels({
+    response = await bot.octokit.issues.addLabels({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,

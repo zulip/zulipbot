@@ -1,17 +1,17 @@
 import type { RestEndpointMethodTypes } from "@octokit/rest";
 import type { EmitterWebhookEvent } from "@octokit/webhooks/types";
 import { assertPresent } from "ts-extras";
-import type { Client } from "../client.ts";
+import type { Bot } from "../bot.ts";
 
 export const run = async function (
-  this: Client,
+  bot: Bot,
   payload: EmitterWebhookEvent<"member">["payload"],
 ): Promise<
   | RestEndpointMethodTypes["issues"]["createComment"]["response"]
   | true
   | undefined
 > {
-  const isClaimEnabled = this.cfg.issues.commands.assign.claim.length > 0;
+  const isClaimEnabled = bot.cfg.issues.commands.assign.claim.length > 0;
 
   if (!isClaimEnabled || payload.action !== "added") return;
 
@@ -21,18 +21,18 @@ export const run = async function (
   const repoOwner = payload.repository.owner.login;
   const repoName = payload.repository.name;
 
-  const invite = this.invites.get(`${member}@${repoFullName}`);
+  const invite = bot.invites.get(`${member}@${repoFullName}`);
 
   if (invite === undefined) return;
 
-  const response = await this.issues.addAssignees({
+  const response = await bot.octokit.issues.addAssignees({
     owner: repoOwner,
     repo: repoName,
     issue_number: invite,
     assignees: [member],
   });
 
-  this.invites.delete(`${member}@${repoFullName}`);
+  bot.invites.delete(`${member}@${repoFullName}`);
 
   if (
     response.data.assignees !== undefined &&
@@ -43,7 +43,7 @@ export const run = async function (
   }
 
   const error = "**ERROR:** Issue claiming failed (no assignee was added).";
-  return this.issues.createComment({
+  return bot.octokit.issues.createComment({
     owner: repoOwner,
     repo: repoName,
     issue_number: invite,

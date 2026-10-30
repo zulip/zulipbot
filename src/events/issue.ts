@@ -1,12 +1,12 @@
 import type { EmitterWebhookEvent } from "@octokit/webhooks/types";
 import _ from "lodash";
 import { assertDefined, assertPresent } from "ts-extras";
-import type { Client } from "../client.ts";
+import type { Bot } from "../bot.ts";
 import type { CommandPayload } from "../commands/index.ts";
 import * as responses from "./responses/index.ts";
 
 export const run = async function (
-  this: Client,
+  bot: Bot,
   payload: EmitterWebhookEvent<"issues" | "issue_comment">["payload"],
 ) {
   const action = payload.action;
@@ -15,34 +15,29 @@ export const run = async function (
   if (
     "assignee" in payload &&
     payload.assignee &&
-    this.cfg.activity.issues.inProgress !== undefined
+    bot.cfg.activity.issues.inProgress !== undefined
   ) {
-    await responses.issueState.progress.call(this, payload);
+    await responses.issueState.progress(bot, payload);
   }
 
   if (action === "labeled" || action === "unlabeled") {
     assertDefined(payload.label);
-    await responses.areaLabel.run.call(
-      this,
-      payload.issue,
-      repo,
-      payload.label,
-    );
-  } else if (action === "closed" && this.cfg.activity.issues.clearClosed) {
-    responses.issueState.close.call(this, payload.issue, repo);
+    await responses.areaLabel.run(bot, payload.issue, repo, payload.label);
+  } else if (action === "closed" && bot.cfg.activity.issues.clearClosed) {
+    responses.issueState.close(bot, payload.issue, repo);
   } else if (action === "reopened") {
-    responses.issueState.reopen.call(this, payload.issue);
+    responses.issueState.reopen(bot, payload.issue);
   } else if (action === "opened" || action === "created") {
-    await parse.call(this, payload);
+    await parse(bot, payload);
   }
 };
 
-async function parse(this: Client, payload: CommandPayload) {
+async function parse(bot: Bot, payload: CommandPayload) {
   const data = "comment" in payload ? payload.comment : payload.issue;
   assertPresent(data.user);
   const commenter = data.user.login;
   const body = data.body;
-  const username = this.cfg.auth.username;
+  const username = bot.cfg.auth.username;
 
   if (commenter === username || body === null) return;
 
@@ -55,10 +50,10 @@ async function parse(this: Client, payload: CommandPayload) {
     if (codeBlocks.some((block) => body.includes(block))) continue;
     assertDefined(keyword);
     assertDefined(args);
-    const file = this.commands.get(keyword);
+    const file = bot.commands.get(keyword);
 
     if (file) {
-      await file.run.call(this, payload, commenter, args.trimStart());
+      await file.run(bot, payload, commenter, args.trimStart());
     }
   }
 }

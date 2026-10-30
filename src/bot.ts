@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import process from "node:process";
 import path from "node:path";
-import { retry } from "@octokit/plugin-retry";
+import { retry, type RetryPlugin } from "@octokit/plugin-retry";
 import { throttling } from "@octokit/plugin-throttling";
 import { Octokit } from "@octokit/rest";
 import _ from "lodash";
@@ -14,19 +14,16 @@ import commands, {
 } from "./commands/index.ts";
 import Template from "./structures/template.ts";
 
-const MyOctokit: typeof Octokit &
-  (new (
-    ...args: any[]
-  ) => ReturnType<typeof retry> & ReturnType<typeof throttling>) =
-  Octokit.plugin(retry, throttling);
+const MyOctokit = Octokit.plugin(retry, throttling);
 
-export class Client extends MyOctokit {
+export class Bot {
+  octokit: Octokit & RetryPlugin;
   cfg: Writable<typeof defaults>;
   commands: Map<
     string,
     {
       run: (
-        this: Client,
+        bot: Bot,
         payload: CommandPayload,
         commenter: string,
         args: string,
@@ -40,7 +37,7 @@ export class Client extends MyOctokit {
 
   constructor() {
     const cfg: Writable<typeof defaults> = _.merge({}, defaults, custom);
-    super({
+    this.octokit = new MyOctokit({
       auth: cfg.auth.oAuthToken,
       retry: {
         enabled: process.env["NODE_ENV"] !== "test",
@@ -48,9 +45,9 @@ export class Client extends MyOctokit {
       },
       throttle: {
         enabled: process.env["NODE_ENV"] !== "test",
-        onRateLimit: (retryAfter, { method, url }, _octokit, retryCount) => {
+        onRateLimit(retryAfter, { method, url }, octokit, retryCount) {
           if (retryCount < 3) {
-            this.log.warn(
+            octokit.log.warn(
               `Rate limit exceeded ${
                 retryCount + 1
               } times for ${method} ${url}; retrying in ${retryAfter} seconds`,
@@ -58,15 +55,15 @@ export class Client extends MyOctokit {
             return true; // eslint-disable-line @typescript-eslint/strict-void-return
           }
 
-          this.log.warn(
+          octokit.log.warn(
             `Rate limit exceeded ${
               retryCount + 1
             } times for ${method} ${url}; aborting`,
           );
           return; // eslint-disable-line no-useless-return
         },
-        onSecondaryRateLimit: (_retryAfter, { method, url }) => {
-          this.log.warn(
+        onSecondaryRateLimit(_retryAfter, { method, url }, octokit) {
+          octokit.log.warn(
             `Secondary rate limit detected for ${method} ${url}; aborting`,
           );
         },
@@ -97,5 +94,4 @@ export class Client extends MyOctokit {
   }
 }
 
-const client = new Client();
-export default client;
+export const bot = new Bot();

@@ -2,7 +2,7 @@ import { test } from "node:test";
 import type { EmitterWebhookEvent } from "@octokit/webhooks";
 import nock from "nock";
 import { partialMock } from "partial-mock";
-import client from "../../../src/client.ts";
+import { bot } from "../../../src/bot.ts";
 import * as pull from "../../../src/events/pull.ts";
 
 const payload: EmitterWebhookEvent<
@@ -36,7 +36,7 @@ void test("pull: Ignore empty body", async () => {
     .reply(200, [{ commit: { message: "Fix all the bugs" } }])
     .get("/repos/zulip/zulipbot/issues/69/comments")
     .reply(200, []);
-  await pull.run.call(client, payload);
+  await pull.run(bot, payload);
 
   scope.done();
 });
@@ -76,7 +76,7 @@ void test('pull: Single missing reference uses "it" pronoun', async () => {
         body.body.includes("have not referenced it in your commit"),
     )
     .reply(201);
-  await pull.run.call(client, referencePayload);
+  await pull.run(bot, referencePayload);
 
   scope.done();
 });
@@ -118,7 +118,7 @@ void test('pull: Multiple missing references use "them" pronoun', async () => {
         body.body.includes("have not referenced them in your commit"),
     )
     .reply(201);
-  await pull.run.call(client, referencePayload);
+  await pull.run(bot, referencePayload);
 
   scope.done();
 });
@@ -155,7 +155,7 @@ void test("pull: Size label reflects additions + deletions from payload", async 
     .reply(200, [])
     .get("/repos/zulip/zulipbot/issues/70/comments")
     .reply(200, []);
-  await pull.run.call(client, bigPayload);
+  await pull.run(bot, bigPayload);
 
   scope.done();
 });

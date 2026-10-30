@@ -1,7 +1,7 @@
 import type { components } from "@octokit/openapi-types";
 import { RequestError } from "@octokit/request-error";
 import _ from "lodash";
-import type { Client } from "../client.ts";
+import type { Bot } from "../bot.ts";
 
 const keywords = [
   "close",
@@ -17,9 +17,9 @@ const keywords = [
 
 class ReferenceSearch {
   /**
-   * The client that instantiated this template
+   * The Bot that instantiated this template
    */
-  client: Client;
+  bot: Bot;
   /**
    * The number of the pull request this search applies to
    */
@@ -38,14 +38,14 @@ class ReferenceSearch {
   repoOwner: string;
 
   constructor(
-    client: Client,
+    bot: Bot,
     pull:
       | components["schemas"]["pull-request-simple"]
       | components["schemas"]["webhook-pull-request-synchronize"]["pull_request"]
       | components["schemas"]["pull-request-webhook"],
     repo: components["schemas"]["repository"],
   ) {
-    this.client = client;
+    this.bot = bot;
     this.number = pull.number;
     this.body = pull.body ?? "";
     this.repoName = repo.name;
@@ -80,7 +80,7 @@ class ReferenceSearch {
     const statusCheck = uniqueIssues.map(async (number) => {
       let issue;
       try {
-        issue = await this.client.issues.get({
+        issue = await this.bot.octokit.issues.get({
           owner: this.repoOwner,
           repo: this.repoName,
           issue_number: number,
@@ -107,7 +107,7 @@ class ReferenceSearch {
   }
 
   async getCommits() {
-    const commits = await this.client.pulls.listCommits({
+    const commits = await this.bot.octokit.pulls.listCommits({
       owner: this.repoOwner,
       repo: this.repoName,
       pull_number: this.number,

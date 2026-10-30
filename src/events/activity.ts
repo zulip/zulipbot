@@ -1,11 +1,11 @@
 import type { components } from "@octokit/openapi-types";
 import { assertDefined } from "ts-extras";
-import type { Client } from "../client.ts";
+import type { Bot } from "../bot.ts";
 import Search from "../structures/reference-search.ts";
 
-export const run = async function (this: Client) {
+export const run = async function (bot: Bot) {
   const referenceList = new Map<string, number>();
-  const repos = this.cfg.activity.check.repositories;
+  const repos = bot.cfg.activity.check.repositories;
 
   // Process each repository sequentially to limit memory usage
   for (const repo of repos) {
@@ -13,23 +13,26 @@ export const run = async function (this: Client) {
     assertDefined(repoOwner);
     assertDefined(repoName);
 
-    for await (const response of this.paginate.iterator(this.pulls.list, {
-      owner: repoOwner,
-      repo: repoName,
-    })) {
-      await scrapePulls.call(this, response.data, referenceList);
+    for await (const response of bot.octokit.paginate.iterator(
+      bot.octokit.pulls.list,
+      {
+        owner: repoOwner,
+        repo: repoName,
+      },
+    )) {
+      await scrapePulls(bot, response.data, referenceList);
     }
   }
 
-  await scrapeInactiveIssues.call(this, referenceList);
+  await scrapeInactiveIssues(bot, referenceList);
 };
 
 async function scrapePulls(
-  this: Client,
+  bot: Bot,
   pulls: Array<components["schemas"]["pull-request-simple"]>,
   referenceList: Map<string, number>,
 ) {
-  const ims = (this.cfg.activity.check.reminder ?? 0) * 86_400_000;
+  const ims = (bot.cfg.activity.check.reminder ?? 0) * 86_400_000;
 
   for (const pull of pulls) {
     let time = Date.parse(pull.updated_at);
@@ -37,7 +40,7 @@ async function scrapePulls(
     const repoName = pull.base.repo.name;
     const repoOwner = pull.base.repo.owner.login;
 
-    const response = await this.issues.listLabelsOnIssue({
+    const response = await bot.octokit.issues.listLabelsOnIssue({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
@@ -47,17 +50,17 @@ async function scrapePulls(
       response.data.map((label) => label.name),
     );
 
-    const isInactive = labels.has(this.cfg.activity.inactive);
-    const isReviewed = labels.has(this.cfg.activity.pulls.reviewed.label);
-    const isNeedsReview = labels.has(this.cfg.activity.pulls.needsReview.label);
-    const { underReview } = this.cfg.activity.pulls;
+    const isInactive = labels.has(bot.cfg.activity.inactive);
+    const isReviewed = labels.has(bot.cfg.activity.pulls.reviewed.label);
+    const isNeedsReview = labels.has(bot.cfg.activity.pulls.needsReview.label);
+    const { underReview } = bot.cfg.activity.pulls;
     const isUnderReview = underReview.labels.some((label) => labels.has(label));
 
     if (!isInactive && isReviewed && time + ims <= Date.now()) {
-      await checkInactivePull.call(this, pull);
+      await checkInactivePull(bot, pull);
     }
 
-    const references = new Search(this, pull, pull.base.repo);
+    const references = new Search(bot, pull, pull.base.repo);
     const bodyReferences = await references.getBody();
     const commitReferences = await references.getCommits();
 
@@ -65,7 +68,7 @@ async function scrapePulls(
 
     const references_ = [...commitReferences, ...bodyReferences];
     for (const reference of references_) {
-      const shouldIgnore = this.cfg.activity.pulls.needsReview.ignore;
+      const shouldIgnore = bot.cfg.activity.pulls.needsReview.ignore;
       if (isNeedsReview && shouldIgnore) time = Date.now();
       if (isUnderReview && underReview.ignore) time = Date.now();
       referenceList.set(`${repoName}/${reference}`, time);
@@ -74,7 +77,7 @@ async function scrapePulls(
 }
 
 async function checkInactivePull(
-  this: Client,
+  bot: Bot,
   pull: components["schemas"]["pull-request-simple"],
 ) {
   const author = pull.user?.login;
@@ -82,11 +85,11 @@ async function checkInactivePull(
   const repoOwner = pull.base.repo.owner.login;
   const number = pull.number;
 
-  const template = this.templates.get("updateWarning");
+  const template = bot.templates.get("updateWarning");
   assertDefined(template);
 
   const comment = template.format({
-    days: this.cfg.activity.check.reminder,
+    days: bot.cfg.activity.check.reminder,
     author,
   });
 
@@ -97,7 +100,7 @@ async function checkInactivePull(
   });
 
   if (comments.length === 0) {
-    await this.issues.createComment({
+    await bot.octokit.issues.createComment({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
@@ -106,22 +109,22 @@ async function checkInactivePull(
   }
 }
 
-async function scrapeInactiveIssues(
-  this: Client,
-  references: Map<string, number>,
-) {
-  const ms = (this.cfg.activity.check.limit ?? 0) * 86_400_000;
-  const ims = (this.cfg.activity.check.reminder ?? 0) * 86_400_000;
+async function scrapeInactiveIssues(bot: Bot, references: Map<string, number>) {
+  const ms = (bot.cfg.activity.check.limit ?? 0) * 86_400_000;
+  const ims = (bot.cfg.activity.check.reminder ?? 0) * 86_400_000;
 
-  for await (const response of this.paginate.iterator(this.issues.list, {
-    filter: "all",
-    labels: this.cfg.activity.issues.inProgress ?? undefined,
-  })) {
+  for await (const response of bot.octokit.paginate.iterator(
+    bot.octokit.issues.list,
+    {
+      filter: "all",
+      labels: bot.cfg.activity.issues.inProgress ?? undefined,
+    },
+  )) {
     for (const issue of response.data) {
       const hasInactiveLabel = issue.labels.some(
         (label) =>
           (typeof label === "string" ? label : label.name) ===
-          this.cfg.activity.inactive,
+          bot.cfg.activity.inactive,
       );
       if (hasInactiveLabel) continue;
 
@@ -136,7 +139,7 @@ async function scrapeInactiveIssues(
       const reference = references.get(issueTag);
       if (reference !== undefined && time < reference) time = reference;
 
-      const isActive = this.cfg.activity.check.repositories.includes(repoTag);
+      const isActive = bot.cfg.activity.check.repositories.includes(repoTag);
 
       if (!isActive || time + ms >= Date.now()) continue;
 
@@ -146,7 +149,7 @@ async function scrapeInactiveIssues(
         issue.assignees.length === 0
       ) {
         const comment = "**ERROR:** This active issue has no assignee.";
-        await this.issues.createComment({
+        await bot.octokit.issues.createComment({
           owner: repoOwner,
           repo: repoName,
           issue_number: number,
@@ -157,14 +160,14 @@ async function scrapeInactiveIssues(
 
       const logins = issue.assignees.map((assignee) => assignee.login);
 
-      const template = this.templates.get("inactiveWarning");
+      const template = bot.templates.get("inactiveWarning");
       assertDefined(template);
 
       const comment = template.format({
         assignee: logins.join(", @"),
-        remind: this.cfg.activity.check.reminder,
-        abandon: this.cfg.activity.check.limit,
-        username: this.cfg.auth.username,
+        remind: bot.cfg.activity.check.reminder,
+        abandon: bot.cfg.activity.check.limit,
+        username: bot.cfg.auth.username,
       });
 
       const comments = await template.getComments({
@@ -174,30 +177,30 @@ async function scrapeInactiveIssues(
       });
 
       if (comments[0] !== undefined) {
-        await this.issues.removeAssignees({
+        await bot.octokit.issues.removeAssignees({
           owner: repoOwner,
           repo: repoName,
           issue_number: number,
           assignees: logins,
         });
 
-        const abandonTemplate = this.templates.get("abandonWarning");
+        const abandonTemplate = bot.templates.get("abandonWarning");
         assertDefined(abandonTemplate);
         const warning = abandonTemplate.format({
           assignee: logins.join(", @"),
           total: (ms + ims) / 86_400_000,
-          username: this.cfg.auth.username,
+          username: bot.cfg.auth.username,
         });
 
         const id = comments[0].id;
-        await this.issues.updateComment({
+        await bot.octokit.issues.updateComment({
           owner: repoOwner,
           repo: repoName,
           comment_id: id,
           body: warning,
         });
       } else if (time + ims <= Date.now()) {
-        await this.issues.createComment({
+        await bot.octokit.issues.createComment({
           owner: repoOwner,
           repo: repoName,
           issue_number: number,

@@ -3,7 +3,7 @@ import type { components } from "@octokit/openapi-webhooks-types";
 import nock from "nock";
 import { partialMock } from "partial-mock";
 import { assertDefined } from "ts-extras";
-import client from "../../../../src/client.ts";
+import { bot } from "../../../../src/bot.ts";
 import * as mergeConflict from "../../../../src/events/responses/merge-conflict.ts";
 
 const repo: components["schemas"]["repository"] = partialMock({
@@ -12,16 +12,16 @@ const repo: components["schemas"]["repository"] = partialMock({
 });
 
 void test("merge-conflict: Posts warning comment on mergeable=false PR", async () => {
-  client.cfg.pulls.status.mergeConflicts.branch = "main";
-  client.cfg.pulls.status.mergeConflicts.comment = true;
-  client.cfg.pulls.status.mergeConflicts.label = null;
-  client.cfg.activity.inactive = "inactive";
-  client.cfg.auth.username = "zulipbot";
+  bot.cfg.pulls.status.mergeConflicts.branch = "main";
+  bot.cfg.pulls.status.mergeConflicts.comment = true;
+  bot.cfg.pulls.status.mergeConflicts.label = null;
+  bot.cfg.activity.inactive = "inactive";
+  bot.cfg.auth.username = "zulipbot";
 
-  const template = client.templates.get("mergeConflictWarning");
+  const template = bot.templates.get("mergeConflictWarning");
   assertDefined(template);
   template.content = "warning {username} {branch}";
-  client.templates.set("mergeConflictWarning", template);
+  bot.templates.set("mergeConflictWarning", template);
 
   const scope = nock("https://api.github.com")
     .get("/repos/zulip/zulipbot/pulls")
@@ -39,16 +39,16 @@ void test("merge-conflict: Posts warning comment on mergeable=false PR", async (
     })
     .reply(201);
 
-  await mergeConflict.run.call(client, repo);
+  await mergeConflict.run(bot, repo);
 
   scope.done();
 });
 
 void test("merge-conflict: Skips warning when inactive label is present", async () => {
-  client.cfg.pulls.status.mergeConflicts.branch = "main";
-  client.cfg.pulls.status.mergeConflicts.comment = true;
-  client.cfg.pulls.status.mergeConflicts.label = null;
-  client.cfg.activity.inactive = "inactive";
+  bot.cfg.pulls.status.mergeConflicts.branch = "main";
+  bot.cfg.pulls.status.mergeConflicts.comment = true;
+  bot.cfg.pulls.status.mergeConflicts.label = null;
+  bot.cfg.activity.inactive = "inactive";
 
   const scope = nock("https://api.github.com")
     .get("/repos/zulip/zulipbot/pulls")
@@ -62,7 +62,7 @@ void test("merge-conflict: Skips warning when inactive label is present", async 
     .get("/repos/zulip/zulipbot/issues/51/labels")
     .reply(200, [{ name: "inactive" }]);
 
-  await mergeConflict.run.call(client, repo);
+  await mergeConflict.run(bot, repo);
 
   scope.done();
 });

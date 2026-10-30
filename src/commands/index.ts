@@ -1,5 +1,5 @@
 import type { EmitterWebhookEvent } from "@octokit/webhooks/types";
-import type { Client } from "../client.ts";
+import type { Bot } from "../bot.ts";
 import * as abandon from "./abandon.ts";
 import * as add from "./add.ts";
 import * as claim from "./claim.ts";
@@ -11,7 +11,7 @@ export type CommandPayload = EmitterWebhookEvent<
   action: "opened" | "created";
 };
 
-export type CommandAliases = Client["cfg"]["issues"]["commands"];
+export type CommandAliases = Bot["cfg"]["issues"]["commands"];
 
 const commands = [abandon, add, claim, remove];
 export default commands;

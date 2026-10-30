@@ -1,11 +1,11 @@
 import type { components } from "@octokit/openapi-types";
 import { assertDefined } from "ts-extras";
-import type { Client } from "../../client.ts";
+import type { Bot } from "../../bot.ts";
 
 const referenced: string[] = [];
 
 export const run = async function (
-  this: Client,
+  bot: Bot,
   issue:
     components["schemas"]["issue"] | components["schemas"]["webhooks_issue"],
   repo: components["schemas"]["repository-webhooks"],
@@ -19,7 +19,7 @@ export const run = async function (
   const issueLabels = issue.labels.map((l) =>
     typeof l === "string" ? l : l.name,
   );
-  const areaLabels = this.cfg.issues.area.labels;
+  const areaLabels = bot.cfg.issues.area.labels;
 
   if (areaLabels && !areaLabels.has(areaLabel)) return;
 
@@ -36,7 +36,7 @@ export const run = async function (
 
   const payload = issue.pull_request ? "pull request" : "issue";
   const labelSize = labelTeams.length === 1 ? "label" : "labels";
-  const template = this.templates.get("areaLabelAddition");
+  const template = bot.templates.get("areaLabelAddition");
   assertDefined(template);
 
   const comment = template.format({
@@ -57,21 +57,21 @@ export const run = async function (
   if (comments[0] !== undefined) {
     const id = comments[0].id;
     if (issueAreaLabels.length > 0) {
-      await this.issues.updateComment({
+      await bot.octokit.issues.updateComment({
         owner: repoOwner,
         repo: repoName,
         comment_id: id,
         body: comment,
       });
     } else {
-      await this.issues.deleteComment({
+      await bot.octokit.issues.deleteComment({
         owner: repoOwner,
         repo: repoName,
         comment_id: id,
       });
     }
   } else if (!referenced.includes(tag) && issueAreaLabels.length > 0) {
-    await this.issues.createComment({
+    await bot.octokit.issues.createComment({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
