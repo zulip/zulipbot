@@ -1,3 +1,4 @@
+import type { components } from "@octokit/openapi-types";
 import type { RestEndpointMethodTypes } from "@octokit/rest";
 import type { Client } from "../client.ts";
 
@@ -30,9 +31,7 @@ class Template {
   async getComments(
     parameters: RestEndpointMethodTypes["issues"]["listComments"]["parameters"],
   ) {
-    const templateComments: Awaited<
-      ReturnType<typeof this.client.issues.listComments>
-    >["data"] = [];
+    const templateComments: Array<components["schemas"]["issue-comment"]> = [];
 
     for await (const response of this.client.paginate.iterator(
       this.client.issues.listComments,
