@@ -1,3 +1,4 @@
+import events from "node:events";
 import timers from "node:timers";
 import { test, type TestContext } from "node:test";
 import type { EmitterWebhookEvent } from "@octokit/webhooks";
@@ -43,7 +44,10 @@ void test("push: Trigger events if main branch was pushed", async (t: TestContex
     .reply(200, []);
 
   const response = push.run(bot, mainPayload);
-  await timers.promises.setTimeout(0);
+  await Promise.race([
+    events.once(scope, "replied"),
+    timers.promises.setTimeout(1000, undefined, { ref: false }),
+  ]);
 
   scope.done();
 
