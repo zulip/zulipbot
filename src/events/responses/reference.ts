@@ -1,10 +1,10 @@
 import type { components } from "@octokit/openapi-webhooks-types";
 import { assertDefined } from "ts-extras";
-import type { Client } from "../../client.ts";
+import type { Bot } from "../../bot.ts";
 import Search from "../../structures/reference-search.ts";
 
 export const run = async function (
-  this: Client,
+  bot: Bot,
   pull:
     | components["schemas"]["pull-request"]
     | components["schemas"]["webhook-pull-request-synchronize"]["pull_request"]
@@ -17,7 +17,7 @@ export const run = async function (
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
 
-  const references = new Search(this, pull, repo);
+  const references = new Search(bot, pull, repo);
   const bodyReferences = await references.getBody();
   const commitReferences = await references.getCommits();
 
@@ -25,7 +25,7 @@ export const run = async function (
     (r) => !commitReferences.includes(r),
   );
 
-  const template = this.templates.get("fixCommitWarning");
+  const template = bot.templates.get("fixCommitWarning");
   assertDefined(template);
   const comments = await template.getComments({
     issue_number: number,
@@ -40,7 +40,7 @@ export const run = async function (
       fixIssues: missingReferences.join(", fixes #"),
       issuePronoun: missingReferences.length > 1 ? "them" : "it",
     });
-    await this.issues.createComment({
+    await bot.octokit.issues.createComment({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
@@ -49,24 +49,24 @@ export const run = async function (
     return;
   }
 
-  if (!isOpened || this.cfg.pulls.references.labels !== false) return;
+  if (!isOpened || bot.cfg.pulls.references.labels !== false) return;
 
   for (const issue of commitReferences) {
-    await labelReference.call(this, issue, number, repo);
+    await labelReference(bot, issue, number, repo);
   }
 };
 
 async function labelReference(
-  this: Client,
+  bot: Bot,
   referencedIssue: number,
   number: number,
   repo: components["schemas"]["repository-webhooks"],
 ) {
   const repoName = repo.name;
   const repoOwner = repo.owner.login;
-  const labelCfg = this.cfg.pulls.references.labels;
+  const labelCfg = bot.cfg.pulls.references.labels;
 
-  const response = await this.issues.listLabelsOnIssue({
+  const response = await bot.octokit.issues.listLabelsOnIssue({
     owner: repoOwner,
     repo: repoName,
     issue_number: referencedIssue,
@@ -81,7 +81,7 @@ async function labelReference(
       1
     ) {
       const error = "**ERROR:** Invalid `references.labels` configuration.";
-      await this.issues.createComment({
+      await bot.octokit.issues.createComment({
         owner: repoOwner,
         repo: repoName,
         issue_number: number,
@@ -99,7 +99,7 @@ async function labelReference(
     }
   }
 
-  await this.issues.addLabels({
+  await bot.octokit.issues.addLabels({
     owner: repoOwner,
     repo: repoName,
     issue_number: number,

@@ -3,7 +3,7 @@ import process from "node:process";
 import { Webhooks, createNodeMiddleware } from "@octokit/webhooks";
 import express from "express";
 import { assertDefined, safeCastTo } from "ts-extras";
-import client from "./client.ts";
+import { bot } from "./bot.ts";
 import * as events from "./events/index.ts";
 
 const app = express();
@@ -17,13 +17,13 @@ app.get("/", (_request, response) => {
   response.redirect("https://github.com/zulip/zulipbot");
 });
 
-assertDefined(client.cfg.auth.webhookSecret);
-const webhooks = new Webhooks({ secret: client.cfg.auth.webhookSecret });
+assertDefined(bot.cfg.auth.webhookSecret);
+const webhooks = new Webhooks({ secret: bot.cfg.auth.webhookSecret });
 webhooks.onAny(async (event) => {
   if (
     !("repository" in event.payload) ||
     event.payload.repository === null ||
-    !client.cfg.activity.check.repositories.includes(
+    !bot.cfg.activity.check.repositories.includes(
       event.payload.repository.full_name,
     )
   ) {
@@ -34,23 +34,23 @@ webhooks.onAny(async (event) => {
   switch (event.name) {
     case "issues":
     case "issue_comment": {
-      await events.issue.run.call(client, event.payload);
+      await events.issue.run(bot, event.payload);
       break;
     }
 
     case "member": {
-      await events.member.run.call(client, event.payload);
+      await events.member.run(bot, event.payload);
       break;
     }
 
     case "pull_request":
     case "pull_request_review": {
-      await events.pull.run.call(client, event.payload);
+      await events.pull.run(bot, event.payload);
       break;
     }
 
     case "push": {
-      events.push.run.call(client, event.payload);
+      events.push.run(bot, event.payload);
       break;
     }
 
@@ -66,14 +66,14 @@ process.on("unhandledRejection", (error) => {
   );
 });
 
-if (client.cfg.activity.check.interval !== null) {
+if (bot.cfg.activity.check.interval !== null) {
   setInterval(() => {
-    void events.activity.run.call(client);
-  }, client.cfg.activity.check.interval * 3_600_000);
+    void events.activity.run(bot);
+  }, bot.cfg.activity.check.interval * 3_600_000);
 }
 
 for (const key of ["oAuthToken", "webhookSecret"] as const) {
-  const value = client.cfg.auth[key];
+  const value = bot.cfg.auth[key];
 
   if (typeof value === "string") {
     console.log(`Using environment variable value for \`${key}\`...`);
@@ -96,12 +96,12 @@ for (const key of ["oAuthToken", "webhookSecret"] as const) {
       throw new TypeError(`Expected string for \`${key}\``);
     }
 
-    client.cfg.auth[key] = secret;
+    bot.cfg.auth[key] = secret;
   } catch {
     console.log(`\`${key}\` value was not set. Please fix your configuration.`);
     process.exit(1);
   }
 }
 
-const response = await client.users.getAuthenticated();
-client.cfg.auth.username = response.data.login;
+const response = await bot.octokit.users.getAuthenticated();
+bot.cfg.auth.username = response.data.login;

@@ -1,7 +1,7 @@
 import { test, type TestContext } from "node:test";
 import nock from "nock";
 import { partialMock } from "partial-mock";
-import client from "../../../src/client.ts";
+import { bot } from "../../../src/bot.ts";
 import * as abandon from "../../../src/commands/abandon.ts";
 import type { CommandPayload } from "../../../src/commands/index.ts";
 
@@ -30,7 +30,7 @@ void test("abandon: Reject if commenter isn't an assignee", async (t: TestContex
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
     .reply(200, { body: error });
 
-  const response = await abandon.run.call(client, payload, commenter);
+  const response = await abandon.run(bot, payload, commenter);
 
   t.assert.strictEqual(response.data.body, error);
 
@@ -46,7 +46,7 @@ void test("abandon: Remove if commenter is assigned", async (t: TestContext) => 
     })
     .reply(200, { assignees: [] });
 
-  const response = await abandon.run.call(client, payload, commenter);
+  const response = await abandon.run(bot, payload, commenter);
 
   t.assert.ok("assignees" in response.data);
   t.assert.deepStrictEqual(response.data.assignees, []);

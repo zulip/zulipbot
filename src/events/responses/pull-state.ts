@@ -2,11 +2,11 @@ import type { components } from "@octokit/openapi-types";
 import type { EmitterWebhookEvent } from "@octokit/webhooks";
 import _ from "lodash";
 import { assertDefined, assertPresent } from "ts-extras";
-import type { Client } from "../../client.ts";
+import type { Bot } from "../../bot.ts";
 import Search from "../../structures/reference-search.ts";
 
 export const addLabels = async function (
-  this: Client,
+  bot: Bot,
   payload: EmitterWebhookEvent<
     "pull_request" | "pull_request_review"
   >["payload"],
@@ -16,7 +16,7 @@ export const addLabels = async function (
   const number = payload.pull_request.number;
   const action = payload.action;
 
-  const response = await this.issues.listLabelsOnIssue({
+  const response = await bot.octokit.issues.listLabelsOnIssue({
     owner: repoOwner,
     repo: repoName,
     issue_number: number,
@@ -24,13 +24,13 @@ export const addLabels = async function (
 
   let labels = response.data.map((label) => label.name);
   const oldLabels = labels;
-  const shouldAutoUpdate = this.cfg.activity.pulls.autoUpdate;
-  const sizeLabels = this.cfg.pulls.status.size.labels;
+  const shouldAutoUpdate = bot.cfg.activity.pulls.autoUpdate;
+  const sizeLabels = bot.cfg.pulls.status.size.labels;
 
   if (shouldAutoUpdate) {
     const author = payload.pull_request.user?.login;
     const reviewer = "review" in payload ? payload.review.user?.login : null;
-    labels = review.call(this, labels, action, author, reviewer);
+    labels = review(bot, labels, action, author, reviewer);
   }
 
   if (sizeLabels && (action === "opened" || action === "synchronize")) {
@@ -38,7 +38,7 @@ export const addLabels = async function (
   }
 
   if (!_.isEqual(oldLabels.toSorted(), labels.toSorted())) {
-    await this.issues.setLabels({
+    await bot.octokit.issues.setLabels({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
@@ -48,7 +48,7 @@ export const addLabels = async function (
 };
 
 function review(
-  this: Client,
+  bot: Bot,
   labels: string[],
   action: EmitterWebhookEvent<
     "pull_request" | "pull_request_review"
@@ -56,9 +56,9 @@ function review(
   author: string | undefined,
   reviewer: string | null | undefined,
 ) {
-  const needsReviewLabel = this.cfg.activity.pulls.needsReview.label;
+  const needsReviewLabel = bot.cfg.activity.pulls.needsReview.label;
   assertPresent(needsReviewLabel);
-  const reviewedLabel = this.cfg.activity.pulls.reviewed.label;
+  const reviewedLabel = bot.cfg.activity.pulls.reviewed.label;
   assertPresent(reviewedLabel);
   const isNeedsReview = labels.includes(needsReviewLabel);
   const isReviewed = labels.includes(reviewedLabel);
@@ -101,7 +101,7 @@ function addSize(
 }
 
 export const assign = async function (
-  this: Client,
+  bot: Bot,
   payload: components["schemas"]["webhook-pull-request-review-submitted"],
 ) {
   const repoName = payload.repository.name;
@@ -109,7 +109,7 @@ export const assign = async function (
   const reviewer = payload.sender.login;
   const number = payload.pull_request.number;
 
-  await this.issues.addAssignees({
+  await bot.octokit.issues.addAssignees({
     owner: repoOwner,
     repo: repoName,
     issue_number: number,
@@ -118,7 +118,7 @@ export const assign = async function (
 };
 
 export const update = async function (
-  this: Client,
+  bot: Bot,
   pull:
     | components["schemas"]["pull-request-simple"]
     | components["schemas"]["webhook-pull-request-synchronize"]["pull_request"],
@@ -132,7 +132,7 @@ export const update = async function (
     [
       "mergeConflictWarning",
       async () => {
-        const pullInfo = await this.pulls.get({
+        const pullInfo = await bot.octokit.pulls.get({
           owner: repoOwner,
           repo: repoName,
           pull_number: number,
@@ -143,7 +143,7 @@ export const update = async function (
     [
       "fixCommitWarning",
       async () => {
-        const references = new Search(this, pull, repo);
+        const references = new Search(bot, pull, repo);
         const bodyReferences = await references.getBody();
         const commitReferences = await references.getCommits();
         return bodyReferences.every((r) => commitReferences.includes(r));
@@ -152,16 +152,16 @@ export const update = async function (
   ]);
 
   for (const [name, check] of warnings) {
-    const template = this.templates.get(name);
+    const template = bot.templates.get(name);
     assertDefined(template);
     const shouldDelete = await check();
     if (!shouldDelete) continue;
 
-    const { label } = this.cfg.pulls.status.mergeConflicts;
+    const { label } = bot.cfg.pulls.status.mergeConflicts;
 
     if (label !== null) {
       try {
-        await this.issues.removeLabel({
+        await bot.octokit.issues.removeLabel({
           owner: repoOwner,
           repo: repoName,
           issue_number: number,
@@ -182,7 +182,7 @@ export const update = async function (
     if (comments.length === 0) continue;
 
     for (const comment of comments) {
-      await this.issues.deleteComment({
+      await bot.octokit.issues.deleteComment({
         owner: repoOwner,
         repo: repoName,
         comment_id: comment.id,

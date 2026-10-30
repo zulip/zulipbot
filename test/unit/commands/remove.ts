@@ -2,7 +2,7 @@ import { test, type TestContext } from "node:test";
 import nock from "nock";
 import { partialMock } from "partial-mock";
 import { assertDefined } from "ts-extras";
-import client from "../../../src/client.ts";
+import { bot } from "../../../src/bot.ts";
 import type { CommandPayload } from "../../../src/commands/index.ts";
 import * as remove from "../../../src/commands/remove.ts";
 
@@ -23,29 +23,29 @@ const payload: CommandPayload = partialMock({
   },
 });
 
-const template = client.templates.get("labelError");
+const template = bot.templates.get("labelError");
 assertDefined(template);
 template.content = "{labels} {labelList} {exist} {beState} {action} {type}.";
-client.templates.set("labelError", template);
+bot.templates.set("labelError", template);
 
 void test("remove: Reject if self-labelling enabled with different commenter", async (t: TestContext) => {
-  client.cfg.issues.commands.label.self = true;
+  bot.cfg.issues.commands.label.self = true;
   const commenter = "octokitten";
   const args = '"bug"';
 
-  const response = await remove.run.call(client, payload, commenter, args);
+  const response = await remove.run(bot, payload, commenter, args);
 
   t.assert.strictEqual(response, undefined);
 });
 
 void test("remove: Reject if self-labelling users excludes commenter", async (t: TestContext) => {
-  client.cfg.issues.commands.label.self = {
+  bot.cfg.issues.commands.label.self = {
     users: ["octocat"],
   };
   const commenter = "octokitten";
   const args = '"bug"';
 
-  const response = await remove.run.call(client, payload, commenter, args);
+  const response = await remove.run(bot, payload, commenter, args);
 
   t.assert.strictEqual(response, undefined);
 });
@@ -54,13 +54,13 @@ void test("remove: Reject if invalid arguments were provided", async (t: TestCon
   const commenter = "octocat";
   const args = "no arguments";
 
-  const response = await remove.run.call(client, payload, commenter, args);
+  const response = await remove.run(bot, payload, commenter, args);
 
   t.assert.strictEqual(response, undefined);
 });
 
 void test("remove: Remove appropriate labels", async () => {
-  client.cfg.issues.commands.label.self = false;
+  bot.cfg.issues.commands.label.self = false;
   const commenter = "octocat";
   const args = '"bug"';
 
@@ -68,7 +68,7 @@ void test("remove: Remove appropriate labels", async () => {
     .put("/repos/zulip/zulipbot/issues/69/labels", { labels: ["help wanted"] })
     .reply(200);
 
-  await remove.run.call(client, payload, commenter, args);
+  await remove.run(bot, payload, commenter, args);
 
   scope.done();
 });
@@ -84,7 +84,7 @@ void test("remove: Remove appropriate labels with single rejection message", asy
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
     .reply(200);
 
-  await remove.run.call(client, payload, commenter, args);
+  await remove.run(bot, payload, commenter, args);
 
   scope.done();
 });
@@ -113,7 +113,7 @@ void test("remove: Remove appropriate labels with multiple rejection message", a
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
     .reply(200);
 
-  await remove.run.call(client, payload2, commenter, args);
+  await remove.run(bot, payload2, commenter, args);
 
   scope.done();
 });

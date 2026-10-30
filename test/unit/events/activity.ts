@@ -1,11 +1,11 @@
 import { test } from "node:test";
 import nock from "nock";
 import { assertDefined } from "ts-extras";
-import client from "../../../src/client.ts";
+import { bot } from "../../../src/bot.ts";
 import { activity } from "../../../src/events/index.ts";
 
 void test("activity: Handle multiple and missing issue references", async () => {
-  client.cfg.activity.check.repositories = ["zulip/zulip"];
+  bot.cfg.activity.check.repositories = ["zulip/zulip"];
 
   const scope = nock("https://api.github.com")
     .get("/repos/zulip/zulip/pulls")
@@ -30,18 +30,18 @@ void test("activity: Handle multiple and missing issue references", async () => 
     .get("/issues?filter=all&labels=in%20progress")
     .reply(200, []);
 
-  await activity.run.call(client);
+  await activity.run(bot);
 
   scope.done();
 });
 
 void test("activity: Continues past inactive issue with no assignees", async () => {
-  client.cfg.activity.check.repositories = ["zulip/zulip"];
-  client.cfg.activity.check.limit = 4;
-  client.cfg.activity.check.reminder = 10;
-  client.cfg.activity.issues.inProgress = "in progress";
-  client.cfg.activity.inactive = "inactive";
-  client.cfg.auth.username = "zulipbot";
+  bot.cfg.activity.check.repositories = ["zulip/zulip"];
+  bot.cfg.activity.check.limit = 4;
+  bot.cfg.activity.check.reminder = 10;
+  bot.cfg.activity.issues.inProgress = "in progress";
+  bot.cfg.activity.inactive = "inactive";
+  bot.cfg.auth.username = "zulipbot";
 
   const oldDate = new Date(Date.now() - 20 * 86_400_000).toISOString();
   const repository = {
@@ -79,25 +79,25 @@ void test("activity: Continues past inactive issue with no assignees", async () 
     .post("/repos/zulip/zulip/issues/11/comments")
     .reply(201);
 
-  await activity.run.call(client);
+  await activity.run(bot);
 
   scope.done();
 });
 
 void test("activity: Unassigns and upgrades warning when prior inactive comment exists", async () => {
-  client.cfg.activity.check.repositories = ["zulip/zulip"];
-  client.cfg.activity.check.limit = 4;
-  client.cfg.activity.check.reminder = 10;
-  client.cfg.activity.issues.inProgress = "in progress";
-  client.cfg.activity.inactive = "inactive";
-  client.cfg.auth.username = "zulipbot";
+  bot.cfg.activity.check.repositories = ["zulip/zulip"];
+  bot.cfg.activity.check.limit = 4;
+  bot.cfg.activity.check.reminder = 10;
+  bot.cfg.activity.issues.inProgress = "in progress";
+  bot.cfg.activity.inactive = "inactive";
+  bot.cfg.auth.username = "zulipbot";
 
-  const inactiveTemplate = client.templates.get("inactiveWarning");
+  const inactiveTemplate = bot.templates.get("inactiveWarning");
   assertDefined(inactiveTemplate);
-  const abandonTemplate = client.templates.get("abandonWarning");
+  const abandonTemplate = bot.templates.get("abandonWarning");
   assertDefined(abandonTemplate);
   abandonTemplate.content = "abandoned {assignee} {total} {username}";
-  client.templates.set("abandonWarning", abandonTemplate);
+  bot.templates.set("abandonWarning", abandonTemplate);
 
   const oldDate = new Date(Date.now() - 20 * 86_400_000).toISOString();
 
@@ -133,25 +133,25 @@ void test("activity: Unassigns and upgrades warning when prior inactive comment 
     })
     .reply(200);
 
-  await activity.run.call(client);
+  await activity.run(bot);
 
   scope.done();
 });
 
 void test("activity: Skips issues whose PRs are under review", async () => {
-  client.cfg.activity.check.repositories = ["zulip/zulip"];
-  client.cfg.activity.check.limit = 4;
-  client.cfg.activity.check.reminder = 10;
-  client.cfg.activity.issues.inProgress = "in progress";
-  client.cfg.activity.inactive = "inactive";
-  client.cfg.activity.pulls.underReview.ignore = true;
-  client.cfg.activity.pulls.underReview.labels = [
+  bot.cfg.activity.check.repositories = ["zulip/zulip"];
+  bot.cfg.activity.check.limit = 4;
+  bot.cfg.activity.check.reminder = 10;
+  bot.cfg.activity.issues.inProgress = "in progress";
+  bot.cfg.activity.inactive = "inactive";
+  bot.cfg.activity.pulls.underReview.ignore = true;
+  bot.cfg.activity.pulls.underReview.labels = [
     "maintainer review",
     "integration review",
   ];
-  client.cfg.auth.username = "zulipbot";
+  bot.cfg.auth.username = "zulipbot";
 
-  const inactiveTemplate = client.templates.get("inactiveWarning");
+  const inactiveTemplate = bot.templates.get("inactiveWarning");
   assertDefined(inactiveTemplate);
   inactiveTemplate.content = "warning {assignee} {remind} {abandon} {username}";
 
@@ -209,22 +209,22 @@ void test("activity: Skips issues whose PRs are under review", async () => {
     })
     .reply(201);
 
-  await activity.run.call(client);
+  await activity.run(bot);
 
   scope.done();
 });
 
 void test("activity: Still warns if underReview.ignore is off", async () => {
-  client.cfg.activity.check.repositories = ["zulip/zulip"];
-  client.cfg.activity.check.limit = 4;
-  client.cfg.activity.check.reminder = 10;
-  client.cfg.activity.issues.inProgress = "in progress";
-  client.cfg.activity.inactive = "inactive";
-  client.cfg.activity.pulls.underReview.ignore = false;
-  client.cfg.activity.pulls.underReview.labels = ["maintainer review"];
-  client.cfg.auth.username = "zulipbot";
+  bot.cfg.activity.check.repositories = ["zulip/zulip"];
+  bot.cfg.activity.check.limit = 4;
+  bot.cfg.activity.check.reminder = 10;
+  bot.cfg.activity.issues.inProgress = "in progress";
+  bot.cfg.activity.inactive = "inactive";
+  bot.cfg.activity.pulls.underReview.ignore = false;
+  bot.cfg.activity.pulls.underReview.labels = ["maintainer review"];
+  bot.cfg.auth.username = "zulipbot";
 
-  const inactiveTemplate = client.templates.get("inactiveWarning");
+  const inactiveTemplate = bot.templates.get("inactiveWarning");
   assertDefined(inactiveTemplate);
   inactiveTemplate.content = "warning {assignee} {remind} {abandon} {username}";
 
@@ -267,7 +267,7 @@ void test("activity: Still warns if underReview.ignore is off", async () => {
     })
     .reply(201);
 
-  await activity.run.call(client);
+  await activity.run(bot);
 
   scope.done();
 });

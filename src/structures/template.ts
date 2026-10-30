@@ -1,12 +1,12 @@
 import type { components } from "@octokit/openapi-types";
 import type { RestEndpointMethodTypes } from "@octokit/rest";
-import type { Client } from "../client.ts";
+import type { Bot } from "../bot.ts";
 
 class Template {
   /**
-   * The client that instantiated this template
+   * The Bot that instantiated this template
    */
-  client: Client;
+  bot: Bot;
   /**
    * The name of this template
    */
@@ -16,8 +16,8 @@ class Template {
    */
   content: string;
 
-  constructor(client: Client, name: string, content: string) {
-    this.client = client;
+  constructor(bot: Bot, name: string, content: string) {
+    this.bot = bot;
     this.name = name;
     this.content = content;
   }
@@ -25,7 +25,7 @@ class Template {
   /**
    * Finds comments generated from templates on a issue/pull request.
    *
-   * @returns Array of filtered template comments from the client user.
+   * @returns Array of filtered template comments from the bot user.
    */
 
   async getComments(
@@ -33,8 +33,8 @@ class Template {
   ) {
     const templateComments: Array<components["schemas"]["issue-comment"]> = [];
 
-    for await (const response of this.client.paginate.iterator(
-      this.client.issues.listComments,
+    for await (const response of this.bot.octokit.paginate.iterator(
+      this.bot.octokit.issues.listComments,
       parameters,
     )) {
       for (const comment of response.data) {
@@ -42,10 +42,10 @@ class Template {
         const matched = comment.body
           ?.trimEnd()
           .endsWith(`<!-- ${this.name} -->`);
-        const isFromClient =
+        const isFromBot =
           comment.user !== null &&
-          comment.user.login === this.client.cfg.auth.username;
-        if (matched && isFromClient) {
+          comment.user.login === this.bot.cfg.auth.username;
+        if (matched && isFromBot) {
           templateComments.push(comment);
         }
       }

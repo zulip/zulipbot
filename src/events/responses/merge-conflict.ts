@@ -1,12 +1,12 @@
 import type { components } from "@octokit/openapi-webhooks-types";
 import { assertDefined, assertPresent } from "ts-extras";
-import type { Client } from "../../client.ts";
+import type { Bot } from "../../bot.ts";
 
 let isSweepInProgress = false;
 let wasSweepRequested = false;
 
 export const run = async function (
-  this: Client,
+  bot: Bot,
   repo:
     | components["schemas"]["repository"]
     | components["schemas"]["webhook-push"]["repository"],
@@ -24,12 +24,15 @@ export const run = async function (
       assertPresent(repo.owner);
       const repoOwner = repo.owner.login;
 
-      for await (const response of this.paginate.iterator(this.pulls.list, {
-        owner: repoOwner,
-        repo: repoName,
-      })) {
+      for await (const response of bot.octokit.paginate.iterator(
+        bot.octokit.pulls.list,
+        {
+          owner: repoOwner,
+          repo: repoName,
+        },
+      )) {
         for (const pull of response.data) {
-          await check.call(this, pull.number, repo);
+          await check(bot, pull.number, repo);
         }
       }
     } while (wasSweepRequested);
@@ -39,7 +42,7 @@ export const run = async function (
 };
 
 async function check(
-  this: Client,
+  bot: Bot,
   number: number,
   repo:
     | components["schemas"]["repository"]
@@ -48,9 +51,9 @@ async function check(
   const repoName = repo.name;
   assertPresent(repo.owner);
   const repoOwner = repo.owner.login;
-  const { branch, label, comment } = this.cfg.pulls.status.mergeConflicts;
+  const { branch, label, comment } = bot.cfg.pulls.status.mergeConflicts;
 
-  const pull = await this.pulls.get({
+  const pull = await bot.octokit.pulls.get({
     owner: repoOwner,
     repo: repoName,
     pull_number: number,
@@ -61,7 +64,7 @@ async function check(
 
   const username = pull.data.user.login;
 
-  const template = this.templates.get("mergeConflictWarning");
+  const template = bot.templates.get("mergeConflictWarning");
   assertDefined(template);
   const warning = template.format({
     username,
@@ -77,11 +80,14 @@ async function check(
   });
 
   let lastCommitTime: string | undefined;
-  for await (const response of this.paginate.iterator(this.pulls.listCommits, {
-    owner: repoOwner,
-    repo: repoName,
-    pull_number: number,
-  })) {
+  for await (const response of bot.octokit.paginate.iterator(
+    bot.octokit.pulls.listCommits,
+    {
+      owner: repoOwner,
+      repo: repoName,
+      pull_number: number,
+    },
+  )) {
     const last = response.data.at(-1);
     if (last) lastCommitTime = last.commit.committer?.date ?? lastCommitTime;
   }
@@ -92,19 +98,19 @@ async function check(
       Date.parse(lastCommitTime) < Date.parse(c.created_at),
   );
 
-  const labels = await this.issues.listLabelsOnIssue({
+  const labels = await bot.octokit.issues.listLabelsOnIssue({
     owner: repoOwner,
     repo: repoName,
     issue_number: number,
   });
   const isInactive = labels.data.some(
-    (l) => l.name === this.cfg.activity.inactive,
+    (l) => l.name === bot.cfg.activity.inactive,
   );
 
   if (isInactive) return;
 
   if (!hasWarnComment && comment) {
-    await this.issues.createComment({
+    await bot.octokit.issues.createComment({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
@@ -113,7 +119,7 @@ async function check(
   }
 
   if (label !== null) {
-    await this.issues.addLabels({
+    await bot.octokit.issues.addLabels({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,

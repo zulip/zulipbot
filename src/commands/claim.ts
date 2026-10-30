@@ -1,11 +1,11 @@
 import { RequestError } from "@octokit/request-error";
 import type { RestEndpointMethodTypes } from "@octokit/rest";
 import { assertDefined } from "ts-extras";
-import type { Client } from "../client.ts";
+import type { Bot } from "../bot.ts";
 import type { CommandAliases, CommandPayload } from "./index.ts";
 
 async function isLabeledForClaiming(
-  this: Client,
+  bot: Bot,
   payload: CommandPayload,
   commenter: string,
   args: string,
@@ -16,7 +16,7 @@ async function isLabeledForClaiming(
 
   assertDefined(payload.issue.labels);
   const labels = new Set(payload.issue.labels.map((label) => label.name));
-  const warn = this.cfg.issues.commands.assign.warn;
+  const warn = bot.cfg.issues.commands.assign.warn;
   const isPresent = warn.labels.some((label) => labels.has(label));
   const isAbsent = warn.labels.every((label) => !labels.has(label));
   const shouldAlert = warn.presence ? isPresent : isAbsent;
@@ -27,11 +27,11 @@ async function isLabeledForClaiming(
   ) {
     const isOne = warn.labels.length === 1;
     const type = warn.force ? "claimWarning" : "claimBlock";
-    const template = this.templates.get(type);
+    const template = bot.templates.get(type);
     assertDefined(template);
-    assertDefined(this.cfg.auth.username);
+    assertDefined(bot.cfg.auth.username);
     const comment = template.format({
-      username: this.cfg.auth.username,
+      username: bot.cfg.auth.username,
       state: warn.presence ? "with" : "without",
       labelGrammar: `label${isOne ? "" : "s"}`,
       list: `"${warn.labels.join('", "')}"`,
@@ -40,7 +40,7 @@ async function isLabeledForClaiming(
       repoOwner,
     });
 
-    await this.issues.createComment({
+    await bot.octokit.issues.createComment({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
@@ -54,7 +54,7 @@ async function isLabeledForClaiming(
 }
 
 export const run = async function (
-  this: Client,
+  bot: Bot,
   payload: CommandPayload,
   commenter: string,
   args: string,
@@ -71,7 +71,7 @@ export const run = async function (
     payload.issue.assignees.some((assignee) => assignee?.login === commenter)
   ) {
     const error = "**ERROR:** You have already claimed this issue.";
-    return this.issues.createComment({
+    return bot.octokit.issues.createComment({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
@@ -79,11 +79,11 @@ export const run = async function (
     });
   }
 
-  if (payload.issue.assignees.length >= this.cfg.issues.commands.assign.limit) {
-    const template = this.templates.get("multipleClaimWarning");
+  if (payload.issue.assignees.length >= bot.cfg.issues.commands.assign.limit) {
+    const template = bot.templates.get("multipleClaimWarning");
     assertDefined(template);
     const warn = template.format({ commenter });
-    return this.issues.createComment({
+    return bot.octokit.issues.createComment({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
@@ -92,14 +92,14 @@ export const run = async function (
   }
 
   if (payload.issue.pull_request) {
-    const template = this.templates.get("claimPullRequest");
+    const template = bot.templates.get("claimPullRequest");
     assertDefined(template);
     const comment = template.format({
       commenter,
       repoName,
       repoOwner,
     });
-    return this.issues.createComment({
+    return bot.octokit.issues.createComment({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
@@ -107,19 +107,19 @@ export const run = async function (
     });
   }
 
-  if (!(await isLabeledForClaiming.call(this, payload, commenter, args))) {
+  if (!(await isLabeledForClaiming(bot, payload, commenter, args))) {
     return;
   }
 
   try {
-    await this.repos.checkCollaborator({
+    await bot.octokit.repos.checkCollaborator({
       owner: repoOwner,
       repo: repoName,
       username: commenter,
     });
   } catch (error) {
     if (!(error instanceof RequestError) || error.status !== 404) {
-      return this.issues.createComment({
+      return bot.octokit.issues.createComment({
         owner: repoOwner,
         repo: repoName,
         issue_number: number,
@@ -127,13 +127,13 @@ export const run = async function (
       });
     }
 
-    return invite.call(this, payload, commenter);
+    return invite(bot, payload, commenter);
   }
 
   // A commenter is considered a contributor if they have at least one commit
   // in the repository. So, fetching just one commit by the author is sufficient
   // to determine whether they are a contributor or not.
-  const commenterCommitsResponse = await this.repos.listCommits({
+  const commenterCommitsResponse = await bot.octokit.repos.listCommits({
     owner: repoOwner,
     repo: repoName,
     author: commenter,
@@ -144,11 +144,11 @@ export const run = async function (
     commenterCommitsResponse.data.length > 0 // commenter is a contributor
       ? claim
       : validate
-  ).call(this, commenter, number, repoOwner, repoName);
+  )(bot, commenter, number, repoOwner, repoName);
 };
 
 async function invite(
-  this: Client,
+  bot: Bot,
   payload: CommandPayload,
   commenter: string,
 ): Promise<
@@ -161,8 +161,8 @@ async function invite(
 
   const inviteKey = `${commenter}@${repoOwner}/${repoName}`;
 
-  if (this.invites.has(inviteKey)) {
-    const template = this.templates.get("inviteError");
+  if (bot.invites.has(inviteKey)) {
+    const template = bot.templates.get("inviteError");
     assertDefined(template);
     const error = template.format({
       commenter,
@@ -170,7 +170,7 @@ async function invite(
       repoOwner,
     });
 
-    return this.issues.createComment({
+    return bot.octokit.issues.createComment({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
@@ -178,11 +178,11 @@ async function invite(
     });
   }
 
-  const perm = this.cfg.issues.commands.assign.newContributors.permission;
+  const perm = bot.cfg.issues.commands.assign.newContributors.permission;
 
   if (perm === null) {
     const error = "**ERROR:** `newContributors.permission` wasn't configured.";
-    return this.issues.createComment({
+    return bot.octokit.issues.createComment({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
@@ -190,7 +190,7 @@ async function invite(
     });
   }
 
-  const template = this.templates.get("contributorAddition");
+  const template = bot.templates.get("contributorAddition");
   assertDefined(template);
   const comment = template.format({
     commenter,
@@ -198,16 +198,16 @@ async function invite(
     repoOwner,
   });
 
-  await this.issues.createComment({
+  await bot.octokit.issues.createComment({
     owner: repoOwner,
     repo: repoName,
     issue_number: number,
     body: comment,
   });
 
-  this.invites.set(inviteKey, number);
+  bot.invites.set(inviteKey, number);
 
-  return this.repos.addCollaborator({
+  return bot.octokit.repos.addCollaborator({
     owner: repoOwner,
     repo: repoName,
     username: commenter,
@@ -216,19 +216,22 @@ async function invite(
 }
 
 async function validate(
-  this: Client,
+  bot: Bot,
   commenter: string,
   number: number,
   repoOwner: string,
   repoName: string,
 ) {
-  const limit = this.cfg.issues.commands.assign.newContributors.restricted;
+  const limit = bot.cfg.issues.commands.assign.newContributors.restricted;
   let assignedCount = 0;
 
-  for await (const response of this.paginate.iterator(this.issues.list, {
-    filter: "all",
-    labels: this.cfg.activity.issues.inProgress,
-  })) {
+  for await (const response of bot.octokit.paginate.iterator(
+    bot.octokit.issues.list,
+    {
+      filter: "all",
+      labels: bot.cfg.activity.issues.inProgress,
+    },
+  )) {
     for (const issue of response.data) {
       if (issue.assignees?.find((assignee) => assignee.login === commenter)) {
         assignedCount++;
@@ -239,7 +242,7 @@ async function validate(
   }
 
   if (assignedCount >= limit) {
-    const template = this.templates.get("claimRestriction");
+    const template = bot.templates.get("claimRestriction");
     assertDefined(template);
     const comment = template.format({
       issue: `issue${limit === 1 ? "" : "s"}`,
@@ -247,7 +250,7 @@ async function validate(
       commenter,
     });
 
-    return this.issues.createComment({
+    return bot.octokit.issues.createComment({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
@@ -255,17 +258,17 @@ async function validate(
     });
   }
 
-  return claim.call(this, commenter, number, repoOwner, repoName);
+  return claim(bot, commenter, number, repoOwner, repoName);
 }
 
 async function claim(
-  this: Client,
+  bot: Bot,
   commenter: string,
   number: number,
   repoOwner: string,
   repoName: string,
 ) {
-  const response = await this.issues.addAssignees({
+  const response = await bot.octokit.issues.addAssignees({
     owner: repoOwner,
     repo: repoName,
     issue_number: number,
@@ -282,7 +285,7 @@ async function claim(
 
   const error = "**ERROR:** Issue claiming failed (no assignee was added).";
 
-  return this.issues.createComment({
+  return bot.octokit.issues.createComment({
     owner: repoOwner,
     repo: repoName,
     issue_number: number,

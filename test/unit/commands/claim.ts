@@ -2,7 +2,7 @@ import { test, type TestContext } from "node:test";
 import nock from "nock";
 import { partialMock } from "partial-mock";
 import { assertDefined } from "ts-extras";
-import client from "../../../src/client.ts";
+import { bot } from "../../../src/bot.ts";
 import * as claim from "../../../src/commands/claim.ts";
 import type { CommandPayload } from "../../../src/commands/index.ts";
 
@@ -29,7 +29,7 @@ void test("claim: Reject if commenter is already an assignee", async () => {
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
     .reply(200);
 
-  await claim.run.call(client, payload, commenter, "");
+  await claim.run(bot, payload, commenter, "");
 
   scope.done();
 });
@@ -37,16 +37,16 @@ void test("claim: Reject if commenter is already an assignee", async () => {
 void test("claim: Reject if assignee limit is reached", async () => {
   const commenter = "octokitten";
 
-  const template = client.templates.get("multipleClaimWarning");
+  const template = bot.templates.get("multipleClaimWarning");
   assertDefined(template);
   template.content = "{commenter}";
-  client.templates.set("multipleClaimWarning", template);
+  bot.templates.set("multipleClaimWarning", template);
 
   const scope = nock("https://api.github.com")
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: commenter })
     .reply(200);
 
-  await claim.run.call(client, payload, commenter, "");
+  await claim.run(bot, payload, commenter, "");
 
   scope.done();
 });
@@ -64,7 +64,7 @@ const payload2: CommandPayload = partialMock({
 void test("claim: Throw error if collaborator check code isn't 404", async () => {
   const commenter = "octokitten";
   const error = "**ERROR:** Unexpected response from GitHub API.";
-  client.cfg.issues.commands.assign.warn.labels = ["bug"];
+  bot.cfg.issues.commands.assign.warn.labels = ["bug"];
 
   const scope = nock("https://api.github.com")
     .get(`/repos/zulip/zulipbot/collaborators/${commenter}`)
@@ -72,7 +72,7 @@ void test("claim: Throw error if collaborator check code isn't 404", async () =>
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
     .reply(200);
 
-  await claim.run.call(client, payload2, commenter, "");
+  await claim.run(bot, payload2, commenter, "");
 
   scope.done();
 });
@@ -80,13 +80,13 @@ void test("claim: Throw error if collaborator check code isn't 404", async () =>
 void test("claim: Rejects creation of duplicate invite", async () => {
   const commenter = "octokitten";
 
-  const template = client.templates.get("inviteError");
+  const template = bot.templates.get("inviteError");
   assertDefined(template);
   template.content = "{commenter} {repoName} {repoOwner}";
-  client.templates.set("inviteError", template);
+  bot.templates.set("inviteError", template);
 
-  client.invites.set("octokitten@zulip/zulipbot", 69);
-  client.cfg.issues.commands.assign.warn.labels = ["bug"];
+  bot.invites.set("octokitten@zulip/zulipbot", 69);
+  bot.cfg.issues.commands.assign.warn.labels = ["bug"];
 
   const scope = nock("https://api.github.com")
     .get(`/repos/zulip/zulipbot/collaborators/${commenter}`)
@@ -96,7 +96,7 @@ void test("claim: Rejects creation of duplicate invite", async () => {
     })
     .reply(200);
 
-  await claim.run.call(client, payload2, commenter, "");
+  await claim.run(bot, payload2, commenter, "");
 
   scope.done();
 });
@@ -118,10 +118,10 @@ void test("claim: Reject claim on pull request", async () => {
     },
   });
 
-  const template = client.templates.get("claimPullRequest");
+  const template = bot.templates.get("claimPullRequest");
   assertDefined(template);
   template.content = "{commenter} {repoName} {repoOwner}";
-  client.templates.set("claimPullRequest", template);
+  bot.templates.set("claimPullRequest", template);
 
   const scope = nock("https://api.github.com")
     .post("/repos/zulip/zulipbot/issues/123/comments", {
@@ -129,21 +129,21 @@ void test("claim: Reject claim on pull request", async () => {
     })
     .reply(200);
 
-  await claim.run.call(client, payload3, commenter, "");
+  await claim.run(bot, payload3, commenter, "");
 
   scope.done();
 });
 
 void test("claim: Blocks claim if labels are missing", async () => {
   const commenter = "octokitten";
-  client.invites.delete("octokitten@zulip/zulipbot");
-  client.cfg.auth.username = "zulipbot";
-  client.cfg.issues.commands.assign.warn.labels = ["a", "b"];
+  bot.invites.delete("octokitten@zulip/zulipbot");
+  bot.cfg.auth.username = "zulipbot";
+  bot.cfg.issues.commands.assign.warn.labels = ["a", "b"];
 
-  const template = client.templates.get("claimBlock");
+  const template = bot.templates.get("claimBlock");
   assertDefined(template);
   template.content = "{state} {labelGrammar} {list} {username}";
-  client.templates.set("claimBlock", template);
+  bot.templates.set("claimBlock", template);
 
   const scope = nock("https://api.github.com")
     .post("/repos/zulip/zulipbot/issues/69/comments", {
@@ -151,23 +151,23 @@ void test("claim: Blocks claim if labels are missing", async () => {
     })
     .reply(200);
 
-  await claim.run.call(client, payload2, commenter, "");
+  await claim.run(bot, payload2, commenter, "");
 
   scope.done();
 });
 
 void test("claim: Warns if labels are present without force flag", async () => {
   const commenter = "octokitten";
-  client.cfg.issues.commands.assign.warn = {
+  bot.cfg.issues.commands.assign.warn = {
     labels: ["bug"],
     presence: true,
     force: true,
   };
 
-  const template = client.templates.get("claimWarning");
+  const template = bot.templates.get("claimWarning");
   assertDefined(template);
   template.content = "warn {state} {labelGrammar} {list} {username}";
-  client.templates.set("claimWarning", template);
+  bot.templates.set("claimWarning", template);
 
   const scope = nock("https://api.github.com")
     .post("/repos/zulip/zulipbot/issues/69/comments", {
@@ -175,7 +175,7 @@ void test("claim: Warns if labels are present without force flag", async () => {
     })
     .reply(200);
 
-  await claim.run.call(client, payload2, commenter, "");
+  await claim.run(bot, payload2, commenter, "");
 
   scope.done();
 });
@@ -183,10 +183,10 @@ void test("claim: Warns if labels are present without force flag", async () => {
 void test("claim: Invite new contributor", async (t: TestContext) => {
   const commenter = "octokitten";
 
-  const template = client.templates.get("contributorAddition");
+  const template = bot.templates.get("contributorAddition");
   assertDefined(template);
   template.content = "contrib {commenter} {repoName} {repoOwner}";
-  client.templates.set("contributorAddition", template);
+  bot.templates.set("contributorAddition", template);
 
   const scope = nock("https://api.github.com")
     .get(`/repos/zulip/zulipbot/collaborators/${commenter}`)
@@ -200,16 +200,16 @@ void test("claim: Invite new contributor", async (t: TestContext) => {
     })
     .reply(200);
 
-  await claim.run.call(client, payload2, commenter, "--force");
+  await claim.run(bot, payload2, commenter, "--force");
 
-  t.assert.ok(client.invites.has("octokitten@zulip/zulipbot"));
+  t.assert.ok(bot.invites.has("octokitten@zulip/zulipbot"));
 
   scope.done();
 });
 
 void test("claim: Throw error if permission is not specified", async () => {
   const commenter = "octocat";
-  client.cfg.issues.commands.assign.newContributors.permission = null;
+  bot.cfg.issues.commands.assign.newContributors.permission = null;
 
   const error = "**ERROR:** `newContributors.permission` wasn't configured.";
 
@@ -219,14 +219,14 @@ void test("claim: Throw error if permission is not specified", async () => {
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
     .reply(200);
 
-  await claim.run.call(client, payload2, commenter, "--force");
+  await claim.run(bot, payload2, commenter, "--force");
 
   scope.done();
 });
 
 void test("claim: Always assign if commenter has at least one commit", async () => {
   const commenter = "octocat";
-  client.cfg.issues.commands.assign.warn.presence = false;
+  bot.cfg.issues.commands.assign.warn.presence = false;
 
   const scope = nock("https://api.github.com")
     .get(`/repos/zulip/zulipbot/collaborators/${commenter}`)
@@ -239,7 +239,7 @@ void test("claim: Always assign if commenter has at least one commit", async () 
     })
     .reply(200, { assignees: ["octocat"] });
 
-  await claim.run.call(client, payload2, commenter, "");
+  await claim.run(bot, payload2, commenter, "");
 
   scope.done();
 });
@@ -261,7 +261,7 @@ void test("claim: Error if no assignees were added", async () => {
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
     .reply(200);
 
-  await claim.run.call(client, payload2, commenter, "");
+  await claim.run(bot, payload2, commenter, "");
 
   scope.done();
 });
@@ -282,7 +282,7 @@ void test("claim: Assign if claim limit validation passed", async () => {
     })
     .reply(200, { assignees: ["octocat"] });
 
-  await claim.run.call(client, payload2, commenter, "");
+  await claim.run(bot, payload2, commenter, "");
 
   scope.done();
 });
@@ -290,10 +290,10 @@ void test("claim: Assign if claim limit validation passed", async () => {
 void test("claim: Reject claim limit validation failed", async () => {
   const commenter = "octocat";
 
-  const template = client.templates.get("claimRestriction");
+  const template = bot.templates.get("claimRestriction");
   assertDefined(template);
   template.content = "{limit} {commenter} {issue}";
-  client.templates.set("claimRestriction", template);
+  bot.templates.set("claimRestriction", template);
 
   const scope = nock("https://api.github.com")
     .get(`/repos/zulip/zulipbot/collaborators/${commenter}`)
@@ -308,14 +308,14 @@ void test("claim: Reject claim limit validation failed", async () => {
     })
     .reply(200);
 
-  await claim.run.call(client, payload2, commenter, "");
+  await claim.run(bot, payload2, commenter, "");
 
   scope.done();
 });
 
 void test("claim: Reject claim limit validation failed (limit over 1)", async () => {
   const commenter = "octocat";
-  client.cfg.issues.commands.assign.newContributors.restricted = 2;
+  bot.cfg.issues.commands.assign.newContributors.restricted = 2;
 
   const scope = nock("https://api.github.com")
     .get(`/repos/zulip/zulipbot/collaborators/${commenter}`)
@@ -333,7 +333,7 @@ void test("claim: Reject claim limit validation failed (limit over 1)", async ()
     })
     .reply(200);
 
-  await claim.run.call(client, payload2, commenter, "");
+  await claim.run(bot, payload2, commenter, "");
 
   scope.done();
 });

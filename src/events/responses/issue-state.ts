@@ -1,11 +1,11 @@
 import type { components } from "@octokit/openapi-webhooks-types";
 import { assertDefined, assertPresent } from "ts-extras";
-import type { Client } from "../../client.ts";
+import type { Bot } from "../../bot.ts";
 
 const recentlyClosed = new Map();
 
 export const close = function (
-  this: Client,
+  bot: Bot,
   issue: components["schemas"]["webhook-issues-closed"]["issue"],
   repo: components["schemas"]["repository-webhooks"],
 ) {
@@ -13,21 +13,21 @@ export const close = function (
 
   setTimeout(
     () => {
-      void clearClosed.call(this, issue, repo);
+      void clearClosed(bot, issue, repo);
     },
-    this.cfg.eventsDelay * 60 * 1000,
+    bot.cfg.eventsDelay * 60 * 1000,
   );
 };
 
 export const reopen = function (
-  this: Client,
+  _bot: Bot,
   issue: components["schemas"]["webhook-issues-reopened"]["issue"],
 ) {
   if (recentlyClosed.has(issue.id)) recentlyClosed.delete(issue.id);
 };
 
 async function clearClosed(
-  this: Client,
+  bot: Bot,
   issue: components["schemas"]["webhook-issues-closed"]["issue"],
   repo: components["schemas"]["repository-webhooks"],
 ) {
@@ -42,7 +42,7 @@ async function clearClosed(
     return;
   }
 
-  await this.issues.removeAssignees({
+  await bot.octokit.issues.removeAssignees({
     owner: repoOwner,
     repo: repoName,
     issue_number: issue.number,
@@ -53,7 +53,7 @@ async function clearClosed(
 }
 
 export const progress = async function (
-  this: Client,
+  bot: Bot,
   payload: components["schemas"][
     "webhook-issues-assigned" | "webhook-issues-unassigned"],
 ) {
@@ -62,7 +62,7 @@ export const progress = async function (
   const number = payload.issue.number;
   const repoOwner = payload.repository.owner.login;
   const repoName = payload.repository.name;
-  const label = this.cfg.activity.issues.inProgress;
+  const label = bot.cfg.activity.issues.inProgress;
   assertDefined(label);
   assertDefined(payload.issue.labels);
   const isLabeled = payload.issue.labels.some((l) => l.name === label);
@@ -73,14 +73,14 @@ export const progress = async function (
   );
 
   if (action === "assigned" && !isLabeled) {
-    await this.issues.addLabels({
+    await bot.octokit.issues.addLabels({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,
       labels: [label],
     });
   } else if (action === "unassigned" && !isAssigned && isLabeled) {
-    await this.issues.removeLabel({
+    await bot.octokit.issues.removeLabel({
       owner: repoOwner,
       repo: repoName,
       issue_number: number,

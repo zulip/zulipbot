@@ -2,7 +2,7 @@ import { test, type TestContext } from "node:test";
 import nock from "nock";
 import { partialMock } from "partial-mock";
 import { assertDefined } from "ts-extras";
-import client from "../../../src/client.ts";
+import { bot } from "../../../src/bot.ts";
 import * as add from "../../../src/commands/add.ts";
 import type { CommandPayload } from "../../../src/commands/index.ts";
 
@@ -25,29 +25,29 @@ const payload: CommandPayload = partialMock({
 
 const repoLabels = [{ name: "test" }, { name: "test2" }, { name: "bug" }];
 
-const template = client.templates.get("labelError");
+const template = bot.templates.get("labelError");
 assertDefined(template);
 template.content = "{labels} {labelList} {exist} {beState} {action} {type}.";
-client.templates.set("labelError", template);
+bot.templates.set("labelError", template);
 
 void test("add: Reject if self-labelling enabled with different commenter", async (t: TestContext) => {
-  client.cfg.issues.commands.label.self = true;
+  bot.cfg.issues.commands.label.self = true;
   const commenter = "octokitten";
   const args = '"bug"';
 
-  const response = await add.run.call(client, payload, commenter, args);
+  const response = await add.run(bot, payload, commenter, args);
 
   t.assert.strictEqual(response, undefined);
 });
 
 void test("add: Reject if self-labelling users excludes commenter", async (t: TestContext) => {
-  client.cfg.issues.commands.label.self = {
+  bot.cfg.issues.commands.label.self = {
     users: ["octocat"],
   };
   const commenter = "octokitten";
   const args = '"bug"';
 
-  const response = await add.run.call(client, payload, commenter, args);
+  const response = await add.run(bot, payload, commenter, args);
 
   t.assert.strictEqual(response, undefined);
 });
@@ -56,13 +56,13 @@ void test("add: Reject if invalid arguments were provided", async (t: TestContex
   const commenter = "octocat";
   const args = "no arguments";
 
-  const response = await add.run.call(client, payload, commenter, args);
+  const response = await add.run(bot, payload, commenter, args);
 
   t.assert.strictEqual(response, undefined);
 });
 
 void test("add: Add appropriate labels", async () => {
-  client.cfg.issues.commands.label.self = false;
+  bot.cfg.issues.commands.label.self = false;
   const commenter = "octocat";
   const args = '"bug"';
 
@@ -72,7 +72,7 @@ void test("add: Add appropriate labels", async () => {
     .post("/repos/zulip/zulipbot/issues/69/labels", { labels: ["bug"] })
     .reply(200);
 
-  await add.run.call(client, payload, commenter, args);
+  await add.run(bot, payload, commenter, args);
 
   scope.done();
 });
@@ -100,7 +100,7 @@ void test("add: Add appropriate label and reject label not in repository", async
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
     .reply(200);
 
-  await add.run.call(client, payload2, commenter, args);
+  await add.run(bot, payload2, commenter, args);
 
   scope.done();
 });
@@ -118,7 +118,7 @@ void test("add: Add appropriate labels and reject labels not in repository", asy
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
     .reply(200);
 
-  await add.run.call(client, payload, commenter, args);
+  await add.run(bot, payload, commenter, args);
 
   scope.done();
 });
@@ -136,7 +136,7 @@ void test("add: Add appropriate labels and reject already added label", async ()
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
     .reply(200);
 
-  await add.run.call(client, payload2, commenter, args);
+  await add.run(bot, payload2, commenter, args);
 
   scope.done();
 });
@@ -152,7 +152,7 @@ void test("add: Add appropriate labels and reject already added labels", async (
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
     .reply(200);
 
-  await add.run.call(client, payload, commenter, args);
+  await add.run(bot, payload, commenter, args);
 
   scope.done();
 });

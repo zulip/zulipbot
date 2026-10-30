@@ -1,10 +1,10 @@
 import type { RestEndpointMethodTypes } from "@octokit/rest";
 import { assertDefined } from "ts-extras";
-import type { Client } from "../client.ts";
+import type { Bot } from "../bot.ts";
 import type { CommandAliases, CommandPayload } from "./index.ts";
 
 export const run = async function (
-  this: Client,
+  bot: Bot,
   payload: CommandPayload,
   commenter: string,
   args: string,
@@ -15,7 +15,7 @@ export const run = async function (
   | true
 > {
   const creator = payload.issue.user?.login;
-  const self = this.cfg.issues.commands.label.self;
+  const self = bot.cfg.issues.commands.label.self;
   const isSelfLabel =
     typeof self === "object" ? !self.users.includes(commenter) : self;
   const isForbidden = isSelfLabel && creator !== commenter;
@@ -34,7 +34,7 @@ export const run = async function (
   );
   const rejected = labels.filter((label) => !issueLabels.includes(label));
 
-  await this.issues.setLabels({
+  await bot.octokit.issues.setLabels({
     owner: repoOwner,
     repo: repoName,
     issue_number: number,
@@ -46,7 +46,7 @@ export const run = async function (
   const isOne = rejected.length === 1;
   const type = payload.issue.pull_request ? "pull request" : "issue";
 
-  const template = this.templates.get("labelError");
+  const template = bot.templates.get("labelError");
   assertDefined(template);
   const error = template.format({
     labels: `Label${isOne ? "" : "s"}`,
@@ -57,7 +57,7 @@ export const run = async function (
     action: "removed from",
   });
 
-  return this.issues.createComment({
+  return bot.octokit.issues.createComment({
     owner: repoOwner,
     repo: repoName,
     issue_number: number,
