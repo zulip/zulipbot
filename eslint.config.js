@@ -31,6 +31,7 @@ export default defineConfig(
       "prefer-const": "error",
       "prefer-template": "error",
       strict: "error",
+      "unicorn/no-asterisk-prefix-in-documentation-comments": "off",
       "unicorn/no-break-in-nested-loop": "off",
       "unicorn/no-process-exit": "off",
     },
