@@ -29,6 +29,17 @@ async function isLabeledForClaiming(
     const type = warn.force ? "claimWarning" : "claimBlock";
     const template = bot.templates.get(type);
     assertDefined(template);
+
+    // Post the claimBlock warning at most once per issue.
+    if (type === "claimBlock") {
+      const warnings = await template.getComments(
+        { owner: repoOwner, repo: repoName, issue_number: number },
+        // Matches warnings posted before the template had a trailing marker.
+        "You have attempted to claim an issue without the label",
+      );
+      if (warnings.length > 0) return false;
+    }
+
     assertDefined(bot.cfg.auth.username);
     const comment = template.format({
       username: bot.cfg.auth.username,
