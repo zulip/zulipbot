@@ -25,11 +25,14 @@ class Template {
   /**
    * Finds comments generated from templates on a issue/pull request.
    *
+   * @param legacyText Text that also identifies comments posted before the
+   * template had its trailing marker.
    * @returns Array of filtered template comments from the bot user.
    */
 
   async getComments(
     parameters: RestEndpointMethodTypes["issues"]["listComments"]["parameters"],
+    legacyText?: string,
   ) {
     const templateComments: Array<components["schemas"]["issue-comment"]> = [];
 
@@ -39,13 +42,14 @@ class Template {
     )) {
       for (const comment of response.data) {
         // Use end of template comments to check if comment is from template
-        const matched = comment.body
-          ?.trimEnd()
-          .endsWith(`<!-- ${this.name} -->`);
+        const isTemplateComment =
+          comment.body?.trimEnd().endsWith(`<!-- ${this.name} -->`) === true ||
+          (legacyText !== undefined &&
+            comment.body?.includes(legacyText) === true);
         const isFromBot =
           comment.user !== null &&
           comment.user.login === this.bot.cfg.auth.username;
-        if (matched && isFromBot) {
+        if (isTemplateComment && isFromBot) {
           templateComments.push(comment);
         }
       }

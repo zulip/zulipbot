@@ -6,6 +6,8 @@ import { bot } from "../../../src/bot.ts";
 import * as claim from "../../../src/commands/claim.ts";
 import type { CommandPayload } from "../../../src/commands/index.ts";
 
+nock.disableNetConnect();
+
 const payload: CommandPayload = partialMock({
   repository: {
     owner: {
@@ -146,12 +148,48 @@ void test("claim: Blocks claim if labels are missing", async () => {
   bot.templates.set("claimBlock", template);
 
   const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulipbot/issues/69/comments")
+    .reply(200, [
+      { user: { login: "octocat" }, body: "Can I work on this?" },
+      // Only the bot's own warnings count.
+      { user: { login: "octocat" }, body: "<!-- claimBlock -->" },
+    ])
     .post("/repos/zulip/zulipbot/issues/69/comments", {
       body: 'without labels "a", "b" zulipbot',
     })
     .reply(200);
 
   await claim.run(bot, payload2, commenter, "");
+
+  scope.done();
+});
+
+void test("claim: Doesn't repeat the block warning on an issue", async () => {
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulipbot/issues/69/comments")
+    .reply(200, [
+      {
+        user: { login: "zulipbot" },
+        body: "@octocat ...\n\n<!-- claimBlock -->\n",
+      },
+    ]);
+
+  await claim.run(bot, payload2, "octokitten", "");
+
+  scope.done();
+});
+
+void test("claim: Recognizes block warnings posted before the marker", async () => {
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulipbot/issues/69/comments")
+    .reply(200, [
+      {
+        user: { login: "zulipbot" },
+        body: '@octocat You have attempted to claim an issue without the label "help wanted". To learn how to pick up issues, ...',
+      },
+    ]);
+
+  await claim.run(bot, payload2, "octokitten", "");
 
   scope.done();
 });
