@@ -90,18 +90,6 @@ export const run = async function (
     });
   }
 
-  if (payload.issue.assignees.length >= bot.cfg.issues.commands.assign.limit) {
-    const template = bot.templates.get("multipleClaimWarning");
-    assertDefined(template);
-    const warn = template.format({ commenter });
-    return bot.octokit.issues.createComment({
-      owner: repoOwner,
-      repo: repoName,
-      issue_number: number,
-      body: warn,
-    });
-  }
-
   if (payload.issue.pull_request) {
     const template = bot.templates.get("claimPullRequest");
     assertDefined(template);
@@ -120,6 +108,20 @@ export const run = async function (
 
   if (!(await isLabeledForClaiming(bot, payload, commenter, args))) {
     return;
+  }
+
+  // Checked after the labels, so that claims on an assigned issue that can't
+  // be claimed anyway don't each get a reply.
+  if (payload.issue.assignees.length >= bot.cfg.issues.commands.assign.limit) {
+    const template = bot.templates.get("multipleClaimWarning");
+    assertDefined(template);
+    const warn = template.format({ commenter });
+    return bot.octokit.issues.createComment({
+      owner: repoOwner,
+      repo: repoName,
+      issue_number: number,
+      body: warn,
+    });
   }
 
   try {

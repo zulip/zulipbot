@@ -38,6 +38,15 @@ void test("claim: Reject if commenter is already an assignee", async () => {
 
 void test("claim: Reject if assignee limit is reached", async () => {
   const commenter = "octokitten";
+  const helpWantedPayload: CommandPayload = partialMock({
+    repository: payload.repository,
+    issue: {
+      number: 69,
+      assignees: [{ login: "octocat" }],
+      labels: [{ name: "bug" }, { name: "help wanted" }],
+      pull_request: undefined,
+    },
+  });
 
   const template = bot.templates.get("multipleClaimWarning");
   assertDefined(template);
@@ -46,6 +55,30 @@ void test("claim: Reject if assignee limit is reached", async () => {
 
   const scope = nock("https://api.github.com")
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: commenter })
+    .reply(200);
+
+  await claim.run(bot, helpWantedPayload, commenter, "");
+
+  scope.done();
+});
+
+void test("claim: Check labels before the assignee limit", async () => {
+  const commenter = "octokitten";
+  bot.cfg.auth.username = "zulipbot";
+
+  const template = bot.templates.get("claimBlock");
+  assertDefined(template);
+  template.content = "block {commenter}";
+  bot.templates.set("claimBlock", template);
+
+  // The issue is assigned and lacks "help wanted", so this is the
+  // once-per-issue block warning rather than multipleClaimWarning.
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulipbot/issues/69/comments")
+    .reply(200, [])
+    .post("/repos/zulip/zulipbot/issues/69/comments", {
+      body: "block octokitten",
+    })
     .reply(200);
 
   await claim.run(bot, payload, commenter, "");
