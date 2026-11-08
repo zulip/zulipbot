@@ -245,44 +245,155 @@ void test("moderation: Context rejects a file list at GitHub's limit when the co
   scope.done();
 });
 
-void test("moderation: Does nothing when disabled", async (t: TestContext) => {
+// Runs `callback` with only the given checks registered.
+async function withChecks(
+  checks: readonly moderation.Check[],
+  callback: () => Promise<void>,
+) {
+  const saved = moderation.checks.splice(0, Infinity, ...checks);
+  try {
+    await callback();
+  } finally {
+    moderation.checks.splice(0, Infinity, ...saved);
+  }
+}
+
+// A check that reports one finding per message, or none without any.
+const fakeCheck =
+  (...messages: string[]): moderation.Check =>
+  async () =>
+    messages.map((message) => ({ check: "test", message }));
+
+const comments = "/repos/zulip/zulipbot/issues/12/comments";
+const report = (findings: string) =>
+  `@octocat, thanks for your pull request! Please address the following so it is ready for review:
+
+${findings}
+
+This comment is updated as you push changes or edit the pull request description.
+
+<!-- moderationReport -->
+`;
+const passing = `@octocat, thanks for addressing the feedback in this comment! Everything it checks for is in place now.
+
+<!-- moderationReport -->
+`;
+const posted = (body: string) => [{ id: 7, user: { login: "zulipbot" }, body }];
+
+void test("moderation: Does nothing when disabled", async () => {
   bot.cfg.pulls.moderation.enabled = false;
-  t.assert.strictEqual(await moderation.run(bot, opened()), undefined);
+  await moderation.run(bot, opened());
 });
 
-void test("moderation: Does not evaluate ineligible PRs", async (t: TestContext) => {
+void test("moderation: Does not evaluate ineligible PRs", async () => {
   bot.cfg.pulls.moderation.enabled = true;
   const scope = authorCommits([{ sha: "abc" }]);
-  t.assert.strictEqual(await moderation.run(bot, opened()), undefined);
+  await withChecks([fakeCheck("Unreachable.")], async () =>
+    moderation.run(bot, opened()),
+  );
   scope.done();
 });
 
-void test("moderation: Runs every check in order on one shared context", async (t: TestContext) => {
+void test("moderation: Posts one comment with every finding in check order", async (t: TestContext) => {
   bot.cfg.pulls.moderation.enabled = true;
-  const scope = authorCommits([])
-    .get("/repos/zulip/zulipbot/pulls/12/commits")
-    .query({ per_page: "100" })
-    .reply(200, [{ sha: "a" }]);
-
+  bot.cfg.auth.username = "zulipbot";
   const contexts: moderation.Context[] = [];
-  const check =
-    (name: string): moderation.Check =>
+  const recording =
+    (message: string): moderation.Check =>
     async (_bot, context) => {
       contexts.push(context);
-      const commits = await context.commits();
-      return [{ check: name, message: `${commits.length} commit` }];
+      return [{ check: "test", message }];
     };
 
-  moderation.checks.push(check("first"), check("second"));
-  try {
-    t.assert.deepStrictEqual(await moderation.run(bot, opened()), [
-      { check: "first", message: "1 commit" },
-      { check: "second", message: "1 commit" },
-    ]);
-  } finally {
-    moderation.checks.length = 0;
-  }
+  const scope = authorCommits([])
+    .get(comments)
+    .reply(200, [])
+    .post(comments, {
+      body: report("- First.\n- Second,\n  on two lines."),
+    })
+    .reply(201);
+  await withChecks(
+    [recording("First."), recording("Second,\non two lines.")],
+    async () => moderation.run(bot, opened()),
+  );
 
   t.assert.strictEqual(contexts[0], contexts[1]);
+  scope.done();
+});
+
+void test("moderation: Edits the comment when the findings change", async () => {
+  bot.cfg.pulls.moderation.enabled = true;
+  bot.cfg.auth.username = "zulipbot";
+  const scope = authorCommits([])
+    .get(comments)
+    .reply(200, posted(report("- Old.")))
+    .patch("/repos/zulip/zulipbot/issues/comments/7", {
+      body: report("- New."),
+    })
+    .reply(200);
+  await withChecks([fakeCheck("New.")], async () =>
+    moderation.run(bot, opened()),
+  );
+  scope.done();
+});
+
+void test("moderation: Leaves the comment alone when nothing changed", async () => {
+  bot.cfg.pulls.moderation.enabled = true;
+  bot.cfg.auth.username = "zulipbot";
+  const scope = authorCommits([])
+    .get(comments)
+    .reply(200, posted(report("- Same.")));
+  await withChecks([fakeCheck("Same.")], async () =>
+    moderation.run(bot, opened()),
+  );
+  scope.done();
+});
+
+void test("moderation: Edits the comment to passing once everything is fixed", async () => {
+  bot.cfg.pulls.moderation.enabled = true;
+  bot.cfg.auth.username = "zulipbot";
+  const scope = authorCommits([])
+    .get(comments)
+    .reply(200, posted(report("- Fixed now.")))
+    .patch("/repos/zulip/zulipbot/issues/comments/7", { body: passing })
+    .reply(200);
+  await withChecks([fakeCheck()], async () => moderation.run(bot, opened()));
+  scope.done();
+});
+
+void test("moderation: Posts nothing for a PR that never had findings", async () => {
+  bot.cfg.pulls.moderation.enabled = true;
+  bot.cfg.auth.username = "zulipbot";
+  const scope = authorCommits([]).get(comments).reply(200, []);
+  await withChecks([fakeCheck()], async () => moderation.run(bot, opened()));
+  scope.done();
+});
+
+void test("moderation: Events arriving together post one comment", async () => {
+  bot.cfg.pulls.moderation.enabled = true;
+  bot.cfg.auth.username = "zulipbot";
+  // The comments list reflects what was posted so far, so two events
+  // that both read it before either posts would both post.
+  const bodies: string[] = [];
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulipbot/commits")
+    .query({ author: "octocat", per_page: "1" })
+    .times(2)
+    .reply(200, [])
+    .get(comments)
+    .times(2)
+    .reply(200, () => bodies.flatMap((body) => posted(body)))
+    .post(comments)
+    .reply(201, async (request: Request) => {
+      const { body } = (await request.json()) as { body: string };
+      bodies.push(body);
+      return {};
+    });
+  await withChecks([fakeCheck("Once.")], async () => {
+    await Promise.all([
+      moderation.run(bot, opened()),
+      moderation.run(bot, opened()),
+    ]);
+  });
   scope.done();
 });
