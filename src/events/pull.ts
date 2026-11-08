@@ -33,18 +33,21 @@ export const run = async function (
     await responses.areaLabel.run(bot, issue.data, repo, l);
   }
 
-  if (
-    !shouldCheckReferences ||
-    (bot.cfg.pulls.status.wip !== null &&
-      payload.pull_request.title.includes(bot.cfg.pulls.status.wip))
-  ) {
-    return;
+  const isWip =
+    bot.cfg.pulls.status.wip !== null &&
+    payload.pull_request.title.includes(bot.cfg.pulls.status.wip);
+
+  if (shouldCheckReferences && !isWip) {
+    if (action === "opened") {
+      await responses.reference.run(bot, payload.pull_request, repo, true);
+    } else if (action === "synchronize") {
+      await responses.reference.run(bot, payload.pull_request, repo, false);
+      await responses.pullState.update(bot, payload.pull_request, repo);
+    }
   }
 
-  if (action === "opened") {
-    await responses.reference.run(bot, payload.pull_request, repo, true);
-  } else if (action === "synchronize") {
-    await responses.reference.run(bot, payload.pull_request, repo, false);
-    await responses.pullState.update(bot, payload.pull_request, repo);
+  // Reviews do not change commits, descriptions, or files.
+  if (!("review" in payload)) {
+    await responses.moderation.run(bot, payload);
   }
 };
