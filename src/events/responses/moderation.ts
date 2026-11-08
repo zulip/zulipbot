@@ -2,6 +2,7 @@ import type { RestEndpointMethodTypes } from "@octokit/rest";
 import type { EmitterWebhookEvent } from "@octokit/webhooks/types";
 import { assertDefined, assertPresent } from "ts-extras";
 import type { Bot } from "../../bot.ts";
+import { screenshots } from "./moderation/screenshots.ts";
 
 type PullPayload = EmitterWebhookEvent<"pull_request">["payload"];
 
@@ -30,7 +31,7 @@ export type Finding = {
 export type Check = (bot: Bot, context: Context) => Promise<Finding[]>;
 
 // Findings are listed in the order their checks appear here.
-export const checks: Check[] = [];
+export const checks: Check[] = [screenshots];
 
 // The docs don't say how to mark a PR as work in progress, so titles
 // use "[WIP]", "WIP:", "(wip)", and more. A leading "wip" in any case

@@ -83,6 +83,10 @@ export const pulls = {
   // ZulipBot 2.0 checks for ready pull requests from new contributors
   moderation: {
     enabled: false,
+    // Changes under these path prefixes need screenshots
+    screenshots: {
+      paths: new Array<string>(),
+    },
   },
 };
 
