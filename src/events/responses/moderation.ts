@@ -2,6 +2,7 @@ import type { RestEndpointMethodTypes } from "@octokit/rest";
 import type { EmitterWebhookEvent } from "@octokit/webhooks/types";
 import { assertDefined } from "ts-extras";
 import type { Bot } from "../../bot.ts";
+import { screenshots } from "./moderation/screenshots.ts";
 import { isWip } from "./pull-state.ts";
 
 type PullPayload = EmitterWebhookEvent<"pull_request">["payload"];
@@ -29,7 +30,7 @@ export type Finding = {
 export type Check = (bot: Bot, context: Context) => Promise<Finding[]>;
 
 // Findings are listed in the order their checks appear here.
-export const checks: Check[] = [];
+export const checks: Check[] = [screenshots];
 
 const evaluatedActions = new Set<PullPayload["action"]>([
   "opened",
