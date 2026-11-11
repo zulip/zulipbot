@@ -96,7 +96,7 @@ export const pulls = {
         ["size: L", 100],
         ["size: XL", 200],
       ]),
-      exclude: ["frontend_tests/", "zerver/tests/"],
+      exclude: ["web/tests/", "zerver/tests/", "frontend_tests/"],
     },
   },
   references: {
