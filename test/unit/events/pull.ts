@@ -133,7 +133,7 @@ void test("pull: Size label reflects additions + deletions from payload", async 
       title: "Big refactor",
       user: { login: "octocat" },
       body: null,
-      // additions alone would map to "size: M" (>25); with deletions it's "size: L" (>50)
+      // additions alone would map to "size: S" (>10); with deletions it's "size: M" (>50)
       additions: 30,
       deletions: 40,
     },
@@ -148,7 +148,7 @@ void test("pull: Size label reflects additions + deletions from payload", async 
     .get("/repos/zulip/zulipbot/issues/70/labels")
     .reply(200, [])
     .put("/repos/zulip/zulipbot/issues/70/labels", {
-      labels: ["size: L"],
+      labels: ["size: M"],
     })
     .reply(200)
     .get("/repos/zulip/zulipbot/pulls/70/commits")
