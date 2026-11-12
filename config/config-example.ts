@@ -105,6 +105,11 @@ export const pulls = {
       exclude: ["in progress", "help wanted"],
     },
   },
+  moderation: {
+    screenshots: {
+      paths: ["web/styles/", "web/templates/", "templates/", "help/"],
+    },
+  },
 };
 
 export const activity = {
