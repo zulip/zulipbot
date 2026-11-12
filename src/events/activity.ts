@@ -1,4 +1,4 @@
-import type { components } from "@octokit/openapi-types";
+import type { RestEndpointMethodTypes } from "@octokit/rest";
 import { assertDefined } from "ts-extras";
 import type { Bot } from "../bot.ts";
 import Search from "../structures/reference-search.ts";
@@ -29,7 +29,9 @@ export const run = async function (bot: Bot) {
 
 async function scrapePulls(
   bot: Bot,
-  pulls: Array<components["schemas"]["pull-request-simple"]>,
+  pulls: Array<
+    RestEndpointMethodTypes["pulls"]["list"]["response"]["data"][number]
+  >,
   referenceList: Map<string, number>,
 ) {
   const ims = (bot.cfg.activity.check.reminder ?? 0) * 86_400_000;
@@ -78,7 +80,7 @@ async function scrapePulls(
 
 async function checkInactivePull(
   bot: Bot,
-  pull: components["schemas"]["pull-request-simple"],
+  pull: RestEndpointMethodTypes["pulls"]["list"]["response"]["data"][number],
 ) {
   const author = pull.user?.login;
   const repoName = pull.base.repo.name;

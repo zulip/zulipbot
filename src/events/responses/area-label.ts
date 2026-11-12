@@ -1,4 +1,5 @@
-import type { components } from "@octokit/openapi-types";
+import type { RestEndpointMethodTypes } from "@octokit/rest";
+import type { EmitterWebhookEvent } from "@octokit/webhooks/types";
 import { assertDefined } from "ts-extras";
 import type { Bot } from "../../bot.ts";
 
@@ -7,9 +8,16 @@ const referenced: string[] = [];
 export const run = async function (
   bot: Bot,
   issue:
-    components["schemas"]["issue"] | components["schemas"]["webhooks_issue"],
-  repo: components["schemas"]["repository-webhooks"],
-  label: components["schemas"]["webhooks_label"],
+    | RestEndpointMethodTypes["issues"]["get"]["response"]["data"]
+    | EmitterWebhookEvent<
+        "issues.labeled" | "issues.unlabeled"
+      >["payload"]["issue"],
+  repo: EmitterWebhookEvent<"issues" | "pull_request">["payload"]["repository"],
+  label: NonNullable<
+    EmitterWebhookEvent<
+      "issues.labeled" | "pull_request.labeled"
+    >["payload"]["label"]
+  >,
 ) {
   const areaLabel = label.name;
   const number = issue.number;

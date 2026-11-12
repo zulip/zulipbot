@@ -1,4 +1,4 @@
-import type { components } from "@octokit/openapi-webhooks-types";
+import type { EmitterWebhookEvent } from "@octokit/webhooks/types";
 import { assertDefined, assertPresent } from "ts-extras";
 import type { Bot } from "../../bot.ts";
 
@@ -6,8 +6,8 @@ const recentlyClosed = new Map();
 
 export const close = function (
   bot: Bot,
-  issue: components["schemas"]["webhook-issues-closed"]["issue"],
-  repo: components["schemas"]["repository-webhooks"],
+  issue: EmitterWebhookEvent<"issues.closed">["payload"]["issue"],
+  repo: EmitterWebhookEvent<"issues">["payload"]["repository"],
 ) {
   recentlyClosed.set(issue.id, issue);
 
@@ -21,15 +21,15 @@ export const close = function (
 
 export const reopen = function (
   _bot: Bot,
-  issue: components["schemas"]["webhook-issues-reopened"]["issue"],
+  issue: EmitterWebhookEvent<"issues.reopened">["payload"]["issue"],
 ) {
   if (recentlyClosed.has(issue.id)) recentlyClosed.delete(issue.id);
 };
 
 async function clearClosed(
   bot: Bot,
-  issue: components["schemas"]["webhook-issues-closed"]["issue"],
-  repo: components["schemas"]["repository-webhooks"],
+  issue: EmitterWebhookEvent<"issues.closed">["payload"]["issue"],
+  repo: EmitterWebhookEvent<"issues">["payload"]["repository"],
 ) {
   const repoOwner = repo.owner.login;
   const repoName = repo.name;
@@ -54,8 +54,9 @@ async function clearClosed(
 
 export const progress = async function (
   bot: Bot,
-  payload: components["schemas"][
-    "webhook-issues-assigned" | "webhook-issues-unassigned"],
+  payload: EmitterWebhookEvent<
+    "issues.assigned" | "issues.unassigned"
+  >["payload"],
 ) {
   assertPresent(payload.assignee);
   const action = payload.action;

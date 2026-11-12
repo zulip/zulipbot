@@ -1,4 +1,3 @@
-import type { components } from "@octokit/openapi-types";
 import type { EmitterWebhookEvent } from "@octokit/webhooks";
 import _ from "lodash";
 import { assertDefined, assertPresent } from "ts-extras";
@@ -102,7 +101,7 @@ function addSize(
 
 export const assign = async function (
   bot: Bot,
-  payload: components["schemas"]["webhook-pull-request-review-submitted"],
+  payload: EmitterWebhookEvent<"pull_request_review.submitted">["payload"],
 ) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
@@ -119,10 +118,8 @@ export const assign = async function (
 
 export const update = async function (
   bot: Bot,
-  pull:
-    | components["schemas"]["pull-request-simple"]
-    | components["schemas"]["webhook-pull-request-synchronize"]["pull_request"],
-  repo: components["schemas"]["repository"],
+  pull: EmitterWebhookEvent<"pull_request.synchronize">["payload"]["pull_request"],
+  repo: EmitterWebhookEvent<"pull_request">["payload"]["repository"],
 ) {
   const number = pull.number;
   const repoName = repo.name;

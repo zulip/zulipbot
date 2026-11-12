@@ -1,4 +1,3 @@
-import type { components } from "@octokit/openapi-types";
 import type { RestEndpointMethodTypes } from "@octokit/rest";
 import type { Bot } from "../bot.ts";
 
@@ -34,7 +33,9 @@ class Template {
     parameters: RestEndpointMethodTypes["issues"]["listComments"]["parameters"],
     legacyText?: string,
   ) {
-    const templateComments: Array<components["schemas"]["issue-comment"]> = [];
+    const templateComments: Array<
+      RestEndpointMethodTypes["issues"]["listComments"]["response"]["data"][number]
+    > = [];
 
     for await (const response of this.bot.octokit.paginate.iterator(
       this.bot.octokit.issues.listComments,

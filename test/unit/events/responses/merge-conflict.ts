@@ -1,12 +1,12 @@
 import { test } from "node:test";
-import type { components } from "@octokit/openapi-webhooks-types";
+import type { EmitterWebhookEvent } from "@octokit/webhooks/types";
 import nock from "nock";
 import { partialMock } from "partial-mock";
 import { assertDefined } from "ts-extras";
 import { bot } from "../../../../src/bot.ts";
 import * as mergeConflict from "../../../../src/events/responses/merge-conflict.ts";
 
-const repo: components["schemas"]["repository"] = partialMock({
+const repo: EmitterWebhookEvent<"push">["payload"]["repository"] = partialMock({
   name: "zulipbot",
   owner: { login: "zulip" },
 });

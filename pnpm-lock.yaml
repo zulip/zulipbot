@@ -195,12 +195,6 @@ importers:
         specifier: ^1.3.0
         version: 1.3.0
     devDependencies:
-      '@octokit/openapi-types':
-        specifier: ^27.0.0
-        version: 27.0.0
-      '@octokit/openapi-webhooks-types':
-        specifier: ^12.1.0
-        version: 12.1.0
       '@types/express':
         specifier: ^5.0.6
         version: 5.0.6

@@ -1,4 +1,5 @@
-import type { components } from "@octokit/openapi-types";
+import type { RestEndpointMethodTypes } from "@octokit/rest";
+import type { EmitterWebhookEvent } from "@octokit/webhooks/types";
 import { RequestError } from "@octokit/request-error";
 import _ from "lodash";
 import type { Bot } from "../bot.ts";
@@ -40,10 +41,11 @@ class ReferenceSearch {
   constructor(
     bot: Bot,
     pull:
-      | components["schemas"]["pull-request-simple"]
-      | components["schemas"]["webhook-pull-request-synchronize"]["pull_request"]
-      | components["schemas"]["pull-request-webhook"],
-    repo: components["schemas"]["repository"],
+      | RestEndpointMethodTypes["pulls"]["list"]["response"]["data"][number]
+      | EmitterWebhookEvent<"pull_request">["payload"]["pull_request"],
+    repo:
+      | RestEndpointMethodTypes["pulls"]["list"]["response"]["data"][number]["base"]["repo"]
+      | EmitterWebhookEvent<"pull_request">["payload"]["repository"],
   ) {
     this.bot = bot;
     this.number = pull.number;

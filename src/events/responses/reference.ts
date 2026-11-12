@@ -1,15 +1,14 @@
-import type { components } from "@octokit/openapi-webhooks-types";
+import type { EmitterWebhookEvent } from "@octokit/webhooks/types";
 import { assertDefined } from "ts-extras";
 import type { Bot } from "../../bot.ts";
 import Search from "../../structures/reference-search.ts";
 
 export const run = async function (
   bot: Bot,
-  pull:
-    | components["schemas"]["pull-request"]
-    | components["schemas"]["webhook-pull-request-synchronize"]["pull_request"]
-    | components["schemas"]["pull-request-webhook"],
-  repo: components["schemas"]["repository-webhooks"],
+  pull: EmitterWebhookEvent<
+    "pull_request.opened" | "pull_request.synchronize"
+  >["payload"]["pull_request"],
+  repo: EmitterWebhookEvent<"pull_request">["payload"]["repository"],
   isOpened: boolean,
 ) {
   const author = pull.user?.login;
@@ -60,7 +59,7 @@ async function labelReference(
   bot: Bot,
   referencedIssue: number,
   number: number,
-  repo: components["schemas"]["repository-webhooks"],
+  repo: EmitterWebhookEvent<"pull_request">["payload"]["repository"],
 ) {
   const repoName = repo.name;
   const repoOwner = repo.owner.login;

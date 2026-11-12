@@ -1,4 +1,4 @@
-import type { components } from "@octokit/openapi-webhooks-types";
+import type { EmitterWebhookEvent } from "@octokit/webhooks/types";
 import { assertDefined, assertPresent } from "ts-extras";
 import type { Bot } from "../../bot.ts";
 
@@ -7,9 +7,7 @@ let wasSweepRequested = false;
 
 export const run = async function (
   bot: Bot,
-  repo:
-    | components["schemas"]["repository"]
-    | components["schemas"]["webhook-push"]["repository"],
+  repo: EmitterWebhookEvent<"push">["payload"]["repository"],
 ) {
   if (isSweepInProgress) {
     wasSweepRequested = true;
@@ -44,9 +42,7 @@ export const run = async function (
 async function check(
   bot: Bot,
   number: number,
-  repo:
-    | components["schemas"]["repository"]
-    | components["schemas"]["webhook-push"]["repository"],
+  repo: EmitterWebhookEvent<"push">["payload"]["repository"],
 ) {
   const repoName = repo.name;
   assertPresent(repo.owner);
