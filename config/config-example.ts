@@ -91,12 +91,12 @@ export const pulls = {
     size: {
       labels: new Map([
         ["size: XS", 0],
-        ["size: S", 5],
-        ["size: M", 25],
-        ["size: L", 50],
-        ["size: XL", 100],
+        ["size: S", 10],
+        ["size: M", 50],
+        ["size: L", 100],
+        ["size: XL", 200],
       ]),
-      exclude: ["frontend_tests/", "zerver/tests/"],
+      exclude: ["web/tests/", "zerver/tests/", "frontend_tests/"],
     },
   },
   references: {

@@ -1,3 +1,4 @@
+import { RequestError } from "@octokit/request-error";
 import type { EmitterWebhookEvent } from "@octokit/webhooks";
 import _ from "lodash";
 import { assertDefined, assertPresent } from "ts-extras";
@@ -33,7 +34,13 @@ export const addLabels = async function (
   }
 
   if (sizeLabels && (action === "opened" || action === "synchronize")) {
-    labels = addSize(sizeLabels, labels, payload.pull_request);
+    labels = await addSize(
+      bot,
+      payload.repository,
+      sizeLabels,
+      labels,
+      payload.pull_request,
+    );
   }
 
   if (!_.isEqual(oldLabels.toSorted(), labels.toSorted())) {
@@ -77,16 +84,42 @@ function review(
   return labels;
 }
 
-function addSize(
+async function addSize(
+  bot: Bot,
+  repo: EmitterWebhookEvent<
+    "pull_request.opened" | "pull_request.synchronize"
+  >["payload"]["repository"],
   sizeLabels: Map<string, number>,
   labels: string[],
   pull: EmitterWebhookEvent<
     "pull_request.opened" | "pull_request.synchronize"
   >["payload"]["pull_request"],
 ) {
-  const pullLabels = labels.filter((label) => !sizeLabels.has(label));
-  const changes = (pull.additions ?? 0) + (pull.deletions ?? 0);
+  const smallestLabel = sizeLabels.keys().next().value;
+  assertDefined(smallestLabel);
 
+  let label = getSizeLabel(
+    sizeLabels,
+    (pull.additions ?? 0) + (pull.deletions ?? 0),
+  );
+
+  // Excluding files can only lower the count, so a pull request that is
+  // already in the smallest category does not need its file list.
+  const exclude = bot.cfg.pulls.status.size.exclude;
+  if (label !== smallestLabel && exclude.length > 0) {
+    const changes = await countChanges(bot, repo, pull, exclude);
+    // Keep the current size label rather than guess from partial data.
+    if (changes === null) return labels;
+    label = getSizeLabel(sizeLabels, changes);
+  }
+
+  const pullLabels = labels.filter((l) => !sizeLabels.has(l));
+  pullLabels.push(label);
+
+  return pullLabels;
+}
+
+function getSizeLabel(sizeLabels: Map<string, number>, changes: number) {
   let label = sizeLabels.keys().next().value;
   assertDefined(label);
 
@@ -94,9 +127,41 @@ function addSize(
     if (changes > size) label = name;
   }
 
-  pullLabels.push(label);
+  return label;
+}
 
-  return pullLabels;
+async function countChanges(
+  bot: Bot,
+  repo: EmitterWebhookEvent<
+    "pull_request.opened" | "pull_request.synchronize"
+  >["payload"]["repository"],
+  pull: EmitterWebhookEvent<
+    "pull_request.opened" | "pull_request.synchronize"
+  >["payload"]["pull_request"],
+  exclude: string[],
+): Promise<number | null> {
+  let files;
+  try {
+    files = await bot.octokit.paginate(bot.octokit.pulls.listFiles, {
+      owner: repo.owner.login,
+      repo: repo.name,
+      pull_number: pull.number,
+      per_page: 100,
+    });
+  } catch (error) {
+    if (error instanceof RequestError) return null;
+    throw error;
+  }
+
+  // GitHub lists at most 3000 files for a pull request.
+  if (files.length < (pull.changed_files ?? 0)) return null;
+
+  return _.sumBy(
+    files.filter((file) =>
+      exclude.every((prefix) => !file.filename.startsWith(prefix)),
+    ),
+    (file) => file.changes,
+  );
 }
 
 export const assign = async function (
