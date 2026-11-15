@@ -17,6 +17,7 @@ const payload: CommandPayload = partialMock({
   },
   issue: {
     number: 69,
+    state: "open",
     assignees: [{ login: "octocat" }],
     labels: [{ name: "bug" }],
     pull_request: undefined,
@@ -42,6 +43,7 @@ void test("claim: Reject if assignee limit is reached", async () => {
     repository: payload.repository,
     issue: {
       number: 69,
+      state: "open",
       assignees: [{ login: "octocat" }],
       labels: [{ name: "bug" }, { name: "help wanted" }],
       pull_request: undefined,
@@ -90,6 +92,7 @@ const payload2: CommandPayload = partialMock({
   repository: payload.repository,
   issue: {
     number: payload.issue.number,
+    state: "open",
     assignees: [],
     labels: payload.issue.labels,
     pull_request: payload.issue.pull_request,
@@ -165,6 +168,30 @@ void test("claim: Reject claim on pull request", async () => {
     .reply(200);
 
   await claim.run(bot, payload3, commenter, "");
+
+  scope.done();
+});
+
+void test("claim: Reject if the issue is closed", async () => {
+  const commenter = "octokitten";
+  const closedPayload: CommandPayload = partialMock({
+    repository: payload.repository,
+    issue: {
+      number: 69,
+      state: "closed",
+      assignees: [],
+      labels: [{ name: "help wanted" }],
+      pull_request: undefined,
+    },
+  });
+
+  const scope = nock("https://api.github.com")
+    .post("/repos/zulip/zulipbot/issues/69/comments", {
+      body: "**ERROR:** You can't claim an issue that is already closed.",
+    })
+    .reply(200);
+
+  await claim.run(bot, closedPayload, commenter, "");
 
   scope.done();
 });
