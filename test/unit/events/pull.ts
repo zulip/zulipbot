@@ -159,3 +159,62 @@ void test("pull: Size label reflects additions + deletions from payload", async 
 
   scope.done();
 });
+
+// An opened PR whose description and commit both fix #42.
+function fixing(
+  number: number,
+): EmitterWebhookEvent<"pull_request" | "pull_request_review">["payload"] {
+  return partialMock({
+    action: "opened",
+    pull_request: {
+      number,
+      title: "compose: Fix bug.",
+      user: { login: "octocat" },
+      body: "Fixes #42",
+      additions: 0,
+      deletions: 0,
+    },
+
+    repository: {
+      owner: { login: "zulip" },
+      name: "zulipbot",
+    },
+  });
+}
+
+// The requests for a PR that fixes #42, up to copying labels.
+function referencing(number: number) {
+  return nock("https://api.github.com")
+    .get(`/repos/zulip/zulipbot/issues/${number}/labels`)
+    .reply(200, [{ name: "size: XS" }])
+    .get("/repos/zulip/zulipbot/issues/42")
+    .times(2)
+    .reply(200, { pull_request: false, state: "open" })
+    .get(`/repos/zulip/zulipbot/pulls/${number}/commits`)
+    .reply(200, [{ commit: { message: "compose: Fix bug.\n\nFixes #42." } }])
+    .get(`/repos/zulip/zulipbot/issues/${number}/comments`)
+    .reply(200, []);
+}
+
+void test("pull: Copies labels from a referenced issue, except excluded ones", async () => {
+  const scope = referencing(73)
+    .get("/repos/zulip/zulipbot/issues/42/labels")
+    .reply(200, [{ name: "bug" }, { name: "help wanted" }])
+    .post("/repos/zulip/zulipbot/issues/73/labels", { labels: ["bug"] })
+    .reply(200);
+  await pull.run(bot, fixing(73));
+
+  scope.done();
+});
+
+void test("pull: Copies no labels when copying is off", async () => {
+  const { labels } = bot.cfg.pulls.references;
+  bot.cfg.pulls.references.labels = false;
+  try {
+    const scope = referencing(74);
+    await pull.run(bot, fixing(74));
+    scope.done();
+  } finally {
+    bot.cfg.pulls.references.labels = labels;
+  }
+});
