@@ -34,16 +34,19 @@ export const run = async function (
   }
 
   if (
-    !shouldCheckReferences ||
-    responses.pullState.isWip(bot, payload.pull_request.title)
+    shouldCheckReferences &&
+    !responses.pullState.isWip(bot, payload.pull_request.title)
   ) {
-    return;
+    if (action === "opened") {
+      await responses.reference.run(bot, payload.pull_request, repo, true);
+    } else if (action === "synchronize") {
+      await responses.reference.run(bot, payload.pull_request, repo, false);
+      await responses.pullState.update(bot, payload.pull_request, repo);
+    }
   }
 
-  if (action === "opened") {
-    await responses.reference.run(bot, payload.pull_request, repo, true);
-  } else if (action === "synchronize") {
-    await responses.reference.run(bot, payload.pull_request, repo, false);
-    await responses.pullState.update(bot, payload.pull_request, repo);
+  // Reviews do not change commits, descriptions, or files.
+  if (!("review" in payload)) {
+    await responses.moderation.run(bot, payload);
   }
 };
