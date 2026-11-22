@@ -87,7 +87,8 @@ export const pulls = {
       label: "has conflicts",
       comment: true,
     },
-    wip: "[WIP]",
+    // "wip" as a word anywhere, so "WIP:", "[wip]" and "[ai] [WIP]" all count
+    wip: /\bwip\b/iv,
     size: {
       labels: new Map([
         ["size: XS", 0],

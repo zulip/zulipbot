@@ -4,6 +4,10 @@ import { assertDefined, assertPresent } from "ts-extras";
 import type { Bot } from "../../bot.ts";
 import Search from "../../structures/reference-search.ts";
 
+export function isWip(bot: Bot, title: string) {
+  return bot.cfg.pulls.status.wip?.test(title) ?? false;
+}
+
 export const addLabels = async function (
   bot: Bot,
   payload: EmitterWebhookEvent<
