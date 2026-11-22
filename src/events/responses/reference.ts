@@ -48,7 +48,7 @@ export const run = async function (
     return;
   }
 
-  if (!isOpened || bot.cfg.pulls.references.labels !== false) return;
+  if (!isOpened || bot.cfg.pulls.references.labels === false) return;
 
   for (const issue of commitReferences) {
     await labelReference(bot, issue, number, repo);
