@@ -66,7 +66,8 @@ export const pulls = {
       label: safeCastTo<string | null>(null),
       comment: false,
     },
-    wip: safeCastTo<string | null>(null),
+    // Titles matching this are work in progress
+    wip: safeCastTo<RegExp | null>(null),
     size: {
       labels: safeCastTo<Map<string, number> | null>(null),
       exclude: new Array<string>(),

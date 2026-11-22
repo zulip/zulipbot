@@ -35,8 +35,7 @@ export const run = async function (
 
   if (
     !shouldCheckReferences ||
-    (bot.cfg.pulls.status.wip !== null &&
-      payload.pull_request.title.includes(bot.cfg.pulls.status.wip))
+    responses.pullState.isWip(bot, payload.pull_request.title)
   ) {
     return;
   }
