@@ -8,7 +8,6 @@ async function isLabeledForClaiming(
   bot: Bot,
   payload: CommandPayload,
   commenter: string,
-  args: string,
 ) {
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
@@ -21,54 +20,45 @@ async function isLabeledForClaiming(
   const isAbsent = warn.labels.every((label) => !labels.has(label));
   const shouldAlert = warn.presence ? isPresent : isAbsent;
 
-  if (
-    shouldAlert &&
-    (!warn.force || (warn.force && !args.includes("--force")))
-  ) {
-    const isOne = warn.labels.length === 1;
-    const type = warn.force ? "claimWarning" : "claimBlock";
-    const template = bot.templates.get(type);
-    assertDefined(template);
+  if (!shouldAlert) return true;
 
-    // Post the claimBlock warning at most once per issue.
-    if (type === "claimBlock") {
-      const warnings = await template.getComments(
-        { owner: repoOwner, repo: repoName, issue_number: number },
-        // Matches warnings posted before the template had a trailing marker.
-        "You have attempted to claim an issue without the label",
-      );
-      if (warnings.length > 0) return false;
-    }
+  const isOne = warn.labels.length === 1;
+  const template = bot.templates.get("claimBlock");
+  assertDefined(template);
 
-    assertDefined(bot.cfg.auth.username);
-    const comment = template.format({
-      username: bot.cfg.auth.username,
-      state: warn.presence ? "with" : "without",
-      labelGrammar: `label${isOne ? "" : "s"}`,
-      list: `"${warn.labels.join('", "')}"`,
-      commenter,
-      repoName,
-      repoOwner,
-    });
+  // Post the claimBlock warning at most once per issue.
+  const warnings = await template.getComments(
+    { owner: repoOwner, repo: repoName, issue_number: number },
+    // Matches warnings posted before the template had a trailing marker.
+    "You have attempted to claim an issue without the label",
+  );
+  if (warnings.length > 0) return false;
 
-    await bot.octokit.issues.createComment({
-      owner: repoOwner,
-      repo: repoName,
-      issue_number: number,
-      body: comment,
-    });
+  assertDefined(bot.cfg.auth.username);
+  const comment = template.format({
+    username: bot.cfg.auth.username,
+    state: warn.presence ? "with" : "without",
+    labelGrammar: `label${isOne ? "" : "s"}`,
+    list: `"${warn.labels.join('", "')}"`,
+    commenter,
+    repoName,
+    repoOwner,
+  });
 
-    return false;
-  }
+  await bot.octokit.issues.createComment({
+    owner: repoOwner,
+    repo: repoName,
+    issue_number: number,
+    body: comment,
+  });
 
-  return true;
+  return false;
 }
 
 export const run = async function (
   bot: Bot,
   payload: CommandPayload,
   commenter: string,
-  args: string,
 ): Promise<
   | RestEndpointMethodTypes["issues"]["createComment"]["response"]
   | RestEndpointMethodTypes["repos"]["addCollaborator"]["response"]
@@ -106,7 +96,7 @@ export const run = async function (
     });
   }
 
-  if (!(await isLabeledForClaiming(bot, payload, commenter, args))) {
+  if (!(await isLabeledForClaiming(bot, payload, commenter))) {
     return;
   }
 

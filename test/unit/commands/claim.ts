@@ -31,7 +31,7 @@ void test("claim: Reject if commenter is already an assignee", async () => {
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
     .reply(200);
 
-  await claim.run(bot, payload, commenter, "");
+  await claim.run(bot, payload, commenter);
 
   scope.done();
 });
@@ -57,7 +57,7 @@ void test("claim: Reject if assignee limit is reached", async () => {
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: commenter })
     .reply(200);
 
-  await claim.run(bot, helpWantedPayload, commenter, "");
+  await claim.run(bot, helpWantedPayload, commenter);
 
   scope.done();
 });
@@ -81,7 +81,7 @@ void test("claim: Check labels before the assignee limit", async () => {
     })
     .reply(200);
 
-  await claim.run(bot, payload, commenter, "");
+  await claim.run(bot, payload, commenter);
 
   scope.done();
 });
@@ -107,7 +107,7 @@ void test("claim: Throw error if collaborator check code isn't 404", async () =>
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
     .reply(200);
 
-  await claim.run(bot, payload2, commenter, "");
+  await claim.run(bot, payload2, commenter);
 
   scope.done();
 });
@@ -131,7 +131,7 @@ void test("claim: Rejects creation of duplicate invite", async () => {
     })
     .reply(200);
 
-  await claim.run(bot, payload2, commenter, "");
+  await claim.run(bot, payload2, commenter);
 
   scope.done();
 });
@@ -164,7 +164,7 @@ void test("claim: Reject claim on pull request", async () => {
     })
     .reply(200);
 
-  await claim.run(bot, payload3, commenter, "");
+  await claim.run(bot, payload3, commenter);
 
   scope.done();
 });
@@ -192,7 +192,7 @@ void test("claim: Blocks claim if labels are missing", async () => {
     })
     .reply(200);
 
-  await claim.run(bot, payload2, commenter, "");
+  await claim.run(bot, payload2, commenter);
 
   scope.done();
 });
@@ -207,7 +207,7 @@ void test("claim: Doesn't repeat the block warning on an issue", async () => {
       },
     ]);
 
-  await claim.run(bot, payload2, "octokitten", "");
+  await claim.run(bot, payload2, "octokitten");
 
   scope.done();
 });
@@ -222,37 +222,39 @@ void test("claim: Recognizes block warnings posted before the marker", async () 
       },
     ]);
 
-  await claim.run(bot, payload2, "octokitten", "");
+  await claim.run(bot, payload2, "octokitten");
 
   scope.done();
 });
 
-void test("claim: Warns if labels are present without force flag", async () => {
+void test("claim: Blocks claim if configured labels are present", async () => {
   const commenter = "octokitten";
   bot.cfg.issues.commands.assign.warn = {
     labels: ["bug"],
     presence: true,
-    force: true,
   };
 
-  const template = bot.templates.get("claimWarning");
+  const template = bot.templates.get("claimBlock");
   assertDefined(template);
-  template.content = "warn {state} {labelGrammar} {list} {username}";
-  bot.templates.set("claimWarning", template);
+  template.content = "{state} {labelGrammar} {list}";
+  bot.templates.set("claimBlock", template);
 
   const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulipbot/issues/69/comments")
+    .reply(200, [])
     .post("/repos/zulip/zulipbot/issues/69/comments", {
-      body: 'warn with label "bug" zulipbot',
+      body: 'with label "bug"',
     })
     .reply(200);
 
-  await claim.run(bot, payload2, commenter, "");
+  await claim.run(bot, payload2, commenter);
 
   scope.done();
 });
 
 void test("claim: Invite new contributor", async (t: TestContext) => {
   const commenter = "octokitten";
+  bot.cfg.issues.commands.assign.warn.presence = false;
 
   const template = bot.templates.get("contributorAddition");
   assertDefined(template);
@@ -271,7 +273,7 @@ void test("claim: Invite new contributor", async (t: TestContext) => {
     })
     .reply(200);
 
-  await claim.run(bot, payload2, commenter, "--force");
+  await claim.run(bot, payload2, commenter);
 
   t.assert.ok(bot.invites.has("octokitten@zulip/zulipbot"));
 
@@ -290,7 +292,7 @@ void test("claim: Throw error if permission is not specified", async () => {
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
     .reply(200);
 
-  await claim.run(bot, payload2, commenter, "--force");
+  await claim.run(bot, payload2, commenter);
 
   scope.done();
 });
@@ -310,7 +312,7 @@ void test("claim: Always assign if commenter has at least one commit", async () 
     })
     .reply(200, { assignees: ["octocat"] });
 
-  await claim.run(bot, payload2, commenter, "");
+  await claim.run(bot, payload2, commenter);
 
   scope.done();
 });
@@ -332,7 +334,7 @@ void test("claim: Error if no assignees were added", async () => {
     .post("/repos/zulip/zulipbot/issues/69/comments", { body: error })
     .reply(200);
 
-  await claim.run(bot, payload2, commenter, "");
+  await claim.run(bot, payload2, commenter);
 
   scope.done();
 });
@@ -353,7 +355,7 @@ void test("claim: Assign if claim limit validation passed", async () => {
     })
     .reply(200, { assignees: ["octocat"] });
 
-  await claim.run(bot, payload2, commenter, "");
+  await claim.run(bot, payload2, commenter);
 
   scope.done();
 });
@@ -379,7 +381,7 @@ void test("claim: Reject claim limit validation failed", async () => {
     })
     .reply(200);
 
-  await claim.run(bot, payload2, commenter, "");
+  await claim.run(bot, payload2, commenter);
 
   scope.done();
 });
@@ -404,7 +406,7 @@ void test("claim: Reject claim limit validation failed (limit over 1)", async ()
     })
     .reply(200);
 
-  await claim.run(bot, payload2, commenter, "");
+  await claim.run(bot, payload2, commenter);
 
   scope.done();
 });

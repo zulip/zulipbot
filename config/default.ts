@@ -37,7 +37,6 @@ export const issues = {
       warn: {
         labels: new Array<string>(),
         presence: false,
-        force: true,
       },
     },
     label: {

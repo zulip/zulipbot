@@ -17,7 +17,6 @@ export const issues = {
       },
       warn: {
         labels: ["help wanted"],
-        force: false,
       },
     },
     label: {
