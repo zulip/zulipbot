@@ -2,9 +2,48 @@ import { RequestError } from "@octokit/request-error";
 import type { RestEndpointMethodTypes } from "@octokit/rest";
 import { assertDefined } from "ts-extras";
 import type { Bot } from "../bot.ts";
+import { hideComment, isExempt } from "../structures/off-topic.ts";
 import type { CommandAliases, CommandPayload } from "./index.ts";
 
+/**
+ * Checks an issue's labels against `issues.commands.assign.warn`, e.g.
+ * whether it has the "help wanted" label.
+ */
+export function isOpenForClaiming(
+  bot: Bot,
+  issue: { labels?: Array<{ name: string }> },
+) {
+  assertDefined(issue.labels);
+  const labels = new Set(issue.labels.map((label) => label.name));
+  const warn = bot.cfg.issues.commands.assign.warn;
+  const isPresent = warn.labels.some((label) => labels.has(label));
+  const isAbsent = warn.labels.every((label) => !labels.has(label));
+  return !(warn.presence ? isPresent : isAbsent);
+}
+
 async function isLabeledForClaiming(
+  bot: Bot,
+  payload: CommandPayload,
+  commenter: string,
+) {
+  if (isOpenForClaiming(bot, payload.issue)) return true;
+
+  // Members of the exempt team get neither the warning nor a hidden comment.
+  const exempt = await isExempt(bot, payload.repository.owner.login, commenter);
+  if (exempt === true) return false;
+
+  await postClaimBlock(bot, payload, commenter);
+
+  // A claim in an issue body can't be hidden, and if membership couldn't be
+  // checked, the claim is left visible.
+  if (exempt === false && "comment" in payload) {
+    await hideComment(bot, payload.comment.node_id);
+  }
+
+  return false;
+}
+
+async function postClaimBlock(
   bot: Bot,
   payload: CommandPayload,
   commenter: string,
@@ -12,27 +51,20 @@ async function isLabeledForClaiming(
   const repoName = payload.repository.name;
   const repoOwner = payload.repository.owner.login;
   const number = payload.issue.number;
-
-  assertDefined(payload.issue.labels);
-  const labels = new Set(payload.issue.labels.map((label) => label.name));
   const warn = bot.cfg.issues.commands.assign.warn;
-  const isPresent = warn.labels.some((label) => labels.has(label));
-  const isAbsent = warn.labels.every((label) => !labels.has(label));
-  const shouldAlert = warn.presence ? isPresent : isAbsent;
-
-  if (!shouldAlert) return true;
 
   const isOne = warn.labels.length === 1;
   const template = bot.templates.get("claimBlock");
   assertDefined(template);
 
-  // Post the claimBlock warning at most once per issue.
+  // Post the claimBlock warning at most once per issue. A hidden warning
+  // still counts; a deleted one doesn't.
   const warnings = await template.getComments(
     { owner: repoOwner, repo: repoName, issue_number: number },
     // Matches warnings posted before the template had a trailing marker.
     "You have attempted to claim an issue without the label",
   );
-  if (warnings.length > 0) return false;
+  if (warnings.length > 0) return;
 
   assertDefined(bot.cfg.auth.username);
   const comment = template.format({
@@ -51,8 +83,6 @@ async function isLabeledForClaiming(
     issue_number: number,
     body: comment,
   });
-
-  return false;
 }
 
 export const run = async function (

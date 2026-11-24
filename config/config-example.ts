@@ -15,8 +15,14 @@ export const issues = {
         permission: "pull",
         restricted: 1,
       },
+      // On issues without "help wanted", claims are never assigned. The first
+      // claim gets the claimBlock warning, and claim comments are hidden as
+      // off-topic. This needs write access to issues (to hide comments) and
+      // the "Members: read" organization permission (to read exemptTeam's
+      // members).
       warn: {
         labels: ["help wanted"],
+        exemptTeam: "server-committers",
       },
     },
     label: {
