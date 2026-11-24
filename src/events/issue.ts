@@ -45,6 +45,7 @@ async function parse(bot: Bot, payload: CommandPayload) {
     String.raw`@${_.escapeRegExp(username)} +(\w+)((?: +(?:--\w+|"[^"]+"))*)`,
     "gv",
   );
+  let hasCommand = false;
   for (const [command, keyword, args] of body.matchAll(prefix)) {
     const codeBlocks = [`\`\`\`\r\n${command}\r\n\`\`\``, `\`${command}\``];
     if (codeBlocks.some((block) => body.includes(block))) continue;
@@ -52,8 +53,12 @@ async function parse(bot: Bot, payload: CommandPayload) {
     assertDefined(args);
     const file = bot.commands.get(keyword);
 
-    if (file) {
-      await file.run(bot, payload, commenter, args.trimStart());
-    }
+    if (!file) continue;
+
+    hasCommand = true;
+    await file.run(bot, payload, commenter, args.trimStart());
   }
+
+  // Commands, including claims, are moderated by the commands themselves.
+  if (!hasCommand) await responses.pullLink.run(bot, payload);
 }
