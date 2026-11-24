@@ -111,9 +111,27 @@ async function checkInactivePull(
   }
 }
 
+function isWarningPending(
+  warning: RestEndpointMethodTypes["issues"]["listComments"]["response"]["data"][number],
+  comments: Array<
+    RestEndpointMethodTypes["issues"]["listComments"]["response"]["data"][number]
+  >,
+  referenceTime: number | undefined,
+  lifetime: number,
+) {
+  const warned = Date.parse(warning.created_at);
+  const isExpired = warned + lifetime < Date.now();
+  const isAnswered =
+    comments.some((comment) => Date.parse(comment.created_at) > warned) ||
+    (referenceTime !== undefined && referenceTime > warned);
+
+  return !isExpired && !isAnswered;
+}
+
 async function scrapeInactiveIssues(bot: Bot, references: Map<string, number>) {
   const ms = (bot.cfg.activity.check.limit ?? 0) * 86_400_000;
   const ims = (bot.cfg.activity.check.reminder ?? 0) * 86_400_000;
+  const cycle = ms + ims;
 
   for await (const response of bot.octokit.paginate.iterator(
     bot.octokit.issues.list,
@@ -161,24 +179,26 @@ async function scrapeInactiveIssues(bot: Bot, references: Map<string, number>) {
       }
 
       const logins = issue.assignees.map((assignee) => assignee.login);
+      const assigneeList = logins.join(", @");
 
       const template = bot.templates.get("inactiveWarning");
       assertDefined(template);
 
-      const comment = template.format({
-        assignee: logins.join(", @"),
-        remind: bot.cfg.activity.check.reminder,
-        abandon: bot.cfg.activity.check.limit,
-        username: bot.cfg.auth.username,
-      });
+      const comments = await bot.octokit.paginate(
+        bot.octokit.issues.listComments,
+        {
+          owner: repoOwner,
+          repo: repoName,
+          issue_number: number,
+        },
+      );
 
-      const comments = await template.getComments({
-        owner: repoOwner,
-        repo: repoName,
-        issue_number: number,
-      });
+      const warning = comments.findLast((comment) => template.matches(comment));
 
-      if (comments[0] !== undefined) {
+      if (
+        warning !== undefined &&
+        isWarningPending(warning, comments, reference, cycle)
+      ) {
         await bot.octokit.issues.removeAssignees({
           owner: repoOwner,
           repo: repoName,
@@ -188,25 +208,28 @@ async function scrapeInactiveIssues(bot: Bot, references: Map<string, number>) {
 
         const abandonTemplate = bot.templates.get("abandonWarning");
         assertDefined(abandonTemplate);
-        const warning = abandonTemplate.format({
-          assignee: logins.join(", @"),
-          total: (ms + ims) / 86_400_000,
-          username: bot.cfg.auth.username,
-        });
 
-        const id = comments[0].id;
-        await bot.octokit.issues.updateComment({
+        await bot.octokit.issues.createComment({
           owner: repoOwner,
           repo: repoName,
-          comment_id: id,
-          body: warning,
+          issue_number: number,
+          body: abandonTemplate.format({
+            assignee: assigneeList,
+            total: cycle / 86_400_000,
+            username: bot.cfg.auth.username,
+          }),
         });
       } else if (time + ims <= Date.now()) {
         await bot.octokit.issues.createComment({
           owner: repoOwner,
           repo: repoName,
           issue_number: number,
-          body: comment,
+          body: template.format({
+            assignee: assigneeList,
+            remind: bot.cfg.activity.check.reminder,
+            abandon: bot.cfg.activity.check.limit,
+            username: bot.cfg.auth.username,
+          }),
         });
       }
     }

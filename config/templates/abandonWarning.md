@@ -1,1 +1,1 @@
-@{assignee} You have been unassigned from this issue because you have not made any updates for over {total} days. Please feel free to reclaim the issue if you decide to pick up again. Thanks!
+@{assignee} You have been unassigned from this issue because you have not made any updates for over {total} days. To pick it up again, comment on this issue with the command `@{username} claim`. Thanks!
