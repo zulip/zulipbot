@@ -106,6 +106,16 @@ export const run = async function (
     });
   }
 
+  if (payload.issue.state === "closed") {
+    const error = "**ERROR:** You can't claim an issue that is already closed.";
+    return bot.octokit.issues.createComment({
+      owner: repoOwner,
+      repo: repoName,
+      issue_number: number,
+      body: error,
+    });
+  }
+
   if (!(await isLabeledForClaiming(bot, payload, commenter, args))) {
     return;
   }
