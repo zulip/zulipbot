@@ -37,7 +37,11 @@ export const issues = {
       warn: {
         labels: new Array<string>(),
         presence: false,
-        force: true,
+        // Slug of a team in the repository owner's organization whose
+        // members are exempt from the claim moderation on issues that aren't
+        // open for claiming: their claims get no warning, and neither their
+        // claims nor their links to their own pull requests are hidden.
+        exemptTeam: safeCastTo<string | null>(null),
       },
     },
     label: {
