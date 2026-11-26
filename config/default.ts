@@ -84,6 +84,8 @@ export const pulls = {
   // ZulipBot 2.0 checks for ready pull requests from new contributors
   moderation: {
     enabled: false,
+    // Log proposed ZulipBot 2.0 moderation actions as JSON lines without writing to GitHub
+    dryRun: false,
     // Changes under these path prefixes need screenshots
     screenshots: {
       paths: new Array<string>(),

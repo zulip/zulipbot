@@ -37,6 +37,51 @@ from the Zulip project configuration), please visit the
 [Commands](https://github.com/zulip/zulipbot/wiki/Commands) page on the
 **zulipbot wiki**.
 
+## ZulipBot 2.0 Moderation Dry-Run
+
+To validate ZulipBot 2.0 moderation checks against live events before posting
+feedback on GitHub, enable moderation in dry-run mode in `config/config.ts`:
+
+```ts
+export const pulls = {
+  moderation: {
+    enabled: true,
+    dryRun: true,
+  },
+};
+```
+
+### Scope
+
+Dry-run mode applies **only** to ZulipBot 2.0 moderation actions (PR checks,
+the `needs work` label, and claim-comment hiding). Existing ZulipBot 1.0
+behavior (commit reference checks, merge conflict warnings, PR size labels,
+and issue triage commands) is unchanged.
+
+### Reviewing Results Before Rollout
+
+In dry-run mode, zulipbot evaluates the same rules and renders the same
+messages as live mode, but suppresses GitHub write calls and writes one JSON
+object per line to its standard log output with `"type": "moderation_dry_run"`:
+
+```json
+{
+  "type": "moderation_dry_run",
+  "timestamp": "2026-01-01T00:00:00.000Z",
+  "repository": "zulip/zulip",
+  "target": { "kind": "pull_request", "number": 123 },
+  "findings": [{ "check": "screenshots", "message": "..." }],
+  "comment": { "action": "create", "body": "..." }
+}
+```
+
+Maintainers can filter and review proposed actions for false positives before
+setting `dryRun: false`:
+
+```bash
+grep '"type":"moderation_dry_run"' zulipbot.log | jq '{repository, target, checks: [.findings[]?.check], comment: .comment.action, labels, assignees}'
+```
+
 ## Contributing
 
 If you wish to contribute to **zulipbot**, please read our [contributing

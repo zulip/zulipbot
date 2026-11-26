@@ -446,3 +446,99 @@ void test("moderation: Events arriving together post one comment", async () => {
   });
   scope.done();
 });
+
+async function withDryRun(callback: () => Promise<void>) {
+  const wasDryRun = bot.cfg.pulls.moderation.dryRun;
+  bot.cfg.pulls.moderation.dryRun = true;
+  try {
+    await callback();
+  } finally {
+    bot.cfg.pulls.moderation.dryRun = wasDryRun;
+  }
+}
+
+void test("moderation: Dry-run logs proposed comment creation without writing", async (t: TestContext) => {
+  bot.cfg.pulls.moderation.enabled = true;
+  bot.cfg.auth.username = "zulipbot";
+  const lines: string[] = [];
+  t.mock.method(console, "log", (line: string) => {
+    lines.push(line);
+  });
+
+  const fetched = latest();
+  const scope = authorCommits([]).get(comments).reply(200, []);
+
+  await withDryRun(async () =>
+    withChecks([fakeCheck("First.", "Second.")], async () =>
+      moderation.run(bot, opened()),
+    ),
+  );
+
+  fetched.done();
+  scope.done();
+  t.assert.strictEqual(lines.length, 1);
+  const record = JSON.parse(lines[0] ?? "") as Record<string, unknown>;
+  t.assert.strictEqual(record["type"], "moderation_dry_run");
+  t.assert.strictEqual(record["repository"], "zulip/zulipbot");
+  t.assert.deepStrictEqual(record["target"], {
+    kind: "pull_request",
+    number: 12,
+  });
+  t.assert.deepStrictEqual(record["findings"], [
+    { check: "test", message: "First." },
+    { check: "test", message: "Second." },
+  ]);
+  t.assert.deepStrictEqual(record["comment"], {
+    action: "create",
+    body: report("- First.\n- Second."),
+  });
+});
+
+void test("moderation: Dry-run logs proposed comment edits without writing", async (t: TestContext) => {
+  bot.cfg.pulls.moderation.enabled = true;
+  bot.cfg.auth.username = "zulipbot";
+  const lines: string[] = [];
+  t.mock.method(console, "log", (line: string) => {
+    lines.push(line);
+  });
+
+  const fetched = latest();
+  const scope = authorCommits([])
+    .get(comments)
+    .reply(200, posted(report("- Old.")));
+
+  await withDryRun(async () =>
+    withChecks([fakeCheck()], async () => moderation.run(bot, opened())),
+  );
+
+  fetched.done();
+  scope.done();
+  t.assert.strictEqual(lines.length, 1);
+  const record = JSON.parse(lines[0] ?? "") as Record<string, unknown>;
+  t.assert.deepStrictEqual(record["findings"], []);
+  t.assert.deepStrictEqual(record["comment"], {
+    action: "update",
+    commentId: 7,
+    body: passing,
+  });
+});
+
+void test("moderation: Dry-run logs nothing when no comment change is needed", async (t: TestContext) => {
+  bot.cfg.pulls.moderation.enabled = true;
+  bot.cfg.auth.username = "zulipbot";
+  const lines: string[] = [];
+  t.mock.method(console, "log", (line: string) => {
+    lines.push(line);
+  });
+
+  const fetched = latest();
+  const scope = authorCommits([]).get(comments).reply(200, []);
+
+  await withDryRun(async () =>
+    withChecks([fakeCheck()], async () => moderation.run(bot, opened())),
+  );
+
+  fetched.done();
+  scope.done();
+  t.assert.deepStrictEqual(lines, []);
+});
