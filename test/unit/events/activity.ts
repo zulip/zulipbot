@@ -138,6 +138,112 @@ void test("activity: Unassigns and upgrades warning when prior inactive comment 
   scope.done();
 });
 
+void test("activity: Resets inactivity cycle when activity occurs after warning", async () => {
+  bot.cfg.activity.check.repositories = ["zulip/zulip"];
+  bot.cfg.activity.check.limit = 4;
+  bot.cfg.activity.check.reminder = 10;
+  bot.cfg.activity.issues.inProgress = "in progress";
+  bot.cfg.activity.inactive = "inactive";
+  bot.cfg.auth.username = "zulipbot";
+
+  const inactiveTemplate = bot.templates.get("inactiveWarning");
+  assertDefined(inactiveTemplate);
+
+  const now = Date.now();
+  const updatedAfterWarning = new Date(now - 5 * 86_400_000).toISOString();
+  const warningCreatedAt = new Date(now - 7 * 86_400_000).toISOString();
+
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulip/pulls")
+    .reply(200, [])
+    .get("/issues?filter=all&labels=in%20progress")
+    .reply(200, [
+      {
+        number: 21,
+        updated_at: updatedAfterWarning,
+        labels: [{ name: "in progress" }],
+        assignees: [{ login: "alice" }],
+        repository: {
+          name: "zulip",
+          owner: { login: "zulip" },
+          full_name: "zulip/zulip",
+        },
+      },
+    ])
+    .get("/repos/zulip/zulip/issues/21/comments")
+    .reply(200, [
+      {
+        id: 556,
+        created_at: warningCreatedAt,
+        user: { login: "zulipbot" },
+        body: `prior warning\n<!-- ${inactiveTemplate.name} -->`,
+      },
+    ])
+    .delete("/repos/zulip/zulip/issues/comments/556")
+    .reply(204);
+
+  await activity.run(bot);
+
+  scope.done();
+});
+
+void test("activity: Unassigns when no activity occurs after warning", async () => {
+  bot.cfg.activity.check.repositories = ["zulip/zulip"];
+  bot.cfg.activity.check.limit = 4;
+  bot.cfg.activity.check.reminder = 10;
+  bot.cfg.activity.issues.inProgress = "in progress";
+  bot.cfg.activity.inactive = "inactive";
+  bot.cfg.auth.username = "zulipbot";
+
+  const inactiveTemplate = bot.templates.get("inactiveWarning");
+  assertDefined(inactiveTemplate);
+  const abandonTemplate = bot.templates.get("abandonWarning");
+  assertDefined(abandonTemplate);
+  abandonTemplate.content = "abandoned {assignee} {total} {username}";
+  bot.templates.set("abandonWarning", abandonTemplate);
+
+  const now = Date.now();
+  const staleTime = new Date(now - 20 * 86_400_000).toISOString();
+  const warningCreatedAt = new Date(now - 5 * 86_400_000).toISOString();
+
+  const scope = nock("https://api.github.com")
+    .get("/repos/zulip/zulip/pulls")
+    .reply(200, [])
+    .get("/issues?filter=all&labels=in%20progress")
+    .reply(200, [
+      {
+        number: 22,
+        updated_at: staleTime,
+        labels: [{ name: "in progress" }],
+        assignees: [{ login: "alice" }],
+        repository: {
+          name: "zulip",
+          owner: { login: "zulip" },
+          full_name: "zulip/zulip",
+        },
+      },
+    ])
+    .get("/repos/zulip/zulip/issues/22/comments")
+    .reply(200, [
+      {
+        id: 557,
+        created_at: warningCreatedAt,
+        user: { login: "zulipbot" },
+        body: `prior warning\n<!-- ${inactiveTemplate.name} -->`,
+      },
+    ])
+    .delete("/repos/zulip/zulip/issues/22/assignees", { assignees: ["alice"] })
+    .reply(200)
+    .patch("/repos/zulip/zulip/issues/comments/557", {
+      body: "abandoned alice 14 zulipbot",
+    })
+    .reply(200);
+
+  await activity.run(bot);
+
+  scope.done();
+});
+
 void test("activity: Skips issues whose PRs are under review", async () => {
   bot.cfg.activity.check.repositories = ["zulip/zulip"];
   bot.cfg.activity.check.limit = 4;
