@@ -179,6 +179,21 @@ async function scrapeInactiveIssues(bot: Bot, references: Map<string, number>) {
       });
 
       if (comments[0] !== undefined) {
+        const warningCreatedAt = Date.parse(comments[0].created_at);
+        const warningGraceMs = 60_000;
+
+        if (
+          !Number.isNaN(warningCreatedAt) &&
+          time > warningCreatedAt + warningGraceMs
+        ) {
+          await bot.octokit.issues.deleteComment({
+            owner: repoOwner,
+            repo: repoName,
+            comment_id: comments[0].id,
+          });
+          continue;
+        }
+
         await bot.octokit.issues.removeAssignees({
           owner: repoOwner,
           repo: repoName,
