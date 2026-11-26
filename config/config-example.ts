@@ -107,6 +107,9 @@ export const pulls = {
     },
   },
   moderation: {
+    // Log proposed ZulipBot 2.0 moderation actions without writing to GitHub.
+    // Applies only to 2.0 moderation actions; existing 1.0 behavior is unchanged.
+    dryRun: false,
     screenshots: {
       paths: ["web/styles/", "web/templates/", "templates/", "help/"],
     },

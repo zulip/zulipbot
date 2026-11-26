@@ -2,6 +2,7 @@ import type { RestEndpointMethodTypes } from "@octokit/rest";
 import type { EmitterWebhookEvent } from "@octokit/webhooks/types";
 import { assertDefined } from "ts-extras";
 import type { Bot } from "../../bot.ts";
+import { isDryRun, recordDryRun } from "./moderation/dry-run.ts";
 import { screenshots } from "./moderation/screenshots.ts";
 import { isWip } from "./pull-state.ts";
 
@@ -170,6 +171,16 @@ async function publish(
 
   if (comment === undefined) {
     if (findings.length === 0) return;
+    if (isDryRun(bot)) {
+      recordDryRun({
+        repository: repo.full_name,
+        target: { kind: "pull_request", number: pull.number },
+        findings,
+        comment: { action: "create", body },
+      });
+      return;
+    }
+
     await bot.octokit.issues.createComment({
       owner: repo.owner.login,
       repo: repo.name,
@@ -177,6 +188,16 @@ async function publish(
       body,
     });
   } else if (comment.body?.trimEnd() !== body.trimEnd()) {
+    if (isDryRun(bot)) {
+      recordDryRun({
+        repository: repo.full_name,
+        target: { kind: "pull_request", number: pull.number },
+        findings,
+        comment: { action: "update", commentId: comment.id, body },
+      });
+      return;
+    }
+
     await bot.octokit.issues.updateComment({
       owner: repo.owner.login,
       repo: repo.name,
